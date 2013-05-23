@@ -71,7 +71,7 @@ public class TradeClient {
 		TradesSoldGetRequest req = new TradesSoldGetRequest();
 		req.setFields("tid");
 		//查询代付款的订单
-		req.setStatus("WAIT_SELLER_SEND_GOODS,TRADE_CLOSED");
+		req.setStatus("SELLER_CONSIGNED_PART,WAIT_BUYER_CONFIRM_GOODS,TRADE_FINISHED,WAIT_SELLER_SEND_GOODS,TRADE_CLOSED");
 		//一口价
 		req.setType("fixed");
 		

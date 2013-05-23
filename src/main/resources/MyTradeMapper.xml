@@ -94,6 +94,19 @@
 		update trade set seller_memo=#{memo} where tid=#{tradeId}
 	</update>
 	
+	<update id="updateTrade" parameterType="MyTrade">
+		update trade set name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
+			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money},
+			 goods_count=#{goods_count}, payment=#{payment}, fenxiaoshang_id=#{fenxiaoshang_id}, status=#{status}, 
+			 seller_memo=#{seller_memo}, buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, come_from=#{come_from} where tid=#{tid}
+	</update>
+	
+	<update id="updateOrder" parameterType="MyOrder">
+		update order set oid=#{oid}, tid=#{tid}, goods_id=#{goods_id}, sku_id=#{sku_id}, quantity=#{quantity}, 
+			price=#{price}, discount=#{discount}, weight=#{weight}, payment=#{payment}, logistics_company=#{logistics_company}, 
+			invoice_no=#{invoice_no}, status=#{status}
+	</update>
+	
 	<update id="updateLogisticsAddress" parameterType="java.util.HashMap">
 		update trade set state=#{state}, city=#{city}, district=#{district}, address=#{address}, mobile=#{mobile}, phone=#{phone},
 			postcode=#{zip}, name=#{name}, tid=#{tid}

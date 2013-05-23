@@ -1,6 +1,5 @@
 package cn.halen.service;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,6 @@ import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.util.MoneyUtils;
 
-import com.taobao.api.ApiException;
 import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Trade;
 
@@ -48,6 +46,20 @@ public class TradeService {
 	}
 	
 	@Transactional
+	public void updateOrderAndSku(MyOrder myOrder, MySku mySku) {
+		myTradeMapper.updateMyOrder(myOrder);
+		mySkuMapper.update(mySku);
+	}
+	
+	public void updateOrder(MyOrder myOrder) {
+		myTradeMapper.updateMyOrder(myOrder);
+	}
+	
+	public void updateTrade(MyTrade myTrade) {
+		myTradeMapper.updateMyTrade(myTrade);
+	}
+	
+	@Transactional
 	public void insertMyTrade(MyTrade myTrade) {
 		try{
 			myTradeMapper.insert(myTrade);
@@ -61,9 +73,11 @@ public class TradeService {
 				mySku.setColor(color);
 				mySku.setSize(size);
 				mySku = mySkuMapper.select(mySku);
-				//更新库存
-				mySku.setQuantity(mySku.getQuantity()-order.getQuantity());//
-				mySkuMapper.update(mySku);
+				if(order.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
+					//更新库存
+					mySku.setQuantity(mySku.getQuantity()-order.getQuantity());//
+					mySkuMapper.update(mySku);
+				}
 				order.setSku_id(mySku.getId());
 				myTradeMapper.insertMyOrder(order);
 			}

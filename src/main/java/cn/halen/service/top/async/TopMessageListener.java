@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.halen.service.WorkerService;
 import cn.halen.service.top.domain.NotifyTopats;
+import cn.halen.service.top.domain.NotifyTradeStatus;
 import cn.halen.service.top.util.MessageDecode;
 
 import com.taobao.api.domain.NotifyRefund;
@@ -37,8 +38,12 @@ public class TopMessageListener implements TopCometMessageListener {
 			} else if (obj instanceof NotifyTrade) { // 交易消息
 				NotifyTrade nt = (NotifyTrade) obj;
 				//只关心已付款的订单
-				if(nt.getStatus().equals("TradeBuyerPay") || nt.getStatus().equals("TradeMemoModified")
-						|| nt.getStatus().equals("TradeLogisticsAddressChanged") || nt.getStatus().equals("TradePartlyRefund")) {
+				if(nt.getStatus().equals(NotifyTradeStatus.TradeBuyerPay.getValue()) 
+						|| nt.getStatus().equals(NotifyTradeStatus.TradeMemoModified.getValue())
+						|| nt.getStatus().equals(NotifyTradeStatus.TradeLogisticsAddressChanged.getValue()) 
+						|| nt.getStatus().equals(NotifyTradeStatus.TradePartlyRefund.getValue())
+						|| nt.getStatus().equals(NotifyTradeStatus.TradeSellerShip.getValue()) 
+						|| nt.getStatus().equals(NotifyTradeStatus.TradeSuccess.getValue())) {
 					workerService.addJob(nt);
 				}
 			} else if(obj instanceof NotifyRefund) {

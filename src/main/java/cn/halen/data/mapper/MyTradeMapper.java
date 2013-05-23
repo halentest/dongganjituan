@@ -49,6 +49,16 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
+	public int updateMyTrade(MyTrade trade) {
+		int count = getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateTrade", trade);
+		return count;
+	}
+	
+	public int updateMyOrder(MyOrder order) {
+		int count = getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateOrder", order);
+		return count;
+	}
+	
 	public int updateLogisticsAddress(String state, String city, String district, String address, String mobile, String phone,
 			String zip, String name, long tradeId) {
 		Map<String, Object> param = new HashMap<String, Object>();

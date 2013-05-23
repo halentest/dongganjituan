@@ -1,7 +1,6 @@
 package cn.halen.service.top;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +22,7 @@ import cn.halen.service.TradeService;
 import cn.halen.service.WorkerService;
 import cn.halen.service.top.async.ConnectionLifeCycleListenerImpl;
 import cn.halen.service.top.async.TopMessageListener;
+import cn.halen.service.top.domain.Status;
 
 import com.taobao.api.ApiException;
 import com.taobao.api.AutoRetryTaobaoClient;
@@ -77,31 +77,24 @@ public class TopListenerStarter implements InitializingBean {
 		stream.start();
 	}
 	
-	public void initSoldTrades() throws ParseException, ApiException {
+	public void initTrades() throws ParseException, ApiException {
 		List<Trade> tradeList = tradeClient.queryTradeList();
 		for(Trade trade : tradeList) {
-			//检查trade状态
-			if(trade.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
-				handlerSold(trade);
-			} else if(trade.getStatus().equals("TRADE_CLOSED")) {
-				handlerClosed(trade);
+			//检查trade是否存在，如果不存在，直接插入
+			Long tid = tradeService.selectByTradeId(trade.getTid());
+			Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getSession());
+			MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
+			if(null == tid) {
+				if(trade.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue())) {
+					tradeService.insertMyTrade(myTrade);
+				}
+			} else {
+				handleExisting(myTrade);
 			}
 		}
 	}
 	
-	private void handlerClosed(Trade trade) {
-		
-	}
-	
-	private void handlerSold(Trade trade) throws ApiException {
-		//检查trade是否存在，如果不存在，直接插入
-		Long tid = tradeService.selectByTradeId(trade.getTid());
-		Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getSession());
-		MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
-		if(null==tid) {
-			tradeService.insertMyTrade(myTrade);
-			return;
-		}
+	private void handleExisting(MyTrade myTrade) throws ApiException {
 		
 		List<MyOrder> myOrderList = myTrade.getMyOrderList();
 		Map<Long, MyOrder> map = new HashMap<Long, MyOrder>();
@@ -109,24 +102,42 @@ public class TopListenerStarter implements InitializingBean {
 			map.put(myOrder.getOid(), myOrder);
 		}
 		//查询MyTrade detail，然后检查Order
-		MyTrade dbMyTrade = tradeService.selectTradeDetail(tid);
+		MyTrade dbMyTrade = tradeService.selectTradeDetail(myTrade.getTid());
 		List<MyOrder> dbMyOrderList = dbMyTrade.getMyOrderList();
 		
-		List<MySku> skuList = new ArrayList<MySku>();//需要更新的sku
 		for(MyOrder dbMyOrder : dbMyOrderList) {
 			MyOrder myOrder = map.get(dbMyOrder.getOid());
-				//如果这个order已经退款了，那么可能需要修改sku
-			if(myOrder.getStatus().equals("TRADE_CLOSED") && dbMyOrder.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
-				MySku mySku = mySkuMapper.select(dbMyOrder.getSku_id());
-				skuList.add(mySku);
-				mySku.setQuantity(mySku.getQuantity() + myOrder.getQuantity());
-				dbMyOrder.setStatus("TRADE_CLOSED");
+			if(!myOrder.getStatus().equals(dbMyOrder.getStatus())) {
+				//判断db order状态是否为已付款或者已发货，如果是则可能需要退货进仓
+				if((dbMyOrder.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue()) || dbMyOrder.getStatus().equals(Status.WAIT_BUYER_CONFIRM_GOODS.getValue()))
+						&& myOrder.getStatus().equals(Status.TRADE_CLOSED.getValue())) {
+					//退货进仓
+					MySku mySku = mySkuMapper.select(dbMyOrder.getSku_id());
+					mySku.setQuantity(mySku.getQuantity() + myOrder.getQuantity());
+					dbMyOrder.setStatus(Status.TRADE_CLOSED.getValue());
+					tradeService.updateOrderAndSku(dbMyOrder, mySku);
+				} else {
+					dbMyOrder.setStatus(myOrder.getStatus());
+					dbMyOrder.setLogistics_company(myOrder.getLogistics_company());
+					dbMyOrder.setInvoice_no(myOrder.getInvoice_no());
+					tradeService.updateOrder(dbMyOrder);
+				}
 			}
 		}
-		
-		if(skuList.size()>0 || !dbMyTrade.equals(myTrade)) {
-			tradeService.updateTradeAndSkuList(dbMyTrade, skuList);
+		//更新Trade, 只更新可能变化的字段
+		if(!myTrade.equals(dbMyTrade)) {
+			dbMyTrade.setName(myTrade.getName());
+			dbMyTrade.setPhone(myTrade.getPhone());
+			dbMyTrade.setMobile(myTrade.getMobile());
+			dbMyTrade.setState(myTrade.getState());
+			dbMyTrade.setCity(myTrade.getCity());
+			dbMyTrade.setDistrict(myTrade.getDistrict());
+			dbMyTrade.setAddress(myTrade.getAddress());
+			dbMyTrade.setPayment(myTrade.getPayment());
+			dbMyTrade.setStatus(myTrade.getStatus());
+			dbMyTrade.setSeller_memo(myTrade.getSeller_memo());
 		}
+		tradeService.updateTrade(dbMyTrade);
 	}
 	
 	private void permitUser(TaobaoClient client, String sessionKey) throws ApiException {
@@ -139,6 +150,6 @@ public class TopListenerStarter implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		start();
-		initSoldTrades();
+		initTrades();
 	}
 }
