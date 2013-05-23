@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.halen.data.mapper.SkuMapper">
+	<sql id="insertColumns">tao_id, goods_id, color, size, price, quantity, modified, created</sql>
+	
+	<insert id="insert" parameterType="MySku" >
+	  	insert into sku(<include refid="insertColumns"/>) values(#{tao_id}, #{goods_id}, #{color}, #{size}, #{price}, #{quantity}, now(), now())
+	</insert>
+	
+	<update id="update" parameterType="MySku">
+		update sku set tao_id=#{tao_id}, color=#{color}, size=#{size}, price=#{price}, quantity=#{quantity} where id=#{id}
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		delete from sku where id=#{id}
+	</delete>
+	
+	<select id="select" parameterType="MySku" resultType="MySku">
+		select * from sku where goods_id=#{goods_id} and color=#{color} and size=#{size}
+	</select>
+	
+	<select id="selectBySkuId" parameterType="long" resultType="MySku">
+		select * from sku where id=#{skuId}
+	</select>
+</mapper>

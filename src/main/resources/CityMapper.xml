@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.halen.data.mapper.CityMapper">
+	
+	<resultMap id="cityMap" type="City">
+		<id property="id" column="city_id"/>
+		<result property="name" column="city_name"/>
+		<association property="province" javaType="Province">
+			<id property="id" column="province_id"/>
+			<result property="name" column="province_name"/>
+	  	</association>
+	</resultMap>
+	
+	<select id="listCity" resultMap="cityMap">
+		select * from city c join province p on c.pid = p.id 
+	</select>
+</mapper>

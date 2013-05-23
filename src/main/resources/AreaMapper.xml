@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.halen.data.mapper.AreaMapper">
+	
+	<sql id="insertColumns">id, name, parent_id, type, created</sql>
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into area (<include refid="insertColumns"/>) values
+		<foreach collection="list" item="area" index="index"  
+            separator=",">  
+            (#{area.id}, #{area.name}, #{area.parentId}, #{area.type}, now())
+        </foreach> 
+	</insert>
+	
+	<select id="list" resultType="Area">
+		select * from area 
+	</select>
+</mapper>

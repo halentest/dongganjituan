@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+  
+<!DOCTYPE configuration PUBLIC   
+    "-//mybatis.org//DTD Config 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">  
+  
+<configuration>  
+	<settings>
+	  <setting name="cacheEnabled" value="true"/>
+	  <setting name="lazyLoadingEnabled" value="true"/>
+	  <setting name="multipleResultSetsEnabled" value="true"/>
+	  <setting name="useColumnLabel" value="true"/>
+	  <setting name="useGeneratedKeys" value="false"/>
+	  <setting name="autoMappingBehavior" value="PARTIAL"/>
+	  <setting name="defaultExecutorType" value="SIMPLE"/>
+	  <setting name="defaultStatementTimeout" value="25"/>
+	  <setting name="safeRowBoundsEnabled" value="false"/>
+	  <setting name="mapUnderscoreToCamelCase" value="false"/>
+	  <setting name="localCacheScope" value="SESSION"/>
+	  <setting name="jdbcTypeForNull" value="OTHER"/>
+	  <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+	</settings> 
+    <typeAliases>  
+        <typeAlias alias="City" type="cn.halen.data.pojo.City" />  
+        <typeAlias alias="Province" type="cn.halen.data.pojo.Province" />  
+        <typeAlias alias="Goods" type="cn.halen.data.pojo.Goods" />  
+        <typeAlias alias="MySku" type="cn.halen.data.pojo.MySku" />  
+        <typeAlias alias="MyOrder" type="cn.halen.data.pojo.MyOrder" />  
+        <typeAlias alias="MyTrade" type="cn.halen.data.pojo.MyTrade" />  
+        <typeAlias alias="Template" type="cn.halen.data.pojo.Template" />  
+        <typeAlias alias="Delivery" type="cn.halen.data.pojo.Delivery" />  
+        <typeAlias alias="User" type="cn.halen.data.pojo.User" />  
+        <typeAlias alias="FenXiaoShang" type="cn.halen.data.pojo.FenXiaoShang" />  
+        <typeAlias alias="ItemProp" type="com.taobao.api.domain.ItemProp" />
+        <typeAlias alias="PropValue" type="com.taobao.api.domain.PropValue" />
+        <typeAlias alias="MyRefund" type="cn.halen.data.pojo.MyRefund" />
+        <typeAlias alias="Area" type="com.taobao.api.domain.Area" />
+    </typeAliases>  
+      
+    <mappers>  
+        <mapper resource="CityMapper.xml" />  
+        <mapper resource="GoodsMapper.xml" /> 
+		<mapper resource="MySkuMapper.xml" />  
+		<mapper resource="MyTradeMapper.xml" />  
+		<mapper resource="AreaMapper.xml" />  
+		<mapper resource="ItemPropMapper.xml" />
+    </mappers>  
+</configuration> 

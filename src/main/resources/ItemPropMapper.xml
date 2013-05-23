@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.halen.data.mapper.ItemPropMapper">
+	
+	<sql id="insertColumns">pid, name, created</sql>
+	<sql id="insertColumns2">vid, name, pid, created</sql>
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into item_prop (<include refid="insertColumns"/>) values
+		<foreach collection="list" item="item" index="index"  
+            separator=",">  
+            (#{item.pid}, #{item.name}, now())
+        </foreach> 
+	</insert>
+	
+	<insert id="batchInsert2" parameterType="java.util.List">
+		insert into prop_value (<include refid="insertColumns2"/>) values
+		<foreach collection="list" item="item" index="index"  
+            separator=",">  
+            (#{item.vid}, #{item.name}, #{item.pid}, now())
+        </foreach> 
+	</insert>
+	
+	<select id="list1" resultType="ItemProp">
+		select pid, name from item_prop
+	</select>
+	
+	<select id="list2" resultType="PropValue">
+		select vid, name, pid from prop_value
+	</select>
+</mapper>
