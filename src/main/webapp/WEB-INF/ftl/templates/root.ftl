@@ -55,7 +55,7 @@
           <li <#if active==3> class="active dropdown" <#else>  class="dropdown" </#if>>
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">订单管理 <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                  <li><a href="${rc.contextPath}/order_list">订单列表</a></li>
+                  <li><a href="${rc.contextPath}/trade_list">订单列表</a></li>
                   <li><a href="${rc.contextPath}/fenxiao/add_order_form">新建订单</a></li>
                   <li><a href="#">其他</a></li>
                   <li class="divider"></li>

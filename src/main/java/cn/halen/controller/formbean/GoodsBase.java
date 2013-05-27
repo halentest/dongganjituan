@@ -4,10 +4,10 @@ import java.util.Date;
 
 public class GoodsBase {
 	private long id;
-	private String hid; //款号
+	private String hid; //
 	private String color;
-	private int weight; //重量， 单位：g
-	private int price; //单价， 单位：分
+	private int weight; //
+	private int price; //
 	private Date modified;
 
 	public long getId() {

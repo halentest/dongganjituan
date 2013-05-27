@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import cn.halen.data.OrderStatus;
+import cn.halen.service.top.domain.Status;
 
 public class MyTrade {
 	private long id; //
@@ -34,6 +35,7 @@ public class MyTrade {
 	private Date created;
 	private Date modified;
 	
+	private Status oStatus;
 	private Template template; 
 	private FenXiaoShang fenxiaoshang; 
 	private OrderStatus orderStatus; 
@@ -83,6 +85,10 @@ public class MyTrade {
 
 	public String getCome_from() {
 		return come_from;
+	}
+	
+	public Status getoStatus() {
+		return oStatus;
 	}
 
 	public void setCome_from(String come_from) {
@@ -295,6 +301,7 @@ public class MyTrade {
 
 	public void setStatus(String status) {
 		this.status = status;
+		this.oStatus = Status.valueOf(status);
 	}
 
 	public OrderStatus getOrderStatus() {

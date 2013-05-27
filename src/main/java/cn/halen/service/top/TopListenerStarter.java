@@ -34,7 +34,7 @@ import com.taobao.api.internal.stream.TopCometStream;
 import com.taobao.api.internal.stream.TopCometStreamFactory;
 import com.taobao.api.request.IncrementCustomerPermitRequest;
 
-@Service
+//@Service
 public class TopListenerStarter implements InitializingBean {
 	private Logger log = LoggerFactory.getLogger(TopListenerStarter.class);
 	
@@ -58,8 +58,6 @@ public class TopListenerStarter implements InitializingBean {
 		context.register(DataConfig.class, ServiceConfig.class);
 		context.refresh();
 		context.start();
-		WorkerService workerService = (WorkerService) context.getBean("workerService");
-		workerService.start();
 	}
 	
 	public void start() throws ApiException {
@@ -75,6 +73,7 @@ public class TopListenerStarter implements InitializingBean {
 		stream.setConnectionListener(new ConnectionLifeCycleListenerImpl());
 		stream.setMessageListener(new TopMessageListener(workerService));
 		stream.start();
+		workerService.start();
 	}
 	
 	public void initTrades() throws ParseException, ApiException {
@@ -85,7 +84,7 @@ public class TopListenerStarter implements InitializingBean {
 			Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getSession());
 			MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
 			if(null == tid) {
-				if(trade.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue())) {
+				if(tradeDetail.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue())) {
 					tradeService.insertMyTrade(myTrade);
 				}
 			} else {
@@ -125,7 +124,7 @@ public class TopListenerStarter implements InitializingBean {
 			}
 		}
 		//更新Trade, 只更新可能变化的字段
-		if(!myTrade.equals(dbMyTrade)) {
+		if(!myTrade.equals(dbMyTrade) && myTrade.getModified().getTime() > dbMyTrade.getModified().getTime()) {
 			dbMyTrade.setName(myTrade.getName());
 			dbMyTrade.setPhone(myTrade.getPhone());
 			dbMyTrade.setMobile(myTrade.getMobile());
@@ -136,20 +135,23 @@ public class TopListenerStarter implements InitializingBean {
 			dbMyTrade.setPayment(myTrade.getPayment());
 			dbMyTrade.setStatus(myTrade.getStatus());
 			dbMyTrade.setSeller_memo(myTrade.getSeller_memo());
+			dbMyTrade.setModified(myTrade.getModified());
 		}
 		tradeService.updateTrade(dbMyTrade);
 	}
 	
 	private void permitUser(TaobaoClient client, String sessionKey) throws ApiException {
 		IncrementCustomerPermitRequest req = new IncrementCustomerPermitRequest();
-		req.setType("notify");
+		req.setType("get,notify");
 		TaobaoResponse response = client.execute(req, sessionKey);
 		System.out.println(response.getErrorCode());
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		start();
 		initTrades();
+		start();
+		
+	//	tradeClient.getNofityTrade();
 	}
 }

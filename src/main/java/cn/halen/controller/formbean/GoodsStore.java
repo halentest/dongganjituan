@@ -13,7 +13,7 @@ public class GoodsStore {
 	private int forty_two = 0;
 	private int forty_three = 0;
 	private int forty_four = 0;
-	private int type = 1; //1:进货    0:出货
+	private int type = 1; //
 	private Date modified;
 	private long orderId;
 	

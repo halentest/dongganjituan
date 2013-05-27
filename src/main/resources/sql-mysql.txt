@@ -97,7 +97,7 @@ create table trade (
 	buyer_message varchar(255),
 	seller_nick varchar(50),
 	come_from varchar(25),
-	modified timestamp,
+	modified timestamp default current_timestamp,
 	created timestamp
 );
 
@@ -108,6 +108,8 @@ create table order1
 	tid bigint unsigned not null, 
 	oid bigint unsigned not null,
 	goods_id varchar(100),
+	title varchar(255),
+	pic_path varchar(255),
 	sku_id bigint unsigned not null, 
 	quantity bigint unsigned,
 	price int unsigned,

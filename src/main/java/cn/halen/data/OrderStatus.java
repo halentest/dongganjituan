@@ -1,7 +1,7 @@
 package cn.halen.data;
 
 public enum OrderStatus {
-	New(0, "新建"), HaveGoods(1, "已添加商品");
+	New(0, ""), HaveGoods(1, "");
 	private int id;
 	private String desc;
 	

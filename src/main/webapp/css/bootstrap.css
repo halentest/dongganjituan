@@ -81,8 +81,8 @@ img {
 }
 
 button,
-input,
-select,
+form input,
+form select,
 textarea {
   margin: 0;
   font-size: 100%;
@@ -90,7 +90,7 @@ textarea {
 }
 
 button,
-input {
+form input {
   *overflow: visible;
   line-height: normal;
 }
@@ -110,7 +110,7 @@ input[type="submit"] {
 }
 
 label,
-select,
+form select,
 button,
 input[type="button"],
 input[type="reset"],
@@ -1032,18 +1032,18 @@ legend small {
 }
 
 label,
-input,
+form input,
 button,
-select,
+form select,
 textarea {
   font-size: 14px;
   font-weight: normal;
   line-height: 20px;
 }
 
-input,
+form input,
 button,
-select,
+form select,
 textarea {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -1053,7 +1053,7 @@ label {
   margin-bottom: 5px;
 }
 
-select,
+form select,
 textarea,
 input[type="text"],
 input[type="password"],
@@ -1083,7 +1083,7 @@ input[type="color"],
           border-radius: 4px;
 }
 
-input,
+form input,
 textarea,
 .uneditable-input {
   width: 206px;
@@ -1164,7 +1164,7 @@ input[type="checkbox"] {
   width: auto;
 }
 
-select,
+form select,
 input[type="file"] {
   height: 30px;
   /* In IE7, the height of the select element cannot be changed by height, only font-size */
@@ -1175,7 +1175,7 @@ input[type="file"] {
   line-height: 30px;
 }
 
-select {
+form select {
   width: 220px;
   background-color: #ffffff;
   border: 1px solid #cccccc;

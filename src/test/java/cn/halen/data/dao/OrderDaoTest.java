@@ -22,11 +22,11 @@
 //	public void testAddOrder() {
 //		Order order = new Order();
 //		order.setOrder_id(1654876546548L);
-//		order.setName("张志东");
+//		order.setName("");
 //		order.setPhone("15157197713");
-//		order.setAddress("杭州市，西湖大道");
+//		order.setAddress("");
 //		order.setPostcode("310009");
-//		order.setDelivery("顺丰");
+//		order.setDelivery("");
 //		Template template = new Template();
 //		template.setId(1);
 //		order.setTemplate(template);

@@ -15,14 +15,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.taobao.api.ApiException;
+import com.taobao.api.DefaultTaobaoClient;
 import com.taobao.api.TaobaoClient;
+import com.taobao.api.domain.NotifyTrade;
 import com.taobao.api.domain.Task;
 import com.taobao.api.domain.Trade;
 import com.taobao.api.internal.util.AtsUtils;
+import com.taobao.api.request.IncrementTradesGetRequest;
 import com.taobao.api.request.TopatsResultGetRequest;
 import com.taobao.api.request.TopatsTradesSoldGetRequest;
 import com.taobao.api.request.TradeFullinfoGetRequest;
 import com.taobao.api.request.TradesSoldGetRequest;
+import com.taobao.api.response.IncrementTradesGetResponse;
 import com.taobao.api.response.TopatsResultGetResponse;
 import com.taobao.api.response.TopatsTradesSoldGetResponse;
 import com.taobao.api.response.TradeFullinfoGetResponse;
@@ -47,9 +51,9 @@ public class TradeClient {
 	public Trade getTradeFullInfo(Long tid, String sessionKey) throws ApiException {
 		
 		TradeFullinfoGetRequest req = new TradeFullinfoGetRequest();
-		req.setFields("total_fee,tid,oid,buyer_nick,payment,outer_iid,receiver_state,receiver_address,num,receiver_city,receiver_district," +
-				"receiver_mobile,logistics_company,invoice_no,seller_nick," +
-				"receiver_name,receiver_phone,receiver_mobile,receiver_zip,price,seller_memo,parent_id,type,status,created,orders");
+		req.setFields("total_fee,tid,oid,buyer_nick,payment,outer_iid,title,pic_path,post_fee,receiver_state,receiver_address,num,receiver_city,receiver_district," +
+				"receiver_mobile,logistics_company,invoice_no,seller_nick,created,modified,order.modified," +
+				"receiver_name,receiver_phone,receiver_mobile,receiver_zip,price,seller_memo,parent_id,type,status,orders");
 		req.setTid(tid);
 		TradeFullinfoGetResponse rsp = topConfig.getRetryClient().execute(req, sessionKey);
 		if (rsp.isSuccess()) {
@@ -57,6 +61,23 @@ public class TradeClient {
 			return rsp.getTrade();
 		}
 		return null;
+	}
+	
+	/**
+	 * 获取增量消息
+	 * @throws ApiException 
+	 */
+	public List<NotifyTrade> getNofityTrade() throws ApiException {
+		TaobaoClient client = topConfig.getRetryClient();
+		IncrementTradesGetRequest req = new IncrementTradesGetRequest();
+		
+		req.setNick("志东张");
+//		Date dateTime = SimpleDateFormat.getDateTimeInstance().parse("2013-05-25 00:00:00");
+//		req.setStartModified(dateTime);
+//		Date dateTime = SimpleDateFormat.getDateTimeInstance().parse("2013-05-25 01:00:00");
+//		req.setEndModified(dateTime);
+		IncrementTradesGetResponse response = client.execute(req);
+		return response.getNotifyTrades();
 	}
 	
 	/**

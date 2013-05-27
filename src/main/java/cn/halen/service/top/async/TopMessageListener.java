@@ -3,6 +3,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.halen.service.WorkerService;
+import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.domain.NotifyTopats;
 import cn.halen.service.top.domain.NotifyTradeStatus;
 import cn.halen.service.top.util.MessageDecode;
@@ -58,7 +59,7 @@ public class TopMessageListener implements TopCometMessageListener {
 	}
 	
 	private void handlerDiscardMsg() {
-		
+		TradeClient tradeClient = workerService.getTradeClient();
 	}
 
 	@Override

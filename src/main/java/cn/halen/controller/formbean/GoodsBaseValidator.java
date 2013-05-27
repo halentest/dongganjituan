@@ -7,9 +7,9 @@ public class GoodsBaseValidator extends BaseValidator {
 		this.goodsBase = goodsBase;
 	}
 	public void doValidate() {
-		validNotEmpty(goodsBase.getHid(), "ÉÌÆ·±àºÅ²»ÄÜÎª¿Õ!");
-		validNotEmpty(goodsBase.getColor(), "ÑÕÉ«²»ÄÜÎª¿Õ!");
-		validBigger0(goodsBase.getPrice(), "¼Û¸ñ²»ÄÜÐ¡ÓÚ»òµÈÓÚ0!");
-		validBigger0(goodsBase.getWeight(), "ÖØÁ¿²»ÄÜÐ¡ÓÚ»òµÈÓÚ0!");
+//		validNotEmpty(goodsBase.getHid(), "ï¿½ï¿½Æ·ï¿½ï¿½Å²ï¿½ï¿½ï¿½Îªï¿½ï¿½!");
+//		validNotEmpty(goodsBase.getColor(), "ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½!");
+//		validBigger0(goodsBase.getPrice(), "ï¿½Û¸ï¿½ï¿½ï¿½Ð¡ï¿½Ú»ï¿½ï¿½ï¿½ï¿½0!");
+//		validBigger0(goodsBase.getWeight(), "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½Ú»ï¿½ï¿½ï¿½ï¿½0!");
 	}
 }

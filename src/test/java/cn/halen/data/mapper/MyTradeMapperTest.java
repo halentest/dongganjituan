@@ -1,5 +1,7 @@
 package cn.halen.data.mapper;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +20,14 @@ public class MyTradeMapperTest {
 	
 	@Test
 	public void test_selectTradeDetail() {
-		long tid = 221610652790229L;
+		long tid = 353498440620229L;
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		System.out.println(myTrade);
+	}
+	
+	@Test
+	public void test_listTrade() {
+		List<MyTrade> list = myTradeMapper.listTrade("志东张", null, null, null);
+		System.out.println(list.size());
 	}
 }

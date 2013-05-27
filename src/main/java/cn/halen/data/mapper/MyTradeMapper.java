@@ -1,13 +1,17 @@
 package cn.halen.data.mapper;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
 import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.MyTrade;
+import cn.halen.util.Paging;
 
 public class MyTradeMapper extends SqlSessionDaoSupport {
 
@@ -32,7 +36,9 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 	}
 	
 	public MyTrade selectTradeDetail(long id) {
-		MyTrade myTrade = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", id);
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("tid", id);
+		MyTrade myTrade = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", param);
 		return myTrade;
 	}
 	
@@ -41,10 +47,11 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return myOrder;
 	}
 	
-	public int updateTradeMemo(String memo, long tradeId) {
+	public int updateTradeMemo(String memo, long tradeId, Date modified) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("memo", memo);
 		param.put("tradeId", tradeId);
+		param.put("modified", modified);
 		int count = getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateTradeMemo", param);
 		return count;
 	}
@@ -60,7 +67,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 	}
 	
 	public int updateLogisticsAddress(String state, String city, String district, String address, String mobile, String phone,
-			String zip, String name, long tradeId) {
+			String zip, String name, Date modified, long tradeId) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("state", state);
 		param.put("city", city);
@@ -71,7 +78,42 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		param.put("zip", zip);
 		param.put("name", name);
 		param.put("tradeId", tradeId);
+		param.put("modified", modified);
 		int count = getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateLogisticsAddress", param);
 		return count;
+	}
+	
+	public long countTrade(String seller_nick, String name, String status) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		if(StringUtils.isNotBlank(seller_nick)) {
+			param.put("seller_nick", seller_nick.trim());
+		}
+		if(StringUtils.isNotBlank(name)) {
+			param.put("name", name.trim());
+		}
+		if(StringUtils.isNotBlank(status)) {
+			param.put("status", status.trim());
+		}
+		Long count = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.countTrade", param);
+		return count;
+	}
+	
+	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, String status) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		if(StringUtils.isNotBlank(seller_nick)) {
+			param.put("seller_nick", seller_nick.trim());
+		}
+		if(StringUtils.isNotBlank(name)) {
+			param.put("name", name.trim());
+		}
+		if(null != paging) {
+			param.put("start", paging.getStart());
+			param.put("page_size", paging.getSize());
+		}
+		if(StringUtils.isNotBlank(status)) {
+			param.put("status", status.trim());
+		}
+		List<MyTrade> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", param);
+		return list;
 	}
 }

@@ -23,9 +23,6 @@
         </encoder>
     </appender>
 
-
-    <logger name="org.springframework" level="DEBUG"/>
-
     <root level="DEBUG">
         <appender-ref ref="stdout"/>
         <appender-ref ref="manager"/>

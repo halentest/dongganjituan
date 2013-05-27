@@ -3,11 +3,11 @@ package cn.halen.data.pojo;
 import java.util.Date;
 
 public class FenXiaoShang {
-	private int id; //自增id
+	private int id; //
 	private User user;
 	private String name;
-	private long deposit; //预存货款
-	private float discount; //折扣
+	private long deposit; //
+	private float discount; //
 	private Date created;
 	private Date modified;
 	public int getId() {

@@ -1,6 +1,7 @@
 package cn.halen.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import cn.halen.data.pojo.MyTrade;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.util.MoneyUtils;
+import cn.halen.util.Paging;
 
 import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Trade;
@@ -39,16 +41,26 @@ public class TradeService {
 	@Autowired
 	private TopConfig topConfig;
 	
-	@Transactional
+	@Transactional(rollbackFor=Exception.class)
 	public void updateSkuAndInsertRefund(MyRefund myRefund, MySku mySku) {
-		myTradeMapper.insertRefund(myRefund);
-		mySkuMapper.update(mySku);
+		try {
+			myTradeMapper.insertRefund(myRefund);
+			mySkuMapper.update(mySku);
+		} catch(Exception e) {
+			log.error("", e);
+			throw new RuntimeException(e);
+		}
 	}
 	
-	@Transactional
+	@Transactional(rollbackFor=Exception.class)
 	public void updateOrderAndSku(MyOrder myOrder, MySku mySku) {
-		myTradeMapper.updateMyOrder(myOrder);
-		mySkuMapper.update(mySku);
+		try {
+			myTradeMapper.updateMyOrder(myOrder);
+			mySkuMapper.update(mySku);
+		} catch(Exception e) {
+			log.error("", e);
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public void updateOrder(MyOrder myOrder) {
@@ -59,7 +71,7 @@ public class TradeService {
 		myTradeMapper.updateMyTrade(myTrade);
 	}
 	
-	@Transactional
+	@Transactional(rollbackFor=Exception.class)
 	public void insertMyTrade(MyTrade myTrade) {
 		try{
 			myTradeMapper.insert(myTrade);
@@ -82,7 +94,8 @@ public class TradeService {
 				myTradeMapper.insertMyOrder(order);
 			}
 		} catch(Exception e) {
-			throw new RuntimeException();
+			log.error("", e);
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -99,14 +112,14 @@ public class TradeService {
 		return tradeId;
 	}
 	
-	public int updateTradeMemo(String memo, long tradeId) {
-		int count = myTradeMapper.updateTradeMemo(memo, tradeId);
+	public int updateTradeMemo(String memo, long tradeId, Date modified) {
+		int count = myTradeMapper.updateTradeMemo(memo, tradeId, modified);
 		return count;
 	}
 	
 	public int updateLogisticsAddress(String state, String city, String district, String address, String mobile, String phone,
-			String zip, String name, long tradeId) {
-		int count = myTradeMapper.updateLogisticsAddress(state, city, district, address, mobile, phone, zip, name, tradeId);
+			String zip, String name, Date modified, long tradeId) {
+		int count = myTradeMapper.updateLogisticsAddress(state, city, district, address, mobile, phone, zip, name, modified, tradeId);
 		return count;
 	}
 	
@@ -122,11 +135,14 @@ public class TradeService {
 		myTrade.setAddress(trade.getReceiverAddress());
 		myTrade.setPostcode(trade.getReceiverZip());
 		myTrade.setPayment(MoneyUtils.convert(trade.getPayment()));
+		myTrade.setDelivery_money(MoneyUtils.convert(trade.getPostFee()));
 		myTrade.setFenxiaoshang_id(1);
 		myTrade.setSeller_memo(trade.getSellerMemo());
 		myTrade.setBuyer_message(trade.getBuyerMessage());
 		myTrade.setSeller_nick(trade.getSellerNick());
-		myTrade.setCome_from("taobao");
+		myTrade.setCome_from("淘宝订单");
+		myTrade.setModified(trade.getModified());
+		myTrade.setCreated(trade.getCreated());
 		List<Order> orderList = trade.getOrders();
 		long goodsCount = 0;
 		List<MyOrder> myOrderList = new ArrayList<MyOrder>();
@@ -137,6 +153,8 @@ public class TradeService {
 			myOrder.setOid(order.getOid());
 			myOrder.setSkuPropertiesName(order.getSkuPropertiesName());
 			myOrder.setGoods_id(order.getOuterIid());
+			myOrder.setTitle(order.getTitle());
+			myOrder.setPic_path(order.getPicPath());
 			myOrder.setQuantity(order.getNum());
 			myOrder.setPrice(MoneyUtils.convert(order.getPrice()));
 			myOrder.setPayment(MoneyUtils.convert(order.getPayment()));
@@ -149,5 +167,13 @@ public class TradeService {
 		myTrade.setGoods_count(goodsCount);
 		myTrade.setStatus(trade.getStatus());
 		return myTrade;
+	}
+	
+	public long countTrade(String seller_nick, String name, String status) {
+		return myTradeMapper.countTrade(seller_nick, name, status);
+	}
+	
+	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, String status) {
+		return myTradeMapper.listTrade(seller_nick, name, paging, status);
 	}
 }

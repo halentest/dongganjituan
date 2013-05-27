@@ -2,11 +2,15 @@ package cn.halen.data.pojo;
 
 import java.util.Date;
 
+import cn.halen.service.top.domain.Status;
+
 public class MyOrder {
 	private long id; 
 	private long tid;
 	private long oid;
 	private String goods_id;
+	private String title;
+	private String pic_path;
 	private long sku_id;
 	private String skuPropertiesName;
 	private long quantity;
@@ -20,6 +24,7 @@ public class MyOrder {
 	private Date created;
 	private Date modified;
 	
+	private Status oStatus;
 	private MySku sku; 
 	public long getId() {
 		return id;
@@ -28,6 +33,21 @@ public class MyOrder {
 		this.id = id;
 	}
 	
+	public String getPic_path() {
+		return pic_path;
+	}
+	public void setPic_path(String pic_path) {
+		this.pic_path = pic_path;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public Status getoStatus() {
+		return oStatus;
+	}
 	public long getTid() {
 		return tid;
 	}
@@ -89,6 +109,7 @@ public class MyOrder {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+		this.oStatus = Status.valueOf(status);
 	}
 	public MySku getSku() {
 		return sku;
