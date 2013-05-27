@@ -1,0 +1,28 @@
+table {
+  border-collapse:collapse;
+  width: 100%;
+  margin-top: 5px;
+}
+
+table, th, td {
+  border: 1px solid #CCCCCC;
+}
+
+tr.trade td {
+	height: 20px;
+    text-align: left;
+    padding-left: 10px;
+}
+
+tr.order_list td {
+	vertical-align: top;
+	height: 30px;
+    text-align: left;
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+tr.trade {
+	background-color: #CCCCCC;
+	border: 0px;
+}
