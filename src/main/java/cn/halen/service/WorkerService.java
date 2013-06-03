@@ -13,9 +13,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
+import cn.halen.data.pojo.MyLogisticsCompany;
 import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MySku;
+import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
@@ -53,6 +56,9 @@ public class WorkerService {
 	@Autowired
 	private TradeService tradeService;
 	
+	@Autowired
+	private MyLogisticsCompanyMapper logisticsMapper;
+	
 	public void addJob(Object obj) throws InterruptedException {
 		queue.put(obj);
 	}
@@ -85,6 +91,9 @@ public class WorkerService {
 										if(null == dbMyTrade && status.equals(NotifyTradeStatus.TradeBuyerPay.getValue())) {
 											log.debug("Receive 'TradeBuyerPay' notify, tid = {}, oid = {}",  nt.getTid(), nt.getOid());
 											MyTrade myTrade = tradeService.toMyTrade(trade);
+											MyLogisticsCompany mc = logisticsMapper.select(1);
+											myTrade.setDelivery(mc.getName());
+											myTrade.setMy_status(MyStatus.WaitCheck.getStatus());
 											tradeService.insertMyTrade(myTrade);
 										} else  {
 											if(status.equals(NotifyTradeStatus.TradeMemoModified)) {
@@ -125,6 +134,16 @@ public class WorkerService {
 														&& dbMyTrade.getModified().getTime() < trade.getModified().getTime()) {
 													dbMyTrade.setModified(trade.getModified());
 													dbMyTrade.setStatus(trade.getStatus());
+													//如果是已发货，已关闭，已成功，则可能需要更新my_status
+													if(trade.getStatus().equals(Status.WAIT_BUYER_CONFIRM_GOODS) && dbMyTrade.getMy_status() != MyStatus.WaitReceive.getStatus()) {
+														dbMyTrade.setMy_status(MyStatus.WaitReceive.getStatus());
+													}
+													if(trade.getStatus().equals(Status.TRADE_CLOSED) && dbMyTrade.getMy_status() != MyStatus.Cancel.getStatus()) {
+														dbMyTrade.setMy_status(MyStatus.Cancel.getStatus());
+													}
+													if(trade.getStatus().equals(Status.TRADE_FINISHED) && dbMyTrade.getMy_status() != MyStatus.Finished.getStatus()) {
+														dbMyTrade.setMy_status(MyStatus.Finished.getStatus());
+													}
 													tradeService.updateTrade(dbMyTrade);
 												}
 											} else if(status.equals(NotifyTradeStatus.TradeSuccess.getValue())) {
@@ -139,6 +158,16 @@ public class WorkerService {
 												}
 												if(!dbMyTrade.getStatus().equals(trade.getStatus()) && dbMyTrade.getModified().getTime() < trade.getModified().getTime()) {
 													dbMyTrade.setStatus(trade.getStatus());
+													//如果是已发货，已关闭，已成功，则可能需要更新my_status
+													if(trade.getStatus().equals(Status.WAIT_BUYER_CONFIRM_GOODS) && dbMyTrade.getMy_status() != MyStatus.WaitReceive.getStatus()) {
+														dbMyTrade.setMy_status(MyStatus.WaitReceive.getStatus());
+													}
+													if(trade.getStatus().equals(Status.TRADE_CLOSED) && dbMyTrade.getMy_status() != MyStatus.Cancel.getStatus()) {
+														dbMyTrade.setMy_status(MyStatus.Cancel.getStatus());
+													}
+													if(trade.getStatus().equals(Status.TRADE_FINISHED) && dbMyTrade.getMy_status() != MyStatus.Finished.getStatus()) {
+														dbMyTrade.setMy_status(MyStatus.Finished.getStatus());
+													}
 													dbMyTrade.setModified(trade.getModified());
 													tradeService.updateTrade(dbMyTrade);
 												}
@@ -174,6 +203,16 @@ public class WorkerService {
 										if(!myTrade.getStatus().equals(trade.getStatus())
 												&& myTrade.getModified().getTime()<trade.getModified().getTime()) {
 											myTrade.setStatus(trade.getStatus());
+											//如果是已发货，已关闭，已成功，则可能需要更新my_status
+											if(trade.getStatus().equals(Status.WAIT_BUYER_CONFIRM_GOODS) && myTrade.getMy_status() != MyStatus.WaitReceive.getStatus()) {
+												myTrade.setMy_status(MyStatus.WaitReceive.getStatus());
+											}
+											if(trade.getStatus().equals(Status.TRADE_CLOSED) && myTrade.getMy_status() != MyStatus.Cancel.getStatus()) {
+												myTrade.setMy_status(MyStatus.Cancel.getStatus());
+											}
+											if(trade.getStatus().equals(Status.TRADE_FINISHED) && myTrade.getMy_status() != MyStatus.Finished.getStatus()) {
+												myTrade.setMy_status(MyStatus.Finished.getStatus());
+											}
 											myTrade.setModified(trade.getModified());
 											tradeService.updateTrade(myTrade);
 										}

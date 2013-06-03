@@ -24,12 +24,8 @@ public class AreaClientTest {
 	private AreaClient areaClient;
 	@Test
 	public void test_import2db() throws ApiException, JSONException {
-		areaClient.import2db();
-	}
-	
-	@Test
-	public void test_update() throws ApiException {
-		areaClient.update2db();
+		int count = areaClient.import2db();
+		System.out.println(count);
 	}
 	
 	@Test

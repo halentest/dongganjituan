@@ -27,19 +27,20 @@ public class AreaClient {
 	@Autowired
 	private AreaMapper areaMapper;
 	
-	public void import2db() throws ApiException, JSONException {
-		TaobaoClient client = topConfig.getClient();
-		AreasGetRequest req = new AreasGetRequest();
-		req.setFields("id,type,name,parent_id");
-		AreasGetResponse response = client.execute(req);
-		List<Area> list = response.getAreas();
-		log.debug("Got {} areas from top api", list.size());
-		int count = areaMapper.batchInsert(list);
-		log.debug("Successed to insert {} area to db", count);
-	}
+//	public int import2db() throws ApiException, JSONException {
+//		TaobaoClient client = topConfig.getRetryClient();
+//		AreasGetRequest req = new AreasGetRequest();
+//		req.setFields("id,type,name,parent_id");
+//		AreasGetResponse response = client.execute(req);
+//		List<Area> list = response.getAreas();
+//		log.debug("Got {} areas from top api", list.size());
+//		int count = areaMapper.batchInsert(list);
+//		log.debug("Successed to insert {} area to db", count);
+//		return count;
+//	}
 	
-	public void update2db() throws ApiException {
-		TaobaoClient client = topConfig.getClient();
+	public int import2db() throws ApiException {
+		TaobaoClient client = topConfig.getRetryClient();
 		AreasGetRequest req = new AreasGetRequest();
 		req.setFields("id,type,name,parent_id");
 		AreasGetResponse response = client.execute(req);
@@ -63,5 +64,7 @@ public class AreaClient {
 			count = areaMapper.batchInsert(nonExistList);
 		}
 		log.debug("Successed to insert {} area to db", count);
+		
+		return count;
 	}
 }

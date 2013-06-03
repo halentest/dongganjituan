@@ -36,11 +36,6 @@
 		<property name="configLocation" value="classpath:mybatis.cfg.xml"></property>
 	</bean>
 	
-	<bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-		<property name="mapperInterface" value="cn.halen.data.mapper.UserMapper" />
-		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
-	</bean>
-	
 	<bean id="deliveryMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
 		<property name="mapperInterface" value="cn.halen.data.mapper.DeliveryMapper" />
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
@@ -67,6 +62,14 @@
 	</bean>
 	
 	<bean id="itemPropMapper" class="cn.halen.data.mapper.ItemPropMapper">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	
+	<bean id="myLogisticsCompanyMapper" class="cn.halen.data.mapper.MyLogisticsCompanyMapper">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	
+	<bean id="adminMapper" class="cn.halen.data.mapper.AdminMapper">
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>
 

@@ -8,7 +8,11 @@
 		<result property="tao_id" column="g_tao_id"/>
 		<result property="hid" column="g_hid"/>
 		<result property="title" column="g_title"/>
+		<result property="url" column="g_url"/>
 		<result property="weight" column="g_weight"/>
+		<result property="price" column="g_price"/>
+		<result property="template" column="g_template"/>
+		<result property="status" column="g_status"/>
 		<result property="discount" column="g_discount"/>
 		<result property="modified" column="g_modified"/>
 		<result property="created" column="g_created"/>
@@ -24,8 +28,9 @@
 	      	<result property="created" column="s_created"/>
 	    </collection>
 	</resultMap>
-	<sql id="insertColumns">tao_id, hid, title, weight, discount, created</sql>
-	<sql id="selectColumns">g.id as g_id, g.tao_id as g_tao_id, g.hid as g_hid, g.title as g_title, g.weight as g_weight,
+	<sql id="insertColumns">tao_id, hid, title, url, weight, price, template, status, discount, created</sql>
+	<sql id="selectColumns">g.id as g_id, g.tao_id as g_tao_id, g.hid as g_hid, g.title as g_title, g.url as g_url, g.weight as g_weight,
+							g.price as g_price, g.template as g_template, g.status as g_status,
 							 g.discount as g_discount, g.modified as g_modified, g.created as g_created</sql>
 	<sql id="selectColumnsSku">s.id as s_id, s.tao_id as s_tao_id, s.goods_id as s_goods_id, s.color as s_color, s.size as s_size, 
 							s.price as s_price, s.quantity as s_quantity, s.modified as s_modified, s.created as s_created</sql>
@@ -34,20 +39,45 @@
 		select * from Goods 
 	</select>
 	
+	<select id="listGoodsDetail" parameterType="java.util.Map" resultMap="goodsMap">
+		select <include refid="selectColumns"/>, <include refid="selectColumnsSku"/> 
+			from (select * from goods 
+			<where>
+   				<if test="goods_id != null">
+   					hid like CONCAT('%', #{goods_id}, '%')
+   				</if>
+   			</where>
+			limit #{start}, #{page_size}) g 
+			left join sku s on g.hid = s.goods_id 
+			order by g.modified desc 
+	</select>	
+	
+	<select id="goodsCountPaging" parameterType="java.util.Map" resultType="int">
+		select count(*) from goods
+			<where>
+				<if test="goods_id != null">
+					hid like CONCAT('%', #{goods_id}, '%')
+				</if>
+			</where>
+	</select>   		
+	
 	<insert id="insert" parameterType="Goods" >
-	  	insert into goods(<include refid="insertColumns"/>) values(#{tao_id}, #{hid}, #{title}, #{weight}, #{discount}, now(), now())
+	  	insert into goods(<include refid="insertColumns"/>) values(#{tao_id}, #{hid}, #{title}, #{url}, #{weight}, 
+	  		#{price}, #{template}, #{status}, #{discount}, now(), now())
 	</insert>
 	
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into goods (<include refid="insertColumns"/>) values
 		<foreach collection="list" item="goods" index="index"  
             separator=",">  
-            (#{goods.tao_id}, #{goods.hid}, #{goods.title}, #{goods.weight}, #{goods.discount}, now())
+            (#{goods.tao_id}, #{goods.hid}, #{goods.title}, #{goods.url}, #{goods.weight}, #{goods.price}, #{goods.template}, 
+            		#{goods.status}, #{goods.discount}, now())
         </foreach> 
 	</insert>
 	
 	<update id="update" parameterType="Goods">
-		update goods set tao_id=#{tao_id}, hid=#{hid}, title=#{title}, weight=#{weight}, discount=#{discount} where id=#{id}
+		update goods set tao_id=#{tao_id}, hid=#{hid}, title=#{title}, url=#{url}, weight=#{weight}, 
+			price=#{price}, template=#{template}, status=#{status}, discount=#{discount} where id=#{id}
 	</update>
 	
 	<select id="getById" parameterType="int" resultMap="goodsMap" >

@@ -30,11 +30,13 @@
         <typeAlias alias="Template" type="cn.halen.data.pojo.Template" />  
         <typeAlias alias="Delivery" type="cn.halen.data.pojo.Delivery" />  
         <typeAlias alias="User" type="cn.halen.data.pojo.User" />  
-        <typeAlias alias="FenXiaoShang" type="cn.halen.data.pojo.FenXiaoShang" />  
+        <typeAlias alias="Distributor" type="cn.halen.data.pojo.Distributor" />  
         <typeAlias alias="ItemProp" type="com.taobao.api.domain.ItemProp" />
         <typeAlias alias="PropValue" type="com.taobao.api.domain.PropValue" />
         <typeAlias alias="MyRefund" type="cn.halen.data.pojo.MyRefund" />
         <typeAlias alias="Area" type="com.taobao.api.domain.Area" />
+        <typeAlias alias="UserAuthority" type="cn.halen.data.pojo.UserAuthority" />
+        <typeAlias alias="MylogisticsCompany" type="cn.halen.data.pojo.MyLogisticsCompany" />
     </typeAliases>  
       
     <mappers>  
@@ -44,5 +46,7 @@
 		<mapper resource="MyTradeMapper.xml" />  
 		<mapper resource="AreaMapper.xml" />  
 		<mapper resource="ItemPropMapper.xml" />
+		<mapper resource="MylogisticsCompanyMapper.xml" />
+		<mapper resource="AdminMapper.xml" />
     </mappers>  
 </configuration> 

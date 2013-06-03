@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.service.TradeService;
 import cn.halen.util.Paging;
@@ -18,10 +19,13 @@ public class TradeController {
 	@Autowired
 	private TradeService tradeService;
 	
+	@Autowired
+	private MyLogisticsCompanyMapper myLogisticsCompanyMapper;
+	
 	@RequestMapping(value="trade_list")
 	public String list(Model model, @RequestParam(value="seller_nick", required=false) String seller_nick,
 			@RequestParam(value="name", required=false) String name, 
-			@RequestParam(value="status", required=false) String status,
+			@RequestParam(value="status", required=false) Integer status,
 			@RequestParam(value="page", required=false) Integer page) {
 		int intPage = 1;
 		if(null!=page && page>0) {
@@ -35,6 +39,12 @@ public class TradeController {
 		model.addAttribute("name", name);
 		model.addAttribute("status", status);
 		model.addAttribute("seller_nick", seller_nick);
+		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
 		return "trade_list";
+	}
+	
+	@RequestMapping(value="fenxiao/add_trade_form")
+	public String addTradeForm() {
+		return "fenxiao/add_trade_form"; 
 	}
 }

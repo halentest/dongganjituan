@@ -13,9 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import cn.halen.data.DataConfig;
+import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
+import cn.halen.data.pojo.MyLogisticsCompany;
 import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MySku;
+import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.service.ServiceConfig;
 import cn.halen.service.TradeService;
@@ -34,7 +37,7 @@ import com.taobao.api.internal.stream.TopCometStream;
 import com.taobao.api.internal.stream.TopCometStreamFactory;
 import com.taobao.api.request.IncrementCustomerPermitRequest;
 
-//@Service
+@Service
 public class TopListenerStarter implements InitializingBean {
 	private Logger log = LoggerFactory.getLogger(TopListenerStarter.class);
 	
@@ -51,16 +54,24 @@ public class TopListenerStarter implements InitializingBean {
 	private TradeClient tradeClient;
 	
 	@Autowired
+	private MyLogisticsCompanyMapper logisticsMapper;
+	
+	@Autowired
 	private WorkerService workerService;
 	
-	public static void main(String[] args) throws ApiException {
+	public static void main(String[] args) throws ApiException, ParseException {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 		context.register(DataConfig.class, ServiceConfig.class);
 		context.refresh();
 		context.start();
+		TopListenerStarter starter = (TopListenerStarter) context.getBean("topListenerStarter");
+		starter.start();
 	}
 	
-	public void start() throws ApiException {
+	public void start() throws ApiException, ParseException {
+		
+		initTrades();
+		
 		log.info("Start Top Listener!");
 		
 		final TaobaoClient client = new AutoRetryTaobaoClient(topConfig.getUrl(), topConfig.getAppKey()
@@ -74,9 +85,12 @@ public class TopListenerStarter implements InitializingBean {
 		stream.setMessageListener(new TopMessageListener(workerService));
 		stream.start();
 		workerService.start();
+		
 	}
 	
-	public void initTrades() throws ParseException, ApiException {
+	public int initTrades() throws ParseException, ApiException {
+		int totalCount = 0;
+		
 		List<Trade> tradeList = tradeClient.queryTradeList();
 		for(Trade trade : tradeList) {
 			//检查trade是否存在，如果不存在，直接插入
@@ -85,12 +99,17 @@ public class TopListenerStarter implements InitializingBean {
 			MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
 			if(null == tid) {
 				if(tradeDetail.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue())) {
-					tradeService.insertMyTrade(myTrade);
+					MyLogisticsCompany mc = logisticsMapper.select(1);
+					myTrade.setDelivery(mc.getName());
+					myTrade.setMy_status(MyStatus.WaitCheck.getStatus());
+					int count = tradeService.insertMyTrade(myTrade);
+					totalCount += count;
 				}
 			} else {
 				handleExisting(myTrade);
 			}
 		}
+		return totalCount;
 	}
 	
 	private void handleExisting(MyTrade myTrade) throws ApiException {
@@ -134,6 +153,16 @@ public class TopListenerStarter implements InitializingBean {
 			dbMyTrade.setAddress(myTrade.getAddress());
 			dbMyTrade.setPayment(myTrade.getPayment());
 			dbMyTrade.setStatus(myTrade.getStatus());
+			//如果是已发货，已关闭，已成功，则可能需要更新my_status
+			if(myTrade.getStatus().equals(Status.WAIT_BUYER_CONFIRM_GOODS) && dbMyTrade.getMy_status() != MyStatus.WaitReceive.getStatus()) {
+				dbMyTrade.setMy_status(MyStatus.WaitReceive.getStatus());
+			}
+			if(myTrade.getStatus().equals(Status.TRADE_CLOSED) && dbMyTrade.getMy_status() != MyStatus.Cancel.getStatus()) {
+				dbMyTrade.setMy_status(MyStatus.Cancel.getStatus());
+			}
+			if(myTrade.getStatus().equals(Status.TRADE_FINISHED) && dbMyTrade.getMy_status() != MyStatus.Finished.getStatus()) {
+				dbMyTrade.setMy_status(MyStatus.Finished.getStatus());
+			}
 			dbMyTrade.setSeller_memo(myTrade.getSeller_memo());
 			dbMyTrade.setModified(myTrade.getModified());
 		}
@@ -149,8 +178,8 @@ public class TopListenerStarter implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		initTrades();
-		start();
+//		this.initTrades();
+//		this.start();
 		
 	//	tradeClient.getNofityTrade();
 	}

@@ -52,7 +52,7 @@ public class ItemPropsClient {
 	}
 	
 	public void import2db() throws ApiException, JSONException {
-		TaobaoClient client = topConfig.getClient();
+		TaobaoClient client = topConfig.getRetryClient();
 		ItemcatsGetRequest req = new ItemcatsGetRequest();
 		req.setFields("cid,parent_cid,name,is_parent");
 		req.setParentCid(50006843L);

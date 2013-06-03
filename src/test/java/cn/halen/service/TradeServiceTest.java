@@ -29,4 +29,14 @@ public class TradeServiceTest {
 		mySku.setPrice(1000);
 		tradeService.updateSkuAndInsertRefund(myRefund, mySku);
 	}
+	
+	@Test
+	public void test_send() {
+		long tid = 353821081120229L;
+		String outSid = "668458423741";
+		String companyCode = "STO";
+		String companyName = "申通E物流";
+		String errorInfo = tradeService.reSend(tid, outSid, companyName, companyCode);
+		System.out.println(errorInfo);
+	}
 }

@@ -24,10 +24,11 @@ public class MyTrade {
 	private int total_weight; 
 	private long goods_count;
 	private int payment; 
-	private int fenxiaoshang_id;
+	private int distributor_id;
 	private String logistics_company;
 	private String invoice_no;
 	private String status;
+	private int my_status;
 	private String seller_memo;
 	private String buyer_message;
 	private String seller_nick;
@@ -37,20 +38,9 @@ public class MyTrade {
 	
 	private Status oStatus;
 	private Template template; 
-	private FenXiaoShang fenxiaoshang; 
+	private Distributor distributor; 
 	private OrderStatus orderStatus; 
 	private List<MyOrder> myOrderList;
-	
-	public void computeDeliveryMoney() {
-		int money = 0;
-		if(total_weight<=template.getBase()) {
-			money = template.getBase();
-		} else {
-			int added = (total_weight-template.getBase())/1000 + 1;
-			money = template.getBase() + added*template.getPerAdd();
-		}
-		delivery_money = money;
-	}
 	
 	public void addWeight(int weight) {
 		total_weight += weight;
@@ -99,6 +89,14 @@ public class MyTrade {
 		total_weight -= weight;
 	}
 	
+	public int getMy_status() {
+		return my_status;
+	}
+
+	public void setMy_status(int my_status) {
+		this.my_status = my_status;
+	}
+
 	public long getId() {
 		return id;
 	}
@@ -199,11 +197,11 @@ public class MyTrade {
 	public void setTotal_weight(int total_weight) {
 		this.total_weight = total_weight;
 	}
-	public FenXiaoShang getFenxiaoshang() {
-		return fenxiaoshang;
+	public Distributor getDistributor() {
+		return distributor;
 	}
-	public void setFenxiaoshang(FenXiaoShang fenxiaoshang) {
-		this.fenxiaoshang = fenxiaoshang;
+	public void setDistributor(Distributor distributor) {
+		this.distributor = distributor;
 	}
 	public long getArea_id() {
 		return area_id;
@@ -287,12 +285,12 @@ public class MyTrade {
 		this.template_id = template_id;
 	}
 
-	public int getFenxiaoshang_id() {
-		return fenxiaoshang_id;
+	public int getDistributor_id() {
+		return distributor_id;
 	}
 
-	public void setFenxiaoshang_id(int fenxiaoshang_id) {
-		this.fenxiaoshang_id = fenxiaoshang_id;
+	public void setDistributor_id(int distributor_id) {
+		this.distributor_id = distributor_id;
 	}
 
 	public String getStatus() {

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.halen.data.mapper.AdminMapper">
+	
+	<resultMap id="userMap" type="User">
+		<id property="id" column="u_id"/>
+		<result property="username" column="u_username"/>
+		<result property="password" column="u_password"/>
+		<result property="name" column="u_name"/>
+		<result property="seller_nick" column="u_seller_nick"/>
+		<result property="type" column="u_type"/>
+		<result property="phone" column="u_phone"/>
+		<result property="enabled" column="u_enabled"/>
+		<result property="modified" column="u_modified"/>
+		<result property="created" column="u_created"/>
+	    <association property="distributor" javaType="Distributor">
+		    <id property="id" column="d_id"/>
+		    <result property="deposit" column="d_deposit"/>
+		    <result property="discount" column="d_discount"/>
+		    <result property="modified" column="d_modified"/>
+		    <result property="created" column="d_created"/>
+		</association>
+		<collection property="authorities" ofType="UserAuthority" >
+	      	<id property="id" column="ua_id"/>
+		    <result property="username" column="ua_username"/>
+		    <result property="authority" column="ua_authority"/>
+		    <result property="modified" column="ua_modified"/>
+		    <result property="created" column="ua_created"/>
+	    </collection>
+	</resultMap>
+	
+	<select id="listUser" resultMap="userMap">
+		select u.id as u_id, u.username as u_username, u.seller_nick as u_seller_nick, u.password as u_password, u.enabled as u_enabled,
+			u.type as u_type, u.name as u_name, u.phone as u_phone, u.modified as u_modified, u.created as u_created, 
+			ua.id as ua_id, ua.username as ua_username, ua.authority as ua_authority, ua.modified as ua_modified,
+			ua.created as ua_created,
+			d.id as d_id, d.username as d_username, d.deposit as d_deposit, d.discount as d_discount,
+			d.modified as d_modified, d.created as d_created
+		from user1 as u left join user_authority as ua on u.username = ua.username
+						left join distributor as d on u.username = d.username
+		order by u.username			 
+	</select>
+	
+	<select id="selectUser" parameterType="String" resultMap="userMap">
+		select u.id as u_id, u.username as u_username, u.seller_nick as u_seller_nick, u.password as u_password, u.enabled as u_enabled,
+			u.type as u_type, u.name as u_name, u.phone as u_phone, u.modified as u_modified, u.created as u_created, 
+			ua.id as ua_id, ua.username as ua_username, ua.authority as ua_authority, ua.modified as ua_modified,
+			ua.created as ua_created,
+			d.id as d_id, d.username as d_username, d.deposit as d_deposit, d.discount as d_discount,
+			d.modified as d_modified, d.created as d_created
+		from user1 as u left join user_authority as ua on u.username = ua.username
+						left join distributor as d on u.username = d.username
+		where u.username = #{username}
+	</select>
+	
+	<insert id="batchInsertTemplate" parameterType="java.util.List">
+		insert into template (name, logistics_type, area, start_standard, start_fee, add_standard, add_fee, created) values
+		<foreach collection="list" item="item" index="index"  
+            separator=",">  
+            (#{item.name}, #{item.logistics_type}, #{item.area}, #{item.start_standard}, #{item.start_fee}, #{item.add_standard}, 
+            #{item.add_fee}, now())
+        </foreach> 
+	</insert>
+	
+	<select id="selectTemplateAll" resultType="Template">
+		select * from template;
+	</select>
+	
+	<select id="selectTemplateByName" parameterType="String" resultType="Template">
+		select * from template where name = #{name};
+	</select>
+	
+	<insert id="insertTemplateName" parameterType="String">
+		insert into template_name(name, created) values(#{name}, now());
+	</insert>
+	
+	<select id="selectTemplateNameByName" parameterType="String" resultType="String">
+		select name from template_name where name=#{name}
+	</select>
+	
+	<select id="selectTemplateNameAll" parameterType="String" resultType="String">
+		select name from template_name
+	</select>
+	
+	<update id="updateTemplate" parameterType="Template">
+		update template set start_standard = #{start_standard}, start_fee = #{start_fee}, add_standard = #{add_standard},
+			add_fee = #{add_fee} where name = #{name} and area = #{area} and logistics_type = #{logistics_type}
+	</update>
+</mapper>

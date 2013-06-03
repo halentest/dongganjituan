@@ -83,7 +83,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public long countTrade(String seller_nick, String name, String status) {
+	public long countTrade(String seller_nick, String name, Integer status) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(StringUtils.isNotBlank(seller_nick)) {
 			param.put("seller_nick", seller_nick.trim());
@@ -91,14 +91,14 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		if(StringUtils.isNotBlank(name)) {
 			param.put("name", name.trim());
 		}
-		if(StringUtils.isNotBlank(status)) {
-			param.put("status", status.trim());
+		if(null != status) {
+			param.put("status", status);
 		}
 		Long count = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.countTrade", param);
 		return count;
 	}
 	
-	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, String status) {
+	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, Integer status) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(StringUtils.isNotBlank(seller_nick)) {
 			param.put("seller_nick", seller_nick.trim());
@@ -110,8 +110,8 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 			param.put("start", paging.getStart());
 			param.put("page_size", paging.getSize());
 		}
-		if(StringUtils.isNotBlank(status)) {
-			param.put("status", status.trim());
+		if(null != status) {
+			param.put("status", status);
 		}
 		List<MyTrade> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", param);
 		return list;

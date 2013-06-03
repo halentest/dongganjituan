@@ -16,8 +16,10 @@ import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.MySku;
 import cn.halen.data.pojo.MyTrade;
+import cn.halen.service.top.LogisticsCompanyClient;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
+import cn.halen.service.top.domain.Status;
 import cn.halen.service.top.util.MoneyUtils;
 import cn.halen.util.Paging;
 
@@ -41,6 +43,9 @@ public class TradeService {
 	@Autowired
 	private TopConfig topConfig;
 	
+	@Autowired
+	private LogisticsCompanyClient logisticsClient;
+	
 	@Transactional(rollbackFor=Exception.class)
 	public void updateSkuAndInsertRefund(MyRefund myRefund, MySku mySku) {
 		try {
@@ -63,6 +68,55 @@ public class TradeService {
 		}
 	}
 	
+	/**
+	 * 发货
+	 * @param myOrder
+	 * @param mySku
+	 */
+	@Transactional(rollbackFor=Exception.class)
+	public String send(long tid, String outSid, String companyName, String companyCode) {
+		try {
+			String errorInfo = logisticsClient.send(tid, outSid, companyCode);
+			if(null == errorInfo) {
+				doSend(tid, companyName, outSid, companyCode);
+			}
+			return errorInfo;
+		} catch(Exception e) {
+			log.error("", e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public String reSend(long tid, String outSid, String companyName, String companyCode) {
+		try {
+			String errorInfo = logisticsClient.reSend(tid, outSid, companyCode);
+			if(null == errorInfo) {
+				doSend(tid, companyName, outSid, companyCode);
+			}
+			return errorInfo;
+		} catch(Exception e) {
+			log.error("", e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private void doSend(long tid, String companyName, String outSid, String companyCode) {
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		myTrade.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
+		myTrade.setLogistics_company(companyName);
+		myTrade.setInvoice_no(outSid);
+		myTradeMapper.updateMyTrade(myTrade);
+		
+		List<MyOrder> list = myTrade.getMyOrderList();
+		for(MyOrder myOrder : list) {
+			myOrder.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
+			myOrder.setLogistics_company(companyName);
+			myOrder.setInvoice_no(outSid);
+			myTradeMapper.updateMyOrder(myOrder);
+		}
+	}
+	
 	public void updateOrder(MyOrder myOrder) {
 		myTradeMapper.updateMyOrder(myOrder);
 	}
@@ -72,9 +126,9 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public void insertMyTrade(MyTrade myTrade) {
+	public int insertMyTrade(MyTrade myTrade) {
 		try{
-			myTradeMapper.insert(myTrade);
+			int count = myTradeMapper.insert(myTrade);
 			for(MyOrder order : myTrade.getMyOrderList()) {
 				String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
 				String[] properties = skuStr.split(";");
@@ -93,6 +147,7 @@ public class TradeService {
 				order.setSku_id(mySku.getId());
 				myTradeMapper.insertMyOrder(order);
 			}
+			return count;
 		} catch(Exception e) {
 			log.error("", e);
 			throw new RuntimeException(e);
@@ -136,11 +191,11 @@ public class TradeService {
 		myTrade.setPostcode(trade.getReceiverZip());
 		myTrade.setPayment(MoneyUtils.convert(trade.getPayment()));
 		myTrade.setDelivery_money(MoneyUtils.convert(trade.getPostFee()));
-		myTrade.setFenxiaoshang_id(1);
+		myTrade.setDistributor_id(1);
 		myTrade.setSeller_memo(trade.getSellerMemo());
 		myTrade.setBuyer_message(trade.getBuyerMessage());
 		myTrade.setSeller_nick(trade.getSellerNick());
-		myTrade.setCome_from("淘宝订单");
+		myTrade.setCome_from("top");
 		myTrade.setModified(trade.getModified());
 		myTrade.setCreated(trade.getCreated());
 		List<Order> orderList = trade.getOrders();
@@ -169,11 +224,11 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public long countTrade(String seller_nick, String name, String status) {
+	public long countTrade(String seller_nick, String name, Integer status) {
 		return myTradeMapper.countTrade(seller_nick, name, status);
 	}
 	
-	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, String status) {
+	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, Integer status) {
 		return myTradeMapper.listTrade(seller_nick, name, paging, status);
 	}
 }

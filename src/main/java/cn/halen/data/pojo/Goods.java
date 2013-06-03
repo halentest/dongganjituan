@@ -6,22 +6,29 @@ import java.util.List;
 public class Goods {
 	private long id;
 	private long tao_id;
-	private String hid; //���
+	private String hid; //
 	private String title;
-	private int weight; //������ ��λ��g
+	
+	private String url;
+	
+	private int weight; //
+	private int price;
+	
+	private int status;
+	
+	private String template;
+	
 	private float discount;
 	private Date created;
 	private Date modified;
 	
 	private List<MySku> skuList;
-	/**
-	 * ���ڵ�Ԫ����
-	 */
+
 	public void setDefault() {
 		id = 1;
 		tao_id = 1321321321;
 		hid = "goods-1";
-		title = "2013�¿��Ůѥ";
+		title = "2013";
 		weight = 3000;
 		discount = 0.38F;
 	}
@@ -30,6 +37,13 @@ public class Goods {
 	}
 	public void setId(long id) {
 		this.id = id;
+	}
+	
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
 	}
 	public long getTao_id() {
 		return tao_id;
@@ -78,6 +92,25 @@ public class Goods {
 	}
 	public void setSkuList(List<MySku> skuList) {
 		this.skuList = skuList;
+	}
+	
+	public int getPrice() {
+		return price;
+	}
+	public void setPrice(int price) {
+		this.price = price;
+	}
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	public String getTemplate() {
+		return template;
+	}
+	public void setTemplate(String template) {
+		this.template = template;
 	}
 	@Override
 	public String toString() {

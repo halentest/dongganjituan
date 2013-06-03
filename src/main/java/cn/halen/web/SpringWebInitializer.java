@@ -1,7 +1,6 @@
 package cn.halen.web;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
 import org.springframework.web.WebApplicationInitializer;
@@ -22,7 +21,7 @@ import cn.halen.service.ServiceConfig;
  */
 public class SpringWebInitializer implements WebApplicationInitializer {
 
-    public void onStartup(ServletContext servletContext) throws ServletException {
+    public void onStartup(ServletContext servletContext) {
     	// Create the 'root' Spring application context
         AnnotationConfigWebApplicationContext rootContext =
           new AnnotationConfigWebApplicationContext();
@@ -46,7 +45,7 @@ public class SpringWebInitializer implements WebApplicationInitializer {
         servletContext.addFilter("springSecurityFilterChain", new DelegatingFilterProxy("springSecurityFilterChain"))
         				.addMappingForUrlPatterns(null, false, "/*");
       //add filter
-        servletContext.addFilter("fenXiaoShangFilterChain", new DelegatingFilterProxy("fenXiaoShangFilterChain"))
+        servletContext.addFilter("userFilterChain", new DelegatingFilterProxy("userFilterChain"))
         				.addMappingForUrlPatterns(null, false, "/*");
     }
 }

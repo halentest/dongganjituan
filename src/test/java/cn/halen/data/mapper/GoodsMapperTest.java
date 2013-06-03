@@ -26,6 +26,14 @@ public class GoodsMapperTest {
 	}
 	
 	@Test
+	public void test_listGoodsDetail() {
+		List<Goods> list = goodsMapper.listGoodsDetail(0, 2, "C6");
+		for(Goods goods : list) {
+			System.out.println(goods);
+		}
+	}
+	
+	@Test
 	public void test_insert() {
 		Goods goods = new Goods();
 		goods.setHid("goods-2");

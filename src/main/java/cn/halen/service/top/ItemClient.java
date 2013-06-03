@@ -16,6 +16,7 @@ import cn.halen.data.mapper.GoodsMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.MySku;
+import cn.halen.service.top.util.MoneyUtils;
 
 import com.taobao.api.ApiException;
 import com.taobao.api.TaobaoClient;
@@ -29,7 +30,8 @@ import com.taobao.api.response.ItemsOnsaleGetResponse;
 
 @Service
 public class ItemClient {
-	private Logger logger = LoggerFactory.getLogger(ItemClient.class);
+	private Logger log = LoggerFactory.getLogger(ItemClient.class);
+	
 	private static final int NUMBER_OF_PARAM = 40;
 	@Autowired
 	private TopConfig topConfig;
@@ -50,7 +52,7 @@ public class ItemClient {
 	
 	public List<Item> getItemList(List<Goods> goodsList) throws ApiException {
 		List<Item> result = new ArrayList<Item>();
-		TaobaoClient client = topConfig.getClient();
+		TaobaoClient client = topConfig.getRetryClient();
 		ItemsCustomGetRequest req = new ItemsCustomGetRequest();
 		for(int loop=0,count=0;;loop++) {
 			StringBuilder builder = new StringBuilder();
@@ -73,7 +75,7 @@ public class ItemClient {
 	}
 	
 	public boolean updateSkuQuantity(long itemId, long skuId, long quantity) throws ApiException {
-		TaobaoClient client = topConfig.getClient();
+		TaobaoClient client = topConfig.getRetryClient();
 		ItemQuantityUpdateRequest req = new ItemQuantityUpdateRequest();
 		req.setNumIid(itemId);
 		req.setSkuId(skuId);
@@ -81,19 +83,90 @@ public class ItemClient {
 		req.setType(1L);
 		ItemQuantityUpdateResponse response = client.execute(req , topConfig.getSession());
 		if(null != response.getErrorCode()) {
-			logger.info("Update sku quantity failed, itemId: {}, skuId: {}, quantity: {}", itemId, skuId, quantity);
+			log.info("Update sku quantity failed, itemId: {}, skuId: {}, quantity: {}", itemId, skuId, quantity);
 			return false;
 		}
 		return true;
 	}
 	
-	/////////////////////////////////////////////////////////////////////////以下代码用于测试
+	public int importGoods2db() throws ApiException, JSONException {
+		
+		int totalSuccess = 0;
+		
+		//查出所有的商品，用于判断是否已经存在
+		List<Goods> dbGoodsList = goodsMapper.list();
+		Map<String, Integer> dbGoodsMap = new HashMap<String, Integer>();
+		for(Goods goods : dbGoodsList) {
+			dbGoodsMap.put(goods.getHid(), 1);
+		}
+		
+		TaobaoClient client = topConfig.getRetryClient();
+		ItemsOnsaleGetRequest req = new ItemsOnsaleGetRequest();
+		req.setFields("num_iid, outer_id, title, price, pic_url");
+		req.setOrderBy("num");
+		req.setPageSize(40L);
+		long pageNo = 1;
+		req.setPageNo(pageNo++);
+		ItemsOnsaleGetResponse response = client.execute(req , topConfig.getSession());
+		List<Goods> goodsList = new ArrayList<Goods>();
+		if(response.isSuccess()) {
+			List<Item> list = response.getItems();
+			log.debug("Got {} items from top api", list.size());
+			for(Item item : list) {
+				if(null == dbGoodsMap.get(item.getOuterId())) {//数据库里没有的才需要同步
+					Goods goods = new Goods();
+					goods.setTao_id(item.getNumIid());
+					goods.setHid(item.getOuterId());
+					goods.setTitle(item.getTitle());
+					goods.setPrice(MoneyUtils.convert(item.getPrice()));
+					goods.setUrl(item.getPicUrl());
+					goods.setTemplate("默认模板");
+					goods.setStatus(1);
+					goodsList.add(goods);
+				}
+			}
+			totalSuccess += goodsMapper.batchInsert(goodsList);
+			importSku(goodsList);
+			
+			long total = response.getTotalResults();
+			if(total > 40L) {
+				while((pageNo - 1) * 40 < total) {
+					req.setPageNo(pageNo++);
+					response = client.execute(req, topConfig.getSession());
+					if(response.isSuccess()) {
+						list = response.getItems();
+						log.debug("Got {} items from top api", list.size());
+						goodsList.clear();
+						for(Item item : list) {
+							if(null == dbGoodsMap.get(item.getOuterId())) {//数据库里没有的才需要同步
+								Goods goods = new Goods();
+								goods.setTao_id(item.getNumIid());
+								goods.setHid(item.getOuterId());
+								goods.setTitle(item.getTitle());
+								goods.setPrice(MoneyUtils.convert(item.getPrice()));
+								goods.setUrl(item.getPicUrl());
+								goods.setTemplate("默认模板");
+								goods.setStatus(1);
+								goodsList.add(goods);
+							}
+						}
+						totalSuccess += goodsMapper.batchInsert(goodsList);
+						importSku(goodsList);
+					} else {
+						log.error("Error while query ItemsOnsaleGetResponse, errorInfo {}", response.getSubCode());
+					}
+				}
+			}
+		} else {
+			log.error("Error while query ItemsOnsaleGetResponse, errorInfo {}", response.getSubCode());
+		}
+		return totalSuccess;
+	}
 	
-	public void importSku2db() throws ApiException, JSONException {
-		TaobaoClient client = topConfig.getClient();
+	public void importSku(List<Goods> goodsList) throws ApiException, JSONException {
+		TaobaoClient client = topConfig.getRetryClient();
 		ItemsCustomGetRequest req = new ItemsCustomGetRequest();
 		//取得outerid list，拼成字符串，最多不超过40个
-		List<Goods> goodsList = goodsMapper.list();
 		
 		for(int loop=0,count=0;;loop++) {
 			StringBuilder builder = new StringBuilder();
@@ -112,9 +185,11 @@ public class ItemClient {
 				break;
 			}
 		}
-	}	
+	}
 	
 	private void insertSku(List<Item> list) {
+		if(null == list || list.size() == 0)
+			return;
 		for(Item item : list) {
 			Map<String, String> alias = new HashMap<String, String>();
 			String propertyAlias = item.getPropertyAlias();
@@ -159,24 +234,4 @@ public class ItemClient {
  			
 		}
 	}
-	
-	public void importGoods2db() throws ApiException, JSONException {
-		TaobaoClient client = topConfig.getClient();
-		ItemsOnsaleGetRequest req = new ItemsOnsaleGetRequest();
-		req.setFields("num_iid, outer_id, title");
-		req.setOrderBy("list_time:desc");
-		req.setPageSize(100L);
-		ItemsOnsaleGetResponse response = client.execute(req , topConfig.getSession());
-		List<Item> list = response.getItems();
-		logger.debug("Got {} items from top api", list.size());
-		List<Goods> goodsList = new ArrayList<Goods>();
-		for(Item item : list) {
-			Goods goods = new Goods();
-			goods.setTao_id(item.getNumIid());
-			goods.setHid(item.getOuterId());
-			goods.setTitle(item.getTitle());
-			goodsList.add(goods);
-		}
-		goodsMapper.batchInsert(goodsList);
-	}	
 }

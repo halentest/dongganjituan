@@ -1,6 +1,8 @@
 package cn.halen.data.mapper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
@@ -13,8 +15,27 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 		return list;
 	}
 	
+	public List<Goods> listGoodsDetail(int start, int pageSize, String goodsId) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("start", start);
+		param.put("page_size", pageSize);
+		param.put("goods_id", goodsId);
+		List<Goods> list = getSqlSession().selectList("cn.halen.data.mapper.GoodsMapper.listGoodsDetail", param);
+		return list;
+	}
+	
+	public int countGoodsPaging(String goodsId) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("goods_id", goodsId);
+		int count = getSqlSession().selectOne("cn.halen.data.mapper.GoodsMapper.goodsCountPaging", param);
+		return count;
+	}
+	
 	public int batchInsert(List<Goods> list) {
-		int count = getSqlSession().insert("cn.halen.data.mapper.GoodsMapper.batchInsert", list);
+		int count = 0;
+		if(null != list && list.size() > 0) {
+			count = getSqlSession().insert("cn.halen.data.mapper.GoodsMapper.batchInsert", list);
+		}
 		return count;
 	}
 	

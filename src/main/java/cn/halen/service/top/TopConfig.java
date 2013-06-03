@@ -20,14 +20,16 @@ public class TopConfig {
 	@Value("${top.url}")
 	private String url;
 	
-	public TaobaoClient getClient() {
-		TaobaoClient client = new DefaultTaobaoClient(url, appKey, appSecret);
-		return client;
-	}
+	private TaobaoClient retryClient = new AutoRetryTaobaoClient(url, appKey, appSecret);
+	
+	private TaobaoClient defaultClient = new DefaultTaobaoClient(url, appKey, appSecret);
 	
 	public TaobaoClient getRetryClient() {
-		TaobaoClient client = new AutoRetryTaobaoClient(url, appKey, appSecret);
-		return client;
+		return new AutoRetryTaobaoClient(url, appKey, appSecret);
+	}
+	
+	public TaobaoClient getClient() {
+		return defaultClient;
 	}
 	
 	public String getUrl() {

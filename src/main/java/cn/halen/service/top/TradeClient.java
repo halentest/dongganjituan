@@ -88,7 +88,7 @@ public class TradeClient {
 	 */
 	public List<Trade> queryTradeList() throws ParseException, ApiException {
 		
-		TaobaoClient client = topConfig.getClient();
+		TaobaoClient client = topConfig.getRetryClient();
 		TradesSoldGetRequest req = new TradesSoldGetRequest();
 		req.setFields("tid");
 		//查询代付款的订单
@@ -135,7 +135,7 @@ public class TradeClient {
 	
 	//////////////////////////////////
 	public void import2db() throws ApiException, JSONException, IOException {
-		TaobaoClient client = topConfig.getClient();
+		TaobaoClient client = topConfig.getRetryClient();
 		TopatsTradesSoldGetRequest req = new TopatsTradesSoldGetRequest();
 		req.setFields("tid,seller_nick,buyer_nick,title,payment,parent_id,type,status,created,orders");
 		req.setStartTime("20130315");

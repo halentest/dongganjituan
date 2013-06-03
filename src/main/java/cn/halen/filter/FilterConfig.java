@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackageClasses = {FilterConfig.class})
 public class FilterConfig {
     @Bean
-    public FenXiaoShangFilterChain fenXiaoShangFilterChain() {
-    	return new FenXiaoShangFilterChain();
+    public UserFilterChain userFilterChain() {
+    	return new UserFilterChain();
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import cn.halen.data.DataConfig;
-import cn.halen.data.pojo.FenXiaoShang;
+import cn.halen.data.pojo.Distributor;
 import cn.halen.service.ServiceConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -17,17 +17,17 @@ import cn.halen.service.ServiceConfig;
 public class FenXiaoShangDaoTest {
 
 	@Autowired
-	private FenXiaoShangDao fenXiaoShangDao;
+	private DistributorDao fenXiaoShangDao;
 	
 	@Test
 	public void testListFenXiaoShang() {
-		List<FenXiaoShang> list = fenXiaoShangDao.list();
+		List<Distributor> list = fenXiaoShangDao.list();
 		System.out.println(list.size());
 	}
 	
 	@Test
 	public void testGetFenXiaoShangById() {
-		FenXiaoShang fenXiaoShang = fenXiaoShangDao.get(1L);
+		Distributor fenXiaoShang = fenXiaoShangDao.get(1L);
 		System.out.println(fenXiaoShang);
 	}
 }

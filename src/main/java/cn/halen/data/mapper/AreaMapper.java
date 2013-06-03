@@ -17,4 +17,9 @@ public class AreaMapper extends SqlSessionDaoSupport {
 		List<Area> list = getSqlSession().selectList("cn.halen.data.mapper.AreaMapper.list");
 		return list;
 	}
+	
+	public List<Area> listByType(int type) {
+		List<Area> list = getSqlSession().selectList("cn.halen.data.mapper.AreaMapper.listByType", type);
+		return list;
+	}
 }

@@ -28,7 +28,7 @@ public class SkuClient {
 	private ItemPropsClient itemPropsService;
 	
 	public void import2db() throws ApiException, JSONException {
-		TaobaoClient client = topConfig.getClient();
+		TaobaoClient client = topConfig.getRetryClient();
 		ItemSkusGetRequest req = new ItemSkusGetRequest();
 		req.setFields("sku_id,iid,properties,properties_name,property_alias,quantity,price,outer_id,created,modified,status");
 		req.setNumIids("19645259663");

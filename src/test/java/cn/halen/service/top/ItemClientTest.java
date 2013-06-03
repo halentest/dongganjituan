@@ -25,8 +25,4 @@ public class ItemClientTest {
 		itemClient.importGoods2db();
 	}
 	
-	@Test
-	public void test_importSku2db() throws ApiException, JSONException {
-		itemClient.importSku2db();
-	}
 }
