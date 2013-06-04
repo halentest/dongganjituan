@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.halen.service.ResultInfo;
+import cn.halen.service.top.AreaClient;
 import cn.halen.service.top.ItemClient;
 import cn.halen.service.top.LogisticsCompanyClient;
 import cn.halen.service.top.TopListenerStarter;
@@ -33,6 +34,9 @@ public class RedirectController {
 	
 	@Autowired
 	private ItemClient itemClient;
+	
+	@Autowired
+	private AreaClient areaClient;
 	
 	@Autowired
 	private TopListenerStarter topListenerStarter;
@@ -116,6 +120,23 @@ public class RedirectController {
 		}
 		log.info("Success sync trade {}", count);
 		result.setErrorInfo("成功导入" + count + "条交易信息");
+		return result;
+	}
+	
+	@RequestMapping(value="/admin/sync_area")
+	public @ResponseBody ResultInfo syncArea() throws IOException, ServletException, JSONException, ParseException {
+		
+		ResultInfo result = new ResultInfo();
+		int count = 0;
+		try {
+			count = areaClient.import2db();
+		} catch (ApiException e) {
+			log.error("Error while sync area", e);
+			result.setSuccess(false);
+			result.setErrorInfo("系统异常，更新失败");
+		}
+		log.info("Success sync area {}", count);
+		result.setErrorInfo("成功导入" + count + "条地区信息");
 		return result;
 	}
 }

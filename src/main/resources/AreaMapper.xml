@@ -14,10 +14,14 @@
 	</insert>
 	
 	<select id="list" resultType="Area">
-		select * from area
+		select id, name, parent_id as parentId, type from area
 	</select>
 	
 	<select id="listByType" parameterType="int" resultType="Area">
 		select * from area where type = #{type}
+	</select>
+	
+	<select id="listByParent" parameterType="int" resultType="Area">
+		select * from area where parent_id = #{parent_id}
 	</select>
 </mapper>

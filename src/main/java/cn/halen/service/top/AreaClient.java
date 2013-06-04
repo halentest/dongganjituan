@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +25,6 @@ public class AreaClient {
 	private TopConfig topConfig;
 	@Autowired
 	private AreaMapper areaMapper;
-	
-//	public int import2db() throws ApiException, JSONException {
-//		TaobaoClient client = topConfig.getRetryClient();
-//		AreasGetRequest req = new AreasGetRequest();
-//		req.setFields("id,type,name,parent_id");
-//		AreasGetResponse response = client.execute(req);
-//		List<Area> list = response.getAreas();
-//		log.debug("Got {} areas from top api", list.size());
-//		int count = areaMapper.batchInsert(list);
-//		log.debug("Successed to insert {} area to db", count);
-//		return count;
-//	}
 	
 	public int import2db() throws ApiException {
 		TaobaoClient client = topConfig.getRetryClient();

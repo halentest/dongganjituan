@@ -1,5 +1,6 @@
 package cn.halen.controller;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -7,13 +8,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import cn.halen.controller.formbean.ClientOrder;
 import cn.halen.data.mapper.GoodsMapper;
+import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.MySku;
 import cn.halen.util.Paging;
@@ -24,12 +28,18 @@ public class GoodsController {
 	@Autowired
 	private GoodsMapper goodsMapper;
 	
+	@Autowired
+	private MyLogisticsCompanyMapper myLogisticsCompanyMapper;
+	
 	@RequestMapping(value="huopin/goods_list")
 	public String list(Model model, @RequestParam(value="page", required=false) Integer page,
 			@RequestParam(value="goods_id", required=false) String goodsId) {
 		int intPage = 1;
 		if(null!=page && page>0) {
 			intPage = page;
+		}
+		if(null != goodsId) {
+			goodsId = goodsId.trim();
 		}
 		model.addAttribute("goods_id", goodsId);
 		long totalCount = goodsMapper.countGoodsPaging(goodsId);
@@ -38,7 +48,7 @@ public class GoodsController {
 		
 		List<Goods> list = goodsMapper.listGoodsDetail(paging.getStart(), paging.getPageSize(), goodsId);
 		if(null == list || list.size() == 0) {
-			return "huopin/goods_list";
+			return "goods/goods_list";
 		}
 		
 		//<Goods, <颜色, <尺码, 数量>>>
@@ -90,12 +100,33 @@ public class GoodsController {
 		return "goods/goods_list";
 	}
 	
-//	@RequestMapping(value="huopin/get_goods_by_id")
-//	public @ResponseBody Goods getGoodsById(@RequestParam("id") long id) throws JSONException {
-//		
-//		Goods goods = goodsService.getById(id);
-//		return goods;
-//	}
+	@RequestMapping(value="huopin/buy_goods_form")
+	public String buyGoodsForm(Model model, @RequestParam("orders") String orders) {
+		if(StringUtils.isEmpty(orders)) {
+			model.addAttribute("errorInfo", "请选择要购买的商品！");
+			return "error_page";
+		}
+		List<ClientOrder> orderList = new ArrayList<ClientOrder>();
+		
+		String[] orderArr = orders.split(":::");
+		for(String order : orderArr) {
+			String[] items = order.split(",");
+			if(items.length != 6) {
+				continue;
+			}
+			ClientOrder clientOrder = new ClientOrder();
+			clientOrder.setGoodsId(items[0]);
+			clientOrder.setUrl(items[1]);
+			clientOrder.setTitle(items[2]);
+			clientOrder.setColor(items[3]);
+			clientOrder.setSize(items[4]);
+			clientOrder.setCount(Integer.parseInt(items[5]));
+			orderList.add(clientOrder);
+		}
+		model.addAttribute("orderList", orderList);
+		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
+		return "goods/buy_goods_form";
+	}
 //	
 //	@RequestMapping(value="huopin/update_goods_base")
 //	public @ResponseBody ResultInfo updateGoodsBase(@RequestBody GoodsBase goodsBase) {

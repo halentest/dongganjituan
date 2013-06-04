@@ -1,7 +1,5 @@
 package cn.halen.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,8 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
-import cn.halen.data.pojo.MyTrade;
-import cn.halen.util.Paging;
 
 @Controller
 public class LogisticsCompanyController {
