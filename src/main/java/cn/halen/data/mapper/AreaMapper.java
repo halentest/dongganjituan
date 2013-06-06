@@ -27,4 +27,8 @@ public class AreaMapper extends SqlSessionDaoSupport {
 		List<Area> list = getSqlSession().selectList("cn.halen.data.mapper.AreaMapper.listByParent", parentId);
 		return list;
 	}
+	
+	public Area selectById(long id) {
+		return getSqlSession().selectOne("cn.halen.data.mapper.AreaMapper.selectById", id);
+	}
 }

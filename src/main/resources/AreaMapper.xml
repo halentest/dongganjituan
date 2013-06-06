@@ -24,4 +24,8 @@
 	<select id="listByParent" parameterType="int" resultType="Area">
 		select * from area where parent_id = #{parent_id}
 	</select>
+	
+	<select id="selectById" parameterType="int" resultType="Area">
+		select * from area where id = #{id}
+	</select>
 </mapper>

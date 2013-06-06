@@ -12,7 +12,9 @@ public class MyOrder {
 	private String title;
 	private String pic_path;
 	private long sku_id;
-	private String skuPropertiesName;
+	//private String skuPropertiesName;
+	private String color;
+	private String size;
 	private long quantity;
 	private int price;
 	private float discount;
@@ -60,11 +62,18 @@ public class MyOrder {
 	public void setOid(long oid) {
 		this.oid = oid;
 	}
-	public String getSkuPropertiesName() {
-		return skuPropertiesName;
+	
+	public String getColor() {
+		return color;
 	}
-	public void setSkuPropertiesName(String skuPropertiesName) {
-		this.skuPropertiesName = skuPropertiesName;
+	public void setColor(String color) {
+		this.color = color;
+	}
+	public String getSize() {
+		return size;
+	}
+	public void setSize(String size) {
+		this.size = size;
 	}
 	public String getLogistics_company() {
 		return logistics_company;
@@ -150,11 +159,13 @@ public class MyOrder {
 	@Override
 	public String toString() {
 		return "MyOrder [id=" + id + ", tid=" + tid + ", oid=" + oid
-				+ ", goods_id=" + goods_id + ", sku_id=" + sku_id
-				+ ", skuPropertiesName=" + skuPropertiesName + ", quantity="
-				+ quantity + ", price=" + price + ", discount=" + discount
-				+ ", weight=" + weight + ", payment=" + payment
-				+ ", logistics_company=" + logistics_company + ", invoice_no="
-				+ invoice_no + ", status=" + status + "]";
+				+ ", goods_id=" + goods_id + ", title=" + title + ", pic_path="
+				+ pic_path + ", sku_id=" + sku_id + ", color=" + color
+				+ ", size=" + size + ", quantity=" + quantity + ", price="
+				+ price + ", discount=" + discount + ", weight=" + weight
+				+ ", payment=" + payment + ", logistics_company="
+				+ logistics_company + ", invoice_no=" + invoice_no
+				+ ", status=" + status + ", created=" + created + ", modified="
+				+ modified + ", oStatus=" + oStatus + ", sku=" + sku + "]";
 	}
 }

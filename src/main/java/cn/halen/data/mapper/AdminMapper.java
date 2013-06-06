@@ -1,6 +1,8 @@
 package cn.halen.data.mapper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
@@ -42,6 +44,14 @@ public class AdminMapper extends SqlSessionDaoSupport {
 	
 	public List<String> selectTemplateNameAll() {
 		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectTemplateNameAll");
+	}
+	
+	public Template selectTemplate(String name, String logisticsType, String area) {
+		Map<String, String> param = new HashMap<String, String>();
+		param.put("name", name);
+		param.put("logisticsType", logisticsType);
+		param.put("area", area);
+		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectTemplate", param);
 	}
 	
 	public int updateTemplate(Template template) {

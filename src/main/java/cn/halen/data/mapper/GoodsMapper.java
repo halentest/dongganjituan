@@ -53,4 +53,8 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 		int count = getSqlSession().update("cn.halen.data.mapper.GoodsMapper.update", goods);
 		return count;
 	}
+	
+	public Goods getByHid(String hid) {
+		return getSqlSession().selectOne("cn.halen.data.mapper.GoodsMapper.getByHid", hid);
+	}
 }

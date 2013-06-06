@@ -19,6 +19,7 @@
 		<result property="postcode" column="t_postcode"/>
 		<result property="delivery" column="t_delivery"/>
 		<result property="delivery_money" column="t_delivery_money"/>
+		<result property="logistics_company" column="t_logistics_company"/>
 		<result property="template_id" column="t_template_id"/>
 		<result property="total_weight" column="t_total_weight"/>
 		<result property="goods_count" column="t_goods_count"/>
@@ -61,7 +62,7 @@
 	<insert id="insert" parameterType="MyTrade">
 		insert into trade(tid, name, phone, mobile, state, city, district, address, postcode, delivery, delivery_money,
 			goods_count, payment, distributor_id, status, my_status, seller_memo, buyer_message, seller_nick, come_from, modified, created) values (
-			#{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery},
+			#{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{logistics_company},
 			#{delivery_money}, #{goods_count}, #{payment}, #{distributor_id}, #{status}, #{my_status}, #{seller_memo}, 
 			#{buyer_message}, #{seller_nick}, #{come_from}, #{modified}, #{created})
 	</insert>
@@ -103,7 +104,7 @@
 	<select id="selectTradeDetail" parameterType="java.util.Map" resultMap="myTradeMap" >
 		select t.id as t_id, t.tid as t_tid, t.name as t_name, t.phone as t_phone, t.mobile as t_mobile, t.area_id as t_area_id, t.state as t_state,
 		       t.city as t_city, t.district as t_district, t.address as t_address, t.postcode as t_postcode, t.delivery as t_delivery,
-			   t.delivery_money as t_delivery_money, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count, 
+			   t.delivery_money as t_delivery_money, t.delivery as o_logistics_company, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count, 
 			   t.payment as t_payment, t.distributor_id as t_distributor_id, t.status as t_status, t.my_status as t_my_status, t.seller_memo as t_seller_memo, 
 			   t.buyer_message as t_buyer_message, t.seller_nick as t_seller_nick, t.come_from as t_come_from, t.modified as t_modified, t.created as t_created,
 			   o.id as o_id, o.tid as o_tid, o.oid as o_oid, o.goods_id as o_goods_id, o.title as o_title, o.pic_path as o_pic_path, o.sku_id as o_sku_id, o.quantity as o_quantity, o.price as o_price, 

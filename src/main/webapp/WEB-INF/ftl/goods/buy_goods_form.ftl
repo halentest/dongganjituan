@@ -1,10 +1,18 @@
 <#import "/templates/root.ftl" as root >
 <style>
+	input.my-input {
+		height: 50px;
+	}
 </style>
 
 <@root.html active=2 css=["jdpicker.css", "trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js", "highcharts.js", "exporting.js"]>
+<form action="${rc.contextPath}/fenxiao/buy_goods" method="">
 <table>
 	<#list orderList as order>
+	<input type="hidden" name="goods${order_index}" value="${order.goodsId}"/>
+	<input type="hidden" name="color${order_index}" value="${order.color}"/>
+	<input type="hidden" name="size${order_index}" value="${order.size}"/>
+	<input type="hidden" name="token" value="${token}"/>
 	<tr>
 		<td><img src="${order.url}_80x80.jpg"/></td>
 		<td>${order.goodsId}</td>
@@ -14,28 +22,49 @@
 			<p>尺码: ${order.size}</p>
 		</td>
 		<td>
-			<p>数量：<input style="margin-top: 5px; width: 30px;" type="text" value="${order.count}" /></p>
+			<p>数量：<input name="count${order_index}" style="margin-top: 5px; width: 30px;" type="text" value="${order.count}" /></p>
 		</td>
 	</tr>
 	</#list>
 </table>
 <p>选择快递：
-	<select id="logistics" style="">
+	<select id="logistics" name="logistics" style="">
 		<#list logistics as lo>
 			<option value="${lo.code}" <#if lo.status==1>selected</#if>>${lo.name}</option>
 		</#list>
 	</select>
-	
-	<select id="province">
+</p>
+<p>选择地址：
+	<select id="province" name="province">
 		<option value="-1">选择省</option>
 	</select>
-	<select id="city">
+	<select id="city" name="city">
 		<option value="-1">选择市</option>
 	</select>
-	<select id="district">
+	<select id="district" name="district">
 		<option value="-1">选择区</option>
 	</select>
+	邮编：
+	<input name="postcode" class="my-input" type="text"/>
 </p>
+<p>
+详细地址：
+	<input name="address" class="my-input" type="text"/>
+</p>
+<p>
+给仓库留言：
+	<input name="seller_memo" class="my-input" type="text"/>
+</p>
+<p>
+收货人：
+	<input name="receiver" class="my-input" type="text"/>
+手机：
+	<input name="mobile" class="my-input" type="text"/>
+电话:
+	<input name="phone" class="my-input" type="text"/>
+</p>
+<input type="submit" value="确定购买">
+</form>
 </@root.html>
 
 <script type="text/javascript">

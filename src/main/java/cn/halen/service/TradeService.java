@@ -130,14 +130,11 @@ public class TradeService {
 		try{
 			int count = myTradeMapper.insert(myTrade);
 			for(MyOrder order : myTrade.getMyOrderList()) {
-				String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
-				String[] properties = skuStr.split(";");
-				String color = properties[0].split(":")[1];
-				String size = properties[1].split(":")[1];
+				
 				MySku mySku = new MySku();
 				mySku.setGoods_id(order.getGoods_id());
-				mySku.setColor(color);
-				mySku.setSize(size);
+				mySku.setColor(order.getColor());
+				mySku.setSize(order.getSize());
 				mySku = mySkuMapper.select(mySku);
 				if(order.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
 					//更新库存
@@ -206,7 +203,14 @@ public class TradeService {
 			MyOrder myOrder = new MyOrder();
 			myOrder.setTid(trade.getTid());
 			myOrder.setOid(order.getOid());
-			myOrder.setSkuPropertiesName(order.getSkuPropertiesName());
+			
+			String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
+			String[] properties = skuStr.split(";");
+			String color = properties[0].split(":")[1];
+			String size = properties[1].split(":")[1];
+			
+			myOrder.setColor(color);
+			myOrder.setSize(size);
 			myOrder.setGoods_id(order.getOuterIid());
 			myOrder.setTitle(order.getTitle());
 			myOrder.setPic_path(order.getPicPath());

@@ -11,6 +11,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import cn.halen.controller.ControllerConfig;
 import cn.halen.data.DataConfig;
+import cn.halen.data.redis.RedisConfig;
 import cn.halen.filter.FilterConfig;
 import cn.halen.service.ServiceConfig;
 
@@ -25,7 +26,7 @@ public class SpringWebInitializer implements WebApplicationInitializer {
     	// Create the 'root' Spring application context
         AnnotationConfigWebApplicationContext rootContext =
           new AnnotationConfigWebApplicationContext();
-        rootContext.register(DataConfig.class, ServiceConfig.class, FilterConfig.class);
+        rootContext.register(DataConfig.class, ServiceConfig.class, FilterConfig.class, RedisConfig.class);
 
         // Manage the lifecycle of the root application context
         servletContext.addListener(new ContextLoaderListener(rootContext));

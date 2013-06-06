@@ -96,4 +96,8 @@
 			</foreach>
 		</if>
 	</select>
+	
+	<select id="getByHid" parameterType="String" resultType="Goods" >
+		select * from goods where hid = #{hid}
+	</select>
 </mapper>

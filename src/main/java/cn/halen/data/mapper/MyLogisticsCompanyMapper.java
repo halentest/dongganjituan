@@ -7,10 +7,14 @@ import org.mybatis.spring.support.SqlSessionDaoSupport;
 import cn.halen.data.pojo.MyLogisticsCompany;
 
 public class MyLogisticsCompanyMapper extends SqlSessionDaoSupport {
-
+	
 	public int batchInsert(List<MyLogisticsCompany> list) {
 		int count = getSqlSession().insert("cn.halen.data.mapper.MyLogisticsCompanyMapper.batchInsert", list);
 		return count;
+	}
+	
+	public MyLogisticsCompany selectByCode(String code) {
+		return getSqlSession().selectOne("cn.halen.data.mapper.MyLogisticsCompanyMapper.selectByCode", code);
 	}
 	
 	public int insert(MyLogisticsCompany company) {

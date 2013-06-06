@@ -122,7 +122,7 @@ create table order1
 (
 	id bigint primary key auto_increment, 
 	tid bigint unsigned not null, 
-	oid bigint unsigned unique not null,
+	oid bigint unsigned,
 	goods_id varchar(100),
 	title varchar(255),
 	pic_path varchar(255),
@@ -187,6 +187,7 @@ insert into user_authority values(null, 'zhangzhidong', 'user', now(), now());
 
 insert into user_authority values(null, 'xujuan', 'huopin', now(), now());
 insert into user_authority values(null, 'xujuan', 'user', now(), now());
+insert into user_authority values(null, 'xujuan', 'fenxiao', now(), now());
 
 insert into user_authority values(null, 'accounting', 'user', now(), now());
 insert into user_authority values(null, 'accounting', 'accounting', now(), now());
@@ -209,6 +210,7 @@ create table distributor (
 	unique key(username)
 );
 insert into distributor values(null, 'zhangzhidong', 500000, 0.36, now(), now());
+insert into distributor values(null, 'xujuan', 500000, 0.36, now(), now());
 
 
 

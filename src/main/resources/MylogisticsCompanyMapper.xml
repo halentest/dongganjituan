@@ -30,6 +30,10 @@
 		select * from logistics_company where status = #{status}
 	</select>
 	
+	<select id="selectByCode" parameterType="String" resultType="MyLogisticsCompany">
+		select * from logistics_company where code = #{code}
+	</select>
+	
 	<update id="update" parameterType="MyLogisticsCompany">
 		update logistics_company set name = #{name}, reg_mail_no = #{reg_mail_no}, status = #{status} 
 			where code = #{code};
