@@ -6,7 +6,11 @@
 </style>
 
 <@root.html active=2 css=["jdpicker.css", "trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js", "highcharts.js", "exporting.js"]>
+<i class="icon-pencil"></i>创建订单
 <form action="${rc.contextPath}/fenxiao/buy_goods" method="">
+<#if fromcart??>
+	111
+<#else>
 <table>
 	<#list orderList as order>
 	<input type="hidden" name="goods${order_index}" value="${order.goodsId}"/>
@@ -27,6 +31,7 @@
 	</tr>
 	</#list>
 </table>
+</#if>
 <p>选择快递：
 	<select id="logistics" name="logistics" style="">
 		<#list logistics as lo>

@@ -192,7 +192,7 @@ public class TradeService {
 		myTrade.setSeller_memo(trade.getSellerMemo());
 		myTrade.setBuyer_message(trade.getBuyerMessage());
 		myTrade.setSeller_nick(trade.getSellerNick());
-		myTrade.setCome_from("top");
+		myTrade.setCome_from("自动同步");
 		myTrade.setModified(trade.getModified());
 		myTrade.setCreated(trade.getCreated());
 		List<Order> orderList = trade.getOrders();

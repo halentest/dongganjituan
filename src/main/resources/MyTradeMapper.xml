@@ -140,6 +140,7 @@
 			   </choose>
 			   join order1 o on t.tid = o.tid
 			   join sku s on o.sku_id = s.id 
+			   order by t.modified desc
 	</select>
 	
 	<select id="selectOrderByOrderId" parameterType="Long" resultType="MyOrder">

@@ -27,7 +27,7 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 	public int countGoodsPaging(String goodsId) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("goods_id", goodsId);
-		int count = getSqlSession().selectOne("cn.halen.data.mapper.GoodsMapper.goodsCountPaging", param);
+		Integer count = getSqlSession().selectOne("cn.halen.data.mapper.GoodsMapper.goodsCountPaging", param);
 		return count;
 	}
 	

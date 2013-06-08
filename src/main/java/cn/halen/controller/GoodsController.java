@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -41,6 +43,7 @@ import cn.halen.util.Paging;
 @Controller
 public class GoodsController implements InitializingBean {
 
+	private Logger log = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private GoodsMapper goodsMapper;
 	
@@ -143,7 +146,18 @@ public class GoodsController implements InitializingBean {
 	}
 	
 	@RequestMapping(value="huopin/buy_goods_form")
-	public String buyGoodsForm(Model model, @RequestParam("orders") String orders) {
+	public String buyGoodsForm(Model model, @RequestParam(value="orders", required=false) String orders, 
+			@RequestParam(value="fromcart", required=false) String fromCart) {
+		User user = UserHolder.get();
+		String token = user.getUsername() + System.currentTimeMillis();
+		tokens.put(token, "ture");
+		model.addAttribute("token", token);
+		
+		if(null != fromCart) {
+			model.addAttribute("fromcart", true);
+			model.addAttribute("logistics", myLogisticsCompanyMapper.list());
+			return "goods/buy_goods_form";
+		}
 		if(StringUtils.isEmpty(orders)) {
 			model.addAttribute("errorInfo", "请选择要购买的商品！");
 			return "error_page";
@@ -168,10 +182,6 @@ public class GoodsController implements InitializingBean {
 		model.addAttribute("orderList", orderList);
 		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
 		
-		User user = UserHolder.get();
-		String token = user.getUsername() + System.currentTimeMillis();
-		tokens.put(token, "ture");
-		model.addAttribute("token", token);
 		return "goods/buy_goods_form";
 	}
 
@@ -183,13 +193,20 @@ public class GoodsController implements InitializingBean {
 			model.addAttribute("errorInfo", "请不要重复提交表单！");
 			return "error_page";
 		}
-		tokens.remove(token);
 		
 		String logistics = req.getParameter("logistics");
 		String province = req.getParameter("province");
 		String city = req.getParameter("city");
 		String district = req.getParameter("district");
 		String address = req.getParameter("address");
+		String receiver = req.getParameter("receiver");
+		String phone = req.getParameter("phone");
+		String mobile = req.getParameter("mobile");
+		String errorInfo = validateAddress(model, province, city, district, address, receiver, mobile);
+		if(null != errorInfo) {
+			model.addAttribute("errorInfo", errorInfo);
+			return "error_page";
+		}
 		String postcode = req.getParameter("postcode");
 		String sellerMemo = req.getParameter("seller_memo");
 	
@@ -226,12 +243,12 @@ public class GoodsController implements InitializingBean {
 		trade.setAddress(address);
 		trade.setPostcode(postcode);
 		trade.setSeller_memo(sellerMemo);
-		trade.setName(req.getParameter("receiver"));
-		trade.setPhone(req.getParameter("phone"));
-		trade.setMobile(req.getParameter("mobile"));
+		trade.setName(receiver);
+		trade.setPhone(phone);
+		trade.setMobile(mobile);
 		trade.setMy_status(MyStatus.WaitSend.getStatus());
 		trade.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
-		trade.setCome_from("manual");
+		trade.setCome_from("手工下单");
 		
 		boolean hasNext = true;
 		
@@ -308,14 +325,43 @@ public class GoodsController implements InitializingBean {
 		}
 		trade.setDelivery_money(deliveryMoney);
 		
-		tradeService.insertMyTrade(trade);
-		
+		try{
+			tradeService.insertMyTrade(trade);
+		} catch(Exception e) {
+			log.error("", e);
+			model.addAttribute("error", "系统异常，请重试！");
+		}
+		tokens.remove(token);
 		return "goods/buy_goods_result";
+	}
+	
+	@RequestMapping(value="fenxiao/shopcart")
+	public String shopCart(Model model, HttpServletRequest req) {
+		return "goods/shop_cart";
 	}
 	
 	@SuppressWarnings("unchecked")
 	public synchronized long generateTradeId() {
 		return redisTemplate.opsForValue().increment(REDIS_TRADE_ID_KEY, 1);
+	}
+	
+	private String validateAddress(Model model, String province, String city, String district, String address
+			, String receiver, String mobile) {
+		String errorInfo = null;
+		if(province.equals("-1")) {
+			errorInfo = "请选择省!";
+		} else if(city.equals("-1")) {
+			errorInfo = "请选择市!";
+		} else if(district.equals("-1")) {
+			errorInfo = "请选择地区!";
+		} else if(StringUtils.isEmpty(address)) {
+			errorInfo = "请填写详细地址!";
+		} else if(null==receiver || StringUtils.isEmpty(receiver.trim())) {
+			errorInfo = "请填写收货人!";
+		} else if(null==mobile || StringUtils.isEmpty(mobile)) {
+			errorInfo = "请填写手机号码!";
+		}
+		return errorInfo;
 	}
 
 	@Override

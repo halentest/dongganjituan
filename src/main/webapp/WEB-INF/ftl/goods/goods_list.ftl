@@ -6,6 +6,7 @@
 </style>
 
 <@root.html active=2 css=["jdpicker.css", "trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js", "highcharts.js", "exporting.js"]>
+	<i class="icon-list-alt"></i>商品列表
 	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
 		<strong>商品编号</strong>
 		<input id="goods-id" type="input" value="" style="width: 6%; height: 20px;"/>
@@ -39,8 +40,8 @@
         	  		</#list>
         	  		<td rowspan="${map2?size+1}" style="width: 12%;">
         	  			<p><a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">点击购买</a></p>
-        	  			<p>加入购物车</p>
-        	  			<p>查看购物车</p>
+        	  			<p><a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a></p>
+        	  			<p><a href="${rc.contextPath}/fenxiao/shopcart">查看购物车</a></p>
         	  		</td>
         	  </tr>
         	  <#list map2?keys as key2>
@@ -98,13 +99,6 @@
 		   			$(this).attr("is-selected", "false");
 		   			$(this).css("background-color", "white");
 		   		}
-		   		//if($(this).hasClass("selected")) {
-		   		//	$(this).removeClass("selected");
-			   	//	$(this).css("background-color", "white");
-		   		//} else {
-			   	//	$(this).addClass("selected");
-			   	//	$(this).css("background-color", "red");
-		   		//}
 		   })
 		   
 		   $('.buy-button').click(function() {
@@ -124,6 +118,30 @@
 		   			}
 		   		})
 		   		window.location.href = "${rc.contextPath}/huopin/buy_goods_form?orders=" + orders;
+		   })
+		   
+		   $('.add-to-cart').click(function() {
+		   		var goods = $(this).attr("data-goods");
+		   		var selected = $("[data-goods='" + goods + "'][is-selected='true']");
+		   		if(selected.size()==0) {
+		   			alert("请选择要购买的商品！");
+		   			return;
+		   		}
+		   		var orders = ''
+		   		selected.each(function(index, element) {
+		   			orders += goods + ',' + $(this).attr("data-url") + ',' + $(this).attr("data-title")
+		   				 + ',' + $(this).attr("data-color") + ',' +
+		   				$(this).attr("data-size") + ',1';
+		   			if(index != selected.size()-1) {
+		   				orders += ':::';
+		   			}
+		   		})
+		   		var originalOrders = $.cookie("orders");
+		   		if(originalOrders != null) {
+		   			orders = originalOrders + ":::" + orders;
+		   		}
+		   		$.cookie('orders', orders, { expires: 7, path: '/' });
+		   		window.location.href = "${rc.contextPath}/fenxiao/shopcart?fromcart=true";
 		   })
 		   
 	});

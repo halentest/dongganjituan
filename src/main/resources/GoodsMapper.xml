@@ -49,7 +49,7 @@
    			</where>
 			limit #{start}, #{page_size}) g 
 			left join sku s on g.hid = s.goods_id 
-			order by g.modified desc 
+			order by g.hid 
 	</select>	
 	
 	<select id="goodsCountPaging" parameterType="java.util.Map" resultType="int">

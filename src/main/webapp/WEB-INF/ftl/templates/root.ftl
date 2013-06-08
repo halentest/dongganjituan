@@ -55,7 +55,7 @@
 	          <li <#if active==2> class="active dropdown" <#else>  class="dropdown" </#if> >
 	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">库存管理 <b class="caret"></b></a>
 	              <ul class="dropdown-menu">
-	                  <li><a href="${rc.contextPath}/huopin/goods_list">库存列表</a></li>
+	                  <li><a href="${rc.contextPath}/huopin/goods_list">商品列表</a></li>
 	                  <li><a href="#">添加商品</a></li>
 	                  <li class="divider"></li>
 	                  <li><a href="#">进货(excel批量导入)</a></li>

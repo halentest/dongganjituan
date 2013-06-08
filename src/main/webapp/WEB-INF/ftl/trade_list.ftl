@@ -6,6 +6,7 @@
 </object>
 
 <@root.html active=3 css=["trade_list.css", "jqpagination.css"] js=["pagination.js", "jquery.jqpagination.min.js"]>
+	<i class="icon-list-alt"></i>订单列表
 	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
 		<strong>状态</strong>
 		<select id="status" style="width: 8%;">
@@ -56,7 +57,7 @@
 		      <#list orderList as order>
 		      	  <tr class="order_list">
 		      	  		<td  style="width: 80px;">
-		      	  			<img style="width: 80px; height: 80px;" src="${order.pic_path}" />
+		      	  			<img style="width: 80px; height: 80px;" src="${order.pic_path}_80x80.jpg" />
 		      	  		</td>
 				        <td style="width: 25%;">
 				        	<p><strong>名称：</strong>${order.title}</p>
