@@ -39,9 +39,11 @@
         	  			</#if>
         	  		</#list>
         	  		<td rowspan="${map2?size+1}" style="width: 12%;">
+        	  		<#if CURRENT_USER.type=="Distributor">
         	  			<p><a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">点击购买</a></p>
         	  			<p><a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a></p>
-        	  			<p><a href="${rc.contextPath}/fenxiao/shopcart">查看购物车</a></p>
+        	  			<p><a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a></p>
+        	  		</#if>
         	  		</td>
         	  </tr>
         	  <#list map2?keys as key2>
@@ -80,14 +82,14 @@
 	      $('.pagination').jqPagination({
 			    paged: function(page) {
 			    	var goodsId = $('#goods-id').val();
-			        window.location.href="/huopin/goods_list?page=" + page + "&goods_id=" + goodsId;
+			        window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId;
 			    }
 		   });
 		   
 		   $('#search').click(function() {
 		   		var goodsId = $('#goods-id').val();
 		    	var page = $('#page').attr('data-current-page');
-		   		window.location.href="/huopin/goods_list?page=" + page + "&goods_id=" + goodsId;
+		   		window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId;
 		   });
 		   
 		   $('td.can-click').click(function() {
@@ -117,7 +119,7 @@
 		   				orders += ':::';
 		   			}
 		   		})
-		   		window.location.href = "${rc.contextPath}/huopin/buy_goods_form?orders=" + orders;
+		   		window.location.href = "${rc.contextPath}/trade/action/buy_goods_form?orders=" + orders;
 		   })
 		   
 		   $('.add-to-cart').click(function() {
@@ -141,7 +143,7 @@
 		   			orders = originalOrders + ":::" + orders;
 		   		}
 		   		$.cookie('orders', orders, { expires: 7, path: '/' });
-		   		window.location.href = "${rc.contextPath}/fenxiao/shopcart?fromcart=true";
+		   		window.location.href = "${rc.contextPath}/trade/action/shopcart";
 		   })
 		   
 	});

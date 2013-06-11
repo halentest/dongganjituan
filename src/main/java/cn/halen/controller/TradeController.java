@@ -22,7 +22,7 @@ public class TradeController {
 	@Autowired
 	private MyLogisticsCompanyMapper myLogisticsCompanyMapper;
 	
-	@RequestMapping(value="trade_list")
+	@RequestMapping(value="trade/trade_list")
 	public String list(Model model, @RequestParam(value="seller_nick", required=false) String seller_nick,
 			@RequestParam(value="name", required=false) String name, 
 			@RequestParam(value="status", required=false) Integer status,
@@ -40,7 +40,7 @@ public class TradeController {
 		model.addAttribute("status", status);
 		model.addAttribute("seller_nick", seller_nick);
 		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
-		return "trade_list";
+		return "trade/trade_list";
 	}
 	
 	@RequestMapping(value="fenxiao/add_trade_form")

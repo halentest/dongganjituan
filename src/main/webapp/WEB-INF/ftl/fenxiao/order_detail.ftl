@@ -159,7 +159,7 @@
           
           // add goods to order
           $('#add-goods').click(function() {
-              window.location.href = "${rc.contextPath}/huopin/goods_list?order_id=" + $('#order-id').val();
+              window.location.href = "${rc.contextPath}/goods/goods_list?order_id=" + $('#order-id').val();
           })
     })
 </script>

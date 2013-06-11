@@ -41,7 +41,7 @@
     </div>
     <div class="container">
         <ul class="nav nav-tabs">
-	          <#if CURRENT_USER.hasAnyAuthority("admin", "superadmin")>
+	          <#if CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin">
 			          <li <#if active==1> class="active dropdown" <#else>  class="dropdown" </#if> >
 			          		<a class="dropdown-toggle" data-toggle="dropdown" href="#">系统管理<b class="caret"></b></a>
 			          		<ul class="dropdown-menu">
@@ -55,7 +55,7 @@
 	          <li <#if active==2> class="active dropdown" <#else>  class="dropdown" </#if> >
 	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">库存管理 <b class="caret"></b></a>
 	              <ul class="dropdown-menu">
-	                  <li><a href="${rc.contextPath}/huopin/goods_list">商品列表</a></li>
+	                  <li><a href="${rc.contextPath}/goods/goods_list">商品列表</a></li>
 	                  <li><a href="#">添加商品</a></li>
 	                  <li class="divider"></li>
 	                  <li><a href="#">进货(excel批量导入)</a></li>
@@ -65,23 +65,21 @@
 	          <li <#if active==3> class="active dropdown" <#else>  class="dropdown" </#if>>
 	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">订单管理 <b class="caret"></b></a>
 	              <ul class="dropdown-menu">
-	                  <li><a href="${rc.contextPath}/trade_list">订单列表</a></li>
+	                  <li><a href="${rc.contextPath}/trade/trade_list">订单列表</a></li>
 	                  <li><a href="${rc.contextPath}/fenxiao/add_trade_form">新建订单</a></li>
 	                  <li><a href="#">其他</a></li>
 	                  <li class="divider"></li>
 	                  <li><a href="#">被间隔的链接</a></li>
 	              </ul>
 	          </li>
+	          <#if CURRENT_USER.type=="Accounting">
 	          <li <#if active==4> class="active dropdown" <#else>  class="dropdown" </#if>">
-	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">运费模板 <b class="caret bottom-up"></b></a>
+	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">财务管理<b class="caret bottom-up"></b></a>
 	              <ul class="dropdown-menu bottom-up pull-right">
-	                    <li><a href="#">动作</a></li>
-	                    <li><a href="#">其他动作</a></li>
-	                    <li><a href="#">其他</a></li>
-	                    <li class="divider"></li>
-	                    <li><a href="#">被间隔的链接</a></li>
+	                    <li><a href="${rc.contextPath}/accounting/distributor_list">分销商打款</a></li>
 	              </ul>
 	          </li>
+	          </#if>
         </ul>
 
         <#nested>

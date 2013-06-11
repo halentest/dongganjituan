@@ -5,18 +5,92 @@ import java.util.List;
 import java.util.Map;
 
 import org.mybatis.spring.support.SqlSessionDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.Template;
 import cn.halen.data.pojo.User;
+import cn.halen.data.pojo.UserAuthority;
 
 public class AdminMapper extends SqlSessionDaoSupport {
 
+	private Logger log = LoggerFactory.getLogger(AdminMapper.class);
+	
 	public List<User> listUser() {
 		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.listUser");
 	}
 	
+	public List<User> listUser(String type, int enabled) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("type", type);
+		param.put("enabled", enabled);
+		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.listUser", param);
+	}
+	
 	public User selectUser(String username) {
 		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectUser", username);
+	}
+	
+	public boolean isExistUser(String username) {
+		User user = getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectUserByUsername", username);
+		return user != null;
+	}
+	
+	public boolean insertUser(User user) {
+		int count = 0;
+		try {
+			count = getSqlSession().insert("cn.halen.data.mapper.AdminMapper.insertUser", user);
+			Distributor d = user.getDistributor();
+			if(null != d) {
+				getSqlSession().insert("cn.halen.data.mapper.AdminMapper.insertDistributor", d);
+			}
+		} catch(Exception e) {
+			count = 0;
+			log.error("", e);
+			throw new RuntimeException(e);
+		}
+		return count > 0;
+	}
+	
+	public int insertAuthority(List<UserAuthority> list) {
+		return getSqlSession().insert("cn.halen.data.mapper.AdminMapper.batchInsertAuthority", list);
+	}
+	
+	public boolean enableUser(String username) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("username", username);
+		param.put("enabled", 1);
+		int count = getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateUserEnabled", param);
+		return count > 0;
+	}
+	
+	public boolean disableUser(String username) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("username", username);
+		param.put("enabled", 0);
+		int count = getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateUserEnabled", param);
+		return count > 0;
+	}
+	
+	public boolean updateUserPassword(String username, String password) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("username", username);
+		param.put("password", password);
+		int count = getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateUserPassword", param);
+		return count > 0;
+	}
+	
+	public boolean updateDeposit(String username, long deposit) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("username", username);
+		param.put("deposit", deposit);
+		int count = getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateDeposit", param);
+		return count > 0;
+	}
+	
+	public Distributor selectDistributorByUsername(String username) {
+		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectDistributorByUsername", username);
 	}
 	
 	public int batchInsertTemplate(List<Template> list) {

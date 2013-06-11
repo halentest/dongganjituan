@@ -18,14 +18,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.AreaMapper;
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
+import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.MyLogisticsCompany;
 import cn.halen.data.pojo.Template;
 import cn.halen.data.pojo.User;
+import cn.halen.data.pojo.UserType;
+import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.service.AdminService;
+import cn.halen.service.ResultInfo;
 
 import com.taobao.api.domain.Area;
 
@@ -62,6 +67,131 @@ public class AdminController {
 		}
 		model.addAttribute("userMap", userMap);
 		return "admin/account_list";
+	}
+	
+	@RequestMapping(value="admin/add_account_form")
+	public String addAccountForm(Model model, @RequestParam("type") String type) {
+		model.addAttribute("userType", UserType.valueOf(type));
+		return "admin/add_account_form";
+	}
+	
+	@RequestMapping(value="admin/add_account")
+	public String addAccount(Model model, HttpServletResponse resp, @RequestParam("username") String username, @RequestParam("password") String password,
+			@RequestParam("password2") String password2, @RequestParam("name") String name, 
+			@RequestParam(value="seller_nick", required=false) String sellerNick,
+			@RequestParam("type") String type, @RequestParam(value="discount", required=false) String discount) {
+		String errorMsg = null;
+		username = username.trim();
+		password = password.trim();
+		password2 = password2.trim();
+		name = name.trim();
+		float fDiscount = 0;
+		if(type.equals("ServiceStaff") || type.equals("Distributor")) {
+			sellerNick = sellerNick.trim();
+			if(type.equals("Distributor")) {
+				discount = discount.trim();
+			}
+		}
+		if(StringUtils.isEmpty(username)) {
+			errorMsg = "用户名不能为空!";
+		} else if(password.length()<6) {
+			errorMsg = "密码长度必须大于等于6!";
+		} else if(!password.equals(password2)) {
+			errorMsg = "两次输入的密码不一致!";
+		}
+		if(type.equals("ServiceStaff") || type.equals("Distributor")) {
+			if(StringUtils.isEmpty(sellerNick)) {
+				errorMsg = "必须填写店铺名称!";
+			} 
+			if(type.equals("Distributor")) {
+				if(StringUtils.isEmpty(discount)) {
+					errorMsg = "分销商必须填写折扣!";
+				}
+				try {
+					fDiscount = Float.parseFloat(discount);
+					if(fDiscount>1 || fDiscount<0) {
+						errorMsg = "折扣必须在0-1之间!";
+					}
+				} catch(Exception e) {
+					errorMsg = "请填写正确的折扣!";
+				}
+			}
+		}
+		if(null != errorMsg) {
+			model.addAttribute("errorInfo", errorMsg);
+			return "error_page";
+		}
+		boolean exist = adminMapper.isExistUser(username);
+		if(exist) {
+			model.addAttribute("errorInfo", "该用户已经存在，不能重复创建!");
+			return "error_page";
+		}
+		User user = new User();
+		user.setUsername(username);
+		user.setPassword(password);
+		user.setName(name);
+		user.setSeller_nick(sellerNick);
+		user.setType(type);
+		if(type.equals("Distributor")) {
+			Distributor distributor = new Distributor();
+			distributor.setUser(user);
+			distributor.setDiscount(fDiscount);
+			user.setDistributor(distributor);
+		}
+		adminService.insertUser(user, type);
+		try {
+			resp.sendRedirect("/admin/account_list");
+		} catch (IOException e) {
+		}
+		return null;
+	}
+	
+	@RequestMapping(value="admin/modify_password_form")
+	public String modifyPassword(Model model, @RequestParam("username") String username) {
+		model.addAttribute("username", username);
+		return "admin/modify_password_form";
+	}
+	
+	@RequestMapping(value="admin/modify_password")
+	public String modifyPassword(Model model, HttpServletResponse resp, 
+			@RequestParam("username") String username, @RequestParam("password") String password,
+			@RequestParam("password2") String password2
+			) {
+		String errorMsg = null;
+		username = username.trim();
+		password = password.trim();
+		password2 = password2.trim();
+		if(password.length()<6) {
+			errorMsg = "密码长度必须大于等于6!";
+		} else if(!password.equals(password2)) {
+			errorMsg = "两次输入的密码不一致!";
+		}
+		if(null != errorMsg) {
+			model.addAttribute("errorInfo", errorMsg);
+			return "error_page";
+		}
+		adminMapper.updateUserPassword(username, password);
+		try {
+			resp.sendRedirect("/admin/account_list");
+		} catch (IOException e) {
+		}
+		return null;
+	}
+	
+	@RequestMapping(value="admin/change_user_status")
+	public void changeUserStatus(Model model, HttpServletResponse resp, 
+			@RequestParam("username") String username, @RequestParam("enabled") int enabled
+			) {
+		username = username.trim();
+		if(enabled == 1) {
+			adminMapper.enableUser(username);
+		} else {
+			adminMapper.disableUser(username);
+		}
+		try {
+			resp.sendRedirect("/admin/account_list");
+		} catch (IOException e) {
+		}
 	}
 	
 	@RequestMapping(value="admin/add_template_form")
@@ -184,5 +314,38 @@ public class AdminController {
 		
 		model.addAttribute("map", map);
 		return "admin/add_template_form";
+	}
+	
+	@RequestMapping(value="accounting/distributor_list")
+	public String distributorList(Model model) {
+		List<User> userList = adminMapper.listUser(UserType.Distributor.getValue(), 1);
+		model.addAttribute("userList", userList);
+		return "accounting/distributor_list";
+	}
+	
+	@RequestMapping(value="accounting/recharge")
+	public @ResponseBody ResultInfo recharge(Model model, @RequestParam("username") String username,
+			@RequestParam("how_much") String howmuch) {
+		ResultInfo result = new ResultInfo();
+		howmuch = howmuch.trim();
+		long lHowmuch = 0;
+		try {
+			lHowmuch = Long.valueOf(howmuch);
+		} catch (Exception e) {
+			result.setSuccess(false);
+			result.setErrorInfo("请输入正确的金额!");
+			return result;
+		}
+		try {
+			adminService.updateDeposit(username, lHowmuch*100);
+		} catch (InsufficientBalanceException ie) {
+			result.setSuccess(false);
+			result.setErrorInfo("余额不足!");
+		} catch (Exception e) {
+			log.error("", e);
+			result.setSuccess(false);
+			result.setErrorInfo("系统异常，请重试!");
+		}
+		return result;
 	}
 }

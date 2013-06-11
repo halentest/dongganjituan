@@ -155,11 +155,6 @@ create table user1 (
 );
 insert into user1 values(null, 'superadmin', 'superadmin', '超级管理员', '', '15257197713', 1, 'SuperAdmin', now(), now());
 insert into user1 values(null, 'admin', 'admin', '管理员', '', '15257197713', 1, 'Admin', now(), now());
-insert into user1 values(null, 'zhangzhidong', 'zhangzhidong', '张志东', '志东张', '15257197713', 1, 'Distributor', now(), now());
-insert into user1 values(null, 'xujuan', 'xujuan', '徐娟', '', '15257197713', 1, 'GoodsManager', now(), now());
-insert into user1 values(null, 'accounting', 'accounting', '财务高', '', '15257197713', 1, 'Accounting', now(), now());
-insert into user1 values(null, 'warehouse1', 'warehouse1', '仓库管理员小B', '', '15257197713', 1, 'WareHouse', now(), now());
-insert into user1 values(null, 'servicestaff1', 'servicestaff1', '客服小A', '志东张', '15257197713', 1, 'ServiceStaff', now(), now());
 
 drop table if exists user_authority;
 create table user_authority (
@@ -170,34 +165,11 @@ create table user_authority (
 	created timestamp,
 	unique key(username, authority)
 );
-insert into user_authority values(null, 'superadmin', 'admin', now(), now());
-insert into user_authority values(null, 'superadmin', 'superadmin', now(), now());
-insert into user_authority values(null, 'superadmin', 'caiwu', now(), now());
-insert into user_authority values(null, 'superadmin', 'fenxiao', now(), now());
-insert into user_authority values(null, 'superadmin', 'fenxiaozhuanyuan', now(), now());
-insert into user_authority values(null, 'superadmin', 'huopin', now(), now());
-insert into user_authority values(null, 'superadmin', 'kefu', now(), now());
-insert into user_authority values(null, 'superadmin', 'user', now(), now());
+insert into user_authority values(null, 'superadmin', 'manager_system', now(), now());
+insert into user_authority values(null, 'superadmin', 'logined', now(), now());
 
-insert into user_authority values(null, 'admin', 'admin', now(), now());
-insert into user_authority values(null, 'admin', 'user', now(), now());
-
-insert into user_authority values(null, 'zhangzhidong', 'fenxiao', now(), now());
-insert into user_authority values(null, 'zhangzhidong', 'user', now(), now());
-
-insert into user_authority values(null, 'xujuan', 'huopin', now(), now());
-insert into user_authority values(null, 'xujuan', 'user', now(), now());
-insert into user_authority values(null, 'xujuan', 'fenxiao', now(), now());
-
-insert into user_authority values(null, 'accounting', 'user', now(), now());
-insert into user_authority values(null, 'accounting', 'accounting', now(), now());
-
-insert into user_authority values(null, 'warehouse1', 'user', now(), now());
-insert into user_authority values(null, 'warehouse1', 'warehouse', now(), now());
-
-insert into user_authority values(null, 'servicestaff1', 'user', now(), now());
-insert into user_authority values(null, 'servicestaff1', 'servicestaff', now(), now());
-
+insert into user_authority values(null, 'admin', 'manager_system', now(), now());
+insert into user_authority values(null, 'admin', 'logined', now(), now());
 
 drop table if exists distributor;
 create table distributor (
@@ -209,10 +181,6 @@ create table distributor (
 	created timestamp,
 	unique key(username)
 );
-insert into distributor values(null, 'zhangzhidong', 500000, 0.36, now(), now());
-insert into distributor values(null, 'xujuan', 500000, 0.36, now(), now());
-
-
 
 drop table if exists province;
 create table province (

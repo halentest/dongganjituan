@@ -1,5 +1,6 @@
 <#import "/templates/root.ftl" as root >
 <@root.html css=["jdpicker.css", "trade_list.css"] js=["highcharts.js", "exporting.js"] >
+<i class="icon-list-alt"></i>账户列表<br><br>
 	<strong>系统管理员</strong>
 	<table>
 		<thead>
@@ -23,7 +24,9 @@
 						<td><#if user.enabled==1>有效<#else>禁用</#if></td>
 						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
-						<td>修改密码</td>
+						<td>
+							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a>
+						</td>
 					</tr>
 				</#list>
 			</tbody>
@@ -32,7 +35,7 @@
 	<br>
 	
 	<strong>财务</strong>
-	&nbsp;&nbsp;<a>添加</a>
+	&nbsp;&nbsp;<a href="${rc.contextPath}/admin/add_account_form?type=Accounting">添加</a>
 	<table>
 		<thead>
 			<tr>
@@ -57,7 +60,7 @@
 						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
-							修改密码 &nbsp;&nbsp;
+							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
 							禁用
 						</td>
 					</tr>
@@ -68,7 +71,7 @@
 	
 	<br>
 	<strong>货品专员</strong> 
-	&nbsp;&nbsp;<a>添加</a>
+	&nbsp;&nbsp;<a href="${rc.contextPath}/admin/add_account_form?type=GoodsManager">添加</a>
 	<table>
 		<thead>
 			<tr>
@@ -93,7 +96,7 @@
 						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
-							修改密码 &nbsp;&nbsp;
+							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
 							禁用
 						</td>
 					</tr>
@@ -104,7 +107,7 @@
 	
 	<br>
 	<strong>仓库管理员</strong> 
-	&nbsp;&nbsp;<a>添加</a>
+	&nbsp;&nbsp;<a href="${rc.contextPath}/admin/add_account_form?type=WareHouse">添加</a>
 	<table>
 		<thead>
 			<tr>
@@ -129,7 +132,7 @@
 						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
-							修改密码 &nbsp;&nbsp;
+							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
 							禁用
 						</td>
 					</tr>
@@ -140,7 +143,7 @@
 	
 	<br>
 	<strong>客服</strong> 
-	&nbsp;&nbsp;<a>添加</a>
+	&nbsp;&nbsp;<a href="${rc.contextPath}/admin/add_account_form?type=ServiceStaff">添加</a>
 	<table>
 		<thead>
 			<tr>
@@ -167,7 +170,7 @@
 						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
-							修改密码 &nbsp;&nbsp;
+							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
 							禁用
 						</td>
 					</tr>
@@ -178,7 +181,7 @@
 	
 	<br>
 	<strong>分销商</strong> 
-	&nbsp;&nbsp;<a>添加</a>
+	&nbsp;&nbsp;<a href="${rc.contextPath}/admin/add_account_form?type=Distributor">添加</a>
 	<table>
 		<thead>
 			<tr>
@@ -209,8 +212,12 @@
 						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
-							修改密码 &nbsp;&nbsp;
-							禁用
+							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
+							<#if user.enabled==1>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=0">禁用</a>
+							<#else>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=1">启用</a>
+							</#if>
 						</td>
 					</tr>
 				</#list>

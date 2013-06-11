@@ -31,17 +31,57 @@
 	    </collection>
 	</resultMap>
 	
-	<select id="listUser" resultMap="userMap">
+	<select id="listUser" parameterType="java.util.Map" resultMap="userMap">
 		select u.id as u_id, u.username as u_username, u.seller_nick as u_seller_nick, u.password as u_password, u.enabled as u_enabled,
 			u.type as u_type, u.name as u_name, u.phone as u_phone, u.modified as u_modified, u.created as u_created, 
 			ua.id as ua_id, ua.username as ua_username, ua.authority as ua_authority, ua.modified as ua_modified,
 			ua.created as ua_created,
 			d.id as d_id, d.username as d_username, d.deposit as d_deposit, d.discount as d_discount,
 			d.modified as d_modified, d.created as d_created
-		from user1 as u left join user_authority as ua on u.username = ua.username
+		from 
+		<choose>
+	   		<when test="type != null or enabled != null">
+	   			(select * from user1 
+	   			<where>
+	   				<if test="type != null">
+	   					type = #{type}
+	   				</if>
+	   				<if test="enabled != null">
+	   					and enabled=#{enabled}
+	   				</if>
+	   			</where>
+	   			) as u
+	   		</when>
+	   		<otherwise>
+	   			user1 as u
+	   		</otherwise>
+	   </choose>
+						left join user_authority as ua on u.username = ua.username
 						left join distributor as d on u.username = d.username
 		order by u.username			 
 	</select>
+	
+	<select id="selectUserByUsername" resultType="User">
+		select * from user1 where username = #{username}
+	</select>
+	
+	<insert id="insertUser" parameterType="User">
+		insert into user1(username, password, name, seller_nick, enabled, type, created) values(#{username},
+		#{password}, #{name}, #{seller_nick}, 1, #{type}, now())
+	</insert>
+	
+	<insert id="insertDistributor" parameterType="Distributor">
+		insert into distributor(username, discount, created) values(#{user.username},
+		#{discount}, now())
+	</insert>
+	
+	<update id="updateUserEnabled" parameterType="java.util.Map">
+		update user1 set enabled = #{enabled} where username = #{username}
+	</update>
+	
+	<update id="updateUserPassword" parameterType="java.util.Map">
+		update user1 set password = #{password} where username = #{username}
+	</update>
 	
 	<select id="selectUser" parameterType="String" resultMap="userMap">
 		select u.id as u_id, u.username as u_username, u.seller_nick as u_seller_nick, u.password as u_password, u.enabled as u_enabled,
@@ -54,6 +94,22 @@
 						left join distributor as d on u.username = d.username
 		where u.username = #{username}
 	</select>
+	
+	<update id="updateDeposit" parameterType="java.util.Map">
+		update distributor set deposit = #{deposit} where username = #{username}
+	</update>
+	
+	<select id="selectDistributorByUsername" parameterType="String" resultType="Distributor">
+		select * from distributor where username=#{username}
+	</select>
+	
+	<insert id="batchInsertAuthority" parameterType="java.util.List">
+		insert into user_authority (username, authority, created) values
+		<foreach collection="list" item="item" index="index"  
+            separator=",">  
+            (#{item.username}, #{item.authority}, now())
+        </foreach> 
+	</insert>
 	
 	<insert id="batchInsertTemplate" parameterType="java.util.List">
 		insert into template (name, logistics_type, area, start_standard, start_fee, add_standard, add_fee, created) values

@@ -246,8 +246,8 @@
 				</tr>
 			</tbody>
 		</table>
-		<input style="margin-left: 950px; margin-top: 20px;" class="btn btn-primary" type="submit" value="保存">
-		<input onclick="window.location.href='${rc.contextPath}/admin/template_list'" style="margin-left: 20px; margin-top: 20px;" type="reset" class="btn btn-inverse" value="取消"/>
+		<input style="margin-left: 900px; margin-top: 20px;" class="btn btn-primary" type="submit" value="保存">
+		<input onclick="window.location.href='${rc.contextPath}/admin/template_list'" style="margin-left: 10px; margin-top: 20px;" type="reset" class="btn btn-inverse" value="取消"/>
 	</form>
 	
 </@root.html>

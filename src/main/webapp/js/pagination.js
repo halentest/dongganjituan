@@ -6,7 +6,7 @@ $(document).ready(function(){
 		    	var status = $('#status').val();
 		    	var seller_nick = $('#seller_nick').val();
 		    	var name = $('#name').val();
-		        window.location.href="/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
+		        window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
 		        	+ "&name=" + name;
 		    }
 	   });
@@ -16,7 +16,7 @@ $(document).ready(function(){
 	    	var seller_nick = $('#seller_nick').val();
 	    	var name = $('#name').val();
 	    	var page = $('#page').attr('data-current-page');
-	   		window.location.href="/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
+	   		window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
 		        	+ "&name=" + name;
 	   });
 });

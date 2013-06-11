@@ -12,6 +12,15 @@ public class UserAuthority {
 	private Date modified;
 	
 	private Date created;
+	
+	public UserAuthority() {
+		
+	}
+	
+	public UserAuthority(String username, String authority) {
+		this.username = username;
+		this.authority = authority;
+	}
 
 	public int getId() {
 		return id;
