@@ -103,7 +103,7 @@ public class TopListenerStarter implements InitializingBean {
 				if(tradeDetail.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue())) {
 					MyLogisticsCompany mc = logisticsMapper.select(1);
 					myTrade.setDelivery(mc.getName());
-					myTrade.setMy_status(MyStatus.WaitCheck.getStatus());
+					myTrade.setMy_status(MyStatus.New.getStatus());
 					int count = tradeService.insertMyTrade(myTrade, false);
 					totalCount += count;
 				}

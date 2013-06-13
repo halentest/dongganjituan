@@ -142,7 +142,7 @@ create table order1
 drop table if exists user1;
 create table user1 (
 	id int primary key auto_increment,
-	username varchar(100) not null,
+	username varchar(100) unique not null,
 	password varchar(100) not null,
 	name varchar(50) not null,
 	seller_nick varchar(50),
@@ -151,7 +151,7 @@ create table user1 (
 	type varchar(25),
 	modified timestamp,
 	created timestamp,
-	unique key(username)
+	unique key(seller_nick, type)
 );
 insert into user1 values(null, 'superadmin', 'superadmin', '超级管理员', '', '15257197713', 1, 'SuperAdmin', now(), now());
 insert into user1 values(null, 'admin', 'admin', '管理员', '', '15257197713', 1, 'Admin', now(), now());

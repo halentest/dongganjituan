@@ -92,8 +92,13 @@
    				<if test="name != null">
    					and t.name like CONCAT('%', #{name}, '%')
    				</if>
-   				<if test="notstatus != null">
-   					and t.my_status != #{notstatus}
+   				<if test="notstatusList != null">
+   					and t.my_status not in (
+   					<foreach collection="notstatusList" item="item" index="index"  
+			            separator=",">  
+			            #{item}
+			        </foreach>
+			        )
    				</if>
    				<if test="statusList != null">
    					and t.my_status in (
@@ -127,8 +132,13 @@
 			   				<if test="name != null">
 			   					and trade.name like CONCAT('%', #{name}, '%')
 			   				</if>
-			   				<if test="notstatus != null">
-			   					and trade.my_status != #{notstatus}
+			   				<if test="notstatusList != null">
+			   					and trade.my_status not in (
+			   					<foreach collection="notstatusList" item="item" index="index"  
+						            separator=",">  
+						            #{item}
+						        </foreach>
+						        )
 			   				</if>
 			   				<if test="statusList != null">
 			   					and trade.my_status in (

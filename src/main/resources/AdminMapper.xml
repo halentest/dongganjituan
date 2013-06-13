@@ -95,6 +95,10 @@
 		where u.username = #{username}
 	</select>
 	
+	<select id="selectUserBySellerNickType" parameterType="java.util.Map" resultType="User">
+		select * from user1 where type=#{type} and seller_nick =#{seller_nick}
+	</select>
+	
 	<update id="updateDeposit" parameterType="java.util.Map">
 		update distributor set deposit = #{deposit} where username = #{username}
 	</update>

@@ -50,7 +50,7 @@ public class TradeController {
 			intPage = page;
 		}
 		
-		Integer notstatus = null;
+		List<Integer> notstatusList = null;
 		List<Integer> statusList = null;
 		
 		//如果是分销商或者客服，那么只显示他自己的订单
@@ -58,8 +58,11 @@ public class TradeController {
 		if(currUser.getType().equals(UserType.Distributor.getValue()) || currUser.getType().equals(UserType.ServiceStaff.getValue())) {
 			seller_nick = currUser.getSeller_nick();
 		}
-		if(!currUser.getType().equals(UserType.Distributor.getValue())) {
-			notstatus = MyStatus.Cancel.getStatus();
+		//只有分销商和客服才显示新建和被作废的订单
+		if(!currUser.getType().equals(UserType.Distributor.getValue()) && !currUser.getType().equals(UserType.ServiceStaff.getValue())) {
+			notstatusList = new ArrayList<Integer>();
+			notstatusList.add(MyStatus.Cancel.getStatus());
+			notstatusList.add(MyStatus.New.getStatus());
 		}
 		
 		if(null != status) {
@@ -67,9 +70,9 @@ public class TradeController {
 			statusList.add(status);
 		}
 		
-		long totalCount = tradeService.countTrade(seller_nick, name, statusList, notstatus);
+		long totalCount = tradeService.countTrade(seller_nick, name, statusList, notstatusList);
 		Paging paging = new Paging(intPage, 10, totalCount);
-		List<MyTrade> list = tradeService.listTrade(seller_nick, name, paging, statusList, notstatus);
+		List<MyTrade> list = tradeService.listTrade(seller_nick, name, paging, statusList, notstatusList);
 		model.addAttribute("trade_list", list);
 		model.addAttribute("paging", paging);
 		model.addAttribute("name", name);

@@ -27,7 +27,7 @@ public class MyTradeMapperTest {
 	
 	@Test
 	public void test_listTrade() {
-		List<MyTrade> list = myTradeMapper.listTrade("志东张", null, null, null);
+		List<MyTrade> list = myTradeMapper.listTrade("志东张", null, null, null, null);
 		System.out.println(list.size());
 	}
 }

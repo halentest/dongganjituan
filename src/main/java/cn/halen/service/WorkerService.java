@@ -93,7 +93,7 @@ public class WorkerService {
 											MyTrade myTrade = tradeService.toMyTrade(trade);
 											MyLogisticsCompany mc = logisticsMapper.select(1);
 											myTrade.setDelivery(mc.getName());
-											myTrade.setMy_status(MyStatus.WaitCheck.getStatus());
+											myTrade.setMy_status(MyStatus.New.getStatus());
 											try{
 												tradeService.insertMyTrade(myTrade, false);
 											} catch(Exception e) {

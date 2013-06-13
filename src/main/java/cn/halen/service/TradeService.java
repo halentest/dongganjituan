@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.MyOrder;
@@ -18,6 +19,7 @@ import cn.halen.data.pojo.MySku;
 import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.User;
+import cn.halen.data.pojo.UserType;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.InvalidStatusChangeException;
@@ -45,6 +47,9 @@ public class TradeService {
 	
 	@Autowired
 	private AdminService adminService;
+	
+	@Autowired
+	private AdminMapper adminMapper;
 	
 	@Autowired
 	private MySkuMapper mySkuMapper;
@@ -116,14 +121,14 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public boolean cancel(long tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
+		if(myTrade.getMy_status() != MyStatus.New.getStatus() && 
+				myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && 
+				myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
 			throw new InvalidStatusChangeException();
 		}
 		List<MyOrder> list = myTrade.getMyOrderList();
 		for(MyOrder myOrder : list) {
 			String goodsId = myOrder.getGoods_id();
-			String color = myOrder.getColor();
-			String size = myOrder.getSize();
 			long quantity = myOrder.getQuantity();
 			MySku sku = new MySku();
 			sku.setGoods_id(goodsId);
@@ -133,6 +138,77 @@ public class TradeService {
 		}
 		adminService.updateDeposit(UserHolder.get().getUsername(), myTrade.getPayment() + myTrade.getDelivery_money());
 		return myTradeMapper.updateTradeStatus(MyStatus.Cancel.getStatus(), tid) > 0;
+	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public boolean refundSuccess(long tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		if(myTrade.getMy_status() != MyStatus.Refunding.getStatus()) {
+			throw new InvalidStatusChangeException();
+		}
+		List<MyOrder> list = myTrade.getMyOrderList();
+		for(MyOrder myOrder : list) {
+			String goodsId = myOrder.getGoods_id();
+			long quantity = myOrder.getQuantity();
+			MySku sku = new MySku();
+			sku.setGoods_id(goodsId);
+			sku.setColor(myOrder.getSku().getColor());
+			sku.setSize(myOrder.getSku().getSize());
+			skuService.updateSku(sku, quantity, false);
+		}
+		User seller = adminMapper.selectUserBySellerNickType(myTrade.getSeller_nick(), UserType.Distributor.getValue());
+		adminService.updateDeposit(seller.getUsername(), 
+				myTrade.getPayment() + myTrade.getDelivery_money());
+		return myTradeMapper.updateTradeStatus(MyStatus.Refund.getStatus(), tid) > 0;
+	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public boolean noGoods(long tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus() && myTrade.getMy_status() != MyStatus.Finding.getStatus()) {
+			throw new InvalidStatusChangeException();
+		}
+		List<MyOrder> list = myTrade.getMyOrderList();
+		for(MyOrder myOrder : list) {
+			String goodsId = myOrder.getGoods_id();
+			long quantity = myOrder.getQuantity();
+			MySku sku = new MySku();
+			sku.setGoods_id(goodsId);
+			sku.setColor(myOrder.getSku().getColor());
+			sku.setSize(myOrder.getSku().getSize());
+			skuService.updateSku(sku, quantity, false);
+		}
+		User seller = adminMapper.selectUserBySellerNickType(myTrade.getSeller_nick(), UserType.Distributor.getValue());
+		adminService.updateDeposit(seller.getUsername(), 
+				myTrade.getPayment() + myTrade.getDelivery_money());
+		return myTradeMapper.updateTradeStatus(MyStatus.NoGoods.getStatus(), tid) > 0;
+	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public boolean approve1(long tid) throws InvalidStatusChangeException {
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus()) {
+			throw new InvalidStatusChangeException();
+		}
+		return myTradeMapper.updateTradeStatus(MyStatus.WaitSend.getStatus(), tid) > 0;
+	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public boolean submit(long tid) throws InvalidStatusChangeException {
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		if(myTrade.getMy_status() != MyStatus.New.getStatus()) {
+			throw new InvalidStatusChangeException();
+		}
+		return myTradeMapper.updateTradeStatus(MyStatus.WaitCheck.getStatus(), tid) > 0;
+	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public boolean findGoods(long tid) throws InvalidStatusChangeException {
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
+			throw new InvalidStatusChangeException();
+		}
+		return myTradeMapper.updateTradeStatus(MyStatus.Finding.getStatus(), tid) > 0;
 	}
 	
 	private void doSend(long tid, String companyName, String outSid, String companyCode) {
@@ -259,11 +335,11 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public long countTrade(String seller_nick, String name, List<Integer> statusList, Integer notstatus) {
-		return myTradeMapper.countTrade(seller_nick, name, statusList, notstatus);
+	public long countTrade(String seller_nick, String name, List<Integer> statusList, List<Integer> notstatusList) {
+		return myTradeMapper.countTrade(seller_nick, name, statusList, notstatusList);
 	}
 	
-	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, List<Integer> statusList, Integer notstatus) {
-		return myTradeMapper.listTrade(seller_nick, name, paging, statusList, notstatus);
+	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, List<Integer> statusList, List<Integer> notstatusList) {
+		return myTradeMapper.listTrade(seller_nick, name, paging, statusList, notstatusList);
 	}
 }

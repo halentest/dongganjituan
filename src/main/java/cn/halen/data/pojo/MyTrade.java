@@ -38,7 +38,8 @@ public class MyTrade {
 	
 	private Status oStatus;
 	private Template template; 
-	private Distributor distributor; 
+	private Distributor distributor;
+	private MyStatus myStatus;
 	private OrderStatus orderStatus; 
 	private List<MyOrder> myOrderList;
 	
@@ -73,6 +74,10 @@ public class MyTrade {
 		this.seller_nick = seller_nick;
 	}
 
+	public MyStatus getMyStatus() {
+		return myStatus;
+	}
+
 	public String getCome_from() {
 		return come_from;
 	}
@@ -95,6 +100,7 @@ public class MyTrade {
 
 	public void setMy_status(int my_status) {
 		this.my_status = my_status;
+		this.myStatus = MyStatus.valueOf(my_status);
 	}
 
 	public long getId() {

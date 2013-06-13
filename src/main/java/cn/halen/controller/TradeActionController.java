@@ -176,7 +176,7 @@ public class TradeActionController implements InitializingBean {
 		trade.setName(receiver);
 		trade.setPhone(phone);
 		trade.setMobile(mobile);
-		trade.setMy_status(MyStatus.WaitCheck.getStatus());
+		trade.setMy_status(MyStatus.New.getStatus());
 		trade.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
 		trade.setCome_from("手工下单");
 		
@@ -284,14 +284,26 @@ public class TradeActionController implements InitializingBean {
 		return redisTemplate.opsForValue().increment(REDIS_TRADE_ID_KEY, 1);
 	}
 	
-	@RequestMapping(value="trade/action/cancel")
-	public @ResponseBody ResultInfo cancel(Model model, @RequestParam long tid) {
+	@RequestMapping(value="trade/action/change_status")
+	public @ResponseBody ResultInfo cancel(Model model, @RequestParam long tid, @RequestParam("action") String action) {
 		ResultInfo result = new ResultInfo();
 		try {
-			tradeService.cancel(tid);
+			if(action.equals("cancel")) {
+				tradeService.cancel(tid);
+			} else if(action.equals("approve1")) {
+				tradeService.approve1(tid);
+			} else if(action.equals("submit")) {
+				tradeService.submit(tid);
+			} else if(action.equals("find-goods")) {
+				tradeService.findGoods(tid);
+			} else if(action.equals("no-goods")) {
+				tradeService.noGoods(tid);
+			} else if(action.equals("refund-success")) {
+				tradeService.refundSuccess(tid);
+			}
 		} catch (InvalidStatusChangeException isce) {
 			result.setSuccess(false);
-			result.setErrorInfo("这个订单不能作废!");
+			result.setErrorInfo("这个订单不能进行此操作!");
 		} catch (Exception e) {
 			log.error("", e);
 			result.setSuccess(false);

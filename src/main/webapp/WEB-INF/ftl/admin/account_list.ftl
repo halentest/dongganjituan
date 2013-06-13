@@ -61,7 +61,11 @@
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
 							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
-							禁用
+							<#if user.enabled==1>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=0">禁用</a>
+							<#else>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=1">启用</a>
+							</#if>
 						</td>
 					</tr>
 				</#list>
@@ -97,7 +101,11 @@
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
 							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
-							禁用
+							<#if user.enabled==1>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=0">禁用</a>
+							<#else>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=1">启用</a>
+							</#if>
 						</td>
 					</tr>
 				</#list>
@@ -133,7 +141,51 @@
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
 							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
-							禁用
+							<#if user.enabled==1>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=0">禁用</a>
+							<#else>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=1">启用</a>
+							</#if>
+						</td>
+					</tr>
+				</#list>
+			</tbody>
+		</#if>
+	</table>
+	
+	<br>
+	<strong>分销商管理员</strong> 
+	&nbsp;&nbsp;<a href="${rc.contextPath}/admin/add_account_form?type=DistributorManager">添加</a>
+	<table>
+		<thead>
+			<tr>
+				<th>用户名</th>
+				<th>密码</th>
+				<th>姓名</th>
+				<th>状态</th>
+				<th>创建时间</th>
+				<th>修改时间</th>
+				<th>操作</th>
+			</tr>	
+		</thead>
+		<#if userMap["DistributorManager"]??>
+			<#assign distributorManager = userMap["DistributorManager"]>
+			<tbody style="text-align: center;">
+				<#list distributorManager as user>
+					<tr>
+						<td>${user.username}</td>
+						<td>${user.password}</td>
+						<td>${user.name}</td>
+						<td><#if user.enabled==1>有效<#else>禁用</#if></td>
+						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
+						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
+						<td>
+							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
+							<#if user.enabled==1>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=0">禁用</a>
+							<#else>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=1">启用</a>
+							</#if>
 						</td>
 					</tr>
 				</#list>
@@ -171,7 +223,11 @@
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>
 							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
-							禁用
+							<#if user.enabled==1>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=0">禁用</a>
+							<#else>
+								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=1">启用</a>
+							</#if>
 						</td>
 					</tr>
 				</#list>

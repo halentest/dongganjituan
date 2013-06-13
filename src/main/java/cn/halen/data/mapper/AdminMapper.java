@@ -12,6 +12,7 @@ import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.Template;
 import cn.halen.data.pojo.User;
 import cn.halen.data.pojo.UserAuthority;
+import cn.halen.data.pojo.UserType;
 
 public class AdminMapper extends SqlSessionDaoSupport {
 
@@ -91,6 +92,14 @@ public class AdminMapper extends SqlSessionDaoSupport {
 	
 	public Distributor selectDistributorByUsername(String username) {
 		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectDistributorByUsername", username);
+	}
+	
+	public User selectUserBySellerNickType(String sellerNick, String type) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("seller_nick", sellerNick);
+		param.put("type", type);
+		User user = getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectUserBySellerNickType", param);
+		return user;
 	}
 	
 	public int batchInsertTemplate(List<Template> list) {

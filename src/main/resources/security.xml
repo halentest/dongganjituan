@@ -19,7 +19,7 @@
     <http pattern="/login_failed" security="none"/>
     <http access-denied-page="/access_denied" use-expressions="true">
         <intercept-url pattern="/admin/**" access="hasRole('manager_system')"/>
-        <intercept-url pattern="/trade/action/**" access="hasRole('buy_goods')"/>
+        <intercept-url pattern="/trade/action/**" access="hasAnyRole('buy_goods', 'manager_trade')"/>
         <intercept-url pattern="/trade/**" access="hasRole('logined')"/>
         <intercept-url pattern="/goods/action/**" access="hasRole('manager_goods')"/>
         <intercept-url pattern="/goods/**" access="hasRole('logined')"/>
