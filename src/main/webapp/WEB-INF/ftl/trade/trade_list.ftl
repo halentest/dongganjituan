@@ -11,25 +11,36 @@
 		<strong>状态</strong>
 		<select id="status" style="width: 8%;">
 			<option value="">所有状态</option>
-			<option value="0">新建</option>
 			<option value="1">待审核</option>
 			<option value="2">待发货</option>
 			<option value="3">拣货中</option>
 			<option value="4">已发货</option>
 			<option value="5">已完成</option>
 			<option value="-1">已作废</option>
+			<option value="-4">申请退货</option>
 			<option value="-3">已退货</option>
+			<option value="0">无货</option>
+			<option value="5">已完成</option>
 		</select>
+		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>分销商</strong>
 		<select id="seller_nick" style="width: 8%;">
 			<option value="">所有分销商</option>
-			<option value="志东张">志东张</option>
-			<option value="小花生米">小花生米</option>
+			<#list distributorList as distributor>
+			<option value="${distributor}">${distributor}</option>
+			</#list>
 		</select>
+		</#if>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>收货人姓名</strong>
 		<input id="name" type="input" value="" style="width: 6%; height: 20px;"/>
+		<!-- &nbsp;&nbsp;&nbsp;&nbsp;
+		<strong>开始时间</strong>
+		<input id="name" type="input" value="" style="width: 8%; height: 20px;"/>
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		<strong>结束时间</strong>
+		<input id="name" type="input" value="" style="width: 8%; height: 20px;"/> -->
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<button id="search">搜索</button>
 	</div>
@@ -92,19 +103,48 @@
 				        	<p><strong>备注：</strong>${trade.seller_memo!}</p>
 				        </td>
 				        <td rowspan="${orderList?size}">
-				        	<#if trade.status=="WAIT_SELLER_SEND_GOODS">
-				        		<p>快递：
-				        			<select id="logistics" style="">
-				        				<#list logistics as lo>
-				        					<option value="${lo.code}" <#if trade.delivery==lo.name>selected</#if>>${lo.name}</option>
-				        				</#list>
-									</select>
-				        		</p>
-				        		<p>发货</p>
-				        		<p>打印快递单 &nbsp;&nbsp; <a href="javascript:prn1_preview()">预览</a></p>
-				        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
-				  
-				        	</#if>
+				        	<#if CURRENT_USER.type=="WareHouse">
+				        		<#if trade.status=="WAIT_SELLER_SEND_GOODS" && trade.my_status==2>
+				        			<p>快递：
+					        			<select id="logistics" style="">
+					        				<#list logistics as lo>
+					        					<option value="${lo.code}" <#if trade.delivery==lo.name>selected</#if>>${lo.name}</option>
+					        				</#list>
+										</select>
+					        		</p>
+					        		<p>打印快递单 &nbsp;&nbsp; <a href="javascript:prn1_preview('${sender}', '${from}', '${from_company}', '${from_address}', '${sender_mobile}',
+										'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district}${trade.address}', '${trade.mobile!''}', '${trade.state}')">预览</a></p>
+					        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
+					        		<p>拣货</p>
+					        		<p>无货</p>
+				        		</#if>
+				        		<#if trade.my_status==3>
+				        			<p>发货</p>
+				        			<p>无货</p>
+				        		</#if>
+				        		<#if trade.my_status==-2>
+				        			退货成功
+				        		</#if>
+				        	</#if> 
+				        	<#if CURRENT_USER.type=="Distributor">
+				        		<#if trade.my_status==1 || trade.my_status==2>
+				        			<a class="cancel" data-tid="${trade.tid?c}" style="cursor: pointer">作废</a>
+				        		</#if>
+				        		<#if trade.my_status==4>
+				        			申请退货
+				        		</#if>
+				        		<#if trade.my_status==-4 || trade.my_status==-2>
+				        			取消退货
+				        		</#if>
+				        	</#if> 
+				        	<#if CURRENT_USER.type=="DistributorManager">
+				        		<#if trade.my_status==1>
+				        			通过   不通过
+				        		</#if>
+				        		<#if trade.my_status==-4>
+				        			同意   不同意
+				        		</#if>
+				        	</#if> 
 				        </td>
 				        </#if>
 			      </tr>
@@ -131,31 +171,32 @@
 	}
 	
     var LODOP; //声明为全局变量 
-	function prn1_preview() {	
+	function prn1_preview(sender, from, from_company, from_address, sender_mobile,
+		receiver, to_company, to_address, receiver_mobile, to) {
 		CreateOneFormPage();	
 		LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='${rc.contextPath}/img/kuaidi/shentong.jpg'>");
 		LODOP.SET_SHOW_MODE("BKIMG_IN_PREVIEW",1); //注："BKIMG_IN_PREVIEW"-预览包含背景图 "BKIMG_IN_FIRSTPAGE"- 仅首页包含背景图
 		LODOP.SET_PRINT_STYLE("FontSize",18);
 		LODOP.SET_PRINT_STYLE("Bold",1);
-		LODOP.ADD_PRINT_TEXT(110,86,100,25,"寄件人");
+		LODOP.ADD_PRINT_TEXT(110,86,100,25,sender);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(109,253,111,26,"始发地");
+		LODOP.ADD_PRINT_TEXT(109,253,111,26,from);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(150,87,260,25,"发件单位名称");
+		LODOP.ADD_PRINT_TEXT(150,87,260,25,from_company);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(187,79,302,62,"发货地址");
+		LODOP.ADD_PRINT_TEXT(187,79,302,62,from_address);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(259,103,164,25,"联系电话");
+		LODOP.ADD_PRINT_TEXT(259,103,164,25,sender_mobile);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(112,484,111,25,"收货人");
+		LODOP.ADD_PRINT_TEXT(112,484,111,25,receiver);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(147,479,249,27,"收件单位名称");
+		LODOP.ADD_PRINT_TEXT(147,479,249,27,to_company);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(189,470,309,56,"收件地址");
+		LODOP.ADD_PRINT_TEXT(189,470,309,56,to_address);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(261,506,157,24,"联系电话");
+		LODOP.ADD_PRINT_TEXT(261,506,157,24,receiver_mobile);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(112,649,125,26,"目的地");
+		LODOP.ADD_PRINT_TEXT(112,649,125,26,to);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		//LODOP.PRINT_DESIGN();
 		LODOP.PREVIEW();	
@@ -201,4 +242,21 @@
 		LODOP.ADD_PRINT_HTM(20,40,700,900,document.documentElement.innerHTML);
 		LODOP.PREVIEW();	
 	};	
+	
+	$(document).ready(function() {
+		$('.cancel').click(function() {
+			$.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "tid=" + $(this).attr("data-tid"),
+	            url: "${rc.contextPath}/trade/action/cancel",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+	                if(result.success == false) {
+	                	alert(result.errorInfo);
+	                } else {
+	                	window.location.reload();
+	                }
+	            }}); 
+		})
+	})
 </script>

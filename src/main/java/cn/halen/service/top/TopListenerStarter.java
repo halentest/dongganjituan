@@ -20,6 +20,8 @@ import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MySku;
 import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
+import cn.halen.exception.InsufficientBalanceException;
+import cn.halen.exception.InsufficientStockException;
 import cn.halen.service.ServiceConfig;
 import cn.halen.service.TradeService;
 import cn.halen.service.WorkerService;
@@ -59,7 +61,7 @@ public class TopListenerStarter implements InitializingBean {
 	@Autowired
 	private WorkerService workerService;
 	
-	public static void main(String[] args) throws ApiException, ParseException {
+	public static void main(String[] args) throws ApiException, ParseException, InsufficientStockException, InsufficientBalanceException {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 		context.register(DataConfig.class, ServiceConfig.class);
 		context.refresh();
@@ -68,7 +70,7 @@ public class TopListenerStarter implements InitializingBean {
 		starter.start();
 	}
 	
-	public void start() throws ApiException, ParseException {
+	public void start() throws ApiException, ParseException, InsufficientStockException, InsufficientBalanceException {
 		
 		initTrades();
 		
@@ -88,7 +90,7 @@ public class TopListenerStarter implements InitializingBean {
 		
 	}
 	
-	public int initTrades() throws ParseException, ApiException {
+	public int initTrades() throws ParseException, ApiException, InsufficientStockException, InsufficientBalanceException {
 		int totalCount = 0;
 		
 		List<Trade> tradeList = tradeClient.queryTradeList();
@@ -102,7 +104,7 @@ public class TopListenerStarter implements InitializingBean {
 					MyLogisticsCompany mc = logisticsMapper.select(1);
 					myTrade.setDelivery(mc.getName());
 					myTrade.setMy_status(MyStatus.WaitCheck.getStatus());
-					int count = tradeService.insertMyTrade(myTrade);
+					int count = tradeService.insertMyTrade(myTrade, false);
 					totalCount += count;
 				}
 			} else {
@@ -130,10 +132,12 @@ public class TopListenerStarter implements InitializingBean {
 				if((dbMyOrder.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue()) || dbMyOrder.getStatus().equals(Status.WAIT_BUYER_CONFIRM_GOODS.getValue()))
 						&& myOrder.getStatus().equals(Status.TRADE_CLOSED.getValue())) {
 					//退货进仓
-					MySku mySku = mySkuMapper.select(dbMyOrder.getSku_id());
-					mySku.setQuantity(mySku.getQuantity() + myOrder.getQuantity());
+					MySku mySku = new MySku();
+					mySku.setGoods_id(dbMyOrder.getGoods_id());
+					mySku.setColor(dbMyOrder.getColor());
+					mySku.setSize(dbMyOrder.getSize());
 					dbMyOrder.setStatus(Status.TRADE_CLOSED.getValue());
-					tradeService.updateOrderAndSku(dbMyOrder, mySku);
+					tradeService.updateOrderAndSku(dbMyOrder, mySku, myOrder.getQuantity());
 				} else {
 					dbMyOrder.setStatus(myOrder.getStatus());
 					dbMyOrder.setLogistics_company(myOrder.getLogistics_company());

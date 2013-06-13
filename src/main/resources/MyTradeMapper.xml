@@ -92,11 +92,16 @@
    				<if test="name != null">
    					and t.name like CONCAT('%', #{name}, '%')
    				</if>
-   				<if test="status != null">
-   					and t.my_status = #{status}
+   				<if test="notstatus != null">
+   					and t.my_status != #{notstatus}
    				</if>
-   				<if test="my_status != null">
-   					and t.my_status = #{my_status}
+   				<if test="statusList != null">
+   					and t.my_status in (
+   					<foreach collection="statusList" item="item" index="index"  
+			            separator=",">  
+			            #{item}
+			        </foreach>
+			        )
    				</if>
    			</where>
 	</select>
@@ -122,20 +127,26 @@
 			   				<if test="name != null">
 			   					and trade.name like CONCAT('%', #{name}, '%')
 			   				</if>
-			   				<if test="status != null">
-			   					and trade.my_status = #{status}
+			   				<if test="notstatus != null">
+			   					and trade.my_status != #{notstatus}
 			   				</if>
-			   				<if test="my_status != null">
-			   					and trade.my_status = #{my_status}
+			   				<if test="statusList != null">
+			   					and trade.my_status in (
+			   					<foreach collection="statusList" item="item" index="index"  
+						            separator=",">  
+						            #{item}
+						        </foreach>
+						        )
 			   				</if>
 			   			</where>
 			   			limit #{start}, #{page_size}) as t
 			   		</when>
 			   		<otherwise>
-			   			trade t
+			   			(select * from
+			   			trade
 			   			<if test="tid != null">
-				   			where t.tid = #{tid}
-				   		</if>
+				   			where trade.tid = #{tid}
+				   		</if>) as t
 			   		</otherwise>
 			   </choose>
 			   join order1 o on t.tid = o.tid
@@ -157,6 +168,10 @@
 			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, status=#{status}, my_status=#{my_status},
 			 seller_memo=#{seller_memo}, buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, come_from=#{come_from},
 			 modified=#{modified} where tid=#{tid}
+	</update>
+	
+	<update id="updateTradeStatus" parameterType="Map">
+		update trade set my_status=#{status} where tid=#{tid}
 	</update>
 	
 	<update id="updateOrder" parameterType="MyOrder">

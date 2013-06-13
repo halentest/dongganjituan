@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.halen.controller.formbean.ClientOrder;
 import cn.halen.data.mapper.AdminMapper;
@@ -30,7 +31,11 @@ import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.Template;
 import cn.halen.data.pojo.User;
+import cn.halen.exception.InsufficientBalanceException;
+import cn.halen.exception.InsufficientStockException;
+import cn.halen.exception.InvalidStatusChangeException;
 import cn.halen.filter.UserHolder;
+import cn.halen.service.ResultInfo;
 import cn.halen.service.TradeService;
 import cn.halen.service.top.domain.Status;
 
@@ -171,7 +176,7 @@ public class TradeActionController implements InitializingBean {
 		trade.setName(receiver);
 		trade.setPhone(phone);
 		trade.setMobile(mobile);
-		trade.setMy_status(MyStatus.WaitSend.getStatus());
+		trade.setMy_status(MyStatus.WaitCheck.getStatus());
 		trade.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
 		trade.setCome_from("手工下单");
 		
@@ -251,10 +256,19 @@ public class TradeActionController implements InitializingBean {
 		trade.setDelivery_money(deliveryMoney);
 		
 		try{
-			tradeService.insertMyTrade(trade);
+			tradeService.insertMyTrade(trade, true);
+		} catch(InsufficientStockException ise) {
+			log.error("", ise);
+			model.addAttribute("errorInfo", "库存不足，不能购买！");
+			return "error_page";
+		} catch(InsufficientBalanceException ibe) {
+			log.error("", ibe);
+			model.addAttribute("errorInfo", "余额不足，请打款！");
+			return "error_page";
 		} catch(Exception e) {
 			log.error("", e);
-			model.addAttribute("error", "系统异常，请重试！");
+			model.addAttribute("errorInfo", "系统异常，请重试！");
+			return "error_page";
 		}
 		tokens.remove(token);
 		return "trade/buy_goods_result";
@@ -268,6 +282,22 @@ public class TradeActionController implements InitializingBean {
 	@SuppressWarnings("unchecked")
 	public synchronized long generateTradeId() {
 		return redisTemplate.opsForValue().increment(REDIS_TRADE_ID_KEY, 1);
+	}
+	
+	@RequestMapping(value="trade/action/cancel")
+	public @ResponseBody ResultInfo cancel(Model model, @RequestParam long tid) {
+		ResultInfo result = new ResultInfo();
+		try {
+			tradeService.cancel(tid);
+		} catch (InvalidStatusChangeException isce) {
+			result.setSuccess(false);
+			result.setErrorInfo("这个订单不能作废!");
+		} catch (Exception e) {
+			log.error("", e);
+			result.setSuccess(false);
+			result.setErrorInfo("系统异常，请重试!");
+		}
+		return result;
 	}
 	
 	private String validateAddress(Model model, String province, String city, String district, String address

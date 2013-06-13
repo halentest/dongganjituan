@@ -21,6 +21,7 @@
         <intercept-url pattern="/admin/**" access="hasRole('manager_system')"/>
         <intercept-url pattern="/trade/action/**" access="hasRole('buy_goods')"/>
         <intercept-url pattern="/trade/**" access="hasRole('logined')"/>
+        <intercept-url pattern="/goods/action/**" access="hasRole('manager_goods')"/>
         <intercept-url pattern="/goods/**" access="hasRole('logined')"/>
         <intercept-url pattern="/accounting/**" access="hasRole('accounting')"/>
         <intercept-url pattern="/**" access="hasRole('logined')"/>

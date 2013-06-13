@@ -61,6 +61,13 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
+	public int updateTradeStatus(int status, long tid) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("status", status);
+		param.put("tid", tid);
+		return getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateTradeStatus", param);
+	}
+	
 	public int updateMyOrder(MyOrder order) {
 		int count = getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateOrder", order);
 		return count;
@@ -83,7 +90,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public long countTrade(String seller_nick, String name, Integer status) {
+	public long countTrade(String seller_nick, String name, List<Integer> statusList, Integer notstatus) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(StringUtils.isNotBlank(seller_nick)) {
 			param.put("seller_nick", seller_nick.trim());
@@ -91,14 +98,17 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		if(StringUtils.isNotBlank(name)) {
 			param.put("name", name.trim());
 		}
-		if(null != status) {
-			param.put("status", status);
+		if(null != statusList) {
+			param.put("statusList", statusList);
+		}
+		if(null != notstatus) {
+			param.put("notstatus", notstatus);
 		}
 		Long count = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.countTrade", param);
 		return count;
 	}
 	
-	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, Integer status) {
+	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, List<Integer> statusList, Integer notstatus) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(StringUtils.isNotBlank(seller_nick)) {
 			param.put("seller_nick", seller_nick.trim());
@@ -110,8 +120,11 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 			param.put("start", paging.getStart());
 			param.put("page_size", paging.getSize());
 		}
-		if(null != status) {
-			param.put("status", status);
+		if(null != statusList) {
+			param.put("statusList", statusList);
+		}
+		if(null != notstatus) {
+			param.put("notstatus", notstatus);
 		}
 		List<MyTrade> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", param);
 		return list;

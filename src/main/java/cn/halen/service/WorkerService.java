@@ -94,7 +94,11 @@ public class WorkerService {
 											MyLogisticsCompany mc = logisticsMapper.select(1);
 											myTrade.setDelivery(mc.getName());
 											myTrade.setMy_status(MyStatus.WaitCheck.getStatus());
-											tradeService.insertMyTrade(myTrade);
+											try{
+												tradeService.insertMyTrade(myTrade, false);
+											} catch(Exception e) {
+												log.error("", e);
+											}
 										} else  {
 											if(status.equals(NotifyTradeStatus.TradeMemoModified)) {
 												log.debug("Receive 'TradeMemoModified' notify, tid = {}, oid = {}",  nt.getTid(), nt.getOid());
@@ -113,10 +117,11 @@ public class WorkerService {
 												MyOrder myOrder = tradeService.selectOrderByOrderId(nt.getOid());
 												if(!myOrder.getStatus().equals(Status.TRADE_CLOSED.getValue())) {
 													myOrder.setStatus(Status.TRADE_CLOSED.getValue());
-													long skuId = myOrder.getSku_id();
-													MySku mySku = mySkuMapper.select(skuId);
-													mySku.setQuantity(mySku.getQuantity() + myOrder.getQuantity());
-													tradeService.updateOrderAndSku(myOrder, mySku);
+													MySku mySku = new MySku();
+													mySku.setGoods_id(myOrder.getGoods_id());
+													mySku.setColor(myOrder.getColor());
+													mySku.setSize(myOrder.getSize());
+													tradeService.updateOrderAndSku(myOrder, mySku, myOrder.getQuantity());
 												}
 											} else if(status.equals(NotifyTradeStatus.TradeSellerShip.getValue())) {
 												log.debug("Receive 'TradeSellerShip' notify, tid = {}, oid = {}",  nt.getTid(), nt.getOid());
@@ -220,10 +225,11 @@ public class WorkerService {
 										MyOrder myOrder = tradeService.selectOrderByOrderId(nr.getOid());
 										if(!myOrder.getStatus().equals(Status.TRADE_CLOSED.getValue())) {
 											myOrder.setStatus(Status.TRADE_CLOSED.getValue());
-											long skuId = myOrder.getSku_id();
-											MySku mySku = mySkuMapper.select(skuId);
-											mySku.setQuantity(mySku.getQuantity() + myOrder.getQuantity());
-											tradeService.updateOrderAndSku(myOrder, mySku);
+											MySku mySku = new MySku();
+											mySku.setGoods_id(myOrder.getGoods_id());
+											mySku.setColor(myOrder.getColor());
+											mySku.setSize(myOrder.getSize());
+											tradeService.updateOrderAndSku(myOrder, mySku, myOrder.getQuantity());
 										}
 									}
 								}

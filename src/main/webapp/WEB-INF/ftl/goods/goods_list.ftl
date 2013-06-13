@@ -44,6 +44,9 @@
         	  			<p><a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a></p>
         	  			<p><a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a></p>
         	  		</#if>
+        	  		<#if CURRENT_USER.type=="GoodsManager">
+        	  			<p><a class="sync-store" data-goods="${goods.id}" style="cursor: pointer;">同步库存</a></p>
+        	  		</#if>
         	  		</td>
         	  </tr>
         	  <#list map2?keys as key2>
@@ -144,6 +147,21 @@
 		   		}
 		   		$.cookie('orders', orders, { expires: 7, path: '/' });
 		   		window.location.href = "${rc.contextPath}/trade/action/shopcart";
+		   })
+		   
+		   $('.sync-store').click(function() {
+		   		$.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "ids=" + $(this).attr("data-goods"),
+	            url: "${rc.contextPath}/goods/action/sync_store",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+	                if(result.success == false) {
+	                	alert(result.errorInfo);
+	                } else {
+	                	alert("同步成功!");
+	                }
+	            }}); 
 		   })
 		   
 	});

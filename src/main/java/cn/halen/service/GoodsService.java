@@ -74,7 +74,7 @@ public class GoodsService {
 		}
 		//剩下的是没有找到对应商品的goods，也要加入到result中去
 		for(Goods goods : goodsMap.values()) {
-			result.put(goods, "更新失败，因为在店铺内没有找到对象的商品");
+			result.put(goods, "更新失败，因为在店铺内没有找到对应的商品");
 		}
 		return result;
 	}

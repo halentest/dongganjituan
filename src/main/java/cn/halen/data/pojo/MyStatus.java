@@ -2,7 +2,7 @@ package cn.halen.data.pojo;
 
 public enum MyStatus {
 	
-	New(0, "新建"),
+	NoGoods(0, "无货"),
 	WaitCheck(1, "待审核"),
 	WaitSend(2, "待发货"),
 	Finding(3, "拣货中"),
@@ -10,7 +10,8 @@ public enum MyStatus {
 	Finished(5, "已完成"),
 	Cancel(-1, "已作废"),
 	Refunding(-2, "退货中"),
-	Refund(-3, "已退货");
+	Refund(-3, "已退货"),
+	ApplyRefund(-4, "申请退货");
 	
 	
 	private int status;

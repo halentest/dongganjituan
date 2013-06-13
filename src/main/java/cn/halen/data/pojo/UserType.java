@@ -9,7 +9,8 @@ public enum UserType {
 	GoodsManager("GoodsManager", "货品专员"),
 	User("User", "登录用户"),
 	WareHouse("WareHouse", "仓库管理员"),
-	ServiceStaff("ServiceStaff", "客服");
+	ServiceStaff("ServiceStaff", "客服"),
+	DistributorManager("DistributorManager", "分销管理员");
 	
 	private String value;
 	

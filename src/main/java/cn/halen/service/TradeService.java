@@ -15,7 +15,13 @@ import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.MySku;
+import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
+import cn.halen.data.pojo.User;
+import cn.halen.exception.InsufficientBalanceException;
+import cn.halen.exception.InsufficientStockException;
+import cn.halen.exception.InvalidStatusChangeException;
+import cn.halen.filter.UserHolder;
 import cn.halen.service.top.LogisticsCompanyClient;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
@@ -38,10 +44,16 @@ public class TradeService {
 	private TradeClient tradeClient;
 	
 	@Autowired
+	private AdminService adminService;
+	
+	@Autowired
 	private MySkuMapper mySkuMapper;
 	
 	@Autowired
 	private TopConfig topConfig;
+	
+	@Autowired
+	private SkuService skuService;
 	
 	@Autowired
 	private LogisticsCompanyClient logisticsClient;
@@ -58,10 +70,10 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public void updateOrderAndSku(MyOrder myOrder, MySku mySku) {
+	public void updateOrderAndSku(MyOrder myOrder, MySku mySku, long quantity) {
 		try {
 			myTradeMapper.updateMyOrder(myOrder);
-			mySkuMapper.update(mySku);
+			skuService.updateSku(mySku, quantity, false);
 		} catch(Exception e) {
 			log.error("", e);
 			throw new RuntimeException(e);
@@ -101,6 +113,28 @@ public class TradeService {
 		}
 	}
 	
+	@Transactional(rollbackFor=Exception.class)
+	public boolean cancel(long tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
+			throw new InvalidStatusChangeException();
+		}
+		List<MyOrder> list = myTrade.getMyOrderList();
+		for(MyOrder myOrder : list) {
+			String goodsId = myOrder.getGoods_id();
+			String color = myOrder.getColor();
+			String size = myOrder.getSize();
+			long quantity = myOrder.getQuantity();
+			MySku sku = new MySku();
+			sku.setGoods_id(goodsId);
+			sku.setColor(myOrder.getSku().getColor());
+			sku.setSize(myOrder.getSku().getSize());
+			skuService.updateSku(sku, quantity, false);
+		}
+		adminService.updateDeposit(UserHolder.get().getUsername(), myTrade.getPayment() + myTrade.getDelivery_money());
+		return myTradeMapper.updateTradeStatus(MyStatus.Cancel.getStatus(), tid) > 0;
+	}
+	
 	private void doSend(long tid, String companyName, String outSid, String companyCode) {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		myTrade.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
@@ -126,29 +160,26 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public int insertMyTrade(MyTrade myTrade) {
-		try{
-			int count = myTradeMapper.insert(myTrade);
-			for(MyOrder order : myTrade.getMyOrderList()) {
-				
-				MySku mySku = new MySku();
-				mySku.setGoods_id(order.getGoods_id());
-				mySku.setColor(order.getColor());
-				mySku.setSize(order.getSize());
-				mySku = mySkuMapper.select(mySku);
-				if(order.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
-					//更新库存
-					mySku.setQuantity(mySku.getQuantity()-order.getQuantity());//
-					mySkuMapper.update(mySku);
-				}
-				order.setSku_id(mySku.getId());
-				myTradeMapper.insertMyOrder(order);
+	public int insertMyTrade(MyTrade myTrade, boolean manual) throws InsufficientStockException, InsufficientBalanceException {
+		int count = myTradeMapper.insert(myTrade);
+		for(MyOrder order : myTrade.getMyOrderList()) {
+			
+			MySku mySku = new MySku();
+			mySku.setGoods_id(order.getGoods_id());
+			mySku.setColor(order.getColor());
+			mySku.setSize(order.getSize());
+			long skuId = 0;
+			if(order.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
+				skuId = skuService.updateSku(mySku, -order.getQuantity(), manual);
 			}
-			return count;
-		} catch(Exception e) {
-			log.error("", e);
-			throw new RuntimeException(e);
+			order.setSku_id(skuId);
+			myTradeMapper.insertMyOrder(order);
 		}
+		if(manual) {
+			User user = UserHolder.get();
+			adminService.updateDeposit(user.getUsername(), -myTrade.getPayment()-myTrade.getDelivery_money());
+		}
+		return count;
 	}
 	
 	public MyOrder selectOrderByOrderId(Long oid) {
@@ -228,11 +259,11 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public long countTrade(String seller_nick, String name, Integer status) {
-		return myTradeMapper.countTrade(seller_nick, name, status);
+	public long countTrade(String seller_nick, String name, List<Integer> statusList, Integer notstatus) {
+		return myTradeMapper.countTrade(seller_nick, name, statusList, notstatus);
 	}
 	
-	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, Integer status) {
-		return myTradeMapper.listTrade(seller_nick, name, paging, status);
+	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, List<Integer> statusList, Integer notstatus) {
+		return myTradeMapper.listTrade(seller_nick, name, paging, statusList, notstatus);
 	}
 }

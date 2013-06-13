@@ -59,6 +59,7 @@ public class AdminService {
 		UserAuthority managerSystem = new UserAuthority(user.getUsername(), Constants.AUTHORITY_MANAGER_SYSTEM);
 		UserAuthority buyGoods = new UserAuthority(user.getUsername(), Constants.AUTHORITY_BUY_GOODS);
 		UserAuthority accounting = new UserAuthority(user.getUsername(), Constants.AUTHORITY_ACCOUNTING);
+		UserAuthority managerGoods = new UserAuthority(user.getUsername(), Constants.AUTHORITY_MANAGER_GOODS);
 		if(type.equals(UserType.Accounting.getValue())) {
 			list.add(logined);
 			list.add(accounting);
@@ -70,6 +71,7 @@ public class AdminService {
 			list.add(buyGoods);
 		} else if(type.equals(UserType.GoodsManager.getValue())) {
 			list.add(logined);
+			list.add(managerGoods);
 		} else if(type.equals(UserType.ServiceStaff.getValue())) {
 			list.add(logined);
 		} else if(type.equals(UserType.SuperAdmin.getValue())) {

@@ -16,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import cn.halen.exception.InsufficientBalanceException;
+import cn.halen.exception.InsufficientStockException;
 import cn.halen.service.ResultInfo;
 import cn.halen.service.top.AreaClient;
 import cn.halen.service.top.ItemClient;
@@ -107,7 +109,7 @@ public class RedirectController {
 	}
 	
 	@RequestMapping(value="/admin/sync_trade")
-	public @ResponseBody ResultInfo syncTrade() throws IOException, ServletException, JSONException, ParseException {
+	public @ResponseBody ResultInfo syncTrade() throws IOException, ServletException, JSONException, ParseException, InsufficientStockException, InsufficientBalanceException {
 		
 		ResultInfo result = new ResultInfo();
 		int count = 0;
