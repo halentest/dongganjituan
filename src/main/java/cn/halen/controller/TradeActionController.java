@@ -183,7 +183,6 @@ public class TradeActionController implements InitializingBean {
 		boolean hasNext = true;
 		
 		List<MyOrder> orderList = new ArrayList<MyOrder>();
-		String templateName = "默认模板";
 		int payment = 0;
 		
 		User currentUser = UserHolder.get();
@@ -193,8 +192,9 @@ public class TradeActionController implements InitializingBean {
 		trade.setTid(tradeId);
 		
 		int count = 0;
+		String goodsId = null;
 		while(hasNext) {
-			String goodsId = req.getParameter("goods" + count);
+			goodsId = req.getParameter("goods" + count);
 			if(null == goodsId) {
 				hasNext = false;
 				break;
@@ -212,7 +212,6 @@ public class TradeActionController implements InitializingBean {
 			}
 			
 			Goods goods = goodsMapper.getByHid(goodsId);
-			templateName = goods.getTemplate();
 			String color = req.getParameter("color" + count);
 			String size = req.getParameter("size" + count);
 			
@@ -235,25 +234,11 @@ public class TradeActionController implements InitializingBean {
 		}
 		trade.setMyOrderList(orderList);
 		trade.setPayment(payment);
-		//计算快递费
-		String logisticsType = "pt";
-		if(logistics.equals("SF")) {
-			logisticsType = "sf";
-		} else if(logistics.equals("EMS")) {
-			logisticsType = "ems";
-		}
-		Template template = adminMapper.selectTemplate(templateName, logisticsType, areaMap.get(province));
+		
 		int totalGoods = orderList.size();
 		trade.setGoods_count(totalGoods);
-		int deliveryMoney = 0;
-		if(totalGoods <= template.getStart_standard()) {
-			deliveryMoney = template.getStart_fee();
-		} else {
-			int added = (totalGoods - template.getStart_standard()) / template.getAdd_standard()==0? (totalGoods - template.getStart_standard()) / template.getAdd_standard() :
-				(totalGoods - template.getStart_standard()) / template.getAdd_standard() + 1;
-			deliveryMoney = template.getStart_fee() + template.getAdd_fee() * added;
-		}
-		trade.setDelivery_money(deliveryMoney);
+		
+		trade.setDelivery_money(calDeliveryMoney(goodsId, totalGoods, logistics, province));
 		
 		try{
 			tradeService.insertMyTrade(trade, true);
@@ -274,6 +259,29 @@ public class TradeActionController implements InitializingBean {
 		return "trade/buy_goods_result";
 	}
 	
+	private int calDeliveryMoney(String goodsId, int totalGoods, String logistics, String province) {
+		Goods goods = goodsMapper.getByHid(goodsId);
+		
+		String logisticsType = "pt";
+		if(logistics.equals("SF")) {
+			logisticsType = "sf";
+		} else if(logistics.equals("EMS")) {
+			logisticsType = "ems";
+		}
+		
+		String templateName = goods.getTemplate();
+		Template template = adminMapper.selectTemplate(templateName, logisticsType, areaMap.get(province));
+		int deliveryMoney = 0;
+		if(totalGoods <= template.getStart_standard()) {
+			deliveryMoney = template.getStart_fee();
+		} else {
+			int added = (totalGoods - template.getStart_standard()) / template.getAdd_standard()==0? (totalGoods - template.getStart_standard()) / template.getAdd_standard() :
+				(totalGoods - template.getStart_standard()) / template.getAdd_standard() + 1;
+			deliveryMoney = template.getStart_fee() + template.getAdd_fee() * added;
+		}
+		return deliveryMoney;
+	}
+	
 	@RequestMapping(value="trade/action/shopcart")
 	public String shopCart(Model model, HttpServletRequest req) {
 		return "trade/shop_cart";
@@ -285,7 +293,7 @@ public class TradeActionController implements InitializingBean {
 	}
 	
 	@RequestMapping(value="trade/action/change_status")
-	public @ResponseBody ResultInfo cancel(Model model, @RequestParam long tid, @RequestParam("action") String action) {
+	public @ResponseBody ResultInfo changeStatus(Model model, @RequestParam("tid") long tid, @RequestParam("action") String action) {
 		ResultInfo result = new ResultInfo();
 		try {
 			if(action.equals("cancel")) {
@@ -304,6 +312,35 @@ public class TradeActionController implements InitializingBean {
 		} catch (InvalidStatusChangeException isce) {
 			result.setSuccess(false);
 			result.setErrorInfo("这个订单不能进行此操作!");
+		} catch (Exception e) {
+			log.error("", e);
+			result.setSuccess(false);
+			result.setErrorInfo("系统异常，请重试!");
+		}
+		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="trade/action/change_delivery")
+	public @ResponseBody ResultInfo changeDelivery(Model model, @RequestParam("tid") long tid, @RequestParam("delivery") String delivery,
+			@RequestParam("quantity") int quantity, @RequestParam("province") String province, @RequestParam("goods") String goods) {
+		ResultInfo result = new ResultInfo();
+		try {
+			String logisticsCompany = (String) redisTemplate.opsForValue().get(REDIS_LOGISTICS_CODE + ":" + delivery);
+			if(null == logisticsCompany) {
+				logisticsCompany = myLogisticsCompanyMapper.selectByCode(delivery).getName();
+				redisTemplate.opsForValue().set(REDIS_LOGISTICS_CODE + ":" + delivery, logisticsCompany);
+			}
+			result.setErrorInfo(logisticsCompany);
+			int deliveryMoney = calDeliveryMoney(goods, quantity, delivery, province);
+		
+			tradeService.changeDelivery(tid, logisticsCompany, deliveryMoney);
+		} catch (InvalidStatusChangeException isce) {
+			result.setSuccess(false);
+			result.setErrorInfo("这个订单不能进行此操作!");
+		} catch (InsufficientBalanceException ibe) {
+			result.setSuccess(false);
+			result.setErrorInfo("余额不足，不能进行此操作!");
 		} catch (Exception e) {
 			log.error("", e);
 			result.setSuccess(false);
@@ -377,5 +414,49 @@ public class TradeActionController implements InitializingBean {
 		areaMap.put("710000", "gat");
 		
 		areaMap.put("990000", "hw");
+		
+		areaMap.put("上海", "hd");
+		areaMap.put("江苏", "hd");
+		areaMap.put("浙江", "hd");
+		areaMap.put("安徽", "hd");
+		areaMap.put("江西", "hd");
+		
+		areaMap.put("北京", "hb");
+		areaMap.put("天津", "hb");
+		areaMap.put("山西", "hb");
+		areaMap.put("山东", "hb");
+		areaMap.put("河北", "hb");
+		areaMap.put("内蒙古", "hb");
+		
+		areaMap.put("湖南", "hz");
+		areaMap.put("湖北", "hz");
+		areaMap.put("河南", "hz");
+		
+		areaMap.put("广东", "hn");
+		areaMap.put("广西", "hn");
+		areaMap.put("福建", "hn");
+		areaMap.put("海南", "hn");
+		
+		areaMap.put("辽宁", "db");
+		areaMap.put("吉林", "db");
+		areaMap.put("黑龙江", "db");
+		
+		areaMap.put("陕西", "xb");
+		areaMap.put("新疆", "xb");
+		areaMap.put("甘肃", "xb");
+		areaMap.put("宁夏", "xb");
+		areaMap.put("青海", "xb");
+		
+		areaMap.put("重庆", "xn");
+		areaMap.put("云南", "xn");
+		areaMap.put("贵州", "xn");
+		areaMap.put("西藏", "xn");
+		areaMap.put("四川", "xn");
+		
+		areaMap.put("香港", "gat");
+		areaMap.put("澳门", "gat");
+		areaMap.put("台湾", "gat");
+		
+		areaMap.put("海外", "hw");
 	}
 }

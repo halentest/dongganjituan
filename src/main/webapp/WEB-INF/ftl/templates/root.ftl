@@ -62,16 +62,14 @@
 	                  <li><a href="#">出货(excel批量导入)</a></li>
 	              </ul>
 	          </li>
+	          <#if CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="WareHouse" || CURRENT_USER.type=="DistributorManager">
 	          <li <#if active==3> class="active dropdown" <#else>  class="dropdown" </#if>>
 	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">订单管理 <b class="caret"></b></a>
 	              <ul class="dropdown-menu">
 	                  <li><a href="${rc.contextPath}/trade/trade_list">订单列表</a></li>
-	                  <li><a href="${rc.contextPath}/fenxiao/add_trade_form">新建订单</a></li>
-	                  <li><a href="#">其他</a></li>
-	                  <li class="divider"></li>
-	                  <li><a href="#">被间隔的链接</a></li>
 	              </ul>
 	          </li>
+	          </#if>
 	          <#if CURRENT_USER.type=="Accounting">
 	          <li <#if active==4> class="active dropdown" <#else>  class="dropdown" </#if>">
 	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">财务管理<b class="caret bottom-up"></b></a>

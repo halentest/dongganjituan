@@ -194,6 +194,21 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
+	public boolean changeDelivery(long tid, String delivery, int deliveryMoney) throws InvalidStatusChangeException, InsufficientBalanceException {
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && myTrade.getMy_status() != MyStatus.New.getStatus() &&
+				myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
+			throw new InvalidStatusChangeException();
+		}
+		int change = myTrade.getDelivery_money() - deliveryMoney;
+		myTrade.setDelivery(delivery);
+		myTrade.setDelivery_money(deliveryMoney);
+		User seller = adminMapper.selectUserBySellerNickType(myTrade.getSeller_nick(), UserType.Distributor.getValue());
+		adminService.updateDeposit(seller.getUsername(), change);
+		return myTradeMapper.updateMyTrade(myTrade) > 0;
+	}
+	
+	@Transactional(rollbackFor=Exception.class)
 	public boolean submit(long tid) throws InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.New.getStatus()) {

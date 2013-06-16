@@ -1,8 +1,11 @@
 package cn.halen.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -39,9 +42,23 @@ public class TradeController {
 	
 	private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
 	
+	private static final List<MyStatus> SuperAdmin = Arrays.asList(MyStatus.New, MyStatus.Cancel, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
+			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
+			MyStatus.NoGoods);
+	private static final List<MyStatus> Admin = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
+			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
+			MyStatus.NoGoods);
+	private static final List<MyStatus> Distributor = Arrays.asList(MyStatus.New, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
+			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Cancel, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
+			MyStatus.NoGoods);
+	private static final List<MyStatus> WareHouse = Arrays.asList(MyStatus.WaitSend, MyStatus.Finding, MyStatus.Refunding);
+	private static final List<MyStatus> DistributorManager = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
+			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
+			MyStatus.NoGoods);
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="trade/trade_list")
-	public String list(Model model, @RequestParam(value="seller_nick", required=false) String seller_nick,
+	public String list(Model model, HttpServletResponse resp, @RequestParam(value="seller_nick", required=false) String seller_nick,
 			@RequestParam(value="name", required=false) String name, 
 			@RequestParam(value="status", required=false) Integer status,
 			@RequestParam(value="page", required=false) Integer page) {
@@ -55,19 +72,40 @@ public class TradeController {
 		
 		//如果是分销商或者客服，那么只显示他自己的订单
 		User currUser = UserHolder.get();
-		if(currUser.getType().equals(UserType.Distributor.getValue()) || currUser.getType().equals(UserType.ServiceStaff.getValue())) {
-			seller_nick = currUser.getSeller_nick();
+		String currType = currUser.getType();
+		if(!currType.equals(UserType.Admin.getValue()) && !currType.equals(UserType.SuperAdmin.getValue()) &&
+				!currType.equals(UserType.Distributor.getValue()) && !currType.equals(UserType.WareHouse.getValue()) &&
+				!currType.equals(UserType.DistributorManager.getValue())) {
+			model.addAttribute("errorInfo", "对不起，您没有权限查看此页面！");
+			return "error_page";
 		}
-		//只有分销商和客服才显示新建和被作废的订单
-		if(!currUser.getType().equals(UserType.Distributor.getValue()) && !currUser.getType().equals(UserType.ServiceStaff.getValue())) {
-			notstatusList = new ArrayList<Integer>();
-			notstatusList.add(MyStatus.Cancel.getStatus());
-			notstatusList.add(MyStatus.New.getStatus());
+		
+		if(currType.equals(UserType.Distributor.getValue())) {
+			seller_nick = currUser.getSeller_nick();
 		}
 		
 		if(null != status) {
-			statusList = new ArrayList<Integer>();
-			statusList.add(status);
+			statusList = Arrays.asList(status);
+		} else {
+			if(currType.equals(UserType.Admin.getValue())) {
+				notstatusList = Arrays.asList(MyStatus.New.getStatus(), MyStatus.Cancel.getStatus());
+			} else if(currType.equals(UserType.WareHouse.getValue())) {
+				statusList = Arrays.asList(MyStatus.WaitSend.getStatus(), MyStatus.Finding.getStatus(), MyStatus.Refunding.getStatus());
+			} else if(currType.equals(UserType.DistributorManager.getValue())) {
+				notstatusList = Arrays.asList(MyStatus.New.getStatus(), MyStatus.Cancel.getStatus());
+			}
+		}
+		
+		if(currType.equals(UserType.Admin.getValue())) {
+			model.addAttribute("statusList", Admin);
+		} else if(currType.equals(UserType.SuperAdmin.getValue())) {
+			model.addAttribute("statusList", SuperAdmin);
+		} else if(currType.equals(UserType.Distributor.getValue())) {
+			model.addAttribute("statusList", Distributor);
+		} else if(currType.equals(UserType.DistributorManager.getValue())) {
+			model.addAttribute("statusList", DistributorManager);
+		} else if(currType.equals(UserType.WareHouse.getValue())) {
+			model.addAttribute("statusList", WareHouse);
 		}
 		
 		long totalCount = tradeService.countTrade(seller_nick, name, statusList, notstatusList);

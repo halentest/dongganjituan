@@ -11,17 +11,9 @@
 		<strong>状态</strong>
 		<select id="status" style="width: 8%;">
 			<option value="">所有状态</option>
-			<option value="0">新建</option>
-			<option value="1">待审核</option>
-			<option value="2">待发货</option>
-			<option value="3">拣货中</option>
-			<option value="4">已发货</option>
-			<option value="5">已完成</option>
-			<option value="-1">已作废</option>
-			<option value="-4">申请退货</option>
-			<option value="-3">已退货</option>
-			<option value="-5">无货</option>
-			<option value="5">已完成</option>
+			<#list statusList as status>
+				<option value="${status.getStatus()}">${status.getDesc()}</option>
+			</#list>
 		</select>
 		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
 		&nbsp;&nbsp;&nbsp;&nbsp;
@@ -106,9 +98,9 @@
 				        </td>
 				        <td rowspan="${orderList?size}" style="text-align: right; padding-right: 10px;">
 				        	<#if CURRENT_USER.type=="WareHouse">
+				        		<p><strong>快递</strong>: 
+				        		<span>${trade.delivery}</span>
 				        		<#if trade.status=="WAIT_SELLER_SEND_GOODS" && trade.my_status==2>
-				        			<p>快递：${trade.delivery}
-					        		</p>
 					        		<p>打印快递单 &nbsp;&nbsp; <a href="javascript:prn1_preview('${sender}', '${from}', '${from_company}', '${from_address}', '${sender_mobile}',
 										'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district}${trade.address}', '${trade.mobile!''}', '${trade.state}')">预览</a></p>
 					        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
@@ -123,7 +115,22 @@
 				        			<a class="refund-success" data-tid="${trade.tid?c}" style="cursor: pointer">退货成功</a>
 				        		</#if>
 				        	</#if> 
-				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
+				        	<#if CURRENT_USER.type=="Distributor">
+				        		<p><strong>快递</strong>: 
+				        		<span>${trade.delivery}</span>
+				        		<#if trade.my_status==0 || trade.my_status==1>
+				        			<select style="display: none;">
+				        				<#list logistics as lo>
+				        					<option value="${lo.code}" <#if trade.delivery==lo.name>selected</#if>>${lo.name}</option>
+				        				</#list>
+									</select>
+				        			<a style="cursor: pointer;" class="modify-delivery">修改</a>
+				        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}" 
+				        				data-goods="${order.goods_id}" data-province="${trade.state}"
+				        				class="modify-delivery-submit">保存</a>
+				        			<a style="cursor: pointer; display: none;" class="modify-delivery-cancel">取消</a>
+				        		</#if>
+				        		</p>
 				        		<#if trade.my_status==0>
 				        			<p><a class="submit" data-tid="${trade.tid?c}" style="cursor: pointer">提交</a></p>
 				        		</#if>
@@ -138,9 +145,22 @@
 				        		</#if>
 				        	</#if> 
 				        	<#if CURRENT_USER.type=="DistributorManager">
+				        		<p><strong>快递</strong>: 
+					        		<span>${trade.delivery}</span>
+					        		<#if trade.my_status==2>
+					        			<select style="display: none;">
+					        				<#list logistics as lo>
+					        					<option value="${lo.code}" <#if trade.delivery==lo.name>selected</#if>>${lo.name}</option>
+					        				</#list>
+										</select>
+					        			<a style="cursor: pointer;" class="modify-delivery">修改</a>
+					        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}" 
+					        				data-goods="${order.goods_id}" data-province="${trade.state}"
+					        				class="modify-delivery-submit">保存</a>
+					        			<a style="cursor: pointer; display: none;" class="modify-delivery-cancel">取消</a>
+					        		</#if>
+				        		</p>
 				        		<#if trade.my_status==1>
-				        			<p>快递: ${trade.delivery} 修改
-					        		</p>
 				        			<a class="cancel" data-tid="${trade.tid?c}" style="cursor: pointer">不通过</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				        			<a class="approve1" data-tid="${trade.tid?c}" style="cursor: pointer">通过</a>
 				        		</#if>
@@ -259,6 +279,45 @@
 	                	alert(result.errorInfo);
 	                } else {
 	                	window.location.reload();
+	                }
+	            }}); 
+		})
+		
+		$('.modify-delivery').click(function() {
+			$(this).css("display", "none");
+			$(this).next().css("display", "inline");
+			$(this).next().next().css("display", "inline");
+			$(this).prev().prev("span").css("display", "none");
+			$(this).prev("select").css("display", "inline");
+		})
+		
+		$('.modify-delivery-cancel').click(function() {
+			$(this).css("display", "none");
+			$(this).prev().css("display", "none");
+			$(this).prev().prev().css("display", "inline");
+			$(this).prev().prev().prev().prev("span").css("display", "inline");
+			$(this).prev().prev().prev("select").css("display", "none");
+		})
+		
+		$('.modify-delivery-submit').click(function() {
+			var selected = $(this).prev().prev().val();
+			var curr = $(this);
+			$.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "delivery=" + selected + "&tid=" + $(this).attr("data-tid") + "&goods=" + $(this).attr("data-goods") +
+	            	"&quantity=" + $(this).attr("data-quantity") + "&province=" + $(this).attr("data-province"),
+	            url: "${rc.contextPath}/trade/action/change_delivery",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+	                if(result.success == false) {
+	                	alert(result.errorInfo);
+	                } else {
+	                	$(curr).css("display", "none");
+	                	$(curr).next().css("display", "none");
+	                	$(curr).prev().css("display", "inline");
+	                	$(curr).prev().prev().css("display", "none");
+	                	$(curr).prev().prev().prev().html(result.errorInfo);
+	                	$(curr).prev().prev().prev().css("display", "inline");
 	                }
 	            }}); 
 		})
