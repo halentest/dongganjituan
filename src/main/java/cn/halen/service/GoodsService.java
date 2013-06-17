@@ -31,7 +31,7 @@ public class GoodsService {
 	 * @return 返回失败的goods， 如店铺内没有找到对应的商品或者找到的商品存在系统内找不到的sku。<Goods, errorInfo>
 	 * @throws ApiException
 	 */
-	public Map<Goods, String> updateSkuQuantity(List<Long> idList) throws ApiException {
+	public Map<Goods, String> updateSkuQuantity(List<Long> idList, String token) throws ApiException {
 		Map<Goods, String> result = new HashMap<Goods, String>();
 		List<Goods> goodsList = goodsMapper.selectById(idList);
 		Map<String, Goods> goodsMap = new HashMap<String, Goods>(); //<hid -> Goods>
@@ -63,7 +63,7 @@ public class GoodsService {
 			for(Entry<String, Long> entry : taoSkuMap.entrySet()) {
 				Long quantity = mySkuMap.get(entry.getKey());
 				if(null!=quantity) {
-					boolean b = itemService.updateSkuQuantity(item.getNumIid(), entry.getValue(), quantity);
+					boolean b = itemService.updateSkuQuantity(item.getNumIid(), entry.getValue(), quantity, token);
 					if(!b) {
 						logger.info("Sku {} for item {} update failed", entry.getKey(), item.getNumIid() + "-" + item.getOuterId());
 						result.put(goodsMap.get(item.getOuterId()), "更新失败，淘宝系统异常，请重试");

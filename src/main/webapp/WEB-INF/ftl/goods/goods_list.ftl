@@ -11,7 +11,8 @@
 		<strong>商品编号</strong>
 		<input id="goods-id" type="input" value="" style="width: 6%; height: 20px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<button id="search">搜索</button>
+		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品
+		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
 	</div>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
@@ -20,6 +21,7 @@
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	</div>
+	
 	<#if list??>
 	<#list list as goods>
 	<#assign map2 = map[goods.hid]>

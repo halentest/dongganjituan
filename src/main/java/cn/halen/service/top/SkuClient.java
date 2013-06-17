@@ -32,7 +32,7 @@ public class SkuClient {
 		ItemSkusGetRequest req = new ItemSkusGetRequest();
 		req.setFields("sku_id,iid,properties,properties_name,property_alias,quantity,price,outer_id,created,modified,status");
 		req.setNumIids("19645259663");
-		ItemSkusGetResponse response = client.execute(req , topConfig.getSession());
+		ItemSkusGetResponse response = client.execute(req , topConfig.getMainToken());
 		System.out.println(response.getBody());
 		List<Sku> list = response.getSkus();
 		logger.debug("Got {} items from top api", list.size());

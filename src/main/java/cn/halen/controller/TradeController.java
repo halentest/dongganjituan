@@ -81,7 +81,7 @@ public class TradeController {
 		}
 		
 		if(currType.equals(UserType.Distributor.getValue())) {
-			seller_nick = currUser.getSeller_nick();
+			seller_nick = currUser.getDistributor().getSeller_nick();
 		}
 		
 		if(null != status) {
@@ -109,6 +109,7 @@ public class TradeController {
 		}
 		
 		long totalCount = tradeService.countTrade(seller_nick, name, statusList, notstatusList);
+		model.addAttribute("totalCount", totalCount);
 		Paging paging = new Paging(intPage, 10, totalCount);
 		List<MyTrade> list = tradeService.listTrade(seller_nick, name, paging, statusList, notstatusList);
 		model.addAttribute("trade_list", list);
@@ -123,7 +124,7 @@ public class TradeController {
 			List<User> userList = adminMapper.listUser(UserType.Distributor.getValue(), 1);
 			distributorList = new ArrayList<String>();
 			for(User user : userList) {
-				distributorList.add(user.getSeller_nick());
+				distributorList.add(user.getDistributor().getSeller_nick());
 			}
 			redisTemplate.opsForValue().set(REDIS_DISTRIBUTOR_LIST, distributorList, 5, TimeUnit.MINUTES);
 		}

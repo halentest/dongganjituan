@@ -13,13 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.mapper.MyTradeMapper;
+import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.MySku;
 import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.User;
-import cn.halen.data.pojo.UserType;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.InvalidStatusChangeException;
@@ -29,6 +29,7 @@ import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.domain.Status;
 import cn.halen.service.top.util.MoneyUtils;
+import cn.halen.util.Constants;
 import cn.halen.util.Paging;
 
 import com.taobao.api.domain.Order;
@@ -136,7 +137,9 @@ public class TradeService {
 			sku.setSize(myOrder.getSku().getSize());
 			skuService.updateSku(sku, quantity, false);
 		}
-		adminService.updateDeposit(UserHolder.get().getUsername(), myTrade.getPayment() + myTrade.getDelivery_money());
+		if(!UserHolder.get().getDistributor().getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
+			adminService.updateDeposit(UserHolder.get().getUsername(), myTrade.getPayment() + myTrade.getDelivery_money());
+		}
 		return myTradeMapper.updateTradeStatus(MyStatus.Cancel.getStatus(), tid) > 0;
 	}
 	
@@ -156,9 +159,11 @@ public class TradeService {
 			sku.setSize(myOrder.getSku().getSize());
 			skuService.updateSku(sku, quantity, false);
 		}
-		User seller = adminMapper.selectUserBySellerNickType(myTrade.getSeller_nick(), UserType.Distributor.getValue());
-		adminService.updateDeposit(seller.getUsername(), 
-				myTrade.getPayment() + myTrade.getDelivery_money());
+		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
+		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
+			adminService.updateDeposit(d.getUsername(), 
+					myTrade.getPayment() + myTrade.getDelivery_money());
+		}
 		return myTradeMapper.updateTradeStatus(MyStatus.Refund.getStatus(), tid) > 0;
 	}
 	
@@ -178,9 +183,11 @@ public class TradeService {
 			sku.setSize(myOrder.getSku().getSize());
 			skuService.updateSku(sku, quantity, false);
 		}
-		User seller = adminMapper.selectUserBySellerNickType(myTrade.getSeller_nick(), UserType.Distributor.getValue());
-		adminService.updateDeposit(seller.getUsername(), 
-				myTrade.getPayment() + myTrade.getDelivery_money());
+		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
+		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
+			adminService.updateDeposit(d.getUsername(), 
+					myTrade.getPayment() + myTrade.getDelivery_money());
+		}
 		return myTradeMapper.updateTradeStatus(MyStatus.NoGoods.getStatus(), tid) > 0;
 	}
 	
@@ -203,8 +210,10 @@ public class TradeService {
 		int change = myTrade.getDelivery_money() - deliveryMoney;
 		myTrade.setDelivery(delivery);
 		myTrade.setDelivery_money(deliveryMoney);
-		User seller = adminMapper.selectUserBySellerNickType(myTrade.getSeller_nick(), UserType.Distributor.getValue());
-		adminService.updateDeposit(seller.getUsername(), change);
+		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
+		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
+			adminService.updateDeposit(d.getUsername(), change);
+		}
 		return myTradeMapper.updateMyTrade(myTrade) > 0;
 	}
 	
@@ -266,8 +275,8 @@ public class TradeService {
 			order.setSku_id(skuId);
 			myTradeMapper.insertMyOrder(order);
 		}
-		if(manual) {
-			User user = UserHolder.get();
+		User user = UserHolder.get();
+		if(!user.getDistributor().getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
 			adminService.updateDeposit(user.getUsername(), -myTrade.getPayment()-myTrade.getDelivery_money());
 		}
 		return count;
@@ -314,7 +323,7 @@ public class TradeService {
 		myTrade.setSeller_memo(trade.getSellerMemo());
 		myTrade.setBuyer_message(trade.getBuyerMessage());
 		myTrade.setSeller_nick(trade.getSellerNick());
-		myTrade.setCome_from("自动同步");
+		myTrade.setCome_from("淘宝自动同步");
 		myTrade.setModified(trade.getModified());
 		myTrade.setCreated(trade.getCreated());
 		List<Order> orderList = trade.getOrders();

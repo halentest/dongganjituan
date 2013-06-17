@@ -24,6 +24,7 @@ import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.MySku;
 import cn.halen.service.GoodsService;
 import cn.halen.service.ResultInfo;
+import cn.halen.service.top.TopConfig;
 import cn.halen.util.Paging;
 
 @Controller
@@ -33,6 +34,9 @@ public class GoodsController {
 
 	@Autowired
 	private GoodsMapper goodsMapper;
+	
+	@Autowired
+	private TopConfig topConfig;
 	
 	@Autowired
 	private GoodsService goodsService;
@@ -51,6 +55,7 @@ public class GoodsController {
 		long totalCount = goodsMapper.countGoodsPaging(goodsId);
 		Paging paging = new Paging(intPage, 10, totalCount);
 		model.addAttribute("paging", paging);
+		model.addAttribute("totalCount", totalCount);
 		
 		List<Goods> list = goodsMapper.listGoodsDetail(paging.getStart(), paging.getPageSize(), goodsId);
 		if(null == list || list.size() == 0) {
@@ -121,7 +126,7 @@ public class GoodsController {
 			idList.add(lId);
 		}
 		try {
-			Map<Goods, String> map = goodsService.updateSkuQuantity(idList);
+			Map<Goods, String> map = goodsService.updateSkuQuantity(idList, topConfig.getMainToken());
 			if(map.size() > 0) {
 				result.setSuccess(false);
 				StringBuilder builder = new StringBuilder();

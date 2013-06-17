@@ -45,6 +45,15 @@
 	         <p class="help-block">必须输入小于1的浮点数，代表分销商的折扣，如3.5折则输入0.35</p>
 	      </div>
 	    </div>
+	    <div class="control-group">
+	        <label class="control-label" for="optionsCheckbox">自营</label>
+	        <div class="controls">
+	          <label class="checkbox">
+	            <input type="checkbox" name="is_self" value="true">
+				选中则表示是自营店铺，那么就不需要计费
+	          </label>
+	        </div>
+	      </div>
 	    </#if>
 	  </fieldset>
 	  

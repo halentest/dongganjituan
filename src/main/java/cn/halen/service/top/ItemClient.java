@@ -64,7 +64,7 @@ public class ItemClient {
 			}
 			req.setOuterId(builder.toString());
 			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props");
-			ItemsCustomGetResponse response = client.execute(req , topConfig.getSession());
+			ItemsCustomGetResponse response = client.execute(req , topConfig.getMainToken());
 			List<Item> itemList = response.getItems();
 			result.addAll(itemList);
 			if(count==goodsList.size()) {
@@ -74,14 +74,14 @@ public class ItemClient {
 		return result;
 	}
 	
-	public boolean updateSkuQuantity(long itemId, long skuId, long quantity) throws ApiException {
+	public boolean updateSkuQuantity(long itemId, long skuId, long quantity, String token) throws ApiException {
 		TaobaoClient client = topConfig.getRetryClient();
 		ItemQuantityUpdateRequest req = new ItemQuantityUpdateRequest();
 		req.setNumIid(itemId);
 		req.setSkuId(skuId);
 		req.setQuantity(quantity);
 		req.setType(1L);
-		ItemQuantityUpdateResponse response = client.execute(req , topConfig.getSession());
+		ItemQuantityUpdateResponse response = client.execute(req , token);
 		if(null != response.getErrorCode()) {
 			log.info("Update sku quantity failed, itemId: {}, skuId: {}, quantity: {}", itemId, skuId, quantity);
 			return false;
@@ -95,9 +95,9 @@ public class ItemClient {
 		
 		//查出所有的商品，用于判断是否已经存在
 		List<Goods> dbGoodsList = goodsMapper.list();
-		Map<String, Integer> dbGoodsMap = new HashMap<String, Integer>();
+		Map<String, Goods> dbGoodsMap = new HashMap<String, Goods>();
 		for(Goods goods : dbGoodsList) {
-			dbGoodsMap.put(goods.getHid(), 1);
+			dbGoodsMap.put(goods.getHid(), goods);
 		}
 		
 		TaobaoClient client = topConfig.getRetryClient();
@@ -107,13 +107,14 @@ public class ItemClient {
 		req.setPageSize(40L);
 		long pageNo = 1;
 		req.setPageNo(pageNo++);
-		ItemsOnsaleGetResponse response = client.execute(req , topConfig.getSession());
+		ItemsOnsaleGetResponse response = client.execute(req , topConfig.getMainToken());
 		List<Goods> goodsList = new ArrayList<Goods>();
 		if(response.isSuccess()) {
 			List<Item> list = response.getItems();
 			log.debug("Got {} items from top api", list.size());
 			for(Item item : list) {
-				if(null == dbGoodsMap.get(item.getOuterId())) {//数据库里没有的才需要同步
+				Goods dbGoods = dbGoodsMap.get(item.getOuterId());
+				if(StringUtils.isNotEmpty(item.getOuterId()) && null == dbGoods) {//数据库里没有的才需要同步
 					Goods goods = new Goods();
 					goods.setTao_id(item.getNumIid());
 					goods.setHid(item.getOuterId());
@@ -123,6 +124,8 @@ public class ItemClient {
 					goods.setTemplate("默认模板");
 					goods.setStatus(1);
 					goodsList.add(goods);
+				} else if(null != dbGoods && StringUtils.isEmpty(dbGoods.getUrl())) {
+					goodsMapper.updatePicUrl(item.getPicUrl(), dbGoods.getId());
 				}
 			}
 			totalSuccess += goodsMapper.batchInsert(goodsList);
@@ -132,13 +135,14 @@ public class ItemClient {
 			if(total > 40L) {
 				while((pageNo - 1) * 40 < total) {
 					req.setPageNo(pageNo++);
-					response = client.execute(req, topConfig.getSession());
+					response = client.execute(req, topConfig.getMainToken());
 					if(response.isSuccess()) {
 						list = response.getItems();
 						log.debug("Got {} items from top api", list.size());
 						goodsList.clear();
 						for(Item item : list) {
-							if(null == dbGoodsMap.get(item.getOuterId())) {//数据库里没有的才需要同步
+							Goods dbGoods = dbGoodsMap.get(item.getOuterId());
+							if(StringUtils.isNotEmpty(item.getOuterId()) && null == dbGoods) {//数据库里没有的才需要同步
 								Goods goods = new Goods();
 								goods.setTao_id(item.getNumIid());
 								goods.setHid(item.getOuterId());
@@ -148,6 +152,8 @@ public class ItemClient {
 								goods.setTemplate("默认模板");
 								goods.setStatus(1);
 								goodsList.add(goods);
+							} else if(null != dbGoods && StringUtils.isEmpty(dbGoods.getUrl())) {
+								goodsMapper.updatePicUrl(item.getPicUrl(), dbGoods.getId());
 							}
 						}
 						totalSuccess += goodsMapper.batchInsert(goodsList);
@@ -178,7 +184,7 @@ public class ItemClient {
 			}
 			req.setOuterId(builder.toString());
 			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props");
-			ItemsCustomGetResponse response = client.execute(req , topConfig.getSession());
+			ItemsCustomGetResponse response = client.execute(req , topConfig.getMainToken());
 			List<Item> itemList = response.getItems();
 			insertSku(itemList);
 			if(count==goodsList.size()) {

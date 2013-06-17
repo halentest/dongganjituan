@@ -145,16 +145,14 @@ create table user1 (
 	username varchar(100) unique not null,
 	password varchar(100) not null,
 	name varchar(50) not null,
-	seller_nick varchar(50),
 	phone varchar(50),
 	enabled tinyint, 
 	type varchar(25),
 	modified timestamp,
-	created timestamp,
-	unique key(seller_nick, type)
+	created timestamp
 );
-insert into user1 values(null, 'superadmin', 'superadmin', '超级管理员', '', '15257197713', 1, 'SuperAdmin', now(), now());
-insert into user1 values(null, 'admin', 'admin', '管理员', '', '15257197713', 1, 'Admin', now(), now());
+insert into user1 values(null, 'superadmin', 'superadmin', '超级管理员', '15257197713', 1, 'SuperAdmin', now(), now());
+insert into user1 values(null, 'admin', 'admin', '管理员', '15257197713', 1, 'Admin', now(), now());
 
 drop table if exists user_authority;
 create table user_authority (
@@ -177,9 +175,15 @@ create table distributor (
 	username varchar(100) not null,
 	deposit bigint unsigned not null default 0, 
 	discount decimal(3, 2), 
+	seller_nick varchar(255),
+	token varchar(255),
+	refresh_token varchar(255),
 	modified timestamp,
 	created timestamp,
-	unique key(username)
+	last_refresh timestamp,
+	type varchar(25) default "normal",
+	sync varchar(10) default "no",
+	unique key(seller_nick)
 );
 
 drop table if exists province;

@@ -81,24 +81,24 @@ public class TradeClient {
 	}
 	
 	/**
-	 * 获取三个月内未发货的交易，用于系统启动初始化
+	 * 获取两天内未发货的交易，用于系统启动初始化
 	 * @return
 	 * @throws ParseException
 	 * @throws ApiException
 	 */
-	public List<Trade> queryTradeList() throws ParseException, ApiException {
+	public List<Trade> queryTradeList(List<String> sessionList) throws ParseException, ApiException {
 		
 		TaobaoClient client = topConfig.getRetryClient();
 		TradesSoldGetRequest req = new TradesSoldGetRequest();
-		req.setFields("tid");
-		//查询代付款的订单
+		req.setFields("tid, seller_nick");
+		//查询已付款的订单
 		req.setStatus("SELLER_CONSIGNED_PART,WAIT_BUYER_CONFIRM_GOODS,TRADE_FINISHED,WAIT_SELLER_SEND_GOODS,TRADE_CLOSED");
 		//一口价
 		req.setType("fixed");
 		
 		Date endDate = new Date();
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MONTH, -3);
+		cal.add(Calendar.DAY_OF_MONTH, -2);
 		Date startDate = cal.getTime();
 		log.info("Start to sync sold trades from {} to {}", startDate, endDate);
 		req.setStartCreated(startDate);
@@ -107,25 +107,27 @@ public class TradeClient {
 		req.setUseHasNext(true);
 		
 		List<Trade> result = new ArrayList<Trade>();
-		boolean hasNext = true;
-		int tryTime = 0;
-		for(long pageNo=1; hasNext;) {
-			req.setPageNo(pageNo);
-			TradesSoldGetResponse response = client.execute(req , topConfig.getSession());
-			if(response.isSuccess()) {
-				List<Trade> list = response.getTrades();
-				if(null!=list) {
-					result.addAll(list);
-				}
-				hasNext = response.getHasNext();
-				pageNo++;
-			} else {
-				if(response.getErrorCode().equals("isp.remote-service-timeout")) {
-					log.info("Time out while query has sold trades in 3 months, try {} again!", ++tryTime);
-					hasNext = true; //超时重试
+		for(String session : sessionList) {
+			boolean hasNext = true;
+			int tryTime = 0;
+			for(long pageNo=1; hasNext;) {
+				req.setPageNo(pageNo);
+				TradesSoldGetResponse response = client.execute(req , session);
+				if(response.isSuccess()) {
+					List<Trade> list = response.getTrades();
+					if(null!=list) {
+						result.addAll(list);
+					}
+					hasNext = response.getHasNext();
+					pageNo++;
 				} else {
-					log.info("Error while query has sold trades in 3 months, error code : {}", response.getErrorCode());
-					hasNext = false;
+					if(response.getErrorCode().equals("isp.remote-service-timeout")) {
+						log.info("Time out while query has sold trades in 2 days, try {} again!", ++tryTime);
+						hasNext = true; //超时重试
+					} else {
+						log.info("Error while query has sold trades in 2 days, error code : {}", response.getErrorCode());
+						hasNext = false;
+					}
 				}
 			}
 		}
@@ -140,7 +142,7 @@ public class TradeClient {
 		req.setFields("tid,seller_nick,buyer_nick,title,payment,parent_id,type,status,created,orders");
 		req.setStartTime("20130315");
 		req.setEndTime("20130518");
-		TopatsTradesSoldGetResponse response = client.execute(req , topConfig.getSession());
+		TopatsTradesSoldGetResponse response = client.execute(req , topConfig.getMainToken());
 		if(null==response.getErrorCode()) {
 			Task task = response.getTask();
 			

@@ -8,7 +8,6 @@ public class User {
 	private String username;
 	private String password;
 	private String name;
-	private String seller_nick;
 	private String phone;
 	private int enabled;
 	private String type;
@@ -37,14 +36,6 @@ public class User {
 		return id;
 	}
 	
-	public String getSeller_nick() {
-		return seller_nick;
-	}
-	
-	public void setSeller_nick(String seller_nick) {
-		this.seller_nick = seller_nick;
-	}
-
 	public String getType() {
 		return type;
 	}

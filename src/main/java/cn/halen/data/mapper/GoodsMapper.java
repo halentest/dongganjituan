@@ -39,6 +39,13 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
+	public int updatePicUrl(String url, long id) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("pic_url", url);
+		param.put("id", id);
+		return getSqlSession().update("cn.halen.data.mapper.GoodsMapper.updatePicUrl", param);
+	}
+	
 	public int insert(Goods goods) {
 		int count = getSqlSession().insert("cn.halen.data.mapper.GoodsMapper.insert", goods);
 		return count;

@@ -96,7 +96,7 @@ public class LogisticsCompanyClient {
 		req.setTid(tid);
 		req.setOutSid(outSid);
 		req.setCompanyCode(companyCode);
-		LogisticsOfflineSendResponse response = client.execute(req , topConfig.getSession());
+		LogisticsOfflineSendResponse response = client.execute(req , topConfig.getMainToken());
 		String errorInfo = null;
 		if(!response.isSuccess()) {
 			String errorCode = response.getErrorCode();
@@ -120,7 +120,7 @@ public class LogisticsCompanyClient {
 		req.setTid(tid);
 		req.setOutSid(outSid);
 		req.setCompanyCode(companyCode);
-		LogisticsConsignResendResponse response = client.execute(req , topConfig.getSession());
+		LogisticsConsignResendResponse response = client.execute(req , topConfig.getMainToken());
 		String errorInfo = null;
 		if(!response.isSuccess()) {
 			String errorCode = response.getErrorCode();

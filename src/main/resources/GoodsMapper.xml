@@ -80,6 +80,10 @@
 			price=#{price}, template=#{template}, status=#{status}, discount=#{discount} where id=#{id}
 	</update>
 	
+	<update id="updatePicUrl" parameterType="Map">
+		update goods set url=#{pic_url} where id=#{id}
+	</update>
+	
 	<select id="getById" parameterType="int" resultMap="goodsMap" >
 		select <include refid="selectColumns"/>, <include refid="selectColumnsSku"/> from goods g left join sku s on g.hid = s.goods_id where g.id=#{id}
 	</select>

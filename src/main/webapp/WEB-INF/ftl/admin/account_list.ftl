@@ -194,48 +194,6 @@
 	</table>
 	
 	<br>
-	<strong>客服</strong> 
-	&nbsp;&nbsp;<a href="${rc.contextPath}/admin/add_account_form?type=ServiceStaff">添加</a>
-	<table>
-		<thead>
-			<tr>
-				<th>用户名</th>
-				<th>密码</th>
-				<th>姓名</th>
-				<th>店铺</th>
-				<th>状态</th>
-				<th>创建时间</th>
-				<th>修改时间</th>
-				<th>操作</th>
-			</tr>	
-		</thead>
-		<#if userMap["ServiceStaff"]??>
-			<#assign serviceStaff = userMap["ServiceStaff"]>
-			<tbody style="text-align: center;">
-				<#list serviceStaff as user>
-					<tr>
-						<td>${user.username}</td>
-						<td>${user.password}</td>
-						<td>${user.name}</td>
-						<td>${user.seller_nick}</td>
-						<td><#if user.enabled==1>有效<#else>禁用</#if></td>
-						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
-						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>
-						<td>
-							<a href="${rc.contextPath}/admin/modify_password_form?username=${user.username}">修改密码</a> &nbsp;&nbsp;
-							<#if user.enabled==1>
-								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=0">禁用</a>
-							<#else>
-								<a href="${rc.contextPath}/admin/change_user_status?username=${user.username}&enabled=1">启用</a>
-							</#if>
-						</td>
-					</tr>
-				</#list>
-			</tbody>
-		</#if>
-	</table>
-	
-	<br>
 	<strong>分销商</strong> 
 	&nbsp;&nbsp;<a href="${rc.contextPath}/admin/add_account_form?type=Distributor">添加</a>
 	<table>
@@ -247,6 +205,7 @@
 				<th>店铺</th>
 				<th>折扣</th>
 				<th>余额(元)</th>
+				<th>是否自营</th>
 				<th>状态</th>
 				<th>创建时间</th>
 				<th>修改时间</th>
@@ -261,9 +220,10 @@
 						<td>${user.username}</td>
 						<td>${user.password}</td>
 						<td>${user.name}</td>
-						<td>${user.seller_nick}</td>
+						<td>${user.distributor.seller_nick}</td>
 						<td>${user.distributor.discount}</td>
 						<td>${user.distributor.deposit/100}</td>
+						<td><#if user.distributor.type=='self'>是<#else>否</#if></td>
 						<td><#if user.enabled==1>有效<#else>禁用</#if></td>
 						<td>${user.created?string('yyyy-MM-dd HH:mm:ss')}</td>
 						<td>${user.modified?string('yyyy-MM-dd HH:mm:ss')}</td>

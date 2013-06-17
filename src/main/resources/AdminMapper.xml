@@ -3,13 +3,21 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.halen.data.mapper.AdminMapper">
+
+	<sql id="userColumns">u.id as u_id, u.username as u_username, u.password as u_password, u.enabled as u_enabled,
+			u.type as u_type, u.name as u_name, u.phone as u_phone, u.modified as u_modified, u.created as u_created, 
+			ua.id as ua_id, ua.username as ua_username, ua.authority as ua_authority, ua.modified as ua_modified,
+			ua.created as ua_created,
+			d.id as d_id, d.username as d_username, d.deposit as d_deposit, d.discount as d_discount, d.seller_nick as d_seller_nick,
+			d.token as d_token, d.refresh_token as d_refresh_token, d.last_refresh as d_last_refresh,
+			d.sync as d_sync, d.type as d_type,
+			d.modified as d_modified, d.created as d_created</sql>
 	
 	<resultMap id="userMap" type="User">
 		<id property="id" column="u_id"/>
 		<result property="username" column="u_username"/>
 		<result property="password" column="u_password"/>
 		<result property="name" column="u_name"/>
-		<result property="seller_nick" column="u_seller_nick"/>
 		<result property="type" column="u_type"/>
 		<result property="phone" column="u_phone"/>
 		<result property="enabled" column="u_enabled"/>
@@ -19,6 +27,12 @@
 		    <id property="id" column="d_id"/>
 		    <result property="deposit" column="d_deposit"/>
 		    <result property="discount" column="d_discount"/>
+		    <result property="seller_nick" column="d_seller_nick"/>
+		    <result property="token" column="d_token"/>
+		    <result property="refresh_token" column="d_refresh_token"/>
+		    <result property="last_refresh" column="d_last_refresh"/>
+		    <result property="type" column="d_type"/>
+		    <result property="sync" column="d_sync"/>
 		    <result property="modified" column="d_modified"/>
 		    <result property="created" column="d_created"/>
 		</association>
@@ -32,12 +46,7 @@
 	</resultMap>
 	
 	<select id="listUser" parameterType="java.util.Map" resultMap="userMap">
-		select u.id as u_id, u.username as u_username, u.seller_nick as u_seller_nick, u.password as u_password, u.enabled as u_enabled,
-			u.type as u_type, u.name as u_name, u.phone as u_phone, u.modified as u_modified, u.created as u_created, 
-			ua.id as ua_id, ua.username as ua_username, ua.authority as ua_authority, ua.modified as ua_modified,
-			ua.created as ua_created,
-			d.id as d_id, d.username as d_username, d.deposit as d_deposit, d.discount as d_discount,
-			d.modified as d_modified, d.created as d_created
+		select <include refid="userColumns"/>
 		from 
 		<choose>
 	   		<when test="type != null or enabled != null">
@@ -66,14 +75,30 @@
 	</select>
 	
 	<insert id="insertUser" parameterType="User">
-		insert into user1(username, password, name, seller_nick, enabled, type, created) values(#{username},
-		#{password}, #{name}, #{seller_nick}, 1, #{type}, now())
+		insert into user1(username, password, name, enabled, type, created) values(#{username},
+		#{password}, #{name}, 1, #{type}, now())
 	</insert>
 	
 	<insert id="insertDistributor" parameterType="Distributor">
-		insert into distributor(username, discount, created) values(#{user.username},
-		#{discount}, now())
+		insert into distributor(username, discount, seller_nick, type, sync, created, last_refresh) values(#{username},
+		#{discount}, #{seller_nick}, #{type}, #{sync}, now(), now())
 	</insert>
+	
+	<select id="listDistributorByType" parameterType="String" resultType="Distributor">
+		select * from distributor where type = #{type}
+	</select>
+	
+	<select id="listDistributorBySync" parameterType="String" resultType="Distributor">
+		select * from distributor where sync = #{sync}
+	</select>
+	
+	<update id="updateDistributorSync" parameterType="Map">
+		update distributor set sync = #{sync} where username = #{username}
+	</update>
+	
+	<update id="updateDistributorToken" parameterType="Map">
+		update distributor set token=#{token}, refresh_token=#{refresh_token}, last_refresh=now() where seller_nick = #{seller_nick} 
+	</update>
 	
 	<update id="updateUserEnabled" parameterType="java.util.Map">
 		update user1 set enabled = #{enabled} where username = #{username}
@@ -84,19 +109,14 @@
 	</update>
 	
 	<select id="selectUser" parameterType="String" resultMap="userMap">
-		select u.id as u_id, u.username as u_username, u.seller_nick as u_seller_nick, u.password as u_password, u.enabled as u_enabled,
-			u.type as u_type, u.name as u_name, u.phone as u_phone, u.modified as u_modified, u.created as u_created, 
-			ua.id as ua_id, ua.username as ua_username, ua.authority as ua_authority, ua.modified as ua_modified,
-			ua.created as ua_created,
-			d.id as d_id, d.username as d_username, d.deposit as d_deposit, d.discount as d_discount,
-			d.modified as d_modified, d.created as d_created
+		select <include refid="userColumns"/>
 		from user1 as u left join user_authority as ua on u.username = ua.username
 						left join distributor as d on u.username = d.username
 		where u.username = #{username}
 	</select>
 	
-	<select id="selectUserBySellerNickType" parameterType="java.util.Map" resultType="User">
-		select * from user1 where type=#{type} and seller_nick =#{seller_nick}
+	<select id="selectDistributorBySellerNick" parameterType="String" resultType="Distributor">
+		select * from distributor where seller_nick =#{seller_nick}
 	</select>
 	
 	<update id="updateDeposit" parameterType="java.util.Map">
@@ -106,6 +126,8 @@
 	<select id="selectDistributorByUsername" parameterType="String" resultType="Distributor">
 		select * from distributor where username=#{username}
 	</select>
+	
+	<select id=""></select>
 	
 	<insert id="batchInsertAuthority" parameterType="java.util.List">
 		insert into user_authority (username, authority, created) values

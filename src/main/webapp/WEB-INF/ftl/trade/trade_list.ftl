@@ -35,7 +35,7 @@
 		<strong>结束时间</strong>
 		<input id="name" type="input" value="" style="width: 8%; height: 20px;"/> -->
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<button id="search">搜索</button>
+		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个
 	</div>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>

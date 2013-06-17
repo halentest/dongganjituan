@@ -20,6 +20,9 @@
 				<value>classpath:config.properties</value>
 			</list>
 		</property>
+		 <property name="fileEncoding">
+          <value>UTF-8</value>
+      </property>  
 	</bean>
 	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="mysqlDataSource" />

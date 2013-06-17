@@ -163,7 +163,7 @@
 					<td>${map[key]['sf-hw'].add_fee/100}</td>
 				</tr>
 				<tr>
-					<th colspan="5">海外</th>
+					<th colspan="5">EMS</th>
 				</tr>
 				<tr>
 					<th>运送到</th>

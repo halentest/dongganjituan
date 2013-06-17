@@ -12,7 +12,6 @@ import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.Template;
 import cn.halen.data.pojo.User;
 import cn.halen.data.pojo.UserAuthority;
-import cn.halen.data.pojo.UserType;
 
 public class AdminMapper extends SqlSessionDaoSupport {
 
@@ -94,12 +93,32 @@ public class AdminMapper extends SqlSessionDaoSupport {
 		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectDistributorByUsername", username);
 	}
 	
-	public User selectUserBySellerNickType(String sellerNick, String type) {
+	public Distributor selectDistributorBySellerNick(String sellerNick) {
+		Distributor d = getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectDistributorBySellerNick", sellerNick);
+		return d;
+	}
+	
+	public List<Distributor> listDistributorByType(String type) {
+		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.listDistributorByType", type);
+	}
+	
+	public List<Distributor> listDistributorBySync(String sync) {
+		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.listDistributorBySync", sync);
+	}
+	
+	public int updateDistributorSync(String sync, String username) {
 		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("sync", sync);
+		param.put("username", username);
+		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateDistributorSync", param);
+	}
+	
+	public int updateDistributorToken(String token, String refreshToken, String sellerNick) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("token", token);
+		param.put("refresh_token", refreshToken);
 		param.put("seller_nick", sellerNick);
-		param.put("type", type);
-		User user = getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectUserBySellerNickType", param);
-		return user;
+		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateDistributorToken", param);
 	}
 	
 	public int batchInsertTemplate(List<Template> list) {

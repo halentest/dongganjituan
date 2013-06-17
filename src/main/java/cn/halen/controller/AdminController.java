@@ -31,6 +31,7 @@ import cn.halen.data.pojo.UserType;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.service.AdminService;
 import cn.halen.service.ResultInfo;
+import cn.halen.util.Constants;
 
 import com.taobao.api.domain.Area;
 
@@ -78,7 +79,7 @@ public class AdminController {
 	@RequestMapping(value="admin/add_account")
 	public String addAccount(Model model, HttpServletResponse resp, @RequestParam("username") String username, @RequestParam("password") String password,
 			@RequestParam("password2") String password2, @RequestParam("name") String name, 
-			@RequestParam(value="seller_nick", required=false) String sellerNick,
+			@RequestParam(value="seller_nick", required=false) String sellerNick, @RequestParam(value="is_self", required=false) String isSelf,
 			@RequestParam("type") String type, @RequestParam(value="discount", required=false) String discount) {
 		String errorMsg = null;
 		username = username.trim();
@@ -130,12 +131,17 @@ public class AdminController {
 		user.setUsername(username);
 		user.setPassword(password);
 		user.setName(name);
-		user.setSeller_nick(sellerNick);
 		user.setType(type);
 		if(type.equals("Distributor")) {
 			Distributor distributor = new Distributor();
-			distributor.setUser(user);
+			distributor.setUsername(username);
+			distributor.setSeller_nick(sellerNick);
 			distributor.setDiscount(fDiscount);
+			if("true".equals(isSelf)) {
+				distributor.setType(Constants.DISTRIBUTOR_TYPE_SELF);
+			} else {
+				distributor.setType(Constants.DISTRIBUTOR_TYPE_NORMAL);
+			}
 			user.setDistributor(distributor);
 		}
 		adminService.insertUser(user, type);

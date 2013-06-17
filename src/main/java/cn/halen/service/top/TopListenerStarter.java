@@ -80,7 +80,9 @@ public class TopListenerStarter implements InitializingBean {
 				, topConfig.getAppSecret());
 
 		// 启动主动通知监听器
-		permitUser(client, topConfig.getSession());
+		for(String token : topConfig.listToken()) {
+			permitUser(client, token);
+		}
 		Configuration conf = new Configuration(topConfig.getAppKey(), topConfig.getAppSecret(), null);
 		TopCometStream stream = new TopCometStreamFactory(conf).getInstance();
 		stream.setConnectionListener(new ConnectionLifeCycleListenerImpl());
@@ -93,16 +95,16 @@ public class TopListenerStarter implements InitializingBean {
 	public int initTrades() throws ParseException, ApiException, InsufficientStockException, InsufficientBalanceException {
 		int totalCount = 0;
 		
-		List<Trade> tradeList = tradeClient.queryTradeList();
+		List<Trade> tradeList = tradeClient.queryTradeList(topConfig.listToken());
 		for(Trade trade : tradeList) {
 			//检查trade是否存在，如果不存在，直接插入
 			Long tid = tradeService.selectByTradeId(trade.getTid());
-			Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getSession());
+			Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
 			MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
 			if(null == tid) {
 				if(tradeDetail.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue())) {
 					MyLogisticsCompany mc = logisticsMapper.select(1);
-					myTrade.setDelivery(mc.getName());
+					myTrade.setLogistics_company(mc.getName());
 					myTrade.setMy_status(MyStatus.New.getStatus());
 					int count = tradeService.insertMyTrade(myTrade, false);
 					totalCount += count;

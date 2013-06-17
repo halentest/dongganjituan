@@ -1,10 +1,18 @@
 package cn.halen.service.top;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import cn.halen.data.mapper.AdminMapper;
+import cn.halen.data.pojo.Distributor;
+import cn.halen.util.Constants;
+
 import com.taobao.api.AutoRetryTaobaoClient;
-import com.taobao.api.DefaultTaobaoClient;
 import com.taobao.api.TaobaoClient;
 
 @Component
@@ -20,16 +28,38 @@ public class TopConfig {
 	@Value("${top.url}")
 	private String url;
 	
-	private TaobaoClient retryClient = new AutoRetryTaobaoClient(url, appKey, appSecret);
+	@Value("${top.main.sellernick}")
+	private String mainSeller;
 	
-	private TaobaoClient defaultClient = new DefaultTaobaoClient(url, appKey, appSecret);
+	@Autowired
+	private AdminMapper adminMapper;
+	
+	public List<String> listToken() {
+		List<String> result = new ArrayList<String>();
+		List<Distributor> list = adminMapper.listDistributorBySync(Constants.DISTIBUTOR_SYNC_YES);
+		for(Distributor d : list) {
+			String token = d.getToken();
+			if(StringUtils.isNotEmpty(token)) {
+				result.add(token);
+			}
+		}
+		return result;
+	}
+	
+	public String getToken(String sellerNick) {
+		Distributor d = adminMapper.selectDistributorBySellerNick(sellerNick);
+		if(null != d) {
+			return d.getToken();
+		}
+		return null;
+	}
+	
+	public String getMainToken() {
+		return getToken(mainSeller);
+	}
 	
 	public TaobaoClient getRetryClient() {
 		return new AutoRetryTaobaoClient(url, appKey, appSecret);
-	}
-	
-	public TaobaoClient getClient() {
-		return defaultClient;
 	}
 	
 	public String getUrl() {
@@ -50,9 +80,9 @@ public class TopConfig {
 	public void setAppSecret(String appSecret) {
 		this.appSecret = appSecret;
 	}
-	public String getSession() {
-		return session;
-	}
+//	public String getSession() {
+//		return session;
+//	}
 	public void setSession(String session) {
 		this.session = session;
 	}

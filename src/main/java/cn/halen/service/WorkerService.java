@@ -77,7 +77,7 @@ public class WorkerService {
 								@Override
 								public void run() {
 									try {
-										Trade trade = tradeClient.getTradeFullInfo(nt.getTid(), topConfig.getSession());
+										Trade trade = tradeClient.getTradeFullInfo(nt.getTid(), topConfig.getToken(nt.getSellerNick()));
 										List<Order> orderList = trade.getOrders();
 										Map<Long, Order> map = new HashMap<Long, Order>();
 										for(Order order : orderList) {
@@ -194,7 +194,7 @@ public class WorkerService {
 								public void run() {
 									Trade trade = null;
 									try {
-										trade = tradeClient.getTradeFullInfo(nr.getTid(), topConfig.getSession());
+										trade = tradeClient.getTradeFullInfo(nr.getTid(), topConfig.getToken(nr.getSellerNick()));
 									} catch (ApiException e) {
 										log.error("", e);
 									}

@@ -9,4 +9,10 @@ public class MoneyUtils {
 	public static int convert(String s) {
 		return Math.round(Float.parseFloat(s)*100);
 	}
+	
+	public static int cal(int price, float discount, int quantity) {
+		int total = 0;
+		total += price * discount * quantity;
+		return total;
+	}
 }
