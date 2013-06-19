@@ -17,7 +17,7 @@
 		delete from sku where id=#{id}
 	</delete>
 	
-	<select id="select" parameterType="MySku" resultType="MySku">
+	<select id="select" parameterType="Map" resultType="MySku">
 		select * from sku where goods_id=#{goods_id} and color=#{color} and size=#{size}
 	</select>
 	

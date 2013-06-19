@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.halen.data.mapper.AdminMapper;
+import cn.halen.data.mapper.GoodsMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.Distributor;
+import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.MySku;
@@ -47,6 +49,9 @@ public class TradeService {
 	private TradeClient tradeClient;
 	
 	@Autowired
+	private GoodsMapper goodsMapper;
+	
+	@Autowired
 	private AdminService adminService;
 	
 	@Autowired
@@ -76,10 +81,10 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public void updateOrderAndSku(MyOrder myOrder, MySku mySku, long quantity) {
+	public void updateOrderAndSku(MyOrder myOrder, String goodsId, String color, String size, long quantity) {
 		try {
 			myTradeMapper.updateMyOrder(myOrder);
-			skuService.updateSku(mySku, quantity, false);
+			skuService.updateSku(goodsId, color, size, quantity, false);
 		} catch(Exception e) {
 			log.error("", e);
 			throw new RuntimeException(e);
@@ -131,11 +136,8 @@ public class TradeService {
 		for(MyOrder myOrder : list) {
 			String goodsId = myOrder.getGoods_id();
 			long quantity = myOrder.getQuantity();
-			MySku sku = new MySku();
-			sku.setGoods_id(goodsId);
-			sku.setColor(myOrder.getSku().getColor());
-			sku.setSize(myOrder.getSku().getSize());
-			skuService.updateSku(sku, quantity, false);
+			skuService.updateSku(goodsId, myOrder.getSku().getColor(), 
+					myOrder.getSku().getSize(), quantity, false);
 		}
 		if(!UserHolder.get().getDistributor().getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
 			adminService.updateDeposit(UserHolder.get().getUsername(), myTrade.getPayment() + myTrade.getDelivery_money());
@@ -153,11 +155,7 @@ public class TradeService {
 		for(MyOrder myOrder : list) {
 			String goodsId = myOrder.getGoods_id();
 			long quantity = myOrder.getQuantity();
-			MySku sku = new MySku();
-			sku.setGoods_id(goodsId);
-			sku.setColor(myOrder.getSku().getColor());
-			sku.setSize(myOrder.getSku().getSize());
-			skuService.updateSku(sku, quantity, false);
+			skuService.updateSku(goodsId, myOrder.getSku().getColor(), myOrder.getSku().getSize(), quantity, false);
 		}
 		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
 		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
@@ -177,11 +175,7 @@ public class TradeService {
 		for(MyOrder myOrder : list) {
 			String goodsId = myOrder.getGoods_id();
 			long quantity = myOrder.getQuantity();
-			MySku sku = new MySku();
-			sku.setGoods_id(goodsId);
-			sku.setColor(myOrder.getSku().getColor());
-			sku.setSize(myOrder.getSku().getSize());
-			skuService.updateSku(sku, quantity, false);
+			skuService.updateSku(goodsId, myOrder.getSku().getColor(), myOrder.getSku().getSize(), quantity, false);
 		}
 		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
 		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
@@ -264,13 +258,9 @@ public class TradeService {
 		int count = myTradeMapper.insert(myTrade);
 		for(MyOrder order : myTrade.getMyOrderList()) {
 			
-			MySku mySku = new MySku();
-			mySku.setGoods_id(order.getGoods_id());
-			mySku.setColor(order.getColor());
-			mySku.setSize(order.getSize());
 			long skuId = 0;
 			if(order.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
-				skuId = skuService.updateSku(mySku, -order.getQuantity(), manual);
+				skuId = skuService.updateSku(order.getGoods_id(), order.getColor(), order.getSize(), -order.getQuantity(), manual);
 			}
 			order.setSku_id(skuId);
 			myTradeMapper.insertMyOrder(order);
@@ -307,6 +297,62 @@ public class TradeService {
 	}
 	
 	public MyTrade toMyTrade(Trade trade) {
+		
+		List<Order> orderList = trade.getOrders();
+		long goodsCount = 0;
+		List<MyOrder> myOrderList = new ArrayList<MyOrder>();
+		String sellerNick = trade.getSellerNick();
+		Distributor d = adminMapper.selectDistributorBySellerNick(sellerNick);
+		boolean isSelf = d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF);
+		float discount = d.getDiscount();
+		String goodsHid = null; //用来查询模板
+		int totalPayment = 0;
+		String 
+		for(Order order : orderList) {
+			Goods goods = goodsMapper.getByHid(order.getOuterIid());
+			if(null == goods) { //检查商品是否存在
+				continue;
+			}
+			String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
+			String[] properties = skuStr.split(";");
+			String color = properties[0].split(":")[1];
+			String size = properties[1].split(":")[1];
+			MySku sku = mySkuMapper.select(order.getOuterIid(), color, size);
+			if(null == sku) {  //检查sku是否存在
+				continue;
+			}
+			goodsHid = goods.getHid();
+			
+			goodsCount += order.getNum();
+			MyOrder myOrder = new MyOrder();
+			myOrder.setTid(trade.getTid());
+			myOrder.setOid(order.getOid());
+			
+			
+			myOrder.setColor(color);
+			myOrder.setSize(size);
+			myOrder.setGoods_id(order.getOuterIid());
+			myOrder.setTitle(order.getTitle());
+			myOrder.setPic_path(order.getPicPath());
+			myOrder.setQuantity(order.getNum());
+			if(!isSelf && trade.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS)) {
+				myOrder.setPrice(goods.getPrice());
+				int payment = MoneyUtils.cal(goods.getPrice(), discount, order.getNum());
+				myOrder.setPayment(payment);
+				totalPayment += payment;
+			} else {
+				myOrder.setPrice(MoneyUtils.convert(order.getPrice()));
+				myOrder.setPayment(MoneyUtils.convert(order.getPayment()));
+			}
+			myOrder.setLogistics_company(order.getLogisticsCompany());
+			myOrder.setInvoice_no(order.getInvoiceNo());
+			myOrder.setStatus(order.getStatus());
+			myOrderList.add(myOrder);
+		}
+		if(myOrderList.size() == 0) {
+			return null;
+		}
+		
 		MyTrade myTrade = new MyTrade();
 		myTrade.setTao_id(trade.getTid());
 		myTrade.setName(trade.getReceiverName());
@@ -317,8 +363,6 @@ public class TradeService {
 		myTrade.setDistrict(trade.getReceiverDistrict());
 		myTrade.setAddress(trade.getReceiverAddress());
 		myTrade.setPostcode(trade.getReceiverZip());
-		myTrade.setPayment(MoneyUtils.convert(trade.getPayment()));
-		myTrade.setDelivery_money(MoneyUtils.convert(trade.getPostFee()));
 		myTrade.setDistributor_id(1);
 		myTrade.setSeller_memo(trade.getSellerMemo());
 		myTrade.setBuyer_message(trade.getBuyerMessage());
@@ -326,33 +370,14 @@ public class TradeService {
 		myTrade.setCome_from("淘宝自动同步");
 		myTrade.setModified(trade.getModified());
 		myTrade.setCreated(trade.getCreated());
-		List<Order> orderList = trade.getOrders();
-		long goodsCount = 0;
-		List<MyOrder> myOrderList = new ArrayList<MyOrder>();
-		for(Order order : orderList) {
-			goodsCount += order.getNum();
-			MyOrder myOrder = new MyOrder();
-			myOrder.setTid(trade.getTid());
-			myOrder.setOid(order.getOid());
+		if(!isSelf && trade.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS)) {
 			
-			String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
-			String[] properties = skuStr.split(";");
-			String color = properties[0].split(":")[1];
-			String size = properties[1].split(":")[1];
-			
-			myOrder.setColor(color);
-			myOrder.setSize(size);
-			myOrder.setGoods_id(order.getOuterIid());
-			myOrder.setTitle(order.getTitle());
-			myOrder.setPic_path(order.getPicPath());
-			myOrder.setQuantity(order.getNum());
-			myOrder.setPrice(MoneyUtils.convert(order.getPrice()));
-			myOrder.setPayment(MoneyUtils.convert(order.getPayment()));
-			myOrder.setLogistics_company(order.getLogisticsCompany());
-			myOrder.setInvoice_no(order.getInvoiceNo());
-			myOrder.setStatus(order.getStatus());
-			myOrderList.add(myOrder);
+		} else {
+			myTrade.setDelivery_money(MoneyUtils.convert(trade.getPostFee()));
+			myTrade.setPayment(MoneyUtils.convert(trade.getPayment()));
+			myTrade.setLogistics_company(trade.get)
 		}
+		
 		myTrade.setMyOrderList(myOrderList);
 		myTrade.setGoods_count(goodsCount);
 		myTrade.setStatus(trade.getStatus());

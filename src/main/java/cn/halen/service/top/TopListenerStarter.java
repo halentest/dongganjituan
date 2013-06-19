@@ -134,12 +134,9 @@ public class TopListenerStarter implements InitializingBean {
 				if((dbMyOrder.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue()) || dbMyOrder.getStatus().equals(Status.WAIT_BUYER_CONFIRM_GOODS.getValue()))
 						&& myOrder.getStatus().equals(Status.TRADE_CLOSED.getValue())) {
 					//退货进仓
-					MySku mySku = new MySku();
-					mySku.setGoods_id(dbMyOrder.getGoods_id());
-					mySku.setColor(dbMyOrder.getColor());
-					mySku.setSize(dbMyOrder.getSize());
 					dbMyOrder.setStatus(Status.TRADE_CLOSED.getValue());
-					tradeService.updateOrderAndSku(dbMyOrder, mySku, myOrder.getQuantity());
+					tradeService.updateOrderAndSku(dbMyOrder, dbMyOrder.getGoods_id(),
+							dbMyOrder.getColor(), dbMyOrder.getSize(), myOrder.getQuantity());
 				} else {
 					dbMyOrder.setStatus(myOrder.getStatus());
 					dbMyOrder.setLogistics_company(myOrder.getLogistics_company());

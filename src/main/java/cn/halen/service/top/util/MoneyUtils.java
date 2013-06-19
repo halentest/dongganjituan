@@ -15,4 +15,10 @@ public class MoneyUtils {
 		total += price * discount * quantity;
 		return total;
 	}
+	
+	public static int cal(int price, float discount, long quantity) {
+		int total = 0;
+		total += price * discount * quantity;
+		return total;
+	}
 }

@@ -12,9 +12,10 @@ public class SkuService {
 	@Autowired
 	private MySkuMapper skuMapper;
 	
-	synchronized public long updateSku(MySku sku, long quantity, boolean manual) throws InsufficientStockException {
+	synchronized public long updateSku(String goodsId, String color, String size,
+			long quantity, boolean manual) throws InsufficientStockException {
 		
-		MySku mySku = skuMapper.select(sku);
+		MySku mySku = skuMapper.select(goodsId, color, size);
 		//更新库存
 		if(manual && mySku.getQuantity() + quantity<0) {
 			throw new InsufficientStockException();

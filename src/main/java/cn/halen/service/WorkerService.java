@@ -17,7 +17,6 @@ import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.pojo.MyLogisticsCompany;
 import cn.halen.data.pojo.MyOrder;
-import cn.halen.data.pojo.MySku;
 import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.service.top.TopConfig;
@@ -117,11 +116,8 @@ public class WorkerService {
 												MyOrder myOrder = tradeService.selectOrderByOrderId(nt.getOid());
 												if(!myOrder.getStatus().equals(Status.TRADE_CLOSED.getValue())) {
 													myOrder.setStatus(Status.TRADE_CLOSED.getValue());
-													MySku mySku = new MySku();
-													mySku.setGoods_id(myOrder.getGoods_id());
-													mySku.setColor(myOrder.getColor());
-													mySku.setSize(myOrder.getSize());
-													tradeService.updateOrderAndSku(myOrder, mySku, myOrder.getQuantity());
+													tradeService.updateOrderAndSku(myOrder, myOrder.getGoods_id(),
+															myOrder.getColor(), myOrder.getSize(), myOrder.getQuantity());
 												}
 											} else if(status.equals(NotifyTradeStatus.TradeSellerShip.getValue())) {
 												log.debug("Receive 'TradeSellerShip' notify, tid = {}, oid = {}",  nt.getTid(), nt.getOid());
@@ -225,11 +221,8 @@ public class WorkerService {
 										MyOrder myOrder = tradeService.selectOrderByOrderId(nr.getOid());
 										if(!myOrder.getStatus().equals(Status.TRADE_CLOSED.getValue())) {
 											myOrder.setStatus(Status.TRADE_CLOSED.getValue());
-											MySku mySku = new MySku();
-											mySku.setGoods_id(myOrder.getGoods_id());
-											mySku.setColor(myOrder.getColor());
-											mySku.setSize(myOrder.getSize());
-											tradeService.updateOrderAndSku(myOrder, mySku, myOrder.getQuantity());
+											tradeService.updateOrderAndSku(myOrder, myOrder.getGoods_id(), myOrder.getColor(),
+													myOrder.getSize(), myOrder.getQuantity());
 										}
 									}
 								}
