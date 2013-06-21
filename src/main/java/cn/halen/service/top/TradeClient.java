@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.taobao.api.ApiException;
-import com.taobao.api.DefaultTaobaoClient;
 import com.taobao.api.TaobaoClient;
 import com.taobao.api.domain.NotifyTrade;
 import com.taobao.api.domain.Task;
@@ -81,7 +80,7 @@ public class TradeClient {
 	}
 	
 	/**
-	 * 获取两天内未发货的交易，用于系统启动初始化
+	 * get wait send trades in two days.
 	 * @return
 	 * @throws ParseException
 	 * @throws ApiException
@@ -92,13 +91,13 @@ public class TradeClient {
 		TradesSoldGetRequest req = new TradesSoldGetRequest();
 		req.setFields("tid, seller_nick");
 		//查询已付款的订单
-		req.setStatus("SELLER_CONSIGNED_PART,WAIT_BUYER_CONFIRM_GOODS,TRADE_FINISHED,WAIT_SELLER_SEND_GOODS,TRADE_CLOSED");
+		req.setStatus("WAIT_SELLER_SEND_GOODS");
 		//一口价
 		req.setType("fixed");
 		
 		Date endDate = new Date();
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_MONTH, -2);
+		cal.add(Calendar.DAY_OF_MONTH, -15);
 		Date startDate = cal.getTime();
 		log.info("Start to sync sold trades from {} to {}", startDate, endDate);
 		req.setStartCreated(startDate);

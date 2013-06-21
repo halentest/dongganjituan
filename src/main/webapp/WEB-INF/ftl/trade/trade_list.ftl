@@ -79,7 +79,7 @@
 				        	<p><strong>地址：</strong>${trade.state}${trade.city}${trade.district}${trade.address}</p>
 				        	<p>
 				        		<strong>收货人：</strong>${trade.name} &nbsp;&nbsp;
-				        		<strong>电话：</strong>${trade.phone} &nbsp;&nbsp;
+				        		<strong>电话：</strong>${trade.phone!''} &nbsp;&nbsp;
 				        		<strong>手机：</strong>${trade.mobile} &nbsp;&nbsp;
 				        	</p>
 				        	<p><strong>邮编：</strong>${trade.postcode}</p>

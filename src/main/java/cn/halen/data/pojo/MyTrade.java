@@ -49,13 +49,11 @@ public class MyTrade {
 
 	@Override
 	public String toString() {
-		return "MyTrade [tid=" + tid + ", name=" + name + ", phone=" + phone
-				+ ", mobile=" + mobile + ", state=" + state + ", city=" + city
+		return "MyTrade [name=" + name + ", phone=" + phone + ", mobile="
+				+ mobile + ", state=" + state + ", city=" + city
 				+ ", district=" + district + ", address=" + address
-				+ ", postcode=" + postcode + ", goods_count=" + goods_count
-				+ ", payment=" + payment + ", status=" + status
-				+ ", seller_memo=" + seller_memo + ", buyer_message="
-				+ buyer_message + "]";
+				+ ", postcode=" + postcode + ", seller_memo=" + seller_memo
+				+ ", buyer_message=" + buyer_message + "]";
 	}
 
 	public long getTid() {

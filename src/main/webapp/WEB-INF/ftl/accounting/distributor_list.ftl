@@ -18,7 +18,7 @@
 			<tr>
 				<td>${user.username}</td>
 				<td>${user.name}</td>
-				<td>${user.seller_nick}</td>
+				<td>${user.distributor.seller_nick}</td>
 				<td>${user.distributor.discount}</td>
 				<td>${user.distributor.deposit/100}</td>
 				<td>

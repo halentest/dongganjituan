@@ -18,7 +18,7 @@
 	</delete>
 	
 	<select id="select" parameterType="Map" resultType="MySku">
-		select * from sku where goods_id=#{goods_id} and color=#{color} and size=#{size}
+		select * from sku where goods_id=#{goods_id} and color=#{color} and size=#{size1}
 	</select>
 	
 	<select id="selectBySkuId" parameterType="long" resultType="MySku">

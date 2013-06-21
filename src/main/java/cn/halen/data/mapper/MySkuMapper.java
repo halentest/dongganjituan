@@ -28,7 +28,7 @@ public class MySkuMapper extends SqlSessionDaoSupport {
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("goods_id", goodsId);
 		param.put("color", color);
-		param.put("size", size);
+		param.put("size1", size);
 		return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.select", param);
 	}
 	

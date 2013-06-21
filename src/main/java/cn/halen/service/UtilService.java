@@ -93,46 +93,46 @@ public class UtilService implements InitializingBean {
 		areaMap.put("990000", "hw");
 		
 		areaMap.put("上海", "hd");
-		areaMap.put("江苏", "hd");
-		areaMap.put("浙江", "hd");
-		areaMap.put("安徽", "hd");
-		areaMap.put("江西", "hd");
+		areaMap.put("江苏省", "hd");
+		areaMap.put("浙江省", "hd");
+		areaMap.put("安徽省", "hd");
+		areaMap.put("江西省", "hd");
 		
 		areaMap.put("北京", "hb");
 		areaMap.put("天津", "hb");
-		areaMap.put("山西", "hb");
-		areaMap.put("山东", "hb");
-		areaMap.put("河北", "hb");
-		areaMap.put("内蒙古", "hb");
+		areaMap.put("山西省", "hb");
+		areaMap.put("山东省", "hb");
+		areaMap.put("河北省", "hb");
+		areaMap.put("内蒙古自治区", "hb");
 		
-		areaMap.put("湖南", "hz");
-		areaMap.put("湖北", "hz");
-		areaMap.put("河南", "hz");
+		areaMap.put("湖南省", "hz");
+		areaMap.put("湖北省", "hz");
+		areaMap.put("河南省", "hz");
 		
-		areaMap.put("广东", "hn");
-		areaMap.put("广西", "hn");
-		areaMap.put("福建", "hn");
-		areaMap.put("海南", "hn");
+		areaMap.put("广东省", "hn");
+		areaMap.put("广西省", "hn");
+		areaMap.put("福建省", "hn");
+		areaMap.put("海南省", "hn");
 		
-		areaMap.put("辽宁", "db");
-		areaMap.put("吉林", "db");
-		areaMap.put("黑龙江", "db");
+		areaMap.put("辽宁省", "db");
+		areaMap.put("吉林省", "db");
+		areaMap.put("黑龙江省", "db");
 		
-		areaMap.put("陕西", "xb");
-		areaMap.put("新疆", "xb");
-		areaMap.put("甘肃", "xb");
-		areaMap.put("宁夏", "xb");
-		areaMap.put("青海", "xb");
+		areaMap.put("陕西省", "xb");
+		areaMap.put("新疆维吾尔自治区", "xb");
+		areaMap.put("甘肃省", "xb");
+		areaMap.put("宁夏省", "xb");
+		areaMap.put("青海省", "xb");
 		
 		areaMap.put("重庆", "xn");
-		areaMap.put("云南", "xn");
-		areaMap.put("贵州", "xn");
-		areaMap.put("西藏", "xn");
-		areaMap.put("四川", "xn");
+		areaMap.put("云南省", "xn");
+		areaMap.put("贵州省", "xn");
+		areaMap.put("西藏自治区", "xn");
+		areaMap.put("四川省", "xn");
 		
-		areaMap.put("香港", "gat");
-		areaMap.put("澳门", "gat");
-		areaMap.put("台湾", "gat");
+		areaMap.put("香港特别行政区", "gat");
+		areaMap.put("澳门特别行政区", "gat");
+		areaMap.put("台湾省", "gat");
 		
 		areaMap.put("海外", "hw");
 	}

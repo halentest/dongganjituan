@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.GoodsMapper;
+import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.Goods;
+import cn.halen.data.pojo.MyLogisticsCompany;
 import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.MySku;
@@ -68,6 +70,12 @@ public class TradeService {
 	
 	@Autowired
 	private LogisticsCompanyClient logisticsClient;
+	
+	@Autowired
+	private UtilService utilService;
+	
+	@Autowired
+	private MyLogisticsCompanyMapper logisticsMapper;
 	
 	@Transactional(rollbackFor=Exception.class)
 	public void updateSkuAndInsertRefund(MyRefund myRefund, MySku mySku) {
@@ -265,9 +273,9 @@ public class TradeService {
 			order.setSku_id(skuId);
 			myTradeMapper.insertMyOrder(order);
 		}
-		User user = UserHolder.get();
-		if(!user.getDistributor().getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
-			adminService.updateDeposit(user.getUsername(), -myTrade.getPayment()-myTrade.getDelivery_money());
+		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
+		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
+			adminService.updateDeposit(d.getUsername(), -myTrade.getPayment()-myTrade.getDelivery_money());
 		}
 		return count;
 	}
@@ -299,7 +307,7 @@ public class TradeService {
 	public MyTrade toMyTrade(Trade trade) {
 		
 		List<Order> orderList = trade.getOrders();
-		long goodsCount = 0;
+		int goodsCount = 0;
 		List<MyOrder> myOrderList = new ArrayList<MyOrder>();
 		String sellerNick = trade.getSellerNick();
 		Distributor d = adminMapper.selectDistributorBySellerNick(sellerNick);
@@ -307,7 +315,7 @@ public class TradeService {
 		float discount = d.getDiscount();
 		String goodsHid = null; //用来查询模板
 		int totalPayment = 0;
-		String 
+		String lCompany = null;
 		for(Order order : orderList) {
 			Goods goods = goodsMapper.getByHid(order.getOuterIid());
 			if(null == goods) { //检查商品是否存在
@@ -322,13 +330,12 @@ public class TradeService {
 				continue;
 			}
 			goodsHid = goods.getHid();
+			lCompany = order.getLogisticsCompany();
 			
 			goodsCount += order.getNum();
 			MyOrder myOrder = new MyOrder();
 			myOrder.setTid(trade.getTid());
 			myOrder.setOid(order.getOid());
-			
-			
 			myOrder.setColor(color);
 			myOrder.setSize(size);
 			myOrder.setGoods_id(order.getOuterIid());
@@ -370,17 +377,19 @@ public class TradeService {
 		myTrade.setCome_from("淘宝自动同步");
 		myTrade.setModified(trade.getModified());
 		myTrade.setCreated(trade.getCreated());
-		if(!isSelf && trade.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS)) {
-			
-		} else {
-			myTrade.setDelivery_money(MoneyUtils.convert(trade.getPostFee()));
-			myTrade.setPayment(MoneyUtils.convert(trade.getPayment()));
-			myTrade.setLogistics_company(trade.get)
-		}
-		
 		myTrade.setMyOrderList(myOrderList);
 		myTrade.setGoods_count(goodsCount);
 		myTrade.setStatus(trade.getStatus());
+		MyLogisticsCompany mc = logisticsMapper.select(1);
+		myTrade.setLogistics_company(mc.getName());
+		if(!isSelf) {
+			myTrade.setDelivery_money(utilService.calDeliveryMoney(goodsHid, goodsCount, mc.getCode(), trade.getReceiverState()));
+			myTrade.setPayment(totalPayment);
+		} else {
+			myTrade.setDelivery_money(MoneyUtils.convert(trade.getPostFee()));
+			myTrade.setPayment(MoneyUtils.convert(trade.getPayment()));
+		}
+		
 		return myTrade;
 	}
 	
