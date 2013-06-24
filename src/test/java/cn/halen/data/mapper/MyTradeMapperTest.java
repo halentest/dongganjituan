@@ -1,5 +1,6 @@
 package cn.halen.data.mapper;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -27,7 +28,8 @@ public class MyTradeMapperTest {
 	
 	@Test
 	public void test_listTrade() {
-		List<MyTrade> list = myTradeMapper.listTrade("志东张", null, null, null, null);
+		List<String> sellerNickList = Arrays.asList("志东张");
+		List<MyTrade> list = myTradeMapper.listTrade(sellerNickList, null, null, null, null);
 		System.out.println(list.size());
 	}
 }

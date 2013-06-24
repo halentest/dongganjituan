@@ -9,6 +9,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import cn.halen.data.DataConfig;
+import cn.halen.data.pojo.Distributor;
+import cn.halen.data.pojo.Shop;
 import cn.halen.data.pojo.User;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -25,10 +27,21 @@ public class AdminMapperTest {
 	}
 	
 	@Test
+	public void test_listDistributor() {
+		List<Distributor> list = mapper.listDistributorMap();
+		System.out.println(list.size());
+	}
+	
+	@Test
 	public void test_selectUser() {
 		User user = mapper.selectUser("zhangzhidong");
-		boolean b = user.hasAnyAuthority("admim", "fenxiaoshang");
-		System.out.println(user.getName());
+		System.out.println(user.getPassword());
+	}
+	
+	@Test
+	public void test_selectShopMap() {
+		Shop s = mapper.selectShopMapBySellerNick("志东张");
+		System.out.println(s.getSellerNick());
 	}
 	
 	@Test

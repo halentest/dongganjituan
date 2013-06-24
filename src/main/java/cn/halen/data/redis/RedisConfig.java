@@ -15,7 +15,7 @@ import redis.clients.jedis.JedisPoolConfig;
 public class RedisConfig {
 	
 	@Bean
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public RedisTemplate redisTemplate() {
         RedisTemplate template = new RedisTemplate();
         template.setConnectionFactory(redisConnectionFactory());

@@ -37,6 +37,7 @@
         <typeAlias alias="Area" type="com.taobao.api.domain.Area" />
         <typeAlias alias="UserAuthority" type="cn.halen.data.pojo.UserAuthority" />
         <typeAlias alias="MylogisticsCompany" type="cn.halen.data.pojo.MyLogisticsCompany" />
+        <typeAlias alias="Shop" type="cn.halen.data.pojo.Shop" />
     </typeAliases>  
       
     <mappers>  

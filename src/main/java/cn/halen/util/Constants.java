@@ -9,9 +9,12 @@ public class Constants {
 	public static final String AUTHORITY_MANAGER_GOODS = "manager_goods";
 	public static final String AUTHORITY_MANAGER_TRADE = "manager_trade";
 	
-	public static final String DISTRIBUTOR_TYPE_NORMAL = "normal";
-	public static final String DISTRIBUTOR_TYPE_SELF = "self";
+	public static final int DISTRIBUTOR_SELF_NO = 0;
+	public static final int DISTRIBUTOR_SELF_YES = 1;
 	
-	public static final String DISTIBUTOR_SYNC_YES = "yes";
-	public static final String DISTIBUTOR_SYNC_NO = "no";
+	public static final int SHOP_SYNC_YES = 1;
+	public static final int SHOP_SYNC_NO = 0;
+	
+    public static final String REDIS_SKU_GOODS_SET = "redis:sku:goods:set";
+    public static final String REDIS_SKU_GOODS_CHANNEL = "foo"; 
 }

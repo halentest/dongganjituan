@@ -17,6 +17,8 @@
     <style type="text/css">
         ${custom_css!''}
     </style>
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
       
   </head>
   <body>
@@ -32,14 +34,14 @@
           <div class="nav-collapse">
             <ul class="nav">
               <li><a href="#"></a></li>
-              <li><a href="#">尊敬的${CURRENT_USER.userType.getName()!''} ${CURRENT_USER.name!'无名氏'}，欢迎登录动感集团电子商务管理系统</a></li>
+              <li><a href="#">尊敬的${CURRENT_USER.userType.getName()!''} ${CURRENT_USER.username!'无名氏'}，欢迎登录动感集团电子商务管理系统</a></li>
               <li><a href="/j_spring_security_logout">退出</a></li>
             </ul>
           </div><!-- /.nav-collapse -->
         </div>
       </div><!-- /navbar-inner -->
     </div>
-    <div class="container">
+    <div class="container" style="padding-bottom: 30px;">
         <ul class="nav nav-tabs">
 	          <#if CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin">
 			          <li <#if active==1> class="active dropdown" <#else>  class="dropdown" </#if> >
@@ -62,7 +64,7 @@
 	                  <li><a href="#">出货(excel批量导入)</a></li>
 	              </ul>
 	          </li>
-	          <#if CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="WareHouse" || CURRENT_USER.type=="DistributorManager">
+	          <#if CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="WareHouse" || CURRENT_USER.type=="DistributorManager">
 	          <li <#if active==3> class="active dropdown" <#else>  class="dropdown" </#if>>
 	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">订单管理 <b class="caret"></b></a>
 	              <ul class="dropdown-menu">

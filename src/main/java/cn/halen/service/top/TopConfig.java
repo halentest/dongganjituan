@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.pojo.Distributor;
+import cn.halen.data.pojo.Shop;
 import cn.halen.util.Constants;
 
 import com.taobao.api.AutoRetryTaobaoClient;
@@ -36,9 +37,9 @@ public class TopConfig {
 	
 	public List<String> listToken() {
 		List<String> result = new ArrayList<String>();
-		List<Distributor> list = adminMapper.listDistributorBySync(Constants.DISTIBUTOR_SYNC_YES);
-		for(Distributor d : list) {
-			String token = d.getToken();
+		List<Shop> list = adminMapper.selectShop(Constants.SHOP_SYNC_YES, null);
+		for(Shop s : list) {
+			String token = s.getToken();
 			if(StringUtils.isNotEmpty(token)) {
 				result.add(token);
 			}
@@ -47,9 +48,9 @@ public class TopConfig {
 	}
 	
 	public String getToken(String sellerNick) {
-		Distributor d = adminMapper.selectDistributorBySellerNick(sellerNick);
-		if(null != d) {
-			return d.getToken();
+		Shop s = adminMapper.selectShopBySellerNick(sellerNick);
+		if(null != s) {
+			return s.getToken();
 		}
 		return null;
 	}

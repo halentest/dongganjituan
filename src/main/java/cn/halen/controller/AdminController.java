@@ -25,6 +25,7 @@ import cn.halen.data.mapper.AreaMapper;
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.MyLogisticsCompany;
+import cn.halen.data.pojo.Shop;
 import cn.halen.data.pojo.Template;
 import cn.halen.data.pojo.User;
 import cn.halen.data.pojo.UserType;
@@ -55,10 +56,14 @@ public class AdminController {
 	@RequestMapping(value="admin/account_list")
 	public String list(Model model) {
 		
+		//list users which type are not distributor and servicestaff 
 		List<User> userList = adminMapper.listUser();
 		Map<String, List<User>> userMap = new HashMap<String, List<User>>();
 		for(User user : userList) {
 			String type = user.getType();
+			if(type.equals(UserType.Distributor.getValue()) || type.equals(UserType.ServiceStaff.getValue())) {
+				continue;
+			}
 			List<User> list = userMap.get(type);
 			if(null == list) {
 				list = new ArrayList<User>();
@@ -67,56 +72,64 @@ public class AdminController {
 			list.add(user);
 		}
 		model.addAttribute("userMap", userMap);
+		
+		//list all distributor and details
+		List<Distributor> dList = adminMapper.listDistributorMap();
+		model.addAttribute("dList", dList);
 		return "admin/account_list";
 	}
 	
-	@RequestMapping(value="admin/add_account_form")
-	public String addAccountForm(Model model, @RequestParam("type") String type) {
-		model.addAttribute("userType", UserType.valueOf(type));
-		return "admin/add_account_form";
+	@RequestMapping(value="admin/change_check")
+	public void checkChange(Model model,  HttpServletResponse resp, @RequestParam("v") int v, @RequestParam("dId") int dId) {
+		
+		adminMapper.updateDistributorCheck(v, dId);
+		try {
+			resp.sendRedirect("/admin/account_list");
+		} catch (IOException e) {
+		}
 	}
 	
-	@RequestMapping(value="admin/add_account")
-	public String addAccount(Model model, HttpServletResponse resp, @RequestParam("username") String username, @RequestParam("password") String password,
-			@RequestParam("password2") String password2, @RequestParam("name") String name, 
-			@RequestParam(value="seller_nick", required=false) String sellerNick, @RequestParam(value="is_self", required=false) String isSelf,
-			@RequestParam("type") String type, @RequestParam(value="discount", required=false) String discount) {
+	@RequestMapping(value="admin/add_user_form")
+	public String addAccountForm(Model model, @RequestParam("type") String type,
+			@RequestParam(value="shopId", required=false) Integer shopId) {
+		model.addAttribute("userType", UserType.valueOf(type));
+		if(null != shopId) {
+			model.addAttribute("shopId", shopId);
+		}
+		return "admin/add_user_form";
+	}
+	
+	@RequestMapping(value="admin/add_shop_form")
+	public String addShopForm(Model model, @RequestParam("dId") Integer dId) {
+		model.addAttribute("dId", dId);
+		return "admin/add_shop_form";
+	}
+	
+	@RequestMapping(value="admin/change_discount_form")
+	public String changeDiscountForm(Model model, @RequestParam("dId") Integer dId) {
+		model.addAttribute("dId", dId);
+		return "admin/change_discount_form";
+	}
+	
+	@RequestMapping(value="admin/add_distributor_form")
+	public String addDistributorForm(Model model) {
+		return "admin/add_distributor_form";
+	}
+	
+	@RequestMapping(value="admin/add_user")
+	public String addUser(Model model, HttpServletResponse resp, @RequestParam("username") String username, @RequestParam("password") String password,
+			@RequestParam("password2") String password2, @RequestParam("type") String type, @RequestParam(value="shopId", required=false) Integer shopId) {
 		String errorMsg = null;
 		username = username.trim();
 		password = password.trim();
 		password2 = password2.trim();
-		name = name.trim();
-		float fDiscount = 0;
-		if(type.equals("ServiceStaff") || type.equals("Distributor")) {
-			sellerNick = sellerNick.trim();
-			if(type.equals("Distributor")) {
-				discount = discount.trim();
-			}
-		}
+
 		if(StringUtils.isEmpty(username)) {
 			errorMsg = "用户名不能为空!";
 		} else if(password.length()<6) {
 			errorMsg = "密码长度必须大于等于6!";
 		} else if(!password.equals(password2)) {
 			errorMsg = "两次输入的密码不一致!";
-		}
-		if(type.equals("ServiceStaff") || type.equals("Distributor")) {
-			if(StringUtils.isEmpty(sellerNick)) {
-				errorMsg = "必须填写店铺名称!";
-			} 
-			if(type.equals("Distributor")) {
-				if(StringUtils.isEmpty(discount)) {
-					errorMsg = "分销商必须填写折扣!";
-				}
-				try {
-					fDiscount = Float.parseFloat(discount);
-					if(fDiscount>1 || fDiscount<0) {
-						errorMsg = "折扣必须在0-1之间!";
-					}
-				} catch(Exception e) {
-					errorMsg = "请填写正确的折扣!";
-				}
-			}
 		}
 		if(null != errorMsg) {
 			model.addAttribute("errorInfo", errorMsg);
@@ -130,21 +143,125 @@ public class AdminController {
 		User user = new User();
 		user.setUsername(username);
 		user.setPassword(password);
-		user.setName(name);
 		user.setType(type);
-		if(type.equals("Distributor")) {
-			Distributor distributor = new Distributor();
-			distributor.setUsername(username);
-			distributor.setSeller_nick(sellerNick);
-			distributor.setDiscount(fDiscount);
-			if("true".equals(isSelf)) {
-				distributor.setType(Constants.DISTRIBUTOR_TYPE_SELF);
-			} else {
-				distributor.setType(Constants.DISTRIBUTOR_TYPE_NORMAL);
-			}
-			user.setDistributor(distributor);
+		if(shopId == null) {
+			user.setShopId(-1);
+		} else {
+			user.setShopId(shopId);
 		}
 		adminService.insertUser(user, type);
+		try {
+			resp.sendRedirect("/admin/account_list");
+		} catch (IOException e) {
+		}
+		return null;
+	}
+	
+	@RequestMapping(value="admin/add_distributor")
+	public String addDistributor(Model model, HttpServletResponse resp, @RequestParam("name") String name,
+			@RequestParam(value="phone", required=false) String phone, @RequestParam(value="is_self", required=false) String isSelf,
+			@RequestParam("discount") String discount) {
+		String errorMsg = null;
+		name = name.trim();
+		name = name.trim();
+		float fDiscount = 0;
+		discount = discount.trim();
+		
+		if(StringUtils.isEmpty(name)) {
+			errorMsg = "名称不能为空!";
+		} 
+		if(StringUtils.isEmpty(discount)) {
+			errorMsg = "分销商必须填写折扣!";
+		}
+		try {
+			fDiscount = Float.parseFloat(discount);
+			if(fDiscount>1 || fDiscount<0) {
+				errorMsg = "折扣必须在0-1之间!";
+			}
+		} catch(Exception e) {
+			errorMsg = "请填写正确的折扣!";
+		}
+		if(null != errorMsg) {
+			model.addAttribute("errorInfo", errorMsg);
+			return "error_page";
+		}
+		
+		boolean exist = adminMapper.selectDistributor(null, name)!=null;
+		if(exist) {
+			model.addAttribute("errorInfo", "该分销商已经存在，不能重复创建!");
+			return "error_page";
+		}
+		Distributor distributor = new Distributor();
+		distributor.setName(name);
+		distributor.setPhone(phone);
+		distributor.setDiscount(fDiscount);
+		if("true".equals(isSelf)) {
+			distributor.setSelf(Constants.DISTRIBUTOR_SELF_YES);
+		} else {
+			distributor.setSelf(Constants.DISTRIBUTOR_SELF_NO);
+		}
+		adminMapper.insertDistributor(distributor);
+		try {
+			resp.sendRedirect("/admin/account_list");
+		} catch (IOException e) {
+		}
+		return null;
+	}
+	
+	@RequestMapping(value="admin/change_discount")
+	public String addDistributor(Model model, HttpServletResponse resp, @RequestParam("dId") int dId, 
+			@RequestParam("v") String v) {
+		String errorMsg = null;
+		float fDiscount = 0;
+		v = v.trim();
+		
+		if(StringUtils.isEmpty(v)) {
+			errorMsg = "必须填写折扣!";
+		}
+		try {
+			fDiscount = Float.parseFloat(v);
+			if(fDiscount>1 || fDiscount<0) {
+				errorMsg = "折扣必须在0-1之间!";
+			}
+		} catch(Exception e) {
+			errorMsg = "请填写正确的折扣!";
+		}
+		if(null != errorMsg) {
+			model.addAttribute("errorInfo", errorMsg);
+			return "error_page";
+		}
+		adminMapper.updateDistributorDiscount(fDiscount, dId);
+		try {
+			resp.sendRedirect("/admin/account_list");
+		} catch (IOException e) {
+		}
+		return null;
+	}
+	
+	@RequestMapping(value="admin/add_shop")
+	public String addShop(Model model, HttpServletResponse resp, @RequestParam("sellerNick") String sellerNick, @RequestParam("type") String type,
+			@RequestParam("dId") Integer dId) {
+		String errorMsg = null;
+		sellerNick = sellerNick.trim();
+		if(StringUtils.isEmpty(sellerNick)) {
+			errorMsg = "店铺名称不能为空!";
+		} 
+		
+		if(null != errorMsg) {
+			model.addAttribute("errorInfo", errorMsg);
+			return "error_page";
+		}
+		
+		boolean exist = adminMapper.selectShopBySellerNick(sellerNick) != null;
+		if(exist) {
+			model.addAttribute("errorInfo", "该店铺已经存在，不能重复创建!");
+			return "error_page";
+		}
+		Shop s = new Shop();
+		s.setSellerNick(sellerNick);
+		s.setType(type);
+		s.setdId(dId);
+		adminMapper.insertShop(s);
 		try {
 			resp.sendRedirect("/admin/account_list");
 		} catch (IOException e) {
@@ -324,13 +441,13 @@ public class AdminController {
 	
 	@RequestMapping(value="accounting/distributor_list")
 	public String distributorList(Model model) {
-		List<User> userList = adminMapper.listUser(UserType.Distributor.getValue(), 1);
-		model.addAttribute("userList", userList);
+		List<Distributor> dList = adminMapper.listDistributor();
+		model.addAttribute("dList", dList);
 		return "accounting/distributor_list";
 	}
 	
 	@RequestMapping(value="accounting/recharge")
-	public @ResponseBody ResultInfo recharge(Model model, @RequestParam("username") String username,
+	public @ResponseBody ResultInfo recharge(Model model, @RequestParam("dId") int dId,
 			@RequestParam("how_much") String howmuch) {
 		ResultInfo result = new ResultInfo();
 		howmuch = howmuch.trim();
@@ -343,7 +460,7 @@ public class AdminController {
 			return result;
 		}
 		try {
-			adminService.updateDeposit(username, lHowmuch*100);
+			adminService.updateDeposit(dId, lHowmuch*100);
 		} catch (InsufficientBalanceException ie) {
 			result.setSuccess(false);
 			result.setErrorInfo("余额不足!");

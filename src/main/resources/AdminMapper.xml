@@ -5,36 +5,60 @@
 <mapper namespace="cn.halen.data.mapper.AdminMapper">
 
 	<sql id="userColumns">u.id as u_id, u.username as u_username, u.password as u_password, u.enabled as u_enabled,
-			u.type as u_type, u.name as u_name, u.phone as u_phone, u.modified as u_modified, u.created as u_created, 
+			u.type as u_type, u.modified as u_modified, u.created as u_created, u.shop_id as u_shop_id,
 			ua.id as ua_id, ua.username as ua_username, ua.authority as ua_authority, ua.modified as ua_modified,
 			ua.created as ua_created,
-			d.id as d_id, d.username as d_username, d.deposit as d_deposit, d.discount as d_discount, d.seller_nick as d_seller_nick,
-			d.token as d_token, d.refresh_token as d_refresh_token, d.last_refresh as d_last_refresh,
-			d.sync as d_sync, d.type as d_type,
-			d.modified as d_modified, d.created as d_created</sql>
+			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
+			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
+			s.type as s_type, s.distributor_id as s_distributor_id, 
+			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
+			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created</sql>
+			
+	<sql id="distributorColumns">
+			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
+			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created,
+			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
+			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
+			s.type as s_type, s.distributor_id as s_distributor_id, 
+			u.id as u_id, u.username as u_username, u.password as u_password, u.enabled as u_enabled,
+			u.type as u_type, u.modified as u_modified, u.created as u_created, u.shop_id as u_shop_id</sql>
+			
+	<sql id="shopColumns">
+			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
+			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
+			s.type as s_type, s.distributor_id as s_distributor_id,
+			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
+			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created</sql>
 	
 	<resultMap id="userMap" type="User">
 		<id property="id" column="u_id"/>
 		<result property="username" column="u_username"/>
 		<result property="password" column="u_password"/>
-		<result property="name" column="u_name"/>
-		<result property="type" column="u_type"/>
-		<result property="phone" column="u_phone"/>
 		<result property="enabled" column="u_enabled"/>
+		<result property="type" column="u_type"/>
 		<result property="modified" column="u_modified"/>
 		<result property="created" column="u_created"/>
-	    <association property="distributor" javaType="Distributor">
-		    <id property="id" column="d_id"/>
-		    <result property="deposit" column="d_deposit"/>
-		    <result property="discount" column="d_discount"/>
-		    <result property="seller_nick" column="d_seller_nick"/>
-		    <result property="token" column="d_token"/>
-		    <result property="refresh_token" column="d_refresh_token"/>
-		    <result property="last_refresh" column="d_last_refresh"/>
-		    <result property="type" column="d_type"/>
-		    <result property="sync" column="d_sync"/>
-		    <result property="modified" column="d_modified"/>
-		    <result property="created" column="d_created"/>
+	    <association property="shop" javaType="Shop">
+		    <id property="id" column="s_id"/>
+		    <result property="sellerNick" column="s_seller_nick"/>
+		    <result property="token" column="s_token"/>
+		    <result property="refreshToken" column="s_refresh_token"/>
+		    <result property="modified" column="s_modified"/>
+		    <result property="created" column="s_created"/>
+		    <result property="lastRefresh" column="s_last_refresh"/>
+		    <result property="autoSync" column="s_auto_sync"/>
+		    <result property="type" column="s_type"/>
+		    <association property="d" javaType="Distributor">
+			    <id property="id" column="d_id"/>
+			    <result property="name" column="d_name"/>
+			    <result property="phone" column="d_phone"/>
+			    <result property="deposit" column="d_deposit"/>
+			    <result property="discount" column="d_discount"/>
+			    <result property="self" column="d_self"/>
+			    <result property="noCheck" column="d_nocheck"/>
+			    <result property="modified" column="d_modified"/>
+			    <result property="created" column="d_created"/>
+			</association>
 		</association>
 		<collection property="authorities" ofType="UserAuthority" >
 	      	<id property="id" column="ua_id"/>
@@ -43,6 +67,61 @@
 		    <result property="modified" column="ua_modified"/>
 		    <result property="created" column="ua_created"/>
 	    </collection>
+	</resultMap>
+	
+	<resultMap id="distributorMap" type="Distributor">
+		<id property="id" column="d_id"/>
+	    <result property="name" column="d_name"/>
+	    <result property="phone" column="d_phone"/>
+	    <result property="deposit" column="d_deposit"/>
+	    <result property="discount" column="d_discount"/>
+	    <result property="self" column="d_self"/>
+	    <result property="noCheck" column="d_nocheck"/>
+	    <result property="modified" column="d_modified"/>
+	    <result property="created" column="d_created"/>
+	    <collection property="shopList" ofType="Shop" >
+	      	<id property="id" column="s_id"/>
+		    <result property="sellerNick" column="s_seller_nick"/>
+		    <result property="token" column="s_token"/>
+		    <result property="refreshToken" column="s_refresh_token"/>
+		    <result property="modified" column="s_modified"/>
+		    <result property="created" column="s_created"/>
+		    <result property="lastRefresh" column="s_last_refresh"/>
+		    <result property="autoSync" column="s_auto_sync"/>
+		    <result property="type" column="s_type"/>
+		    <collection property="userList" ofType="User" >
+		      	<id property="id" column="u_id"/>
+				<result property="username" column="u_username"/>
+				<result property="password" column="u_password"/>
+				<result property="enabled" column="u_enabled"/>
+				<result property="type" column="u_type"/>
+				<result property="modified" column="u_modified"/>
+				<result property="created" column="u_created"/>
+		    </collection>
+	    </collection>
+	</resultMap>
+	
+	<resultMap id="shopMap" type="Shop">
+	    <id property="id" column="s_id"/>
+	    <result property="sellerNick" column="s_seller_nick"/>
+	    <result property="token" column="s_token"/>
+	    <result property="refreshToken" column="s_refresh_token"/>
+	    <result property="modified" column="s_modified"/>
+	    <result property="created" column="s_created"/>
+	    <result property="lastRefresh" column="s_last_refresh"/>
+	    <result property="autoSync" column="s_auto_sync"/>
+	    <result property="type" column="s_type"/>
+	    <association property="d" javaType="Distributor">
+		    <id property="id" column="d_id"/>
+		    <result property="name" column="d_name"/>
+		    <result property="phone" column="d_phone"/>
+		    <result property="deposit" column="d_deposit"/>
+		    <result property="discount" column="d_discount"/>
+		    <result property="self" column="d_self"/>
+		    <result property="noCheck" column="d_nocheck"/>
+		    <result property="modified" column="d_modified"/>
+		    <result property="created" column="d_created"/>
+		</association>
 	</resultMap>
 	
 	<select id="listUser" parameterType="java.util.Map" resultMap="userMap">
@@ -66,39 +145,65 @@
 	   		</otherwise>
 	   </choose>
 						left join user_authority as ua on u.username = ua.username
-						left join distributor as d on u.username = d.username
+						left join shop as s on u.shop_id = s.id
+						left join distributor as d on s.distributor_id = d.id
 		order by u.username			 
 	</select>
+	
+	<select id="selectDistributorMap" parameterType="Map" resultMap="distributorMap">
+		select <include refid="distributorColumns"/>
+		from
+		<choose>
+	   		<when test="id != null">
+	   			(select * from distributor 
+	   			<where>
+	   				<if test="id != null">
+	   					id = #{id}
+	   				</if>
+	   			</where>
+	   			) as d
+	   		</when>
+	   		<otherwise>
+	   			distributor as d
+	   		</otherwise>
+	   </choose>
+		left join shop as s on d.id = s.distributor_id
+		left join user1 as u on s.id = u.shop_id
+	</select>
+	
+	<select id="selectDistributor" parameterType="Map" resultType="Distributor">
+		select * from distributor
+		<where>
+			<if test="id != null">
+				id = #{id}
+			</if>
+			<if test="name != null">
+				name = #{name}
+			</if>
+		</where> 
+	</select>
+	
+	<update id="updateDistributorCheck" parameterType="Map">
+		update distributor set nocheck=#{v} where id=#{id}
+	</update>
+	
+	<update id="updateDistributorDiscount" parameterType="Map">
+		update distributor set discount=#{v} where id=#{id}
+	</update>
 	
 	<select id="selectUserByUsername" resultType="User">
 		select * from user1 where username = #{username}
 	</select>
 	
 	<insert id="insertUser" parameterType="User">
-		insert into user1(username, password, name, enabled, type, created) values(#{username},
-		#{password}, #{name}, 1, #{type}, now())
+		insert into user1(username, password, enabled, type, created, shop_id) values(#{username},
+		#{password}, 1, #{type}, now(), #{shopId})
 	</insert>
 	
 	<insert id="insertDistributor" parameterType="Distributor">
-		insert into distributor(username, discount, seller_nick, type, sync, created, last_refresh) values(#{username},
-		#{discount}, #{seller_nick}, #{type}, #{sync}, now(), now())
+		insert into distributor(name, phone, discount, self, nocheck, created) values(#{name},
+		#{phone}, #{discount}, #{self}, #{noCheck}, now())
 	</insert>
-	
-	<select id="listDistributorByType" parameterType="String" resultType="Distributor">
-		select * from distributor where type = #{type}
-	</select>
-	
-	<select id="listDistributorBySync" parameterType="String" resultType="Distributor">
-		select * from distributor where sync = #{sync}
-	</select>
-	
-	<update id="updateDistributorSync" parameterType="Map">
-		update distributor set sync = #{sync} where username = #{username}
-	</update>
-	
-	<update id="updateDistributorToken" parameterType="Map">
-		update distributor set token=#{token}, refresh_token=#{refresh_token}, last_refresh=now() where seller_nick = #{seller_nick} 
-	</update>
 	
 	<update id="updateUserEnabled" parameterType="java.util.Map">
 		update user1 set enabled = #{enabled} where username = #{username}
@@ -111,24 +216,41 @@
 	<select id="selectUser" parameterType="String" resultMap="userMap">
 		select <include refid="userColumns"/>
 		from user1 as u left join user_authority as ua on u.username = ua.username
-						left join distributor as d on u.username = d.username
+						left join shop as s on u.shop_id = s.id
+						left join distributor as d on s.distributor_id = d.id
 		where u.username = #{username}
 	</select>
 	
-	<select id="selectDistributorBySellerNick" parameterType="String" resultType="Distributor">
-		select * from distributor where seller_nick =#{seller_nick}
+	<select id="selectShop" parameterType="Map" resultType="Shop">
+		select * from shop
+		<where>
+			<if test="autoSync != null">
+				auto_sync = #{autoSync}
+			</if>
+			<if test="type != null">
+				and type=#{type}
+			</if>
+			<if test="sellerNick != null">
+				and seller_nick=#{sellerNick}
+			</if>
+		</where> 
+	</select>
+	
+	<insert id="insertShop" parameterType="Shop">
+		insert into shop values(null, #{sellerNick}, #{token}, #{refreshToken}, null, now(), now(), #{autoSync},
+		#{type}, #{dId})
+	</insert>
+	
+	<select id="selectShopMap" parameterType="String" resultMap="shopMap">
+		select <include refid="shopColumns"/>
+		from (select * from shop where seller_nick = #{sellerNick}) as s
+		join distributor as d on s.distributor_id = d.id
 	</select>
 	
 	<update id="updateDeposit" parameterType="java.util.Map">
-		update distributor set deposit = #{deposit} where username = #{username}
+		update distributor set deposit = #{deposit} where id = #{id}
 	</update>
-	
-	<select id="selectDistributorByUsername" parameterType="String" resultType="Distributor">
-		select * from distributor where username=#{username}
-	</select>
-	
-	<select id=""></select>
-	
+
 	<insert id="batchInsertAuthority" parameterType="java.util.List">
 		insert into user_authority (username, authority, created) values
 		<foreach collection="list" item="item" index="index"  

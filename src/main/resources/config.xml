@@ -29,6 +29,28 @@
     </bean>
     
 	<tx:annotation-driven transaction-manager="txManager" />
+	
+	<!-- this is the Message Driven POJO (MDP) -->
+    <bean id="messageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
+        <constructor-arg>
+            <bean class="cn.halen.data.redis.SkuChangeListener"/>
+        </constructor-arg>
+    </bean>
+
+    <!-- and this is the message listener container... -->
+    <bean id="redisContainer" class="org.springframework.data.redis.listener.RedisMessageListenerContainer">
+        <property name="connectionFactory" ref="redisConnectionFactory"/>
+        <property name="messageListeners">
+          <!-- map of listeners and their associated topics (channels or/and patterns) -->
+          <map>
+            <entry key-ref="messageListener">
+                <bean class="org.springframework.data.redis.listener.ChannelTopic">
+                   <constructor-arg value="foo"/>
+                </bean>
+            </entry>
+          </map>
+        </property>
+    </bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="cn.halen.data.mapper" />

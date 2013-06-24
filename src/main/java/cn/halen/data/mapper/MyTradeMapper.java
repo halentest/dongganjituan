@@ -90,10 +90,10 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public long countTrade(String seller_nick, String name, List<Integer> statusList, List<Integer> notstatusList) {
+	public long countTrade(List<String> sellerNickList, String name, List<Integer> statusList, List<Integer> notstatusList) {
 		Map<String, Object> param = new HashMap<String, Object>();
-		if(StringUtils.isNotBlank(seller_nick)) {
-			param.put("seller_nick", seller_nick.trim());
+		if(null!=sellerNickList && sellerNickList.size()>0) {
+			param.put("sellerNickList", sellerNickList);
 		}
 		if(StringUtils.isNotBlank(name)) {
 			param.put("name", name.trim());
@@ -108,10 +108,10 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, List<Integer> statusList, List<Integer> notstatusList) {
+	public List<MyTrade> listTrade(List<String> sellerNickList, String name, Paging paging, List<Integer> statusList, List<Integer> notstatusList) {
 		Map<String, Object> param = new HashMap<String, Object>();
-		if(StringUtils.isNotBlank(seller_nick)) {
-			param.put("seller_nick", seller_nick.trim());
+		if(null!=sellerNickList && sellerNickList.size()>0) {
+			param.put("sellerNickList", sellerNickList);
 		}
 		if(StringUtils.isNotBlank(name)) {
 			param.put("name", name.trim());

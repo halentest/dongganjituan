@@ -5,37 +5,59 @@ import java.util.List;
 
 public class User {
 	private int id;
+	
 	private String username;
+	
 	private String password;
-	private String name;
-	private String phone;
+	
 	private int enabled;
+	
 	private String type;
+	
 	private Date modified;
+	
 	private Date created;
+	
+	private int shopId;
 	
 	private UserType userType;
 	
-	private Distributor distributor;
+	private Shop shop;
 	
 	private List<UserAuthority> authorities;
-	
-	public boolean hasAnyAuthority(String... list) {
-		for(UserAuthority a : authorities) {
-			String as = a.getAuthority();
-			for(String s : list) {
-				if(as.equals(s)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
+
 	public int getId() {
 		return id;
 	}
-	
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public int getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(int enabled) {
+		this.enabled = enabled;
+	}
+
 	public String getType() {
 		return type;
 	}
@@ -45,81 +67,51 @@ public class User {
 		this.userType = UserType.valueOf(type);
 	}
 
+	public Date getModified() {
+		return modified;
+	}
+
+	public void setModified(Date modified) {
+		this.modified = modified;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
 	public UserType getUserType() {
 		return userType;
 	}
 
-	public Distributor getDistributor() {
-		return distributor;
+	public void setUserType(UserType userType) {
+		this.userType = userType;
 	}
 
-	public void setDistributor(Distributor distributor) {
-		this.distributor = distributor;
+	public Shop getShop() {
+		return shop;
 	}
 
-	public String getName() {
-		return name;
+	public void setShop(Shop shop) {
+		this.shop = shop;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-
-	public String getPhone() {
-		return phone;
-	}
-
-
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
-
-
-	public void setId(int id) {
-		this.id = id;
-	}
-	
 	public List<UserAuthority> getAuthorities() {
 		return authorities;
 	}
+
 	public void setAuthorities(List<UserAuthority> authorities) {
 		this.authorities = authorities;
 	}
-	public String getUsername() {
-		return username;
+
+	public int getShopId() {
+		return shopId;
 	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public int getEnabled() {
-		return enabled;
-	}
-	public void setEnabled(int enabled) {
-		this.enabled = enabled;
-	}
-	public Date getModified() {
-		return modified;
-	}
-	public void setModified(Date modified) {
-		this.modified = modified;
-	}
-	public Date getCreated() {
-		return created;
-	}
-	public void setCreated(Date created) {
-		this.created = created;
-	}
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", password="
-				+ password + ", enabled=" + enabled + ", modified=" + modified
-				+ ", created=" + created + "]";
+
+	public void setShopId(int shopId) {
+		this.shopId = shopId;
 	}
 }

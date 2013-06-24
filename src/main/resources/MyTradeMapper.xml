@@ -86,8 +86,13 @@
 	<select id="countTrade" parameterType="java.util.Map" resultType="Long">
 		select count(*) from trade t
    			<where>
-   				<if test="seller_nick != null">
-   					t.seller_nick = #{seller_nick}
+   				<if test="sellerNickList != null">
+   					t.seller_nick in (
+   					<foreach collection="sellerNickList" item="item" index="index"  
+			            separator=",">  
+			            #{item}
+			        </foreach>
+   					)
    				</if>
    				<if test="name != null">
    					and t.name like CONCAT('%', #{name}, '%')
@@ -126,8 +131,13 @@
 			   		<when test="start != null and page_size != null">
 			   			(select * from trade 
 			   			<where>
-			   				<if test="seller_nick != null">
-			   					trade.seller_nick = #{seller_nick}
+			   				<if test="sellerNickList != null">
+			   					trade.seller_nick in (
+			   					<foreach collection="sellerNickList" item="item" index="index"  
+						            separator=",">  
+						            #{item}
+						        </foreach>
+			   					)
 			   				</if>
 			   				<if test="name != null">
 			   					and trade.name like CONCAT('%', #{name}, '%')
@@ -149,7 +159,7 @@
 						        )
 			   				</if>
 			   			</where>
-			   			limit #{start}, #{page_size}) as t
+			   			order by trade.created desc limit #{start}, #{page_size}) as t
 			   		</when>
 			   		<otherwise>
 			   			(select * from
@@ -159,9 +169,9 @@
 				   		</if>) as t
 			   		</otherwise>
 			   </choose>
-			   join order1 o on t.tid = o.tid
-			   join sku s on o.sku_id = s.id 
-			   order by t.modified desc
+			   left join order1 o on t.tid = o.tid
+			   left join sku s on o.sku_id = s.id 
+			   order by t.created desc
 	</select>
 	
 	<select id="selectOrderByOrderId" parameterType="Long" resultType="MyOrder">

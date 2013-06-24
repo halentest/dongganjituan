@@ -1,27 +1,39 @@
 package cn.halen.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.pojo.MySku;
 import cn.halen.exception.InsufficientStockException;
+import cn.halen.util.Constants;
 
 @Service
 public class SkuService {
 	@Autowired
 	private MySkuMapper skuMapper;
 	
+	@SuppressWarnings("rawtypes")
+	@Autowired
+	private RedisTemplate redisTemplate;
+	
+	@SuppressWarnings("unchecked")
 	synchronized public long updateSku(String goodsId, String color, String size,
 			long quantity, boolean manual) throws InsufficientStockException {
 		
 		MySku mySku = skuMapper.select(goodsId, color, size);
-		//更新库存
+		//update sku
 		if(manual && mySku.getQuantity() + quantity<0) {
 			throw new InsufficientStockException();
 		}
 		mySku.setQuantity(mySku.getQuantity() + quantity);//
 		skuMapper.update(mySku);
+		
+		//add this to redis
+		redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, goodsId);
+		//notify listener to handler
+		redisTemplate.convertAndSend(Constants.REDIS_SKU_GOODS_CHANNEL, "1");
 		return mySku.getId();
 	}
 }

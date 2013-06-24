@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.halen.data.pojo.Distributor;
+import cn.halen.data.pojo.Shop;
 import cn.halen.data.pojo.Template;
 import cn.halen.data.pojo.User;
 import cn.halen.data.pojo.UserAuthority;
@@ -19,6 +20,16 @@ public class AdminMapper extends SqlSessionDaoSupport {
 	
 	public List<User> listUser() {
 		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.listUser");
+	}
+	
+	public List<Distributor> listDistributorMap() {
+		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.selectDistributorMap");
+	}
+	
+	public Distributor selectDistributorMapById(int id) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("id", id);
+		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectDistributorMap", param);
 	}
 	
 	public List<User> listUser(String type, int enabled) {
@@ -41,16 +52,38 @@ public class AdminMapper extends SqlSessionDaoSupport {
 		int count = 0;
 		try {
 			count = getSqlSession().insert("cn.halen.data.mapper.AdminMapper.insertUser", user);
-			Distributor d = user.getDistributor();
-			if(null != d) {
-				getSqlSession().insert("cn.halen.data.mapper.AdminMapper.insertDistributor", d);
-			}
 		} catch(Exception e) {
 			count = 0;
 			log.error("", e);
 			throw new RuntimeException(e);
 		}
 		return count > 0;
+	}
+	
+	public boolean insertDistributor(Distributor distributor) {
+		int count = 0;
+		try {
+			count = getSqlSession().insert("cn.halen.data.mapper.AdminMapper.insertDistributor", distributor);
+		} catch(Exception e) {
+			count = 0;
+			log.error("", e);
+			throw new RuntimeException(e);
+		}
+		return count > 0;
+	}
+	
+	public int updateDistributorCheck(int v, int id) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("v", v);
+		param.put("id", id);
+		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateDistributorCheck", param);
+	}
+	
+	public int updateDistributorDiscount(float v, int id) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("v", v);
+		param.put("id", id);
+		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateDistributorDiscount", param);
 	}
 	
 	public int insertAuthority(List<UserAuthority> list) {
@@ -81,29 +114,49 @@ public class AdminMapper extends SqlSessionDaoSupport {
 		return count > 0;
 	}
 	
-	public boolean updateDeposit(String username, long deposit) {
+	public boolean updateDeposit(int distributorId, long deposit) {
 		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("username", username);
+		param.put("id", distributorId);
 		param.put("deposit", deposit);
 		int count = getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateDeposit", param);
 		return count > 0;
 	}
 	
-	public Distributor selectDistributorByUsername(String username) {
-		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectDistributorByUsername", username);
+	public Distributor selectDistributor(Integer id, String name) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("id", id);
+		param.put("name", name);
+		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectDistributor", param);
 	}
 	
-	public Distributor selectDistributorBySellerNick(String sellerNick) {
-		Distributor d = getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectDistributorBySellerNick", sellerNick);
-		return d;
+	public List<Distributor> listDistributor() {
+		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.selectDistributor");
+	}
+	
+	public Shop selectShopBySellerNick(String sellerNick) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("sellerNick", sellerNick);
+		Shop s = getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectShop", param);
+		return s;
+	}
+	
+	public int insertShop(Shop shop) {
+		return getSqlSession().insert("cn.halen.data.mapper.AdminMapper.insertShop", shop);
+	}
+	
+	public Shop selectShopMapBySellerNick(String sellerNick) {
+		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectShopMap", sellerNick);
 	}
 	
 	public List<Distributor> listDistributorByType(String type) {
 		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.listDistributorByType", type);
 	}
 	
-	public List<Distributor> listDistributorBySync(String sync) {
-		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.listDistributorBySync", sync);
+	public List<Shop> selectShop(Integer autoSync, String type) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("autoSync", autoSync);
+		param.put("type", type);
+		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.selectShop", param);
 	}
 	
 	public int updateDistributorSync(String sync, String username) {

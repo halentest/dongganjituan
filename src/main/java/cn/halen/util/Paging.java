@@ -41,7 +41,7 @@ public class Paging {
 			this.page = (int) pageCount;
 		}
 		this.pageSize = pageSize;
-		this.start = pageSize * (page - 1);
+		this.start = pageSize * (this.page - 1);
 	}
 	
 	public int getStart() {

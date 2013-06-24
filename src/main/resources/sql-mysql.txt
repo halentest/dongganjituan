@@ -144,15 +144,14 @@ create table user1 (
 	id int primary key auto_increment,
 	username varchar(100) unique not null,
 	password varchar(100) not null,
-	name varchar(50) not null,
-	phone varchar(50),
 	enabled tinyint, 
 	type varchar(25),
 	modified timestamp,
-	created timestamp
+	created timestamp,
+	shop_id int
 );
-insert into user1 values(null, 'superadmin', 'superadmin', '超级管理员', '15257197713', 1, 'SuperAdmin', now(), now());
-insert into user1 values(null, 'admin', 'admin', '管理员', '15257197713', 1, 'Admin', now(), now());
+insert into user1 values(null, 'superadmin', 'superadmin', 1, 'SuperAdmin', now(), now(), -1);
+insert into user1 values(null, 'admin', 'admin', 1, 'Admin', now(), now(), -1);
 
 drop table if exists user_authority;
 create table user_authority (
@@ -172,18 +171,28 @@ insert into user_authority values(null, 'admin', 'logined', now(), now());
 drop table if exists distributor;
 create table distributor (
 	id int primary key auto_increment,
-	username varchar(100) not null,
+	name varchar(100) unique not null,
+	phone varchar(20),
 	deposit bigint unsigned not null default 0, 
 	discount decimal(3, 2), 
-	seller_nick varchar(255),
+	self tinyint,
+	nocheck tinyint,
+	modified timestamp,
+	created timestamp
+);
+
+drop table if exists shop;
+create table shop (
+	id int primary key auto_increment,
+	seller_nick varchar(100) not null,
 	token varchar(255),
 	refresh_token varchar(255),
 	modified timestamp,
 	created timestamp,
 	last_refresh timestamp,
-	type varchar(25) default "normal",
-	sync varchar(10) default "no",
-	unique key(seller_nick)
+	auto_sync tinyint,
+	type varchar(20),
+	distributor_id int
 );
 
 drop table if exists province;

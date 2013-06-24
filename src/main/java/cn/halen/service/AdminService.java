@@ -70,13 +70,14 @@ public class AdminService {
 			list.add(managerTrade);
 		} else if(type.equals(UserType.Distributor.getValue())) {
 			list.add(logined);
-			list.add(buyGoods);
+			list.add(managerTrade);
 		} else if(type.equals(UserType.GoodsManager.getValue())) {
 			list.add(logined);
 			list.add(managerGoods);
 		} else if(type.equals(UserType.ServiceStaff.getValue())) {
 			list.add(logined);
 			list.add(managerTrade);
+			list.add(buyGoods);
 		} else if(type.equals(UserType.SuperAdmin.getValue())) {
 			list.add(logined);
 			list.add(managerSystem);
@@ -94,13 +95,13 @@ public class AdminService {
 		return adminMapper.insertUser(user);
 	}
 	
-	synchronized public boolean updateDeposit(String username, long howmuch) throws InsufficientBalanceException {
-		Distributor d = adminMapper.selectDistributorByUsername(username);
+	synchronized public boolean updateDeposit(int distributorId, long howmuch) throws InsufficientBalanceException {
+		Distributor d = adminMapper.selectDistributor(distributorId, null);
 		long deposit = d.getDeposit();
 		deposit += howmuch;
-		if(deposit < 0) {
+		if(deposit < 0 && d.getSelf()!=Constants.DISTRIBUTOR_SELF_YES) {
 			throw new InsufficientBalanceException();
 		}
-		return adminMapper.updateDeposit(username, deposit);
+		return adminMapper.updateDeposit(distributorId, deposit);
 	}
 }

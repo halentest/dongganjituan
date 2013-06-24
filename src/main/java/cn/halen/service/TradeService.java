@@ -23,11 +23,10 @@ import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.MySku;
 import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
-import cn.halen.data.pojo.User;
+import cn.halen.data.pojo.Shop;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.InvalidStatusChangeException;
-import cn.halen.filter.UserHolder;
 import cn.halen.service.top.LogisticsCompanyClient;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
@@ -147,9 +146,10 @@ public class TradeService {
 			skuService.updateSku(goodsId, myOrder.getSku().getColor(), 
 					myOrder.getSku().getSize(), quantity, false);
 		}
-		if(!UserHolder.get().getDistributor().getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
-			adminService.updateDeposit(UserHolder.get().getUsername(), myTrade.getPayment() + myTrade.getDelivery_money());
-		}
+		String sellerNick = myTrade.getSeller_nick();
+		Shop shop = adminMapper.selectShopMapBySellerNick(sellerNick);
+		adminService.updateDeposit(shop.getD().getId(), myTrade.getPayment() + myTrade.getDelivery_money());
+		
 		return myTradeMapper.updateTradeStatus(MyStatus.Cancel.getStatus(), tid) > 0;
 	}
 	
@@ -165,9 +165,10 @@ public class TradeService {
 			long quantity = myOrder.getQuantity();
 			skuService.updateSku(goodsId, myOrder.getSku().getColor(), myOrder.getSku().getSize(), quantity, false);
 		}
-		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
-		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
-			adminService.updateDeposit(d.getUsername(), 
+		Shop shop = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick());
+		Distributor d = shop.getD();
+		if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+			adminService.updateDeposit(d.getId(), 
 					myTrade.getPayment() + myTrade.getDelivery_money());
 		}
 		return myTradeMapper.updateTradeStatus(MyStatus.Refund.getStatus(), tid) > 0;
@@ -185,11 +186,8 @@ public class TradeService {
 			long quantity = myOrder.getQuantity();
 			skuService.updateSku(goodsId, myOrder.getSku().getColor(), myOrder.getSku().getSize(), quantity, false);
 		}
-		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
-		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
-			adminService.updateDeposit(d.getUsername(), 
-					myTrade.getPayment() + myTrade.getDelivery_money());
-		}
+		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
+		adminService.updateDeposit(d.getId(), myTrade.getPayment() + myTrade.getDelivery_money());
 		return myTradeMapper.updateTradeStatus(MyStatus.NoGoods.getStatus(), tid) > 0;
 	}
 	
@@ -209,12 +207,13 @@ public class TradeService {
 				myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
 			throw new InvalidStatusChangeException();
 		}
-		int change = myTrade.getDelivery_money() - deliveryMoney;
-		myTrade.setDelivery(delivery);
-		myTrade.setDelivery_money(deliveryMoney);
-		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
-		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
-			adminService.updateDeposit(d.getUsername(), change);
+		if(myTrade.getMy_status() != MyStatus.New.getStatus()) {
+			int change = myTrade.getDelivery_money() - deliveryMoney;
+			myTrade.setDelivery(delivery);
+			myTrade.setDelivery_money(deliveryMoney);
+			
+			Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
+			adminService.updateDeposit(d.getId(), change);
 		}
 		return myTradeMapper.updateMyTrade(myTrade) > 0;
 	}
@@ -273,10 +272,6 @@ public class TradeService {
 			order.setSku_id(skuId);
 			myTradeMapper.insertMyOrder(order);
 		}
-		Distributor d = adminMapper.selectDistributorBySellerNick(myTrade.getSeller_nick());
-		if(!d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF)) {
-			adminService.updateDeposit(d.getUsername(), -myTrade.getPayment()-myTrade.getDelivery_money());
-		}
 		return count;
 	}
 	
@@ -310,8 +305,8 @@ public class TradeService {
 		int goodsCount = 0;
 		List<MyOrder> myOrderList = new ArrayList<MyOrder>();
 		String sellerNick = trade.getSellerNick();
-		Distributor d = adminMapper.selectDistributorBySellerNick(sellerNick);
-		boolean isSelf = d.getType().equals(Constants.DISTRIBUTOR_TYPE_SELF);
+		Distributor d = adminMapper.selectShopMapBySellerNick(sellerNick).getD();
+		boolean isSelf = d.getSelf() == Constants.DISTRIBUTOR_SELF_YES;
 		float discount = d.getDiscount();
 		String goodsHid = null; //用来查询模板
 		int totalPayment = 0;
@@ -393,11 +388,11 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public long countTrade(String seller_nick, String name, List<Integer> statusList, List<Integer> notstatusList) {
-		return myTradeMapper.countTrade(seller_nick, name, statusList, notstatusList);
+	public long countTrade(List<String> sellerNickList, String name, List<Integer> statusList, List<Integer> notstatusList) {
+		return myTradeMapper.countTrade(sellerNickList, name, statusList, notstatusList);
 	}
 	
-	public List<MyTrade> listTrade(String seller_nick, String name, Paging paging, List<Integer> statusList, List<Integer> notstatusList) {
-		return myTradeMapper.listTrade(seller_nick, name, paging, statusList, notstatusList);
+	public List<MyTrade> listTrade(List<String> sellerNickList, String name, Paging paging, List<Integer> statusList, List<Integer> notstatusList) {
+		return myTradeMapper.listTrade(sellerNickList, name, paging, statusList, notstatusList);
 	}
 }

@@ -4,7 +4,7 @@ public enum UserType {
 	
 	SuperAdmin("SuperAdmin", "超级管理员"),
 	Admin("Admin", "系统管理员"),
-	Distributor("Distributor", "分销商"),
+	Distributor("Distributor", "客服经理"),
 	Accounting("Accounting", "财务"),
 	GoodsManager("GoodsManager", "货品专员"),
 	User("User", "登录用户"),

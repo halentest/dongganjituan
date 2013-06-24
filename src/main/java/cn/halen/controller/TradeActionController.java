@@ -186,8 +186,8 @@ public class TradeActionController {
 		int payment = 0;
 		
 		User currentUser = UserHolder.get();
-		float discount = currentUser.getDistributor().getDiscount();
-		trade.setSeller_nick(currentUser.getDistributor().getSeller_nick());
+		float discount = currentUser.getShop().getD().getDiscount();
+		trade.setSeller_nick(currentUser.getShop().getSellerNick());
 		long tradeId = this.generateTradeId();
 		trade.setTid(tradeId);
 		

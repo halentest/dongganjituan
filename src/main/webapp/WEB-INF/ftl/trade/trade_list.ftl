@@ -8,6 +8,28 @@
 <@root.html active=3 css=["trade_list.css", "jqpagination.css"] js=["pagination.js", "jquery.jqpagination.min.js"]>
 	<i class="icon-list-alt"></i>订单列表
 	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
+		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
+		<strong>分销商</strong>
+		<select id="distributor" style="width: 8%;">
+			<option value="-1">所有分销商</option>
+			<#list dList as d>
+			<option value="${d.id}">${d.name}</option>
+			</#list>
+		</select>
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		</#if>
+		<#if CURRENT_USER.type!="ServiceStaff">
+		<strong>店铺</strong>
+		<select id="seller_nick" style="width: 8%;">
+			<option value="">所有店铺</option>
+			<#if shopList??>
+				<#list shopList as shop>
+				<option value="${shop.sellerNick}">${shop.sellerNick}</option>
+				</#list>
+			</#if>
+		</select>
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		</#if>
 		<strong>状态</strong>
 		<select id="status" style="width: 8%;">
 			<option value="">所有状态</option>
@@ -15,16 +37,6 @@
 				<option value="${status.getStatus()}">${status.getDesc()}</option>
 			</#list>
 		</select>
-		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
-		&nbsp;&nbsp;&nbsp;&nbsp;
-		<strong>分销商</strong>
-		<select id="seller_nick" style="width: 8%;">
-			<option value="">所有分销商</option>
-			<#list distributorList as distributor>
-			<option value="${distributor}">${distributor}</option>
-			</#list>
-		</select>
-		</#if>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>收货人姓名</strong>
 		<input id="name" type="input" value="" style="width: 6%; height: 20px;"/>
@@ -125,7 +137,7 @@
 				        				</#list>
 									</select>
 				        			<a style="cursor: pointer;" class="modify-delivery">修改</a>
-				        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}" 
+				        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid?c}" data-quantity="${trade.goods_count}" 
 				        				data-goods="${order.goods_id}" data-province="${trade.state}"
 				        				class="modify-delivery-submit">保存</a>
 				        			<a style="cursor: pointer; display: none;" class="modify-delivery-cancel">取消</a>
@@ -187,11 +199,6 @@
 
 
 <script>
-	function initpage() {
-	      $('#name').val('${name!""}');
-	      $('#seller_nick').val('${seller_nick!""}');
-	      $('#status').val('${status!""}');
-	}
 	
     var LODOP; //声明为全局变量 
 	function prn1_preview(sender, from, from_company, from_address, sender_mobile,
@@ -321,5 +328,27 @@
 	                }
 	            }}); 
 		})
+		
+		$('#distributor').change(function() {
+			$('#seller_nick').empty();
+	        $('#seller_nick').append('<option value="">所有店铺</option>');
+	        $.ajax({
+	            type: "get",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "dId=" + $(this).val(),
+	            url: "${rc.contextPath}/trade/list_shop",//要访问的后台地址
+	            success: function(shopList){//msg为返回的数据，在这里做数据绑定
+	                $.each(shopList, function(index, shop) {
+	                    $('#seller_nick').append('<option value="' + shop.sellerNick + '">' + shop.sellerNick + '</option>');
+	                });
+	            }}); 
+		})
 	})
+	
+	function initpage() {
+	      $('#name').val('${name!""}');
+	      $('#distributor').val('${dId!-1}');
+	      $('#seller_nick').val('${seller_nick!""}');
+	      $('#status').val('${status!""}');
+	}
 </script>

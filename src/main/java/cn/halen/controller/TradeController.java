@@ -2,22 +2,26 @@ package cn.halen.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
+import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
+import cn.halen.data.pojo.Shop;
 import cn.halen.data.pojo.User;
 import cn.halen.data.pojo.UserType;
 import cn.halen.filter.UserHolder;
@@ -40,7 +44,7 @@ public class TradeController {
 	@Autowired
 	private AdminMapper adminMapper;
 	
-	private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
+	//private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
 	
 	private static final List<MyStatus> SuperAdmin = Arrays.asList(MyStatus.New, MyStatus.Cancel, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
 			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
@@ -56,9 +60,9 @@ public class TradeController {
 			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
 			MyStatus.NoGoods);
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value="trade/trade_list")
-	public String list(Model model, HttpServletResponse resp, @RequestParam(value="seller_nick", required=false) String seller_nick,
+	public String list(Model model, HttpServletResponse resp, @RequestParam(value="seller_nick", required=false) String sellerNick,
+			@RequestParam(value="dId", required=false) Integer dId,
 			@RequestParam(value="name", required=false) String name, 
 			@RequestParam(value="status", required=false) Integer status,
 			@RequestParam(value="page", required=false) Integer page) {
@@ -70,20 +74,48 @@ public class TradeController {
 		List<Integer> notstatusList = null;
 		List<Integer> statusList = null;
 		
-		//如果是分销商或者客服，那么只显示他自己的订单
 		User currUser = UserHolder.get();
 		String currType = currUser.getType();
 		if(!currType.equals(UserType.Admin.getValue()) && !currType.equals(UserType.SuperAdmin.getValue()) &&
 				!currType.equals(UserType.Distributor.getValue()) && !currType.equals(UserType.WareHouse.getValue()) &&
-				!currType.equals(UserType.DistributorManager.getValue())) {
+				!currType.equals(UserType.DistributorManager.getValue()) && !currType.equals(UserType.ServiceStaff.getValue())) {
 			model.addAttribute("errorInfo", "对不起，您没有权限查看此页面！");
 			return "error_page";
 		}
 		
-		if(currType.equals(UserType.Distributor.getValue())) {
-			seller_nick = currUser.getDistributor().getSeller_nick();
+		List<String> sellerNickList = new ArrayList<String>();
+		if(currType.equals(UserType.ServiceStaff.getValue())) {
+			sellerNickList.add(currUser.getShop().getSellerNick());
+		} else if(currType.equals(UserType.Distributor.getValue())) {
+			Distributor d = adminMapper.selectDistributorMapById(currUser.getShop().getD().getId());
+			if(StringUtils.isNotEmpty(sellerNick)) {
+				boolean valid = false;
+				for(Shop s : d.getShopList()) {
+					if(sellerNick.equals(s.getSellerNick())) {
+						valid = true;
+						break;
+					}
+				}
+				if(!valid) {
+					model.addAttribute("errorInfo", "对不起，您没有权限查看此页面！");
+					return "error_page";
+				} else {
+					sellerNickList.add(sellerNick);
+				}
+			} else {
+				for(Shop s : d.getShopList()) {
+					sellerNickList.add(s.getSellerNick());
+				}
+			}
+		} else if(StringUtils.isNotEmpty(sellerNick)) {
+			sellerNickList.add(sellerNick);
+		} else if(null != dId && dId != -1) {
+			Distributor d = adminMapper.selectDistributorMapById(dId);
+			for(Shop s : d.getShopList()) {
+				sellerNickList.add(s.getSellerNick());
+			}
 		}
-		
+
 		if(null != status) {
 			statusList = Arrays.asList(status);
 		} else {
@@ -100,7 +132,7 @@ public class TradeController {
 			model.addAttribute("statusList", Admin);
 		} else if(currType.equals(UserType.SuperAdmin.getValue())) {
 			model.addAttribute("statusList", SuperAdmin);
-		} else if(currType.equals(UserType.Distributor.getValue())) {
+		} else if(currType.equals(UserType.Distributor.getValue()) || currType.equals(UserType.ServiceStaff.getValue())) {
 			model.addAttribute("statusList", Distributor);
 		} else if(currType.equals(UserType.DistributorManager.getValue())) {
 			model.addAttribute("statusList", DistributorManager);
@@ -108,27 +140,27 @@ public class TradeController {
 			model.addAttribute("statusList", WareHouse);
 		}
 		
-		long totalCount = tradeService.countTrade(seller_nick, name, statusList, notstatusList);
+		long totalCount = tradeService.countTrade(sellerNickList, name, statusList, notstatusList);
 		model.addAttribute("totalCount", totalCount);
 		Paging paging = new Paging(intPage, 10, totalCount);
-		List<MyTrade> list = tradeService.listTrade(seller_nick, name, paging, statusList, notstatusList);
+		List<MyTrade> list = Collections.emptyList();
+		if(totalCount > 0) {
+			list = tradeService.listTrade(sellerNickList, name, paging, statusList, notstatusList);
+		}
 		model.addAttribute("trade_list", list);
 		model.addAttribute("paging", paging);
 		model.addAttribute("name", name);
 		model.addAttribute("status", status);
-		model.addAttribute("seller_nick", seller_nick);
+		model.addAttribute("seller_nick", sellerNick);
+		model.addAttribute("dId", dId);
 		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
-		
-		List<String> distributorList = (List<String>) redisTemplate.opsForValue().get(REDIS_DISTRIBUTOR_LIST);
-		if(null == distributorList) {
-			List<User> userList = adminMapper.listUser(UserType.Distributor.getValue(), 1);
-			distributorList = new ArrayList<String>();
-			for(User user : userList) {
-				distributorList.add(user.getDistributor().getSeller_nick());
-			}
-			redisTemplate.opsForValue().set(REDIS_DISTRIBUTOR_LIST, distributorList, 5, TimeUnit.MINUTES);
+		model.addAttribute("dList", adminMapper.listDistributor());
+		if(null != dId && -1 != dId) {
+			model.addAttribute("shopList", adminMapper.selectDistributorMapById(dId).getShopList());
 		}
-		model.addAttribute("distributorList", distributorList);
+		if(currType.equals(UserType.Distributor.getValue()) || currType.equals(UserType.ServiceStaff.getValue())) {
+			model.addAttribute("shopList", adminMapper.selectDistributorMapById(currUser.getShop().getD().getId()).getShopList());
+		}
 		
 		model.addAttribute("sender", "骆驼动感");
 		model.addAttribute("from", "福建");
@@ -141,5 +173,14 @@ public class TradeController {
 	@RequestMapping(value="fenxiao/add_trade_form")
 	public String addTradeForm() {
 		return "fenxiao/add_trade_form"; 
+	}
+	
+	@RequestMapping(value="/trade/list_shop")
+	public @ResponseBody List<Shop> listShop(Model model, @RequestParam("dId") Integer dId) {
+		if(null==dId) {
+			return null;
+		}
+		Distributor d = adminMapper.selectDistributorMapById(dId);
+		return d.getShopList();
 	}
 }

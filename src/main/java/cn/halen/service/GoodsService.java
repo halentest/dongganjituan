@@ -24,11 +24,10 @@ public class GoodsService {
 	@Autowired
 	private GoodsMapper goodsMapper;
 	@Autowired
-	private ItemClient itemService;
+	private ItemClient itemClient;
 	
 	/**
 	 * @param idList
-	 * @return 返回失败的goods， 如店铺内没有找到对应的商品或者找到的商品存在系统内找不到的sku。<Goods, errorInfo>
 	 * @throws ApiException
 	 */
 	public Map<Goods, String> updateSkuQuantity(List<Long> idList, String token) throws ApiException {
@@ -38,7 +37,7 @@ public class GoodsService {
 		for(Goods goods : goodsList) {
 			goodsMap.put(goods.getHid(), goods);
 		}
-		List<Item> itemList = itemService.getItemList(goodsList);
+		List<Item> itemList = itemClient.getItemList(goodsList);
 		for(Item item : itemList) {
 			Map<String, Long> taoSkuMap = getTaoSku(item); //color+size -> sku_id
 			List<cn.halen.data.pojo.MySku> mySkuList = goodsMap.get(item.getOuterId()).getSkuList();
@@ -46,24 +45,10 @@ public class GoodsService {
 			for(cn.halen.data.pojo.MySku sku : mySkuList) {
 				mySkuMap.put(sku.getColor()+sku.getSize(), sku.getQuantity());
 			}
-			//检查店铺内的所有sku是否都有效
-			for(String key : taoSkuMap.keySet()) {
-				Long quantity = mySkuMap.get(key);
-				if(null==quantity) {
-					logger.info("Sku {} for item {} not found in system", key, item.getNumIid() + "-" + item.getOuterId());
-					//加入result中
-					result.put(goodsMap.get(item.getOuterId()), "Sku " + key + 
-							" 不在系统内，请检查店铺内商品<a target='blank' href='http://item.taobao.com/item.htm?id=" +
-							item.getNumIid() + "'>查看</a>");
-					//从goodsList中删除
-					goodsMap.remove(item.getOuterId());
-					continue;
-				}
-			}
 			for(Entry<String, Long> entry : taoSkuMap.entrySet()) {
 				Long quantity = mySkuMap.get(entry.getKey());
 				if(null!=quantity) {
-					boolean b = itemService.updateSkuQuantity(item.getNumIid(), entry.getValue(), quantity, token);
+					boolean b = itemClient.updateSkuQuantity(item.getNumIid(), entry.getValue(), quantity, token);
 					if(!b) {
 						logger.info("Sku {} for item {} update failed", entry.getKey(), item.getNumIid() + "-" + item.getOuterId());
 						result.put(goodsMap.get(item.getOuterId()), "更新失败，淘宝系统异常，请重试");

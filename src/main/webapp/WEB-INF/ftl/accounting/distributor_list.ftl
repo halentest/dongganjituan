@@ -4,25 +4,23 @@
 	<table>
 		<thead>
 			<tr>
-				<th>用户名</th>
 				<th>姓名</th>
-				<th>店铺名称</th>
 				<th>折扣</th>
+				<th>是否自营</th>
 				<th>余额(元)</th>
 				<th>操作</th>
 			</tr>	
 		</thead>
-		<#if userList??>
+		<#if dList??>
 		<tbody style="text-align: center;">
-			<#list userList as user>
+			<#list dList as d>
 			<tr>
-				<td>${user.username}</td>
-				<td>${user.name}</td>
-				<td>${user.distributor.seller_nick}</td>
-				<td>${user.distributor.discount}</td>
-				<td>${user.distributor.deposit/100}</td>
+				<td>${d.name}</td>
+				<td>${d.discount}</td>
+				<td><#if d.self==1>是<#else>否</#if></td>
+				<td>${d.deposit/100}</td>
 				<td>
-					<a style="cursor: pointer;" data-username="${user.username}" id="recharge">打款</a>
+					<a style="cursor: pointer;" data-name="${d.name}" data-id="${d.id}" class="recharge">打款</a>
 				</td>
 			</tr>
 			</#list>
@@ -38,7 +36,7 @@
       <div class="modal-body">
 	    <p>
 	    	请输入金额 <input type="text" id="how-much"/>
-	    	<input type="hidden" id="curr-user"/>
+	    	<input type="hidden" id="curr-id"/>
 	    </p>
 	  </div>
       <div class="modal-footer">
@@ -51,9 +49,9 @@
 <script type="text/javascript">
     //加载快递列表
     $(document).ready(function(){
-    	$('#recharge').click(function() {
-    		$('#title').val("为分销商 " + $(this).attr("data-username") + " 打款");
-    		$('#curr-user').val($(this).attr("data-username"));
+    	$('.recharge').click(function() {
+    		$('#title').val("为分销商 " + $(this).attr("data-name") + " 打款");
+    		$('#curr-id').val($(this).attr("data-id"));
     		$('#pop-up').modal({
                 keyboard: false
             })
@@ -63,7 +61,7 @@
 	          $.ajax({
 	            type: "post",//使用get方法访问后台
 	            dataType: "json",//返回json格式的数据
-	            data: "how_much=" + $('#how-much').val() + "&username=" + $('#curr-user').val(),
+	            data: "how_much=" + $('#how-much').val() + "&dId=" + $('#curr-id').val(),
 	            url: "${rc.contextPath}/accounting/recharge",//要访问的后台地址
 	            success: function(result){//msg为返回的数据，在这里做数据绑定
 	                if(result.errorInfo != "success") {
