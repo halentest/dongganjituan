@@ -93,9 +93,13 @@ public class TradeService {
 	 * @param mySku
 	 */
 	@Transactional(rollbackFor=Exception.class)
-	public String send(String tid, String outSid, String companyName, String companyCode) {
+	public String send(String tid, String outSid, String companyName, String from, String sellerNick) {
 		try {
-			String errorInfo = logisticsClient.send(tid, outSid, companyCode);
+			String companyCode = logisticsMapper.selectByName(companyName).getCode();
+			String errorInfo = null;
+			if("淘宝自动同步".equals(from)) {
+				errorInfo = logisticsClient.send(tid, outSid, companyCode, sellerNick);
+			}
 			if(null == errorInfo) {
 				doSend(tid, companyName, outSid, companyCode);
 			}
@@ -251,6 +255,7 @@ public class TradeService {
 		myTrade.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
 		myTrade.setLogistics_company(companyName);
 		myTrade.setInvoice_no(outSid);
+		myTrade.setMy_status(MyStatus.WaitReceive.getStatus());
 		myTradeMapper.updateMyTrade(myTrade);
 		
 		List<MyOrder> list = myTrade.getMyOrderList();

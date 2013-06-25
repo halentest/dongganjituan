@@ -41,10 +41,7 @@ public class TopMessageListener implements TopCometMessageListener {
 				//只关心已付款的订单
 				if(nt.getStatus().equals(NotifyTradeStatus.TradeBuyerPay.getValue()) 
 						|| nt.getStatus().equals(NotifyTradeStatus.TradeMemoModified.getValue())
-						|| nt.getStatus().equals(NotifyTradeStatus.TradeLogisticsAddressChanged.getValue()) 
-						|| nt.getStatus().equals(NotifyTradeStatus.TradePartlyRefund.getValue())
-						|| nt.getStatus().equals(NotifyTradeStatus.TradeSellerShip.getValue()) 
-						|| nt.getStatus().equals(NotifyTradeStatus.TradeSuccess.getValue())) {
+						|| nt.getStatus().equals(NotifyTradeStatus.TradeLogisticsAddressChanged.getValue())) {
 					workerService.addJob(nt);
 				}
 			} else if(obj instanceof NotifyRefund) {

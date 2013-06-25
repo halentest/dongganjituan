@@ -44,7 +44,7 @@ public class LogisticsCompanyClientTest {
 		String tid = "353821081120229";
 		String outSid = "668458423741";
 		String companyCode = "SF";
-		String errorInfo = logisticsCompanyClient.send(tid, outSid, companyCode);
+		String errorInfo = logisticsCompanyClient.send(tid, outSid, companyCode, "志东张");
 		System.out.println(errorInfo);
 	}
 	

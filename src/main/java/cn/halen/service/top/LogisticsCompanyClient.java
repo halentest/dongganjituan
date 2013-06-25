@@ -90,13 +90,13 @@ public class LogisticsCompanyClient {
 	 * 发货
 	 * @throws ApiException 
 	 */
-	public String send(String tid, String outSid, String companyCode) throws ApiException {
+	public String send(String tid, String outSid, String companyCode, String sellerNick) throws ApiException {
 		TaobaoClient client = topConfig.getRetryClient();
 		LogisticsOfflineSendRequest req = new LogisticsOfflineSendRequest();
 		req.setTid(Long.valueOf(tid));
 		req.setOutSid(outSid);
 		req.setCompanyCode(companyCode);
-		LogisticsOfflineSendResponse response = client.execute(req , topConfig.getMainToken());
+		LogisticsOfflineSendResponse response = client.execute(req , topConfig.getToken(sellerNick));
 		String errorInfo = null;
 		if(!response.isSuccess()) {
 			String errorCode = response.getErrorCode();

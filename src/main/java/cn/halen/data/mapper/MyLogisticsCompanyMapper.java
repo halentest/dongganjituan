@@ -17,6 +17,10 @@ public class MyLogisticsCompanyMapper extends SqlSessionDaoSupport {
 		return getSqlSession().selectOne("cn.halen.data.mapper.MyLogisticsCompanyMapper.selectByCode", code);
 	}
 	
+	public MyLogisticsCompany selectByName(String name) {
+		return getSqlSession().selectOne("cn.halen.data.mapper.MyLogisticsCompanyMapper.selectByName", name);
+	}
+	
 	public int insert(MyLogisticsCompany company) {
 		int count = getSqlSession().insert("cn.halen.data.mapper.MyLogisticsCompanyMapper.insert", company);
 		return count;

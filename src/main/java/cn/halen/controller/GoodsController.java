@@ -112,7 +112,7 @@ public class GoodsController {
 	}
 	
 	@RequestMapping(value="goods/action/sync_store")
-	public @ResponseBody ResultInfo recharge(Model model, @RequestParam("ids") String ids) {
+	public @ResponseBody ResultInfo syncStore(Model model, @RequestParam("ids") String ids) {
 		ResultInfo result = new ResultInfo();
 		if(null == ids || StringUtils.isEmpty(ids.trim())) {
 			result.setSuccess(false);

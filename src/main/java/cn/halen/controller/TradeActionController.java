@@ -326,6 +326,25 @@ public class TradeActionController {
 		return result;
 	}
 	
+	@RequestMapping(value="trade/send")
+	public @ResponseBody ResultInfo recharge(Model model, @RequestParam("tid") String tid, @RequestParam("delivery") String delivery, 
+			@RequestParam("from") String from, @RequestParam("trackingNumber") String trackingNumber,
+			@RequestParam("sellerNick") String sellerNick) {
+		ResultInfo result = new ResultInfo();
+		try {
+			String errorInfo = tradeService.send(tid, trackingNumber, delivery, from, sellerNick);
+			if(null != errorInfo) {
+				result.setErrorInfo(errorInfo);
+				result.setSuccess(false);
+			}
+		} catch (Exception e) {
+			result.setSuccess(false);
+			result.setErrorInfo("系统异常，请重试!");
+			return result;
+		}
+		return result;
+	}
+	
 	private String validateAddress(Model model, String province, String city, String district, String address
 			, String receiver, String mobile) {
 		String errorInfo = null;

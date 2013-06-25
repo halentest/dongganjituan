@@ -55,7 +55,7 @@ public class TradeController {
 	private static final List<MyStatus> Distributor = Arrays.asList(MyStatus.New, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
 			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Cancel, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
 			MyStatus.NoGoods);
-	private static final List<MyStatus> WareHouse = Arrays.asList(MyStatus.WaitSend, MyStatus.Finding, MyStatus.Refunding);
+	private static final List<MyStatus> WareHouse = Arrays.asList(MyStatus.WaitSend, MyStatus.Finding, MyStatus.Refunding, MyStatus.WaitReceive);
 	private static final List<MyStatus> DistributorManager = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
 			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
 			MyStatus.NoGoods);
@@ -122,7 +122,7 @@ public class TradeController {
 			if(currType.equals(UserType.Admin.getValue())) {
 				notstatusList = Arrays.asList(MyStatus.New.getStatus(), MyStatus.Cancel.getStatus());
 			} else if(currType.equals(UserType.WareHouse.getValue())) {
-				statusList = Arrays.asList(MyStatus.WaitSend.getStatus(), MyStatus.Finding.getStatus(), MyStatus.Refunding.getStatus());
+				statusList = Arrays.asList(MyStatus.WaitSend.getStatus(), MyStatus.WaitReceive.getStatus(), MyStatus.Finding.getStatus(), MyStatus.Refunding.getStatus());
 			} else if(currType.equals(UserType.DistributorManager.getValue())) {
 				notstatusList = Arrays.asList(MyStatus.New.getStatus(), MyStatus.Cancel.getStatus());
 			}

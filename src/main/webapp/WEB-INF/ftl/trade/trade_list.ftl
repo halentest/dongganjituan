@@ -120,7 +120,8 @@
 					        		<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
 				        		<#if trade.my_status==3>
-				        			<p><a class="send-goods" data-tid="${trade.tid}" style="cursor: pointer">发货</a></p>
+				        			<p><a class="send-goods" data-tid="${trade.tid}" data-delivery="${trade.delivery}" 
+				        			data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">发货</a></p>
 				        			<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
 				        		<#if trade.my_status==-2>
@@ -197,6 +198,27 @@
 	
 </@root.html>
 
+<!-- start 提示框 -->
+  <div class="modal hide" id="pop-up">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h4 id="title"></h4>
+      </div>
+      <div class="modal-body">
+	    <p>
+	    	请输入单号 <input type="text" id="tracking-number" style="height: 30px; width: 350px;"/>
+	    	<input type="hidden" id="curr-tid"/>
+	    	<input type="hidden" id="curr-delivery"/>
+	    	<input type="hidden" id="curr-from"/>
+	    	<input type="hidden" id="curr-sellernick"/>
+	    </p>
+	  </div>
+      <div class="modal-footer">
+         <a href="#" class="btn" data-dismiss="modal">取消</a>
+    	 <a href="#" class="btn btn-primary" id="save">确定</a>
+      </div>
+  </div>
+  <!-- end 提示框 -->
 
 <script>
 	
@@ -274,7 +296,7 @@
 	};	
 	
 	$(document).ready(function() {
-		$('.cancel, .approve1, .submit, .no-goods, .find-goods, refund-success').click(function() {
+		$('.cancel, .approve1, .submit, .no-goods, .find-goods, .refund-success').click(function() {
 			var action = $(this).attr("class");
 			$.ajax({
 	            type: "post",//使用get方法访问后台
@@ -343,6 +365,39 @@
 	                });
 	            }}); 
 		})
+		
+		$('.send-goods').click(function() {
+			$('#curr-tid').val($(this).attr("data-tid"));
+			$('#curr-delivery').val($(this).attr("data-delivery"));
+			$('#curr-from').val($(this).attr("data-from"));
+			$('#curr-sellernick').val($(this).attr("data-sellernick"));
+			$('#tracking-number').val('');
+    		$('#pop-up').modal({
+                keyboard: false
+            })
+            $('#tracking-number').focus();
+		})
+		
+		$('#save').click(function() {
+			  var trackingNumber = $('#tracking-number').val();
+			  var tid = $('#curr-tid').val();
+			  var delivery = $('#curr-delivery').val();
+			  var from = $('#curr-from').val();
+			  var sellerNick = $('#curr-sellernick').val();
+	          $.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "tid=" + tid + "&delivery=" + delivery + "&from=" + from + "&trackingNumber=" + trackingNumber + "&sellerNick=" + sellerNick,
+	            url: "${rc.contextPath}/trade/send",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+	                if(result.errorInfo != "success") {
+	                	alert(result.errorInfo);
+	                } else {
+		                window.location.reload();
+	                }
+	            }}); 
+    	})
+		
 	})
 	
 	function initpage() {
