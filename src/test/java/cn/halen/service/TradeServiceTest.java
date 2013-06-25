@@ -32,7 +32,7 @@ public class TradeServiceTest {
 	
 	@Test
 	public void test_send() {
-		long tid = 353821081120229L;
+		String tid = "353821081120229";
 		String outSid = "668458423741";
 		String companyCode = "STO";
 		String companyName = "申通E物流";

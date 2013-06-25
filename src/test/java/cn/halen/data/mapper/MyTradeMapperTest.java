@@ -21,7 +21,7 @@ public class MyTradeMapperTest {
 	
 	@Test
 	public void test_selectTradeDetail() {
-		long tid = 353498440620229L;
+		String tid = "353498440620229";
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		System.out.println(myTrade);
 	}

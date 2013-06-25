@@ -2,6 +2,7 @@ package cn.halen.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,8 +69,6 @@ public class TradeActionController {
 	private RedisTemplate redisTemplate;
 	
 	private ConcurrentHashMap<String, String> tokens = new ConcurrentHashMap<String, String>();
-	
-	private static final String REDIS_TRADE_ID_KEY = "redis:tradeid";
 	
 	private static final String REDIS_LOGISTICS_CODE = "redis:code";
 	
@@ -188,7 +187,7 @@ public class TradeActionController {
 		User currentUser = UserHolder.get();
 		float discount = currentUser.getShop().getD().getDiscount();
 		trade.setSeller_nick(currentUser.getShop().getSellerNick());
-		long tradeId = this.generateTradeId();
+		String tradeId = this.generateTradeId();
 		trade.setTid(tradeId);
 		
 		int count = 0;
@@ -242,14 +241,6 @@ public class TradeActionController {
 		
 		try{
 			tradeService.insertMyTrade(trade, true);
-		} catch(InsufficientStockException ise) {
-			log.error("", ise);
-			model.addAttribute("errorInfo", "库存不足，不能购买！");
-			return "error_page";
-		} catch(InsufficientBalanceException ibe) {
-			log.error("", ibe);
-			model.addAttribute("errorInfo", "余额不足，请打款！");
-			return "error_page";
 		} catch(Exception e) {
 			log.error("", e);
 			model.addAttribute("errorInfo", "系统异常，请重试！");
@@ -264,13 +255,15 @@ public class TradeActionController {
 		return "trade/shop_cart";
 	}
 	
-	@SuppressWarnings("unchecked")
-	public synchronized long generateTradeId() {
-		return redisTemplate.opsForValue().increment(REDIS_TRADE_ID_KEY, 1);
+	public String generateTradeId() {
+		UUID uuid = UUID.randomUUID();  
+        String str = uuid.toString();  
+        String temp = str.substring(0, 8) + str.substring(9, 13) + str.substring(14, 18) + str.substring(19, 23) + str.substring(24);  
+        return temp; 
 	}
 	
 	@RequestMapping(value="trade/action/change_status")
-	public @ResponseBody ResultInfo changeStatus(Model model, @RequestParam("tid") long tid, @RequestParam("action") String action) {
+	public @ResponseBody ResultInfo changeStatus(Model model, @RequestParam("tid") String tid, @RequestParam("action") String action) {
 		ResultInfo result = new ResultInfo();
 		try {
 			if(action.equals("cancel")) {
@@ -289,6 +282,13 @@ public class TradeActionController {
 		} catch (InvalidStatusChangeException isce) {
 			result.setSuccess(false);
 			result.setErrorInfo("这个订单不能进行此操作!");
+		} catch(InsufficientStockException ise) {
+			result.setSuccess(false);
+			result.setErrorInfo("库存不足，不能购买！");
+		} catch(InsufficientBalanceException ibe) {
+			log.error("", ibe);
+			result.setSuccess(false);
+			result.setErrorInfo("余额不足，请打款！");
 		} catch (Exception e) {
 			log.error("", e);
 			result.setSuccess(false);
@@ -299,7 +299,7 @@ public class TradeActionController {
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="trade/action/change_delivery")
-	public @ResponseBody ResultInfo changeDelivery(Model model, @RequestParam("tid") long tid, @RequestParam("delivery") String delivery,
+	public @ResponseBody ResultInfo changeDelivery(Model model, @RequestParam("tid") String tid, @RequestParam("delivery") String delivery,
 			@RequestParam("quantity") int quantity, @RequestParam("province") String province, @RequestParam("goods") String goods) {
 		ResultInfo result = new ResultInfo();
 		try {

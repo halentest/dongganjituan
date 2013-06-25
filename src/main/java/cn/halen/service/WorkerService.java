@@ -17,6 +17,7 @@ import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
+import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.domain.NotifyTradeStatus;
@@ -79,7 +80,7 @@ public class WorkerService {
 											map.put(order.getOid(), order);
 										}
 										
-										MyTrade dbMyTrade = tradeService.selectTradeDetail(nt.getTid());
+										MyTrade dbMyTrade = tradeService.selectTradeDetail(String.valueOf(nt.getTid()));
 										
 										String status = nt.getStatus();
 										log.debug("Got a top nitify which status is {}", status);
@@ -103,9 +104,12 @@ public class WorkerService {
 											} else if(status.equals(NotifyTradeStatus.TradeLogisticsAddressChanged.getValue())) {
 												log.debug("Receive 'TradeLogisticsAddressChanged' notify, tid = {}, oid = {}",  nt.getTid(), nt.getOid());
 												if(dbMyTrade.getModified().getTime() < trade.getModified().getTime()) {
-													tradeService.updateLogisticsAddress(trade.getReceiverState(), trade.getReceiverCity(), trade.getReceiverDistrict(),
-															trade.getReceiverAddress(), trade.getReceiverMobile(), trade.getReceiverPhone(), 
-															trade.getReceiverZip(), trade.getReceiverName(), trade.getModified(), dbMyTrade.getTid());
+													try {
+														tradeService.updateLogisticsAddress(trade.getReceiverState(), trade.getReceiverCity(), trade.getReceiverDistrict(),
+																trade.getReceiverAddress(), trade.getReceiverMobile(), trade.getReceiverPhone(), 
+																trade.getReceiverZip(), trade.getReceiverName(), trade.getModified(), dbMyTrade.getTid());
+													} catch (InsufficientBalanceException e) {
+													}
 												}
 											} 
 										}

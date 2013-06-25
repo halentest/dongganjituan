@@ -19,12 +19,12 @@ public class SkuService {
 	private RedisTemplate redisTemplate;
 	
 	@SuppressWarnings("unchecked")
-	synchronized public long updateSku(String goodsId, String color, String size,
-			long quantity, boolean manual) throws InsufficientStockException {
+	synchronized public long updateSku(String goodsId, long skuId,
+			long quantity) throws InsufficientStockException {
 		
-		MySku mySku = skuMapper.select(goodsId, color, size);
+		MySku mySku = skuMapper.select(skuId);
 		//update sku
-		if(manual && mySku.getQuantity() + quantity<0) {
+		if(mySku.getQuantity() + quantity<0) {
 			throw new InsufficientStockException();
 		}
 		mySku.setQuantity(mySku.getQuantity() + quantity);//

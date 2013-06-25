@@ -6,8 +6,8 @@ import cn.halen.service.top.domain.Status;
 
 public class MyOrder {
 	private long id; 
-	private long tid;
-	private long oid;
+	private String tid;
+	private String oid;
 	private String goods_id;
 	private String title;
 	private String pic_path;
@@ -50,16 +50,16 @@ public class MyOrder {
 	public Status getoStatus() {
 		return oStatus;
 	}
-	public long getTid() {
+	public String getTid() {
 		return tid;
 	}
-	public void setTid(long tid) {
+	public void setTid(String tid) {
 		this.tid = tid;
 	}
-	public long getOid() {
+	public String getOid() {
 		return oid;
 	}
-	public void setOid(long oid) {
+	public void setOid(String oid) {
 		this.oid = oid;
 	}
 	

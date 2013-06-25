@@ -26,7 +26,7 @@ public class UtilService implements InitializingBean {
 		Goods goods = goodsMapper.getByHid(goodsId);
 		
 		String logisticsType = "pt";
-		if(logistics.equals("SF")) {
+		if(logistics.equals("SF") || logistics.equals("顺丰速运")) {
 			logisticsType = "sf";
 		} else if(logistics.equals("EMS")) {
 			logisticsType = "ems";
@@ -121,7 +121,7 @@ public class UtilService implements InitializingBean {
 		areaMap.put("陕西省", "xb");
 		areaMap.put("新疆维吾尔自治区", "xb");
 		areaMap.put("甘肃省", "xb");
-		areaMap.put("宁夏省", "xb");
+		areaMap.put("宁夏回族自治区", "xb");
 		areaMap.put("青海省", "xb");
 		
 		areaMap.put("重庆", "xn");

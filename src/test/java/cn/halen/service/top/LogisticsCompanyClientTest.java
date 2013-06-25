@@ -41,7 +41,7 @@ public class LogisticsCompanyClientTest {
 	
 	@Test
 	public void test_send() throws ApiException {
-		long tid = 353821081120229L;
+		String tid = "353821081120229";
 		String outSid = "668458423741";
 		String companyCode = "SF";
 		String errorInfo = logisticsCompanyClient.send(tid, outSid, companyCode);

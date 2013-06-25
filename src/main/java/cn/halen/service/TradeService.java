@@ -87,24 +87,13 @@ public class TradeService {
 		}
 	}
 	
-	@Transactional(rollbackFor=Exception.class)
-	public void updateOrderAndSku(MyOrder myOrder, String goodsId, String color, String size, long quantity) {
-		try {
-			myTradeMapper.updateMyOrder(myOrder);
-			skuService.updateSku(goodsId, color, size, quantity, false);
-		} catch(Exception e) {
-			log.error("", e);
-			throw new RuntimeException(e);
-		}
-	}
-	
 	/**
 	 * 发货
 	 * @param myOrder
 	 * @param mySku
 	 */
 	@Transactional(rollbackFor=Exception.class)
-	public String send(long tid, String outSid, String companyName, String companyCode) {
+	public String send(String tid, String outSid, String companyName, String companyCode) {
 		try {
 			String errorInfo = logisticsClient.send(tid, outSid, companyCode);
 			if(null == errorInfo) {
@@ -118,7 +107,7 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public String reSend(long tid, String outSid, String companyName, String companyCode) {
+	public String reSend(String tid, String outSid, String companyName, String companyCode) {
 		try {
 			String errorInfo = logisticsClient.reSend(tid, outSid, companyCode);
 			if(null == errorInfo) {
@@ -132,29 +121,32 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean cancel(long tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
+	public boolean cancel(String tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.New.getStatus() && 
 				myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && 
 				myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
 			throw new InvalidStatusChangeException();
 		}
-		List<MyOrder> list = myTrade.getMyOrderList();
-		for(MyOrder myOrder : list) {
-			String goodsId = myOrder.getGoods_id();
-			long quantity = myOrder.getQuantity();
-			skuService.updateSku(goodsId, myOrder.getSku().getColor(), 
-					myOrder.getSku().getSize(), quantity, false);
+		if(myTrade.getMy_status() != MyStatus.New.getStatus()) {
+			List<MyOrder> list = myTrade.getMyOrderList();
+			for(MyOrder myOrder : list) {
+				String goodsId = myOrder.getGoods_id();
+				long quantity = myOrder.getQuantity();
+				skuService.updateSku(goodsId, myOrder.getSku_id(), quantity);
+			}
+			
+			String sellerNick = myTrade.getSeller_nick();
+			Distributor d = adminMapper.selectShopMapBySellerNick(sellerNick).getD();
+			if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+				adminService.updateDeposit(d.getId(), myTrade.getPayment() + myTrade.getDelivery_money());
+			}
 		}
-		String sellerNick = myTrade.getSeller_nick();
-		Shop shop = adminMapper.selectShopMapBySellerNick(sellerNick);
-		adminService.updateDeposit(shop.getD().getId(), myTrade.getPayment() + myTrade.getDelivery_money());
-		
 		return myTradeMapper.updateTradeStatus(MyStatus.Cancel.getStatus(), tid) > 0;
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean refundSuccess(long tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
+	public boolean refundSuccess(String tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.Refunding.getStatus()) {
 			throw new InvalidStatusChangeException();
@@ -163,7 +155,7 @@ public class TradeService {
 		for(MyOrder myOrder : list) {
 			String goodsId = myOrder.getGoods_id();
 			long quantity = myOrder.getQuantity();
-			skuService.updateSku(goodsId, myOrder.getSku().getColor(), myOrder.getSku().getSize(), quantity, false);
+			skuService.updateSku(goodsId, myOrder.getSku_id(), quantity);
 		}
 		Shop shop = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick());
 		Distributor d = shop.getD();
@@ -175,7 +167,7 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean noGoods(long tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
+	public boolean noGoods(String tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus() && myTrade.getMy_status() != MyStatus.Finding.getStatus()) {
 			throw new InvalidStatusChangeException();
@@ -184,15 +176,17 @@ public class TradeService {
 		for(MyOrder myOrder : list) {
 			String goodsId = myOrder.getGoods_id();
 			long quantity = myOrder.getQuantity();
-			skuService.updateSku(goodsId, myOrder.getSku().getColor(), myOrder.getSku().getSize(), quantity, false);
+			skuService.updateSku(goodsId, myOrder.getSku_id(), quantity);
 		}
 		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
-		adminService.updateDeposit(d.getId(), myTrade.getPayment() + myTrade.getDelivery_money());
+		if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+			adminService.updateDeposit(d.getId(), myTrade.getPayment() + myTrade.getDelivery_money());
+		}
 		return myTradeMapper.updateTradeStatus(MyStatus.NoGoods.getStatus(), tid) > 0;
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean approve1(long tid) throws InvalidStatusChangeException {
+	public boolean approve1(String tid) throws InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus()) {
 			throw new InvalidStatusChangeException();
@@ -200,35 +194,51 @@ public class TradeService {
 		return myTradeMapper.updateTradeStatus(MyStatus.WaitSend.getStatus(), tid) > 0;
 	}
 	
-	@Transactional(rollbackFor=Exception.class)
-	public boolean changeDelivery(long tid, String delivery, int deliveryMoney) throws InvalidStatusChangeException, InsufficientBalanceException {
+	@Transactional(rollbackFor=Exception.class)  //TODO
+	public boolean changeDelivery(String tid, String delivery, int deliveryMoney) throws InvalidStatusChangeException, InsufficientBalanceException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && myTrade.getMy_status() != MyStatus.New.getStatus() &&
 				myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
 			throw new InvalidStatusChangeException();
 		}
-		if(myTrade.getMy_status() != MyStatus.New.getStatus()) {
-			int change = myTrade.getDelivery_money() - deliveryMoney;
-			myTrade.setDelivery(delivery);
-			myTrade.setDelivery_money(deliveryMoney);
-			
-			Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
+		int change = myTrade.getDelivery_money() - deliveryMoney;
+		myTrade.setDelivery(delivery);
+		myTrade.setDelivery_money(deliveryMoney);
+		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
+		if(myTrade.getMy_status() != MyStatus.New.getStatus() && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
 			adminService.updateDeposit(d.getId(), change);
 		}
 		return myTradeMapper.updateMyTrade(myTrade) > 0;
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean submit(long tid) throws InvalidStatusChangeException {
+	public boolean submit(String tid) throws InvalidStatusChangeException, InsufficientStockException, InsufficientBalanceException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.New.getStatus()) {
 			throw new InvalidStatusChangeException();
 		}
-		return myTradeMapper.updateTradeStatus(MyStatus.WaitCheck.getStatus(), tid) > 0;
+		//update sku
+		for(MyOrder order : myTrade.getMyOrderList()) {
+			if(order.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
+				skuService.updateSku(order.getGoods_id(), order.getSku_id(), -order.getQuantity());
+			}
+		}
+		//update deposit
+		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
+		if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+			adminService.updateDeposit(d.getId(), -myTrade.getPayment()-myTrade.getDelivery_money());
+		}
+		int count = 0;
+		if(d.getNoCheck() == 1) {
+			count = myTradeMapper.updateTradeStatus(MyStatus.WaitSend.getStatus(), tid);
+		} else {
+			count = myTradeMapper.updateTradeStatus(MyStatus.WaitCheck.getStatus(), tid);
+		}
+		return count > 0;
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean findGoods(long tid) throws InvalidStatusChangeException {
+	public boolean findGoods(String tid) throws InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
 			throw new InvalidStatusChangeException();
@@ -236,7 +246,7 @@ public class TradeService {
 		return myTradeMapper.updateTradeStatus(MyStatus.Finding.getStatus(), tid) > 0;
 	}
 	
-	private void doSend(long tid, String companyName, String outSid, String companyCode) {
+	private void doSend(String tid, String companyName, String outSid, String companyCode) {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		myTrade.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
 		myTrade.setLogistics_company(companyName);
@@ -261,15 +271,12 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public int insertMyTrade(MyTrade myTrade, boolean manual) throws InsufficientStockException, InsufficientBalanceException {
+	public int insertMyTrade(MyTrade myTrade, boolean manual) {
 		int count = myTradeMapper.insert(myTrade);
 		for(MyOrder order : myTrade.getMyOrderList()) {
 			
-			long skuId = 0;
-			if(order.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
-				skuId = skuService.updateSku(order.getGoods_id(), order.getColor(), order.getSize(), -order.getQuantity(), manual);
-			}
-			order.setSku_id(skuId);
+			MySku mySku = mySkuMapper.select(order.getGoods_id(), order.getColor(), order.getSize());
+			order.setSku_id(mySku.getId());
 			myTradeMapper.insertMyOrder(order);
 		}
 		return count;
@@ -279,7 +286,7 @@ public class TradeService {
 		return myTradeMapper.selectOrderByOrderId(oid);
 	}
 	
-	public MyTrade selectTradeDetail(long tid) {
+	public MyTrade selectTradeDetail(String tid) {
 		return myTradeMapper.selectTradeDetail(tid);
 	}
 	
@@ -288,14 +295,38 @@ public class TradeService {
 		return tradeId;
 	}
 	
-	public int updateTradeMemo(String memo, long tradeId, Date modified) {
+	public int updateTradeMemo(String memo, String tradeId, Date modified) {
 		int count = myTradeMapper.updateTradeMemo(memo, tradeId, modified);
 		return count;
 	}
-	
+
 	public int updateLogisticsAddress(String state, String city, String district, String address, String mobile, String phone,
-			String zip, String name, Date modified, long tradeId) {
-		int count = myTradeMapper.updateLogisticsAddress(state, city, district, address, mobile, phone, zip, name, modified, tradeId);
+			String zip, String name, Date modified, String tradeId) throws InsufficientBalanceException {
+		
+		MyTrade myTrade = myTradeMapper.selectTradeDetail(tradeId);
+		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && myTrade.getMy_status() != MyStatus.New.getStatus() &&
+				myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
+			return 0;
+		}
+		int deliveryMoney = utilService.calDeliveryMoney(myTrade.getMyOrderList().get(0).getGoods_id(), Integer.valueOf(String.valueOf(myTrade.getGoods_count())),
+				myTrade.getLogistics_company(), myTrade.getState());
+		
+		int change = myTrade.getDelivery_money() - deliveryMoney;
+		myTrade.setDelivery_money(deliveryMoney);
+		myTrade.setState(state);
+		myTrade.setCity(city);
+		myTrade.setDistrict(district);
+		myTrade.setAddress(address);
+		myTrade.setMobile(mobile);
+		myTrade.setPhone(phone);
+		myTrade.setPostcode(zip);
+		myTrade.setName(name);
+		myTrade.setModified(modified);
+		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
+		if(myTrade.getMy_status() != MyStatus.New.getStatus() && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+			adminService.updateDeposit(d.getId(), change);
+		}
+		int count = myTradeMapper.updateMyTrade(myTrade);
 		return count;
 	}
 	
@@ -329,15 +360,15 @@ public class TradeService {
 			
 			goodsCount += order.getNum();
 			MyOrder myOrder = new MyOrder();
-			myOrder.setTid(trade.getTid());
-			myOrder.setOid(order.getOid());
+			myOrder.setTid(String.valueOf(trade.getTid()));
+			myOrder.setOid(String.valueOf(order.getOid()));
 			myOrder.setColor(color);
 			myOrder.setSize(size);
 			myOrder.setGoods_id(order.getOuterIid());
 			myOrder.setTitle(order.getTitle());
 			myOrder.setPic_path(order.getPicPath());
 			myOrder.setQuantity(order.getNum());
-			if(!isSelf && trade.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS)) {
+			if(!isSelf && trade.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue())) {
 				myOrder.setPrice(goods.getPrice());
 				int payment = MoneyUtils.cal(goods.getPrice(), discount, order.getNum());
 				myOrder.setPayment(payment);
@@ -356,7 +387,7 @@ public class TradeService {
 		}
 		
 		MyTrade myTrade = new MyTrade();
-		myTrade.setTao_id(trade.getTid());
+		myTrade.setTid(String.valueOf(trade.getTid()));
 		myTrade.setName(trade.getReceiverName());
 		myTrade.setPhone(trade.getReceiverPhone());
 		myTrade.setMobile(trade.getReceiverMobile());

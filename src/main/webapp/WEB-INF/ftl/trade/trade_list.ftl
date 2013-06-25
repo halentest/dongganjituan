@@ -62,7 +62,7 @@
 		      <tr class="trade">
 		        <td colspan="7">
 		        	${trade.come_from!}&nbsp;&nbsp;&nbsp;
-		        	<strong>订单编号：</strong></strong>${trade.tid?c}  &nbsp;&nbsp;&nbsp;
+		        	<strong>订单编号：</strong></strong>${trade.tid}  &nbsp;&nbsp;&nbsp;
 		        	<strong>创建时间：</strong>${trade.created?string('yyyy-MM-dd HH:mm:ss')} &nbsp;&nbsp;&nbsp;
 		        	<strong>卖家: </strong>${trade.seller_nick} &nbsp;&nbsp;&nbsp;
 		        	<strong>买家: <strong>${trade.name} &nbsp;&nbsp;&nbsp;
@@ -116,18 +116,18 @@
 					        		<p>打印快递单 &nbsp;&nbsp; <a href="javascript:prn1_preview('${sender}', '${from}', '${from_company}', '${from_address}', '${sender_mobile}',
 										'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district}${trade.address}', '${trade.mobile!''}', '${trade.state}')">预览</a></p>
 					        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
-					        		<p><a class="find-goods" data-tid="${trade.tid?c}" style="cursor: pointer">拣货</a></p>
-					        		<p><a class="no-goods" data-tid="${trade.tid?c}" style="cursor: pointer">无货</a></p>
+					        		<p><a class="find-goods" data-tid="${trade.tid}" style="cursor: pointer">拣货</a></p>
+					        		<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
 				        		<#if trade.my_status==3>
-				        			<p><a class="send-goods" data-tid="${trade.tid?c}" style="cursor: pointer">发货</a></p>
-				        			<p><a class="no-goods" data-tid="${trade.tid?c}" style="cursor: pointer">无货</a></p>
+				        			<p><a class="send-goods" data-tid="${trade.tid}" style="cursor: pointer">发货</a></p>
+				        			<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
 				        		<#if trade.my_status==-2>
-				        			<a class="refund-success" data-tid="${trade.tid?c}" style="cursor: pointer">退货成功</a>
+				        			<a class="refund-success" data-tid="${trade.tid}" style="cursor: pointer">退货成功</a>
 				        		</#if>
 				        	</#if> 
-				        	<#if CURRENT_USER.type=="Distributor">
+				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 				        		<p><strong>快递</strong>: 
 				        		<span>${trade.delivery}</span>
 				        		<#if trade.my_status==0 || trade.my_status==1>
@@ -137,17 +137,17 @@
 				        				</#list>
 									</select>
 				        			<a style="cursor: pointer;" class="modify-delivery">修改</a>
-				        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid?c}" data-quantity="${trade.goods_count}" 
+				        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}" 
 				        				data-goods="${order.goods_id}" data-province="${trade.state}"
 				        				class="modify-delivery-submit">保存</a>
 				        			<a style="cursor: pointer; display: none;" class="modify-delivery-cancel">取消</a>
 				        		</#if>
 				        		</p>
 				        		<#if trade.my_status==0>
-				        			<p><a class="submit" data-tid="${trade.tid?c}" style="cursor: pointer">提交</a></p>
+				        			<p><a class="submit" data-tid="${trade.tid}" style="cursor: pointer">提交</a></p>
 				        		</#if>
 				        		<#if trade.my_status==0 || trade.my_status==1 || trade.my_status==2>
-				        			<p><a class="cancel" data-tid="${trade.tid?c}" style="cursor: pointer">作废</a></p>
+				        			<p><a class="cancel" data-tid="${trade.tid}" style="cursor: pointer">作废</a></p>
 				        		</#if>
 				        		<#if trade.my_status==4>
 				        			<p>申请退货</p>
@@ -173,8 +173,8 @@
 					        		</#if>
 				        		</p>
 				        		<#if trade.my_status==1>
-				        			<a class="cancel" data-tid="${trade.tid?c}" style="cursor: pointer">不通过</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				        			<a class="approve1" data-tid="${trade.tid?c}" style="cursor: pointer">通过</a>
+				        			<a class="cancel" data-tid="${trade.tid}" style="cursor: pointer">不通过</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				        			<a class="approve1" data-tid="${trade.tid}" style="cursor: pointer">通过</a>
 				        		</#if>
 				        		<#if trade.my_status==-4>
 				        			同意   不同意

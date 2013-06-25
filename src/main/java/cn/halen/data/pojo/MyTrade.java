@@ -8,7 +8,7 @@ import cn.halen.service.top.domain.Status;
 
 public class MyTrade {
 	private long id; //
-	private long tid;
+	private String tid;
 	private String name; 
 	private String phone; 
 	private String mobile; 
@@ -56,11 +56,11 @@ public class MyTrade {
 				+ ", buyer_message=" + buyer_message + "]";
 	}
 
-	public long getTid() {
+	public String getTid() {
 		return tid;
 	}
 
-	public void setTid(long tid) {
+	public void setTid(String tid) {
 		this.tid = tid;
 	}
 
@@ -227,20 +227,12 @@ public class MyTrade {
 		this.modified = modified;
 	}
 	
-	public long getTao_id() {
-		return tid;
-	}
-
 	public String getMobile() {
 		return mobile;
 	}
 
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
-	}
-
-	public void setTao_id(long tao_id) {
-		this.tid = tao_id;
 	}
 
 	public int getPayment() {

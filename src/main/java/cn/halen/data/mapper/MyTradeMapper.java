@@ -35,7 +35,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return tradeId;
 	}
 	
-	public MyTrade selectTradeDetail(long id) {
+	public MyTrade selectTradeDetail(String id) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("tid", id);
 		MyTrade myTrade = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", param);
@@ -47,7 +47,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return myOrder;
 	}
 	
-	public int updateTradeMemo(String memo, long tradeId, Date modified) {
+	public int updateTradeMemo(String memo, String tradeId, Date modified) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("memo", memo);
 		param.put("tradeId", tradeId);
@@ -61,7 +61,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public int updateTradeStatus(int status, long tid) {
+	public int updateTradeStatus(int status, String tid) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("status", status);
 		param.put("tid", tid);
@@ -74,7 +74,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 	}
 	
 	public int updateLogisticsAddress(String state, String city, String district, String address, String mobile, String phone,
-			String zip, String name, Date modified, long tradeId) {
+			String zip, String name, Date modified, String tradeId) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("state", state);
 		param.put("city", city);

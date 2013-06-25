@@ -41,7 +41,7 @@
         	  			</#if>
         	  		</#list>
         	  		<td rowspan="${map2?size+1}" style="width: 12%;">
-        	  		<#if CURRENT_USER.type=="Distributor">
+        	  		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
         	  			<p><a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">点击购买</a></p>
         	  			<p><a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a></p>
         	  			<p><a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a></p>

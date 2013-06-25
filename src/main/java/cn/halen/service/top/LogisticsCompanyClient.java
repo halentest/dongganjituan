@@ -90,10 +90,10 @@ public class LogisticsCompanyClient {
 	 * 发货
 	 * @throws ApiException 
 	 */
-	public String send(long tid, String outSid, String companyCode) throws ApiException {
+	public String send(String tid, String outSid, String companyCode) throws ApiException {
 		TaobaoClient client = topConfig.getRetryClient();
 		LogisticsOfflineSendRequest req = new LogisticsOfflineSendRequest();
-		req.setTid(tid);
+		req.setTid(Long.valueOf(tid));
 		req.setOutSid(outSid);
 		req.setCompanyCode(companyCode);
 		LogisticsOfflineSendResponse response = client.execute(req , topConfig.getMainToken());
@@ -114,10 +114,10 @@ public class LogisticsCompanyClient {
 	 * @return
 	 * @throws ApiException 
 	 */
-	public String reSend(long tid, String outSid, String companyCode) throws ApiException {
+	public String reSend(String tid, String outSid, String companyCode) throws ApiException {
 		TaobaoClient client = topConfig.getRetryClient();
 		LogisticsConsignResendRequest req = new LogisticsConsignResendRequest();
-		req.setTid(tid);
+		req.setTid(Long.valueOf(tid));
 		req.setOutSid(outSid);
 		req.setCompanyCode(companyCode);
 		LogisticsConsignResendResponse response = client.execute(req , topConfig.getMainToken());
