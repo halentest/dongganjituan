@@ -61,7 +61,7 @@ public class TopMessageListener implements TopCometMessageListener {
 
 	@Override
 	public void onDiscardMsg(String message) {
-		log.info("onDiscardMsg() occur, invoke handlerDiscardMsg()");
+		log.info("onDiscardMsg() occur, invoke handlerDiscardMsg() msg is {}", message);
 		handlerDiscardMsg();
 	}
 

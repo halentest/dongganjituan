@@ -23,7 +23,7 @@ public class MyRefund {
 	
 	private String oid;
 	
-	private String refundReason;
+	private String refund_reason;
 	
 	private String comment1;
 	
@@ -33,9 +33,9 @@ public class MyRefund {
 	
 	private String comment4;
 	
-	private String picUrl;
+	private String pic_url;
 	
-	private String sellerNick;
+	private String seller_nick;
 	
 	private String status;
 	
@@ -51,19 +51,35 @@ public class MyRefund {
 	
 	private MyOrder order;
 	
-	public String getPicUrl() {
-		return picUrl;
+	public String getRefund_reason() {
+		return refund_reason;
 	}
 
-	public void setPicUrl(String picUrl) {
-		this.picUrl = picUrl;
-		if(StringUtils.isNotEmpty(picUrl)) {
-			String[] items = picUrl.split(";");
+	public void setRefund_reason(String refund_reason) {
+		this.refund_reason = refund_reason;
+	}
+
+	public String getPic_url() {
+		return pic_url;
+	}
+
+	public void setPic_url(String pic_url) {
+		this.pic_url = pic_url;
+		if(StringUtils.isNotEmpty(pic_url)) {
+			String[] items = pic_url.split(";");
 			picUrlList = new ArrayList<String>();
 			for(String item : items) {
 				picUrlList.add(item);
 			}
 		}
+	}
+
+	public String getSeller_nick() {
+		return seller_nick;
+	}
+
+	public void setSeller_nick(String seller_nick) {
+		this.seller_nick = seller_nick;
 	}
 
 	public String getTid() {
@@ -78,14 +94,6 @@ public class MyRefund {
 		return oid;
 	}
 
-	public String getSellerNick() {
-		return sellerNick;
-	}
-
-	public void setSellerNick(String sellerNick) {
-		this.sellerNick = sellerNick;
-	}
-
 	public String getStatus() {
 		return status;
 	}
@@ -95,24 +103,16 @@ public class MyRefund {
 		this.oStatus = Status.valueOf(status);
 	}
 
-	public Status getOStatus() {
+	public Status getoStatus() {
 		return oStatus;
 	}
 
-	public void setOStatus(Status status) {
+	public void setoStatus(Status status) {
 		this.oStatus = status;
 	}
 
 	public void setOid(String oid) {
 		this.oid = oid;
-	}
-
-	public String getRefundReason() {
-		return refundReason;
-	}
-
-	public void setRefundReason(String refundReason) {
-		this.refundReason = refundReason;
 	}
 
 	public String getComment1() {

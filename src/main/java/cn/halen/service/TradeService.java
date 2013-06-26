@@ -246,30 +246,6 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean applyRefund(String tid, String oid, String refundReason) throws InvalidStatusChangeException {
-		MyTrade myTrade = myTradeMapper.selectByTradeId(tid);
-		MyOrder myOrder = myTradeMapper.selectOrderByOrderId(oid);
-		if(myTrade.getMy_status() != MyStatus.WaitReceive.getStatus()) {
-			throw new InvalidStatusChangeException();
-		}
-		if(null == myTrade || null == myOrder) {
-			return false;
-		}
-		
-		MyRefund refund = new MyRefund();
-		refund.setTid(tid);
-		refund.setOid(oid);
-		refund.setRefundReason(refundReason);
-		refund.setSellerNick(myTrade.getSeller_nick());
-		refund.setStatus(Status.ApplyRefund.getValue());
-		refundMapper.insert(refund);
-		
-		myOrder.setStatus(Status.ApplyRefund.getValue());
-		myTradeMapper.updateMyOrder(myOrder);
-		return true;
-	}
-	
-	@Transactional(rollbackFor=Exception.class)
 	public boolean findGoods(String tid) throws InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {

@@ -85,7 +85,7 @@
 				        	<p><strong>数量：</strong>${order.quantity}</p>
 				        	<p><strong>价格：</strong>${order.payment/100}元</p>
 				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
-				        		<#if trade.my_status==4 && order.status=="WAIT_SELLER_SEND_GOODS">
+				        		<#if trade.my_status==4 && order.status=="WAIT_BUYER_CONFIRM_GOODS">
 				        			<p>
 				        			<a style="cursor: pointer;" data-tid="${trade.tid}" 
 				        			 data-oid="${order.oid}" class="apply-refund">申请退货</a>

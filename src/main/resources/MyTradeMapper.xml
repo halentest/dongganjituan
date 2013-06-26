@@ -194,6 +194,10 @@
 		update trade set my_status=#{status} where tid=#{tid}
 	</update>
 	
+	<update id="updateOrderStatus" parameterType="Map">
+		update order1 set status=#{status} where tid=#{tid} and oid=#{oid}
+	</update>
+	
 	<update id="updateOrder" parameterType="MyOrder">
 		update order1 set oid=#{oid}, tid=#{tid}, goods_id=#{goods_id}, sku_id=#{sku_id}, quantity=#{quantity}, 
 			price=#{price}, discount=#{discount}, weight=#{weight}, payment=#{payment}, logistics_company=#{logistics_company}, 

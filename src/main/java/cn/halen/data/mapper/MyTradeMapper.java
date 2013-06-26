@@ -128,4 +128,12 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		List<MyTrade> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", param);
 		return list;
 	}
+	
+	public int updateOrderStatus(String status, String tid, String oid) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("status", status);
+		param.put("tid", tid);
+		param.put("oid", oid);
+		return getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateOrderStatus", param);
+	}
 }

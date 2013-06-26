@@ -16,6 +16,8 @@ public enum Status {
 	Refund("Refund", "退货成功但未退款"),
 	RefundSuccess("RefundSuccess", "退货退款成功"),
 	ApplyRefund("ApplyRefund", "申请退货中"),
+	CancelRefund("CancelRefund", "已取消退货"),
+	RejectRefund("RejectRefund", "拒绝退货"),
 	ReceiveRefund("ReceiveRefund", "已收到退货");
 	
 	private String value;

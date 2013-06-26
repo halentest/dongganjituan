@@ -29,7 +29,11 @@ import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.Shop;
 import cn.halen.data.pojo.User;
 import cn.halen.data.pojo.UserType;
+import cn.halen.exception.InsufficientBalanceException;
+import cn.halen.exception.InsufficientStockException;
+import cn.halen.exception.InvalidStatusChangeException;
 import cn.halen.filter.UserHolder;
+import cn.halen.service.RefundService;
 import cn.halen.service.ResultInfo;
 import cn.halen.service.TradeService;
 import cn.halen.service.UtilService;
@@ -61,6 +65,9 @@ public class RefundController {
 	@Autowired
 	private TradeService tradeService;
 	
+	@Autowired
+	private RefundService refundService;
+	
 	@SuppressWarnings("rawtypes")
 	@Autowired
 	private RedisTemplate redisTemplate;
@@ -73,7 +80,7 @@ public class RefundController {
 			@RequestParam("refundReason") String refundReason) {
 		ResultInfo result = new ResultInfo();
 		try {
-			tradeService.applyRefund(tid, oid, refundReason);
+			refundService.applyRefund(tid, oid, refundReason);
 		} catch (Exception e) {
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，请重试!");
@@ -168,4 +175,32 @@ public class RefundController {
 		return "trade/refund_list";
 	}
 	
+	@RequestMapping(value="trade/action/change_refund_status")
+	public @ResponseBody ResultInfo changeStatus(Model model, @RequestParam("rid") long rid, @RequestParam("action") String action,
+			@RequestParam("tid") String tid, @RequestParam("oid") String oid,
+			@RequestParam(value="comment", required=false) String comment,
+			@RequestParam(value="isTwice", required=false) boolean isTwice,
+			@RequestParam(value="sellerNick", required=false) String sellerNick) {
+		ResultInfo result = new ResultInfo();
+		try {
+			if(action.equals("cancel-refund")) {
+				refundService.cancel(rid, tid, oid);
+			} else if(action.equals("approve-refund")) {
+				refundService.approveRefund(rid, tid, oid);
+			} else if(action.equals("reject-refund")) {
+				refundService.rejectRefund(rid, tid, oid, comment);
+			} else if(action.equals("receive-refund")) {
+				refundService.receiveRefund(rid, tid, oid, comment, isTwice);
+			} else if(action.equals("refund-money")) {
+				refundService.refundMoney(rid, tid, oid, sellerNick);
+			} else if(action.equals("not-refund-money")) {
+				refundService.notRefundMoney(rid, tid, oid, comment);
+			}
+		} catch (Exception e) {
+			log.error("", e);
+			result.setSuccess(false);
+			result.setErrorInfo("系统异常，请重试!");
+		}
+		return result;
+	}
 }
