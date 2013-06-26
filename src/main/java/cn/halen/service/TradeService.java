@@ -15,6 +15,7 @@ import cn.halen.data.mapper.GoodsMapper;
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.mapper.MyTradeMapper;
+import cn.halen.data.mapper.RefundMapper;
 import cn.halen.data.pojo.Distributor;
 import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.MyLogisticsCompany;
@@ -75,6 +76,9 @@ public class TradeService {
 	
 	@Autowired
 	private MyLogisticsCompanyMapper logisticsMapper;
+	
+	@Autowired
+	private RefundMapper refundMapper;
 	
 	@Transactional(rollbackFor=Exception.class)
 	public void updateSkuAndInsertRefund(MyRefund myRefund, MySku mySku) {
@@ -198,7 +202,7 @@ public class TradeService {
 		return myTradeMapper.updateTradeStatus(MyStatus.WaitSend.getStatus(), tid) > 0;
 	}
 	
-	@Transactional(rollbackFor=Exception.class)  //TODO
+	@Transactional(rollbackFor=Exception.class)  
 	public boolean changeDelivery(String tid, String delivery, int deliveryMoney) throws InvalidStatusChangeException, InsufficientBalanceException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && myTrade.getMy_status() != MyStatus.New.getStatus() &&
@@ -239,6 +243,30 @@ public class TradeService {
 			count = myTradeMapper.updateTradeStatus(MyStatus.WaitCheck.getStatus(), tid);
 		}
 		return count > 0;
+	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public boolean applyRefund(String tid, String oid, String refundReason) throws InvalidStatusChangeException {
+		MyTrade myTrade = myTradeMapper.selectByTradeId(tid);
+		MyOrder myOrder = myTradeMapper.selectOrderByOrderId(oid);
+		if(myTrade.getMy_status() != MyStatus.WaitReceive.getStatus()) {
+			throw new InvalidStatusChangeException();
+		}
+		if(null == myTrade || null == myOrder) {
+			return false;
+		}
+		
+		MyRefund refund = new MyRefund();
+		refund.setTid(tid);
+		refund.setOid(oid);
+		refund.setRefundReason(refundReason);
+		refund.setSellerNick(myTrade.getSeller_nick());
+		refund.setStatus(Status.ApplyRefund.getValue());
+		refundMapper.insert(refund);
+		
+		myOrder.setStatus(Status.ApplyRefund.getValue());
+		myTradeMapper.updateMyOrder(myOrder);
+		return true;
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
@@ -287,7 +315,7 @@ public class TradeService {
 		return count;
 	}
 	
-	public MyOrder selectOrderByOrderId(Long oid) {
+	public MyOrder selectOrderByOrderId(String oid) {
 		return myTradeMapper.selectOrderByOrderId(oid);
 	}
 	
@@ -295,9 +323,8 @@ public class TradeService {
 		return myTradeMapper.selectTradeDetail(tid);
 	}
 	
-	public Long selectByTradeId(long id) {
-		Long tradeId = myTradeMapper.selectByTradeId(id);
-		return tradeId;
+	public MyTrade selectByTradeId(String id) {
+		return myTradeMapper.selectByTradeId(id);
 	}
 	
 	public int updateTradeMemo(String memo, String tradeId, Date modified) {
@@ -350,6 +377,7 @@ public class TradeService {
 		for(Order order : orderList) {
 			Goods goods = goodsMapper.getByHid(order.getOuterIid());
 			if(null == goods) { //检查商品是否存在
+				log.info("This goods {} not exist!", order.getOuterIid());
 				continue;
 			}
 			String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
@@ -358,6 +386,7 @@ public class TradeService {
 			String size = properties[1].split(":")[1];
 			MySku sku = mySkuMapper.select(order.getOuterIid(), color, size);
 			if(null == sku) {  //检查sku是否存在
+				log.info("This sku {} {} {} not exist!", order.getOuterIid(), color, size);
 				continue;
 			}
 			goodsHid = goods.getHid();

@@ -110,7 +110,7 @@ public class UtilService implements InitializingBean {
 		areaMap.put("河南省", "hz");
 		
 		areaMap.put("广东省", "hn");
-		areaMap.put("广西省", "hn");
+		areaMap.put("广西壮族自治区", "hn");
 		areaMap.put("福建省", "hn");
 		areaMap.put("海南省", "hn");
 		

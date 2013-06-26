@@ -73,18 +73,19 @@ create table area (
 drop table if exists refund;
 create table refund (
 	id bigint primary key auto_increment,
-	buyer_nick varchar(50),
-	nick varchar(50),
-	oid bigint,
-	refund_fee int,
-	rid bigint,
+	tid varchar(50),
+	oid varchar(50),
+	refund_reason varchar(255),
+	comment1 varchar(255),
+	comment2 varchar(255),
+	comment3 varchar(255),
+	comment4 varchar(255),
+	pic_url varchar(500),
+	status varchar(25),
 	seller_nick varchar(50),
-	status varchar(50),
-	tid bigint,
-	user_id bigint,
 	modified timestamp,
 	created timestamp,
-	unique key(oid)
+	unique key(tid, oid)
 );
 
 drop table if exists trade;

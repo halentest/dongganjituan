@@ -69,6 +69,7 @@
 	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">订单管理 <b class="caret"></b></a>
 	              <ul class="dropdown-menu">
 	                  <li><a href="${rc.contextPath}/trade/trade_list">订单列表</a></li>
+	                  <li><a href="${rc.contextPath}/trade/refund_list">退货列表</a></li>
 	              </ul>
 	          </li>
 	          </#if>

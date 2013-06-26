@@ -30,9 +30,8 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public Long selectByTradeId(long id) {
-		Long tradeId = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectByTradeId", id);
-		return tradeId;
+	public MyTrade selectByTradeId(String id) {
+		return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectByTradeId", id);
 	}
 	
 	public MyTrade selectTradeDetail(String id) {
@@ -42,7 +41,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return myTrade;
 	}
 	
-	public MyOrder selectOrderByOrderId(long oid) {
+	public MyOrder selectOrderByOrderId(String oid) {
 		MyOrder myOrder = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectOrderByOrderId", oid);
 		return myOrder;
 	}

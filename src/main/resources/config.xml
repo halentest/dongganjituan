@@ -97,5 +97,9 @@
 	<bean id="adminMapper" class="cn.halen.data.mapper.AdminMapper">
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>
+	
+	<bean id="refundMapper" class="cn.halen.data.mapper.RefundMapper">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
 
 </beans>

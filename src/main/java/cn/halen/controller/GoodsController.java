@@ -56,6 +56,9 @@ public class GoodsController {
 		Paging paging = new Paging(intPage, 10, totalCount);
 		model.addAttribute("paging", paging);
 		model.addAttribute("totalCount", totalCount);
+		if(0 == totalCount) {
+			return "goods/goods_list";
+		}
 		
 		List<Goods> list = goodsMapper.listGoodsDetail(paging.getStart(), paging.getPageSize(), goodsId);
 		if(null == list || list.size() == 0) {

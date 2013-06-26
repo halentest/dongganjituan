@@ -62,7 +62,7 @@ public class TopListenerStarter implements InitializingBean {
 	
 	public void start() throws ApiException, ParseException, InsufficientStockException, InsufficientBalanceException {
 		
-		initTrades();
+		//initTrades();
 		
 		log.info("Start Top Listener!");
 		
@@ -88,12 +88,12 @@ public class TopListenerStarter implements InitializingBean {
 		List<Trade> tradeList = tradeClient.queryTradeList(topConfig.listToken());
 		for(Trade trade : tradeList) {
 			//check trade if exists
-			Long tid = tradeService.selectByTradeId(trade.getTid());
+			MyTrade dbMyTrade = tradeService.selectByTradeId(String.valueOf(trade.getTid()));
 			Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
 			MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
 			if(null == myTrade)
 				continue;
-			if(null == tid) {
+			if(null == dbMyTrade) {
 				myTrade.setMy_status(MyStatus.New.getStatus());
 				int count = tradeService.insertMyTrade(myTrade, false);
 				totalCount += count;

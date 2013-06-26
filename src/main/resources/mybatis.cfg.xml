@@ -38,6 +38,7 @@
         <typeAlias alias="UserAuthority" type="cn.halen.data.pojo.UserAuthority" />
         <typeAlias alias="MylogisticsCompany" type="cn.halen.data.pojo.MyLogisticsCompany" />
         <typeAlias alias="Shop" type="cn.halen.data.pojo.Shop" />
+        <typeAlias alias="MyRefund" type="cn.halen.data.pojo.MyRefund" />
     </typeAliases>  
       
     <mappers>  
@@ -49,5 +50,6 @@
 		<mapper resource="ItemPropMapper.xml" />
 		<mapper resource="MylogisticsCompanyMapper.xml" />
 		<mapper resource="AdminMapper.xml" />
+		<mapper resource="RefundMapper.xml" />
     </mappers>  
 </configuration> 

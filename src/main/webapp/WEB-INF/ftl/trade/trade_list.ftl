@@ -66,7 +66,6 @@
 		        	<strong>创建时间：</strong>${trade.created?string('yyyy-MM-dd HH:mm:ss')} &nbsp;&nbsp;&nbsp;
 		        	<strong>卖家: </strong>${trade.seller_nick} &nbsp;&nbsp;&nbsp;
 		        	<strong>买家: <strong>${trade.name} &nbsp;&nbsp;&nbsp;
-		        	<strong>${trade.oStatus.desc}<strong>
 		        	<span style="float: right; margin-right: 5px;"><strong>${trade.myStatus.desc}<strong></span>
 		        </td>
 		      </tr>
@@ -85,10 +84,18 @@
 				        	<p><strong>${order.oStatus.desc}</strong></p>
 				        	<p><strong>数量：</strong>${order.quantity}</p>
 				        	<p><strong>价格：</strong>${order.payment/100}元</p>
+				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
+				        		<#if trade.my_status==4 && order.status=="WAIT_SELLER_SEND_GOODS">
+				        			<p>
+				        			<a style="cursor: pointer;" data-tid="${trade.tid}" 
+				        			 data-oid="${order.oid}" class="apply-refund">申请退货</a>
+				        			</p>
+				        		</#if>
+				        	</#if> 
 				        </td>
 				        <#if order_index==0>
 				        <td rowspan="${orderList?size}" style="width: 25%;">
-				        	<p><strong>地址：</strong>${trade.state}${trade.city}${trade.district}${trade.address}</p>
+				        	<p><strong>地址：</strong>${trade.state}${trade.city}${trade.district!''}${trade.address}</p>
 				        	<p>
 				        		<strong>收货人：</strong>${trade.name} &nbsp;&nbsp;
 				        		<strong>电话：</strong>${trade.phone!''} &nbsp;&nbsp;
@@ -114,7 +121,7 @@
 				        		<span>${trade.delivery}</span>
 				        		<#if trade.status=="WAIT_SELLER_SEND_GOODS" && trade.my_status==2>
 					        		<p>打印快递单 &nbsp;&nbsp; <a href="javascript:prn1_preview('${sender}', '${from}', '${from_company}', '${from_address}', '${sender_mobile}',
-										'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district}${trade.address}', '${trade.mobile!''}', '${trade.state}')">预览</a></p>
+										'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">预览</a></p>
 					        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
 					        		<p><a class="find-goods" data-tid="${trade.tid}" style="cursor: pointer">拣货</a></p>
 					        		<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
@@ -149,12 +156,6 @@
 				        		</#if>
 				        		<#if trade.my_status==0 || trade.my_status==1 || trade.my_status==2>
 				        			<p><a class="cancel" data-tid="${trade.tid}" style="cursor: pointer">作废</a></p>
-				        		</#if>
-				        		<#if trade.my_status==4>
-				        			<p>申请退货</p>
-				        		</#if>
-				        		<#if trade.my_status==-4 || trade.my_status==-2>
-				        			<p>取消退货</p>
 				        		</#if>
 				        	</#if> 
 				        	<#if CURRENT_USER.type=="DistributorManager">
@@ -216,6 +217,26 @@
       <div class="modal-footer">
          <a href="#" class="btn" data-dismiss="modal">取消</a>
     	 <a href="#" class="btn btn-primary" id="save">确定</a>
+      </div>
+  </div>
+  <!-- end 提示框 -->
+  
+  <!-- start 提示框 -->
+  <div class="modal hide" id="pop-up2">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h4 id="title"></h4>
+      </div>
+      <div class="modal-body">
+	    <p>
+	    	请输入退货原因 <input type="text" id="refund-reason" style="height: 30px; width: 350px;"/>
+	    	<input type="hidden" id="refund-curr-tid"/>
+	    	<input type="hidden" id="refund-curr-oid"/>
+	    </p>
+	  </div>
+      <div class="modal-footer">
+         <a href="#" class="btn" data-dismiss="modal">取消</a>
+    	 <a href="#" class="btn btn-primary" id="save2">确定</a>
       </div>
   </div>
   <!-- end 提示框 -->
@@ -389,6 +410,32 @@
 	            dataType: "json",//返回json格式的数据
 	            data: "tid=" + tid + "&delivery=" + delivery + "&from=" + from + "&trackingNumber=" + trackingNumber + "&sellerNick=" + sellerNick,
 	            url: "${rc.contextPath}/trade/send",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+	                if(result.errorInfo != "success") {
+	                	alert(result.errorInfo);
+	                } else {
+		                window.location.reload();
+	                }
+	            }}); 
+    	})
+    	
+    	$('.apply-refund').click(function() {
+    		$('#refund-curr-tid').val($(this).attr("data-tid"));
+			$('#refund-curr-oid').val($(this).attr("data-oid"));
+    		$('#pop-up2').modal({
+                keyboard: false
+            })
+    	})
+    	
+    	$('#save2').click(function() {
+			  var tid = $('#refund-curr-tid').val();
+			  var oid = $('#refund-curr-oid').val();
+			  var refundReason = $('#refund-reason').val(); 
+	          $.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "tid=" + tid + "&oid=" + oid + "&refundReason=" + refundReason,
+	            url: "${rc.contextPath}/trade/apply_refund",//要访问的后台地址
 	            success: function(result){//msg为返回的数据，在这里做数据绑定
 	                if(result.errorInfo != "success") {
 	                	alert(result.errorInfo);

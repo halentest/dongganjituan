@@ -79,8 +79,8 @@
 		#{logistics_company}, #{invoice_no}, #{status}, now())
 	</insert>
 	
-	<select id="selectByTradeId" parameterType="Long" resultType="Long">
-		select tid from trade where tid=#{id}
+	<select id="selectByTradeId" parameterType="Long" resultType="MyTrade">
+		select * from trade where tid=#{id}
 	</select>
 	
 	<select id="countTrade" parameterType="java.util.Map" resultType="Long">

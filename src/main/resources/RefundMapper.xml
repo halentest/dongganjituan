@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.halen.data.mapper.MyRefundMapper">
+
+	<resultMap id="refundMap" type="MyRefund">
+		<id property="id" column="r_id"/>
+		<result property="tid" column="r_tid"/>
+		<result property="oid" column="r_oid"/>
+		<result property="refundReason" column="r_refund_reason"/>
+		<result property="comment1" column="r_comment1"/>
+		<result property="comment2" column="r_comment2"/>
+		<result property="comment3" column="r_comment3"/>
+		<result property="comment4" column="r_comment4"/>
+		<result property="picUrl" column="r_pic_url"/>
+		<result property="sellerNick" column="r_seller_nick"/>
+		<result property="status" column="r_status"/>
+		<result property="modified" column="r_modified"/>
+		<result property="created" column="r_created"/>
+		<association property="trade" javaType="MyTrade">
+			<id property="id" column="t_id"/>
+			<result property="tao_id" column="g_tao_id"/>
+			<result property="tid" column="t_tid"/>
+			<result property="name" column="t_name"/>
+			<result property="phone" column="t_phone"/>
+			<result property="mobile" column="t_mobile"/>
+			<result property="area_id" column="t_area_id"/>
+			<result property="state" column="t_state"/>
+			<result property="city" column="t_city"/>
+			<result property="district" column="t_district"/>
+			<result property="address" column="t_address"/>
+			<result property="postcode" column="t_postcode"/>
+			<result property="delivery" column="t_delivery"/>
+			<result property="delivery_money" column="t_delivery_money"/>
+			<result property="logistics_company" column="t_logistics_company"/>
+			<result property="template_id" column="t_template_id"/>
+			<result property="total_weight" column="t_total_weight"/>
+			<result property="goods_count" column="t_goods_count"/>
+			<result property="payment" column="t_payment"/>
+			<result property="distributor_id" column="t_distributor_id"/>
+			<result property="status" column="t_status"/>
+			<result property="my_status" column="t_my_status"/>
+			<result property="seller_memo" column="t_seller_memo"/>
+			<result property="buyer_message" column="t_buyer_message"/>
+			<result property="seller_nick" column="t_seller_nick"/>
+			<result property="come_from" column="t_come_from"/>
+			<result property="modified" column="t_modified"/>
+			<result property="created" column="t_created"/>
+		</association>
+		<association property="order" javaType="MyOrder" >
+	      	<id property="id" column="o_id"/>
+	      	<result property="tid" column="o_tid"/>
+	      	<result property="oid" column="o_oid"/>
+	      	<result property="goods_id" column="o_goods_id"/>
+	      	<result property="title" column="o_title"/>
+	      	<result property="pic_path" column="o_pic_path"/>
+	      	<result property="sku_id" column="o_sku_id"/>
+	      	<result property="quantity" column="o_quantity"/>
+	      	<result property="price" column="o_price"/>
+	      	<result property="discount" column="o_discount"/>
+	      	<result property="weight" column="o_weight"/>
+	      	<result property="payment" column="o_payment"/>
+	      	<result property="logistics_company" column="o_logistics_company"/>
+	      	<result property="invoice_no" column="o_invoice_no"/>
+	      	<result property="status" column="o_status"/>
+	      	<result property="modified" column="o_modified"/>
+	      	<result property="created" column="o_created"/>
+	      	<association property="sku" javaType="MySku">
+			    <id property="id" column="s_id"/>
+			    <result property="color" column="s_color"/>
+			    <result property="size" column="s_size"/>
+			</association>
+	    </association>
+	</resultMap>
+	
+	<insert id="insert" parameterType="MyRefund">
+		insert into refund values (
+			null, #{tid}, #{oid}, #{refundReason}, #{comment1}, #{comment2}, #{comment3}, #{comment4}, #{picUrl}, 
+			#{status}, #{sellerNick}, null, #{created})
+	</insert>
+	
+	<select id="countRefund" parameterType="java.util.Map" resultType="Long">
+		select count(*) from refund r
+   			<where>
+   				<if test="sellerNickList != null">
+   					r.seller_nick in (
+   					<foreach collection="sellerNickList" item="item" index="index"  
+			            separator=",">  
+			            #{item}
+			        </foreach>
+   					)
+   				</if>
+   				<if test="tid != null">
+   					and r.tid like CONCAT('%', #{tid}, '%')
+   				</if>
+   				<if test="statusList != null">
+   					and r.status in (
+   					<foreach collection="statusList" item="item" index="index"  
+			            separator=",">  
+			            #{item}
+			        </foreach>
+			        )
+   				</if>
+   			</where>
+	</select>
+	
+	<select id="selectRefundMap" parameterType="java.util.Map" resultMap="refundMap" >
+		select r.id as r_id, r.tid as r_tid, r.oid as r_oid, r.refund_reason as r_refund_reason, r.comment1 as r_comment1, r.comment2 as r_comment2,
+			   r.comment3 as r_comment3, r.comment4 as r_comment4, r.pic_url as r_pic_url, r.status as r_status, 
+			   r.seller_nick as r_seller_nick, r.modified as r_modified, r.created as r_created,
+			   t.id as t_id, t.tid as t_tid, t.name as t_name, t.phone as t_phone, t.mobile as t_mobile, t.area_id as t_area_id, t.state as t_state,
+		       t.city as t_city, t.district as t_district, t.address as t_address, t.postcode as t_postcode, t.delivery as t_delivery,
+			   t.delivery_money as t_delivery_money, t.delivery as o_logistics_company, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count, 
+			   t.payment as t_payment, t.distributor_id as t_distributor_id, t.status as t_status, t.my_status as t_my_status, t.seller_memo as t_seller_memo, 
+			   t.buyer_message as t_buyer_message, t.seller_nick as t_seller_nick, t.come_from as t_come_from, t.modified as t_modified, t.created as t_created,
+			   o.id as o_id, o.tid as o_tid, o.oid as o_oid, o.goods_id as o_goods_id, o.title as o_title, o.pic_path as o_pic_path, o.sku_id as o_sku_id, o.quantity as o_quantity, o.price as o_price, 
+			   o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.logistics_company as o_logistics_company,
+			   o.invoice_no as o_invoice_no, o.status as o_status, o.modified as o_modified, o.created as o_created,
+			   s.id as s_id, s.color as s_color, s.size as s_size
+			   from 
+			   <choose>
+			   		<when test="start != null and page_size != null">
+			   			(select * from refund 
+			   			<where>
+			   				<if test="sellerNickList != null">
+			   					refund.seller_nick in (
+			   					<foreach collection="sellerNickList" item="item" index="index"  
+						            separator=",">  
+						            #{item}
+						        </foreach>
+			   					)
+			   				</if>
+			   				<if test="tid != null">
+			   					and refund.tid like CONCAT('%', #{tid}, '%')
+			   				</if>
+			   				<if test="statusList != null">
+			   					and refund.status in (
+			   					<foreach collection="statusList" item="item" index="index"  
+						            separator=",">  
+						            #{item}
+						        </foreach>
+						        )
+			   				</if>
+			   			</where>
+			   			order by refund.created desc limit #{start}, #{page_size}) as r
+			   		</when>
+			   		<otherwise>
+			   			(select * from
+			   			refund
+			   			<if test="tid != null">
+				   			where refund.tid = #{tid}
+				   		</if>) as r
+			   		</otherwise>
+			   </choose>
+			   left join trade t on r.tid = t.tid
+			   left join order1 o on r.oid = o.oid 
+			   left join sku s on o.sku_id = s.id
+			   order by r.created desc
+	</select>
+	
+	<select id="selectOrderByOrderId" parameterType="Long" resultType="MyOrder">
+		select * from order1 where oid = #{oid}
+	</select>
+	
+	<update id="updateTradeMemo" parameterType="java.util.HashMap">
+		update trade set seller_memo=#{memo}, modified=#{modified} where tid=#{tradeId}
+	</update>
+	
+	<update id="updateTrade" parameterType="MyTrade">
+		update trade set name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
+			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money},
+			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, status=#{status}, my_status=#{my_status},
+			 seller_memo=#{seller_memo}, buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, come_from=#{come_from},
+			 modified=#{modified} where tid=#{tid}
+	</update>
+	
+	<update id="updateTradeStatus" parameterType="Map">
+		update trade set my_status=#{status} where tid=#{tid}
+	</update>
+	
+	<update id="updateOrder" parameterType="MyOrder">
+		update order1 set oid=#{oid}, tid=#{tid}, goods_id=#{goods_id}, sku_id=#{sku_id}, quantity=#{quantity}, 
+			price=#{price}, discount=#{discount}, weight=#{weight}, payment=#{payment}, logistics_company=#{logistics_company}, 
+			invoice_no=#{invoice_no}, status=#{status} where oid=#{oid}
+	</update>
+	
+	<update id="updateLogisticsAddress" parameterType="java.util.HashMap">
+		update trade set state=#{state}, city=#{city}, district=#{district}, address=#{address}, mobile=#{mobile}, phone=#{phone},
+			postcode=#{zip}, name=#{name}, modified=#{modified} where tid=#{tid}
+	</update>
+</mapper>
