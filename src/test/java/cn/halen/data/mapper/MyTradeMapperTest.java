@@ -29,7 +29,7 @@ public class MyTradeMapperTest {
 	@Test
 	public void test_listTrade() {
 		List<String> sellerNickList = Arrays.asList("志东张");
-		List<MyTrade> list = myTradeMapper.listTrade(sellerNickList, null, null, null, null);
+		List<MyTrade> list = myTradeMapper.listTrade(sellerNickList, null, null, null, null, null);
 		System.out.println(list.size());
 	}
 }

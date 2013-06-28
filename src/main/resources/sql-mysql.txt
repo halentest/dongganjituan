@@ -83,6 +83,7 @@ create table refund (
 	pic_url varchar(500),
 	status varchar(25),
 	seller_nick varchar(50),
+	name varchar(50),
 	modified timestamp,
 	created timestamp,
 	unique key(tid, oid)
@@ -194,7 +195,8 @@ create table shop (
 	last_refresh timestamp,
 	auto_sync tinyint,
 	type varchar(20),
-	distributor_id int
+	distributor_id int,
+	auto_sync_store tinyint
 );
 
 drop table if exists province;

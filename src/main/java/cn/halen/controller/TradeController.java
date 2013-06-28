@@ -47,23 +47,20 @@ public class TradeController {
 	//private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
 	
 	private static final List<MyStatus> SuperAdmin = Arrays.asList(MyStatus.New, MyStatus.Cancel, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
-			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
-			MyStatus.NoGoods);
+			MyStatus.WaitReceive, MyStatus.NoGoods);
 	private static final List<MyStatus> Admin = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
-			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
-			MyStatus.NoGoods);
+			MyStatus.WaitReceive, MyStatus.NoGoods);
 	private static final List<MyStatus> Distributor = Arrays.asList(MyStatus.New, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
-			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Cancel, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
-			MyStatus.NoGoods);
-	private static final List<MyStatus> WareHouse = Arrays.asList(MyStatus.WaitSend, MyStatus.Finding, MyStatus.Refunding, MyStatus.WaitReceive);
+			MyStatus.WaitReceive, MyStatus.Cancel, MyStatus.NoGoods);
+	private static final List<MyStatus> WareHouse = Arrays.asList(MyStatus.WaitSend, MyStatus.Finding, MyStatus.WaitReceive);
 	private static final List<MyStatus> DistributorManager = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
-			MyStatus.WaitReceive, MyStatus.Finished, MyStatus.Refunding, MyStatus.Refund, MyStatus.ApplyRefund,
-			MyStatus.NoGoods);
+			MyStatus.WaitReceive, MyStatus.NoGoods);
 	
 	@RequestMapping(value="trade/trade_list")
 	public String list(Model model, HttpServletResponse resp, @RequestParam(value="seller_nick", required=false) String sellerNick,
 			@RequestParam(value="dId", required=false) Integer dId,
 			@RequestParam(value="name", required=false) String name, 
+			@RequestParam(value="tid", required=false) String tid, 
 			@RequestParam(value="status", required=false) Integer status,
 			@RequestParam(value="page", required=false) Integer page) {
 		int intPage = 1;
@@ -140,16 +137,17 @@ public class TradeController {
 			model.addAttribute("statusList", WareHouse);
 		}
 		
-		long totalCount = tradeService.countTrade(sellerNickList, name, statusList, notstatusList);
+		long totalCount = tradeService.countTrade(sellerNickList, name, tid, statusList, notstatusList);
 		model.addAttribute("totalCount", totalCount);
 		Paging paging = new Paging(intPage, 10, totalCount);
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
-			list = tradeService.listTrade(sellerNickList, name, paging, statusList, notstatusList);
+			list = tradeService.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList);
 		}
 		model.addAttribute("trade_list", list);
 		model.addAttribute("paging", paging);
 		model.addAttribute("name", name);
+		model.addAttribute("tid", tid);
 		model.addAttribute("status", status);
 		model.addAttribute("seller_nick", sellerNick);
 		model.addAttribute("dId", dId);

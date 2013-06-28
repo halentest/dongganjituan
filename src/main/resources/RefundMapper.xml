@@ -15,6 +15,7 @@
 		<result property="comment4" column="r_comment4"/>
 		<result property="pic_url" column="r_pic_url"/>
 		<result property="seller_nick" column="r_seller_nick"/>
+		<result property="name" column="r_name"/>
 		<result property="status" column="r_status"/>
 		<result property="modified" column="r_modified"/>
 		<result property="created" column="r_created"/>
@@ -77,7 +78,7 @@
 	<insert id="insert" parameterType="MyRefund">
 		insert into refund values (
 			null, #{tid}, #{oid}, #{refund_reason}, #{comment1}, #{comment2}, #{comment3}, #{comment4}, #{pic_url}, 
-			#{status}, #{seller_nick}, null, #{created})
+			#{status}, #{seller_nick}, #{name}, null, #{created})
 	</insert>
 	
 	<select id="countRefund" parameterType="java.util.Map" resultType="Long">
@@ -94,6 +95,9 @@
    				<if test="tid != null">
    					and r.tid like CONCAT('%', #{tid}, '%')
    				</if>
+   				<if test="name != null">
+   					and r.name like CONCAT('%', #{name}, '%')
+   				</if>
    				<if test="statusList != null">
    					and r.status in (
    					<foreach collection="statusList" item="item" index="index"  
@@ -108,7 +112,7 @@
 	<select id="selectRefundMap" parameterType="java.util.Map" resultMap="refundMap" >
 		select r.id as r_id, r.tid as r_tid, r.oid as r_oid, r.refund_reason as r_refund_reason, r.comment1 as r_comment1, r.comment2 as r_comment2,
 			   r.comment3 as r_comment3, r.comment4 as r_comment4, r.pic_url as r_pic_url, r.status as r_status, 
-			   r.seller_nick as r_seller_nick, r.modified as r_modified, r.created as r_created,
+			   r.seller_nick as r_seller_nick, r.name as r_name, r.modified as r_modified, r.created as r_created,
 			   t.id as t_id, t.tid as t_tid, t.name as t_name, t.phone as t_phone, t.mobile as t_mobile, t.area_id as t_area_id, t.state as t_state,
 		       t.city as t_city, t.district as t_district, t.address as t_address, t.postcode as t_postcode, t.delivery as t_delivery,
 			   t.delivery_money as t_delivery_money, t.delivery as o_logistics_company, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count, 
@@ -133,6 +137,9 @@
 			   				</if>
 			   				<if test="tid != null">
 			   					and refund.tid like CONCAT('%', #{tid}, '%')
+			   				</if>
+			   				<if test="name != null">
+			   					and refund.name like CONCAT('%', #{name}, '%')
 			   				</if>
 			   				<if test="statusList != null">
 			   					and refund.status in (
@@ -170,7 +177,7 @@
 	<update id="updateRefund" parameterType="MyRefund">
 		update refund set tid=#{tid}, oid=#{oid}, refund_reason=#{refund_reason}, comment1=#{comment1}, comment2=#{comment2},
 			 comment3=#{comment3}, comment4=#{comment4}, pic_url=#{pic_url},
-			 status=#{status}, seller_nick=#{seller_nick} where tid=#{tid} and oid=#{oid}
+			 status=#{status}, seller_nick=#{seller_nick}, name=#{name} where tid=#{tid} and oid=#{oid}
 	</update>
 	
 </mapper>

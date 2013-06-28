@@ -27,15 +27,15 @@ public class GoodsServiceTest {
 	@Autowired
 	private TopConfig topConfig;
 	
-	@Test
-	public void test_updateSkuQuantity() throws ApiException, JSONException {
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(2L);
-		ids.add(3L);
-		ids.add(4L);
-		Map<Goods, String> failedGoodsMap = goodsService.updateSkuQuantity(ids, topConfig.getMainToken());
-		for(Entry<Goods, String> entry : failedGoodsMap.entrySet()) {
-			System.out.println("Goods " + entry.getKey().getHid() + " update sku failed for " + entry.getValue());
-		}
-	}
+//	@Test
+//	public void test_updateSkuQuantity() throws ApiException, JSONException {
+//		List<Long> ids = new ArrayList<Long>();
+//		ids.add(2L);
+//		ids.add(3L);
+//		ids.add(4L);
+//		Map<Goods, String> failedGoodsMap = goodsService.updateSkuQuantity(ids, topConfig.getMainToken());
+//		for(Entry<Goods, String> entry : failedGoodsMap.entrySet()) {
+//			System.out.println("Goods " + entry.getKey().getHid() + " update sku failed for " + entry.getValue());
+//		}
+//	}
 }

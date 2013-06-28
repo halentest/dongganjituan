@@ -38,7 +38,10 @@
 			</#list>
 		</select>
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<strong>收货人姓名</strong>
+		<strong>订单号</strong>
+		<input id="tid" type="input" value="" style="width: 10%; height: 20px;"/>
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		<strong>收货人</strong>
 		<input id="name" type="input" value="" style="width: 6%; height: 20px;"/>
 		<!-- &nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>开始时间</strong>
@@ -449,6 +452,7 @@
 	
 	function initpage() {
 	      $('#name').val('${name!""}');
+	      $('#tid').val('${tid!""}');
 	      $('#distributor').val('${dId!-1}');
 	      $('#seller_nick').val('${seller_nick!""}');
 	      $('#status').val('${status!""}');

@@ -20,6 +20,16 @@ public class Shop {
 	
 	private int autoSync;
 	
+	private int autoSyncStore;
+	
+	public int getAutoSyncStore() {
+		return autoSyncStore;
+	}
+
+	public void setAutoSyncStore(int autoSyncStore) {
+		this.autoSyncStore = autoSyncStore;
+	}
+
 	private String type;
 	
 	private int dId;

@@ -34,7 +34,10 @@
 		</select>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>订单号</strong>
-		<input id="tid" type="input" value="" style="width: 16%; height: 20px;"/>
+		<input id="tid" type="input" value="" style="width: 10%; height: 15px;"/>
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		<strong>收货人</strong>
+		<input id="name" type="input" value="" style="width: 6%; height: 15px;"/>
 		<!-- &nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>开始时间</strong>
 		<input id="name" type="input" value="" style="width: 8%; height: 20px;"/>
@@ -213,6 +216,7 @@ $(document).ready(function(){
 	  $('#tid').val('${tid!""}');
       $('#distributor').val('${dId!-1}');
       $('#seller_nick').val('${seller_nick!""}');
+      $('#name').val('${name!""}');
       $('#status').val('${status!""}');
       
       $('.pagination').jqPagination({
@@ -224,8 +228,9 @@ $(document).ready(function(){
 		    	}
 		    	var seller_nick = $('#seller_nick').val();
 		    	var tid = $('#tid').val();
+		    	var name = $('#name').val();
 		        window.location.href="/trade/refund_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
-		        	+ "&tid=" + tid + "&dId=" + distributor;
+		        	+ "&tid=" + tid + "&dId=" + distributor + "&name=" + name;
 		    }
 	   });
 	   
@@ -238,11 +243,12 @@ $(document).ready(function(){
 	    	var seller_nick = $('#seller_nick').val();
 	    	var tid = $('#tid').val();
 	    	var page = $('#page').attr('data-current-page');
+	    	var name = $('#name').val();
 	   		window.location.href="/trade/refund_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
-		        	+ "&tid=" + tid + "&dId=" + distributor;
+		        	+ "&tid=" + tid + "&dId=" + distributor + "&name=" + name;
 	   });
 	   
-	   $('.cancel-refund, .approve-refund, refund-money').click(function() {
+	   $('.cancel-refund, .approve-refund, .refund-money').click(function() {
 			var action = $(this).attr("class");
 			$.ajax({
 	            type: "post",//使用get方法访问后台

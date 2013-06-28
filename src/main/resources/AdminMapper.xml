@@ -10,7 +10,7 @@
 			ua.created as ua_created,
 			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id, 
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store,
 			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created</sql>
 			
@@ -19,14 +19,14 @@
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created,
 			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id, 
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store,
 			u.id as u_id, u.username as u_username, u.password as u_password, u.enabled as u_enabled,
 			u.type as u_type, u.modified as u_modified, u.created as u_created, u.shop_id as u_shop_id</sql>
 			
 	<sql id="shopColumns">
 			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id,
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store,
 			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created</sql>
 	
@@ -47,6 +47,7 @@
 		    <result property="created" column="s_created"/>
 		    <result property="lastRefresh" column="s_last_refresh"/>
 		    <result property="autoSync" column="s_auto_sync"/>
+		    <result property="autoSyncStore" column="s_auto_sync_store"/>
 		    <result property="type" column="s_type"/>
 		    <association property="d" javaType="Distributor">
 			    <id property="id" column="d_id"/>
@@ -88,6 +89,7 @@
 		    <result property="created" column="s_created"/>
 		    <result property="lastRefresh" column="s_last_refresh"/>
 		    <result property="autoSync" column="s_auto_sync"/>
+		     <result property="autoSyncStore" column="s_auto_sync_store"/>
 		    <result property="type" column="s_type"/>
 		    <collection property="userList" ofType="User" >
 		      	<id property="id" column="u_id"/>
@@ -110,6 +112,7 @@
 	    <result property="created" column="s_created"/>
 	    <result property="lastRefresh" column="s_last_refresh"/>
 	    <result property="autoSync" column="s_auto_sync"/>
+	    <result property="autoSyncStore" column="s_auto_sync_store"/>
 	    <result property="type" column="s_type"/>
 	    <association property="d" javaType="Distributor">
 		    <id property="id" column="d_id"/>
@@ -187,6 +190,10 @@
 		update distributor set nocheck=#{v} where id=#{id}
 	</update>
 	
+	<update id="updateShopSyncStore" parameterType="Map">
+		update shop set auto_sync_store=#{v} where id=#{id}
+	</update>
+	
 	<update id="updateDistributorDiscount" parameterType="Map">
 		update distributor set discount=#{v} where id=#{id}
 	</update>
@@ -227,6 +234,9 @@
 			<if test="autoSync != null">
 				auto_sync = #{autoSync}
 			</if>
+			<if test="autoSyncStore != null">
+				and auto_sync_store = #{autoSyncStore}
+			</if>
 			<if test="type != null">
 				and type=#{type}
 			</if>
@@ -238,7 +248,7 @@
 	
 	<insert id="insertShop" parameterType="Shop">
 		insert into shop values(null, #{sellerNick}, #{token}, #{refreshToken}, null, now(), now(), #{autoSync},
-		#{type}, #{dId})
+		#{type}, #{dId}, #{autoSyncStore})
 	</insert>
 	
 	<select id="selectShopMap" parameterType="String" resultMap="shopMap">

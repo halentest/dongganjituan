@@ -429,11 +429,11 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public long countTrade(List<String> sellerNickList, String name, List<Integer> statusList, List<Integer> notstatusList) {
-		return myTradeMapper.countTrade(sellerNickList, name, statusList, notstatusList);
+	public long countTrade(List<String> sellerNickList, String name, String tid, List<Integer> statusList, List<Integer> notstatusList) {
+		return myTradeMapper.countTrade(sellerNickList, name, tid, statusList, notstatusList);
 	}
 	
-	public List<MyTrade> listTrade(List<String> sellerNickList, String name, Paging paging, List<Integer> statusList, List<Integer> notstatusList) {
-		return myTradeMapper.listTrade(sellerNickList, name, paging, statusList, notstatusList);
+	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<Integer> statusList, List<Integer> notstatusList) {
+		return myTradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList);
 	}
 }

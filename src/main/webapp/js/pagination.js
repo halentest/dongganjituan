@@ -10,8 +10,9 @@ $(document).ready(function(){
 		    	}
 		    	var seller_nick = $('#seller_nick').val();
 		    	var name = $('#name').val();
+		    	var tid = $('#tid').val();
 		        window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
-		        	+ "&name=" + name + "&dId=" + distributor;
+		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor;
 		    }
 	   });
 	   
@@ -23,9 +24,10 @@ $(document).ready(function(){
 	    	}
 	    	var seller_nick = $('#seller_nick').val();
 	    	var name = $('#name').val();
+	    	var tid = $('#tid').val();
 	    	var page = $('#page').attr('data-current-page');
 	   		window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
-		        	+ "&name=" + name + "&dId=" + distributor;
+		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor;
 	   });
 });
 

@@ -89,6 +89,16 @@ public class AdminController {
 		}
 	}
 	
+	@RequestMapping(value="admin/change_sync_store")
+	public void changeSyncStore(Model model,  HttpServletResponse resp, @RequestParam("v") int v, @RequestParam("sId") int sId) {
+		
+		adminMapper.updateShopSyncStore(v, sId);
+		try {
+			resp.sendRedirect("/admin/account_list");
+		} catch (IOException e) {
+		}
+	}
+	
 	@RequestMapping(value="admin/add_user_form")
 	public String addAccountForm(Model model, @RequestParam("type") String type,
 			@RequestParam(value="shopId", required=false) Integer shopId) {

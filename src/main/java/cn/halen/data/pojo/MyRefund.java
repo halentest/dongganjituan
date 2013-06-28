@@ -37,6 +37,16 @@ public class MyRefund {
 	
 	private String seller_nick;
 	
+	private String name;
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	private String status;
 	
 	private Status oStatus;

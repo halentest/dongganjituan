@@ -53,6 +53,7 @@ public class RefundService {
 		refund.setOid(oid);
 		refund.setRefund_reason(refundReason);
 		refund.setSeller_nick(myTrade.getSeller_nick());
+		refund.setName(myTrade.getName());
 		refund.setStatus(Status.ApplyRefund.getValue());
 		if(null == dbMyRefund) {
 			refundMapper.insert(refund);

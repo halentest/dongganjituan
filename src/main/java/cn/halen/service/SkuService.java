@@ -30,8 +30,9 @@ public class SkuService {
 		mySku.setQuantity(mySku.getQuantity() + quantity);//
 		skuMapper.update(mySku);
 		
+		String key = goodsId + ";;;" + mySku.getColor() + ";;;" + mySku.getSize(); 
 		//add this to redis
-		redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, goodsId);
+		redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, key);
 		//notify listener to handler
 		redisTemplate.convertAndSend(Constants.REDIS_SKU_GOODS_CHANNEL, "1");
 		return mySku.getId();

@@ -40,34 +40,38 @@ public class ItemClient {
 	@Autowired
 	private MySkuMapper skuMapper;
 	
-	public Item getItem(Goods goods) throws ApiException {
-		List<Goods> goodsList = new ArrayList<Goods>();
-		goodsList.add(goods);
-		List<Item> itemList = getItemList(goodsList);
+	public Item getItem(String hid, String token) throws ApiException {
+		List<String> hidList = new ArrayList<String>();
+		hidList.add(hid);
+		List<Item> itemList = getItemList(hidList, token);
 		if(itemList!=null && itemList.size()==1) {
 			return itemList.get(0);
 		}
 		return null;
 	}
 	
-	public List<Item> getItemList(List<Goods> goodsList) throws ApiException {
+	public List<Item> getItemList(List<String> hidList, String token) throws ApiException {
 		List<Item> result = new ArrayList<Item>();
 		TaobaoClient client = topConfig.getRetryClient();
 		ItemsCustomGetRequest req = new ItemsCustomGetRequest();
 		for(int loop=0,count=0;;loop++) {
 			StringBuilder builder = new StringBuilder();
-			for(count=NUMBER_OF_PARAM*loop; count<goodsList.size() && count<(loop+1)*NUMBER_OF_PARAM; count++) {
-				builder.append(goodsList.get(count).getHid());
-				if(count != (loop+1)*NUMBER_OF_PARAM-1 && count != goodsList.size()-1) {
+			for(count=NUMBER_OF_PARAM*loop; count<hidList.size() && count<(loop+1)*NUMBER_OF_PARAM; count++) {
+				builder.append(hidList.get(count));
+				if(count != (loop+1)*NUMBER_OF_PARAM-1 && count != hidList.size()-1) {
 					builder.append(",");
 				}
 			}
 			req.setOuterId(builder.toString());
 			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props");
-			ItemsCustomGetResponse response = client.execute(req , topConfig.getMainToken());
-			List<Item> itemList = response.getItems();
-			result.addAll(itemList);
-			if(count==goodsList.size()) {
+			ItemsCustomGetResponse response = client.execute(req , token);
+			if(response.isSuccess()) {
+				List<Item> itemList = response.getItems();
+				if(itemList != null && itemList.size()>0) {
+					result.addAll(itemList);
+				}
+			}
+			if(count==hidList.size()) {
 				break;
 			}
 		}

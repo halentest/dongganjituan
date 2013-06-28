@@ -51,7 +51,7 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public List<Goods> selectById(List<Long> list) {
+	public List<Goods> selectById(List<String> list) {
 		List<Goods> goodsList = getSqlSession().selectList("cn.halen.data.mapper.GoodsMapper.selectById", list);
 		return goodsList;
 	}

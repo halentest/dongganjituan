@@ -97,6 +97,9 @@
    				<if test="name != null">
    					and t.name like CONCAT('%', #{name}, '%')
    				</if>
+   				<if test="tid != null">
+   					and t.tid like CONCAT('%', #{tid}, '%')
+   				</if>
    				<if test="notstatusList != null">
    					and t.my_status not in (
    					<foreach collection="notstatusList" item="item" index="index"  
@@ -141,6 +144,9 @@
 			   				</if>
 			   				<if test="name != null">
 			   					and trade.name like CONCAT('%', #{name}, '%')
+			   				</if>
+			   				<if test="tid != null">
+			   					and trade.tid like CONCAT('%', #{tid}, '%')
 			   				</if>
 			   				<if test="notstatusList != null">
 			   					and trade.my_status not in (

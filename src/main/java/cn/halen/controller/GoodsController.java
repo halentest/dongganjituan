@@ -114,35 +114,34 @@ public class GoodsController {
 		return "goods/goods_list";
 	}
 	
-	@RequestMapping(value="goods/action/sync_store")
-	public @ResponseBody ResultInfo syncStore(Model model, @RequestParam("ids") String ids) {
-		ResultInfo result = new ResultInfo();
-		if(null == ids || StringUtils.isEmpty(ids.trim())) {
-			result.setSuccess(false);
-			result.setErrorInfo("请至少选择一个商品!");
-			return result;
-		}
-		String[] idArr = ids.split(",");
-		List<Long> idList = new ArrayList<Long>();
-		for(String id : idArr) {
-			long lId = Long.parseLong(id);
-			idList.add(lId);
-		}
-		try {
-			Map<Goods, String> map = goodsService.updateSkuQuantity(idList, topConfig.getMainToken());
-			if(map.size() > 0) {
-				result.setSuccess(false);
-				StringBuilder builder = new StringBuilder();
-				for(Entry<Goods, String> entry : map.entrySet()) {
-					builder.append(entry.getKey().getHid()).append(" : ").append(entry.getValue()).append("\r\n");
-				}
-				result.setErrorInfo(builder.toString());
-			}
-		} catch(Exception e) {
-			log.error("", e);
-			result.setSuccess(false);
-			result.setErrorInfo("系统异常，请重试!");
-		}
-		return result;
-	}
+//	@RequestMapping(value="goods/action/sync_store")
+//	public @ResponseBody ResultInfo syncStore(Model model, @RequestParam("ids") String ids) {
+//		ResultInfo result = new ResultInfo();
+//		if(null == ids || StringUtils.isEmpty(ids.trim())) {
+//			result.setSuccess(false);
+//			result.setErrorInfo("请至少选择一个商品!");
+//			return result;
+//		}
+//		String[] idArr = ids.split(",");
+//		List<String> idList = new ArrayList<String>();
+//		for(String id : idArr) {
+//			idList.add(id);
+//		}
+//		try {
+//			Map<Goods, String> map = goodsService.updateSkuQuantity(idList, topConfig.getMainToken());
+//			if(map.size() > 0) {
+//				result.setSuccess(false);
+//				StringBuilder builder = new StringBuilder();
+//				for(Entry<Goods, String> entry : map.entrySet()) {
+//					builder.append(entry.getKey().getHid()).append(" : ").append(entry.getValue()).append("\r\n");
+//				}
+//				result.setErrorInfo(builder.toString());
+//			}
+//		} catch(Exception e) {
+//			log.error("", e);
+//			result.setSuccess(false);
+//			result.setErrorInfo("系统异常，请重试!");
+//		}
+//		return result;
+//	}
 }

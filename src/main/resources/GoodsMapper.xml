@@ -89,7 +89,7 @@
 	</select>
 	
 	<select id="selectById" parameterType="java.util.List" resultMap="goodsMap" >
-		select <include refid="selectColumns"/>, <include refid="selectColumnsSku"/> from goods g left join sku s on g.hid = s.goods_id where g.id 
+		select <include refid="selectColumns"/>, <include refid="selectColumnsSku"/> from goods g left join sku s on g.hid = s.goods_id where g.hid 
 		<if test="list.size()==1">
 			= #{list[0]}
 		</if>
@@ -104,4 +104,6 @@
 	<select id="getByHid" parameterType="String" resultType="Goods" >
 		select * from goods where hid = #{hid}
 	</select>
+	
+	
 </mapper>

@@ -43,16 +43,16 @@ public class GoodsMapperTest {
 	
 	@Test
 	public void test_getById() {
-		List<Long> goodsIdList = new ArrayList<Long>();
-		goodsIdList.add(2L);
-		goodsIdList.add(3L);
-		List<Goods> goodsList = goodsMapper.selectById(goodsIdList);
-//		System.out.println(goods);
-//		goods.setTao_id(1111111);
-//		goodsMapper.update(goods); //update goods
-//		goods = goodsMapper.getById(1);
-		for(Goods goods : goodsList) {
-			System.out.println(goods);
-		}
+//		List<Long> goodsIdList = new ArrayList<Long>();
+//		goodsIdList.add(2L);
+//		goodsIdList.add(3L);
+//		List<Goods> goodsList = goodsMapper.selectById(goodsIdList);
+////		System.out.println(goods);
+////		goods.setTao_id(1111111);
+////		goodsMapper.update(goods); //update goods
+////		goods = goodsMapper.getById(1);
+//		for(Goods goods : goodsList) {
+//			System.out.println(goods);
+//		}
 	}
 }

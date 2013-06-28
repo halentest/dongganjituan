@@ -93,6 +93,7 @@ public class RefundController {
 	public String list(Model model, HttpServletResponse resp, @RequestParam(value="seller_nick", required=false) String sellerNick,
 			@RequestParam(value="dId", required=false) Integer dId,
 			@RequestParam(value="tid", required=false) String tid, 
+			@RequestParam(value="name", required=false) String name, 
 			@RequestParam(value="status", required=false) String status,
 			@RequestParam(value="page", required=false) Integer page) {
 		int intPage = 1;
@@ -146,25 +147,34 @@ public class RefundController {
 
 		if(StringUtils.isNotEmpty(status)) {
 			statusList = Arrays.asList(status);
+		} else if(currType.equals(UserType.WareHouse.getValue())) {
+			statusList = Arrays.asList(Status.ReceiveRefund.getValue(), Status.Refund.getValue(),
+					Status.Refunding.getValue(), Status.RefundSuccess.getValue());
 		}
 		
-		long totalCount = refundMapper.countRefund(sellerNickList, tid, statusList);
+		long totalCount = refundMapper.countRefund(sellerNickList, tid, name, statusList);
 		model.addAttribute("totalCount", totalCount);
 		Paging paging = new Paging(intPage, 10, totalCount);
 		List<MyRefund> list = Collections.emptyList();
 		if(totalCount > 0) {
-			list = refundMapper.listRefund(sellerNickList, tid, paging, statusList);
+			list = refundMapper.listRefund(sellerNickList, tid, name, paging, statusList);
 		}
 		model.addAttribute("refund_list", list);
 		model.addAttribute("paging", paging);
 		model.addAttribute("tid", tid);
 		model.addAttribute("status", status);
 		model.addAttribute("seller_nick", sellerNick);
+		model.addAttribute("name", name);
 		model.addAttribute("dId", dId);
 		model.addAttribute("dList", adminMapper.listDistributor());
 		
-		model.addAttribute("statusList", Arrays.asList(Status.ApplyRefund, Status.ReceiveRefund, Status.Refund,
-				Status.Refunding, Status.RefundSuccess));
+		if(currType.equals(UserType.WareHouse.getValue())) {
+			model.addAttribute("statusList", Arrays.asList(Status.ReceiveRefund, Status.Refund,
+					Status.Refunding, Status.RefundSuccess));
+		} else {
+			model.addAttribute("statusList", Arrays.asList(Status.ApplyRefund, Status.ReceiveRefund, Status.Refund,
+					Status.Refunding, Status.RefundSuccess, Status.RejectRefund, Status.CancelRefund));
+		}
 		
 		if(null != dId && -1 != dId) {
 			model.addAttribute("shopList", adminMapper.selectDistributorMapById(dId).getShopList());

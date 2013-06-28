@@ -79,6 +79,13 @@ public class AdminMapper extends SqlSessionDaoSupport {
 		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateDistributorCheck", param);
 	}
 	
+	public int updateShopSyncStore(int v, int id) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("v", v);
+		param.put("id", id);
+		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateShopSyncStore", param);
+	}
+	
 	public int updateDistributorDiscount(float v, int id) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("v", v);
@@ -152,10 +159,11 @@ public class AdminMapper extends SqlSessionDaoSupport {
 		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.listDistributorByType", type);
 	}
 	
-	public List<Shop> selectShop(Integer autoSync, String type) {
+	public List<Shop> selectShop(Integer autoSync, String type, Integer autoSyncStore) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("autoSync", autoSync);
 		param.put("type", type);
+		param.put("autoSyncStore", autoSyncStore);
 		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.selectShop", param);
 	}
 	

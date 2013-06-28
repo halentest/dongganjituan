@@ -28,13 +28,16 @@ public class RefundMapper extends SqlSessionDaoSupport {
 		return getSqlSession().update("cn.halen.data.mapper.MyRefundMapper.updateRefund", refund);
 	}
  	
-	public long countRefund(List<String> sellerNickList, String tid, List<String> statusList) {
+	public long countRefund(List<String> sellerNickList, String tid, String name, List<String> statusList) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
 		}
 		if(StringUtils.isNotBlank(tid)) {
 			param.put("tid", tid.trim());
+		}
+		if(StringUtils.isNotBlank(name)) {
+			param.put("name", name.trim());
 		}
 		if(null != statusList) {
 			param.put("statusList", statusList);
@@ -43,13 +46,16 @@ public class RefundMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public List<MyRefund> listRefund(List<String> sellerNickList, String tid, Paging paging, List<String> statusList) {
+	public List<MyRefund> listRefund(List<String> sellerNickList, String tid, String name, Paging paging, List<String> statusList) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
 		}
 		if(StringUtils.isNotBlank(tid)) {
 			param.put("tid", tid.trim());
+		}
+		if(StringUtils.isNotBlank(name)) {
+			param.put("name", name.trim());
 		}
 		if(null != paging) {
 			param.put("start", paging.getStart());

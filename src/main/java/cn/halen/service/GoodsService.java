@@ -1,5 +1,6 @@
 package cn.halen.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cn.halen.data.mapper.GoodsMapper;
+import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.pojo.Goods;
+import cn.halen.data.pojo.MySku;
 import cn.halen.service.top.ItemClient;
 
 import com.taobao.api.ApiException;
@@ -21,8 +24,13 @@ import com.taobao.api.domain.Item;
 @Service
 public class GoodsService {
 	private static final Logger logger = LoggerFactory.getLogger(GoodsService.class);
+	
+	@Autowired
+	private MySkuMapper skuMapper;
+	
 	@Autowired
 	private GoodsMapper goodsMapper;
+	
 	@Autowired
 	private ItemClient itemClient;
 	
@@ -30,38 +38,36 @@ public class GoodsService {
 	 * @param idList
 	 * @throws ApiException
 	 */
-	public Map<Goods, String> updateSkuQuantity(List<Long> idList, String token) throws ApiException {
-		Map<Goods, String> result = new HashMap<Goods, String>();
-		List<Goods> goodsList = goodsMapper.selectById(idList);
-		Map<String, Goods> goodsMap = new HashMap<String, Goods>(); //<hid -> Goods>
-		for(Goods goods : goodsList) {
-			goodsMap.put(goods.getHid(), goods);
+	public void updateSkuQuantity(List<String> keyList, String token) throws ApiException {
+		List<String> hidList = new ArrayList<String>();
+		Map<String, String> map = new HashMap<String, String>();
+		for(String key : keyList) {
+			String[] items = key.split(";;;");
+			if(items.length == 3) {
+				String hid = items[0];
+				String color = items[1];
+				String size = items[2];
+				hidList.add(hid);
+				map.put(hid, color + ";;;" +size);
+			}
 		}
-		List<Item> itemList = itemClient.getItemList(goodsList);
+		List<Item> itemList = itemClient.getItemList(hidList, token);
+		
 		for(Item item : itemList) {
 			Map<String, Long> taoSkuMap = getTaoSku(item); //color+size -> sku_id
-			List<cn.halen.data.pojo.MySku> mySkuList = goodsMap.get(item.getOuterId()).getSkuList();
-			Map<String, Long> mySkuMap = new HashMap<String, Long>(); //color+size -> sku_id
-			for(cn.halen.data.pojo.MySku sku : mySkuList) {
-				mySkuMap.put(sku.getColor()+sku.getSize(), sku.getQuantity());
-			}
-			for(Entry<String, Long> entry : taoSkuMap.entrySet()) {
-				Long quantity = mySkuMap.get(entry.getKey());
-				if(null!=quantity) {
-					boolean b = itemClient.updateSkuQuantity(item.getNumIid(), entry.getValue(), quantity, token);
-					if(!b) {
-						logger.info("Sku {} for item {} update failed", entry.getKey(), item.getNumIid() + "-" + item.getOuterId());
-						result.put(goodsMap.get(item.getOuterId()), "更新失败，淘宝系统异常，请重试");
-					}
+			String colorsize = map.get(item.getOuterId());
+			String[] colorsizeArray = colorsize.split(";;;");
+			String color = colorsizeArray[0];
+			String size = colorsizeArray[1];
+			Long skuId = taoSkuMap.get(color + size);
+			if(null != skuId) {
+				MySku mySku = skuMapper.select(item.getOuterId(), color, size);
+				boolean b = itemClient.updateSkuQuantity(item.getNumIid(), skuId, mySku.getQuantity(), token);
+				if(!b) {
+					logger.info("Sku {} for item {} update failed", skuId, item.getNumIid() + "-" + item.getOuterId());
 				}
 			}
-			goodsMap.remove(item.getOuterId());
 		}
-		//剩下的是没有找到对应商品的goods，也要加入到result中去
-		for(Goods goods : goodsMap.values()) {
-			result.put(goods, "更新失败，因为在店铺内没有找到对应的商品");
-		}
-		return result;
 	}
 	
 	/**

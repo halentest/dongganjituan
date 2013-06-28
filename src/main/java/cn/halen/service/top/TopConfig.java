@@ -37,7 +37,7 @@ public class TopConfig {
 	
 	public List<String> listToken() {
 		List<String> result = new ArrayList<String>();
-		List<Shop> list = adminMapper.selectShop(Constants.SHOP_SYNC_YES, null);
+		List<Shop> list = adminMapper.selectShop(Constants.SHOP_SYNC_YES, null, null);
 		for(Shop s : list) {
 			String token = s.getToken();
 			if(StringUtils.isNotEmpty(token)) {
