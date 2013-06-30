@@ -1,18 +1,20 @@
 <#import "/templates/root.ftl" as root >
-<style>
-	td.can-click {
-		cursor: pointer;
-	}
-</style>
 
-<@root.html active=2 css=["jdpicker.css", "trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js", "highcharts.js", "exporting.js"]>
+<@root.html active=2 css=["trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js"]>
+	<style>
+		td.can-click {
+			cursor: pointer;
+		}
+	</style>
 	<i class="icon-list-alt"></i>商品列表
 	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
 		<strong>商品编号</strong>
 		<input id="goods-id" type="input" value="" style="width: 6%; height: 20px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品
+		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
+		</#if>
 	</div>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
@@ -21,16 +23,31 @@
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	</div>
-	
+	<#if CURRENT_USER.type=="GoodsManager">
+	<br><br>
+	<div>
+		<a id="check-all" style="cursor: pointer;">全选</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		<a id="not-check-all" style="cursor: pointer;">全不选</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		<a class="btn btn-primary" id="sync-store">同步库存</a>
+		<a class="btn btn-primary" id="change-template">修改运费模板</a>
+		<a class="btn btn-primary" id="sync-pic">同步商品图片</a>
+	</div>
+	</#if>
 	<#if list??>
 	<#list list as goods>
 	<#assign map2 = map[goods.hid]>
 	<table>
         <tbody>
         	  <tr>
-        	  		<th rowspan="${map2?size+1}" style="width: 12%;"><img style="width: 80px; height: 80px" src="${goods.url}_80x80.jpg" /></th>
+        	  		<#if CURRENT_USER.type=="GoodsManager">
+        	  		<th rowspan="${map2?size+1}" style="width: 2%;"><input class="wait-check" data-hid=${goods.hid} type="checkbox"/></th>
+        	  		</#if>
+        	  		<th rowspan="${map2?size+1}" style="width: 12%;">
+        	  		<img style="width: 80px; height: 80px" src="<#if goods.url??>${goods.url}_80x80.jpg</#if>" />
+        	  		</th>
         	  		<th rowspan="${map2?size+1}" style="width: 9%;">${goods.hid}</th>
-        	  		<th rowspan="${map2?size+1}" style="width: 15%;">${goods.title}</th>
+        	  		<th rowspan="${map2?size+1}" style="width: 15%;">${goods.title!''}</th>
+        	  		<th rowspan="${map2?size+1}" style="width: 7%;">${goods.template!''}</th>
         	  		<th rowspan="${map2?size+1}" style="width: 5%;">${goods.price/100}元</th>
         	  		<th style="padding: 2px;">颜色</th>
         	  		<#list map2?keys as key2>
@@ -40,30 +57,29 @@
         	  				</#list>
         	  			</#if>
         	  		</#list>
-        	  		<td rowspan="${map2?size+1}" style="width: 12%;">
         	  		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
+        	  		<td rowspan="${map2?size+1}" style="width: 12%;">
         	  			<p><a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">点击购买</a></p>
         	  			<p><a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a></p>
         	  			<p><a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a></p>
-        	  		</#if>
-        	  		<#if CURRENT_USER.type=="GoodsManager">
-        	  			<p><a class="sync-store" data-goods="${goods.id}" style="cursor: pointer;">同步库存</a></p>
-        	  		</#if>
         	  		</td>
+        	  		</#if>
         	  </tr>
         	  <#list map2?keys as key2>
         	  <tr>
         	  		<td>${key2}</td>
         	  		<#list map2[key2]?keys as key3>
-        	  		<td data-goods="${goods.hid}" data-url="${goods.url}" data-title="${goods.title}" data-color="${key2}" data-size="${key3}" 
-        	  			is-selected="false" class="can-click" style="padding: 2px;">${map2[key2][key3]}</td>
+        	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2}" data-size="${key3}" 
+        	  			is-selected="false" style="padding: 2px;"
+        	  			<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">class="can-click"</#if>>
+        	  			${map2[key2][key3]}
+        	  		</td>
         	  		</#list>
         	  </tr>
         	  </#list>
-	          
-	        </#list>
         </tbody>
       </table>
+      </#list>
       </#if>
       <div class="pagination" style="float: right;">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
@@ -74,6 +90,30 @@
 	 </div>
         
 </@root.html>
+
+<!-- start 提示框 -->
+  <div class="modal hide" id="pop-up">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h4 id="title"></h4>
+      </div>
+      <div class="modal-body">
+	    <p>
+	    	请选择模板 
+	    	<select id="template">
+	    		<#list templateList as template>
+	    		<option value=${template}>${template}</option>
+	    		</#list>
+	    	</select>
+	    	<input type="hidden" id="hids"/>
+	    </p>
+	  </div>
+      <div class="modal-footer">
+         <a href="#" class="btn" data-dismiss="modal">取消</a>
+    	 <a href="#" class="btn btn-primary" id="save">确定</a>
+      </div>
+  </div>
+  <!-- end 提示框 -->
 
 <script>
 	function initpage() {
@@ -101,7 +141,7 @@
 		   		var isSelected = $(this).attr("is-selected");
 		   		if(isSelected=="false") {
 		   			$(this).attr("is-selected", "true");
-		   			$(this).css("background-color", "red");
+		   			$(this).css("background-color", "#99CCCC");
 		   		} else {
 		   			$(this).attr("is-selected", "false");
 		   			$(this).css("background-color", "white");
@@ -151,20 +191,101 @@
 		   		window.location.href = "${rc.contextPath}/trade/action/shopcart";
 		   })
 		   
-		   $('.sync-store').click(function() {
-		   		$.ajax({
+		   $('#check-all').click(function() {
+	    		$('.wait-check').attr("checked", true);
+	    	})
+	    	
+	    	$('#not-check-all').click(function() {
+	    		$('.wait-check').attr("checked", false);
+	    	})
+	    	
+	    	$('#sync-store').click(function() {
+	    		var checked = $('.wait-check:checked');
+	    		if(checked.length==0) {
+	    			alert('至少选中一个商品!');
+	    			return false;
+	    		}
+	    		var hids = "";
+	    		$(checked).each(function(index, item) {
+	    			var hid = $(item).attr("data-hid");
+	    			hids += hid;
+	    			hids += ";";
+	    		})
+    			$.ajax({
 	            type: "post",//使用get方法访问后台
 	            dataType: "json",//返回json格式的数据
-	            data: "ids=" + $(this).attr("data-goods"),
-	            url: "${rc.contextPath}/goods/action/sync_store",//要访问的后台地址
+	            data: "hids=" + hids + "&action=sync-store",
+	            url: "${rc.contextPath}/goods/action/batch_change",//要访问的后台地址
 	            success: function(result){//msg为返回的数据，在这里做数据绑定
-	                if(result.success == false) {
+		                if(result.errorInfo != "success") {
+		                	alert(result.errorInfo);
+		                }  else {
+		                	alert("同步库存成功!");
+		                }
+	            }}); 
+	    	})
+	    	
+	    	$('#sync-pic').click(function() {
+	    		var checked = $('.wait-check:checked');
+	    		if(checked.length==0) {
+	    			alert('至少选中一个商品!');
+	    			return false;
+	    		}
+	    		var hids = "";
+	    		$(checked).each(function(index, item) {
+	    			var hid = $(item).attr("data-hid");
+	    			hids += hid;
+	    			hids += ";";
+	    		})
+    			$.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "hids=" + hids + "&action=sync-pic",
+	            url: "${rc.contextPath}/goods/action/batch_change",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+		                if(result.errorInfo != "success") {
+		                	alert(result.errorInfo);
+		                }  else {
+		                	alert("同步图片成功!");
+		                	window.location.reload();
+		                }
+	            }}); 
+	    	})
+	    	
+	    	$('#change-template').click(function() {
+	    		var checked = $('.wait-check:checked');
+	    		if(checked.length==0) {
+	    			alert('至少选中一个商品!');
+	    			return false;
+	    		}
+	    		var hids = "";
+	    		$(checked).each(function(index, item) {
+	    			var hid = $(item).attr("data-hid");
+	    			hids += hid;
+	    			hids += ";";
+	    		})
+	    		$('#hids').val(hids);
+	    		$('#pop-up').modal({
+	                keyboard: false
+	            })
+	    	})
+	    	
+	    	$('#save').click(function() {
+			  var template = $('#template').val();
+			  var hids = $('#hids').val();
+	          $.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "hids=" + hids + "&template=" + template + '&action=change-template',
+	            url: "${rc.contextPath}/goods/action/batch_change",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+	                if(result.errorInfo != "success") {
 	                	alert(result.errorInfo);
 	                } else {
-	                	alert("同步成功!");
+		                window.location.reload();
 	                }
 	            }}); 
-		   })
+    	})
 		   
 	});
 </script>

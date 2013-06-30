@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class TradeClient {
 		
 		TradeFullinfoGetRequest req = new TradeFullinfoGetRequest();
 		req.setFields("total_fee,tid,oid,buyer_nick,payment,outer_iid,title,pic_path,post_fee,receiver_state,receiver_address,num,receiver_city,receiver_district," +
-				"receiver_mobile,logistics_company,invoice_no,seller_nick,created,modified,order.modified," +
+				"receiver_mobile,logistics_company,invoice_no,seller_nick,created,pay_time,modified,order.modified," +
 				"receiver_name,receiver_phone,receiver_mobile,receiver_zip,price,seller_memo,parent_id,type,status,orders");
 		req.setTid(tid);
 		TradeFullinfoGetResponse rsp = topConfig.getRetryClient().execute(req, sessionKey);
@@ -85,7 +84,7 @@ public class TradeClient {
 	 * @throws ParseException
 	 * @throws ApiException
 	 */
-	public List<Trade> queryTradeList(List<String> sessionList) throws ParseException, ApiException {
+	public List<Trade> queryTradeList(List<String> sessionList, Date startDate, Date endDate) throws ParseException, ApiException {
 		
 		TaobaoClient client = topConfig.getRetryClient();
 		TradesSoldGetRequest req = new TradesSoldGetRequest();
@@ -95,10 +94,6 @@ public class TradeClient {
 		//一口价
 		req.setType("fixed");
 		
-		Date endDate = new Date();
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_MONTH, -15);
-		Date startDate = cal.getTime();
 		log.info("Start to sync sold trades from {} to {}", startDate, endDate);
 		req.setStartCreated(startDate);
 		req.setEndCreated(endDate);

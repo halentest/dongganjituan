@@ -2,9 +2,10 @@ package cn.halen.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import cn.halen.data.mapper.GoodsMapper;
 import cn.halen.data.mapper.MySkuMapper;
-import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.MySku;
 import cn.halen.service.top.ItemClient;
 
@@ -39,32 +39,43 @@ public class GoodsService {
 	 * @throws ApiException
 	 */
 	public void updateSkuQuantity(List<String> keyList, String token) throws ApiException {
-		List<String> hidList = new ArrayList<String>();
-		Map<String, String> map = new HashMap<String, String>();
+		Set<String> hidSet = new HashSet<String>();
+		Map<String, Set<String>> map = new HashMap<String, Set<String>>();
 		for(String key : keyList) {
 			String[] items = key.split(";;;");
 			if(items.length == 3) {
 				String hid = items[0];
 				String color = items[1];
 				String size = items[2];
-				hidList.add(hid);
-				map.put(hid, color + ";;;" +size);
+				hidSet.add(hid);
+				Set<String> set = map.get(hid);
+				if(null == set) {
+					set = new HashSet<String>();
+					map.put(hid, set);
+				}
+				set.add(color + ";;;" +size);
 			}
+		}
+		List<String> hidList = new ArrayList<String>();
+		for(String hid : hidSet) {
+			hidList.add(hid);
 		}
 		List<Item> itemList = itemClient.getItemList(hidList, token);
 		
 		for(Item item : itemList) {
 			Map<String, Long> taoSkuMap = getTaoSku(item); //color+size -> sku_id
-			String colorsize = map.get(item.getOuterId());
-			String[] colorsizeArray = colorsize.split(";;;");
-			String color = colorsizeArray[0];
-			String size = colorsizeArray[1];
-			Long skuId = taoSkuMap.get(color + size);
-			if(null != skuId) {
-				MySku mySku = skuMapper.select(item.getOuterId(), color, size);
-				boolean b = itemClient.updateSkuQuantity(item.getNumIid(), skuId, mySku.getQuantity(), token);
-				if(!b) {
-					logger.info("Sku {} for item {} update failed", skuId, item.getNumIid() + "-" + item.getOuterId());
+			Set<String> colorsizeSet = map.get(item.getOuterId());
+			for(String colorsize : colorsizeSet) {
+				String[] colorsizeArray = colorsize.split(";;;");
+				String color = colorsizeArray[0];
+				String size = colorsizeArray[1];
+				Long skuId = taoSkuMap.get(color + size);
+				if(null != skuId) {
+					MySku mySku = skuMapper.select(item.getOuterId(), color, size);
+					boolean b = itemClient.updateSkuQuantity(item.getNumIid(), skuId, mySku.getQuantity(), token);
+					if(!b) {
+						logger.info("Sku {} for item {} update failed", skuId, item.getNumIid() + "-" + item.getOuterId());
+					}
 				}
 			}
 		}

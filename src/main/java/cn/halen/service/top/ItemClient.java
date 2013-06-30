@@ -63,7 +63,7 @@ public class ItemClient {
 				}
 			}
 			req.setOuterId(builder.toString());
-			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props");
+			req.setFields("num_iid,sku,props_name,pic_url,outer_id,property_alias,props");
 			ItemsCustomGetResponse response = client.execute(req , token);
 			if(response.isSuccess()) {
 				List<Item> itemList = response.getItems();
@@ -91,6 +91,17 @@ public class ItemClient {
 			return false;
 		}
 		return true;
+	}
+	
+	public int updatePic(List<String> hidList) throws ApiException, JSONException {
+		
+		int totalSuccess = 0;
+		
+		List<Item> itemList = this.getItemList(hidList, topConfig.getMainToken());
+		for(Item item : itemList) {
+			totalSuccess += goodsMapper.updatePicUrl(item.getPicUrl(), item.getOuterId());
+		}
+		return totalSuccess;
 	}
 	
 	public int importGoods2db() throws ApiException, JSONException {
@@ -129,7 +140,7 @@ public class ItemClient {
 					goods.setStatus(1);
 					goodsList.add(goods);
 				} else if(null != dbGoods && StringUtils.isEmpty(dbGoods.getUrl())) {
-					goodsMapper.updatePicUrl(item.getPicUrl(), dbGoods.getId());
+					goodsMapper.updatePicUrl(item.getPicUrl(), dbGoods.getHid());
 				}
 			}
 			totalSuccess += goodsMapper.batchInsert(goodsList);
@@ -157,7 +168,7 @@ public class ItemClient {
 								goods.setStatus(1);
 								goodsList.add(goods);
 							} else if(null != dbGoods && StringUtils.isEmpty(dbGoods.getUrl())) {
-								goodsMapper.updatePicUrl(item.getPicUrl(), dbGoods.getId());
+								goodsMapper.updatePicUrl(item.getPicUrl(), dbGoods.getHid());
 							}
 						}
 						totalSuccess += goodsMapper.batchInsert(goodsList);

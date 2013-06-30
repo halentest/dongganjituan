@@ -6,12 +6,18 @@
 		}
 		
 	</style>
-	<a href="${rc.contextPath}/admin/add_template_form" class="btn btn-primary">添加一个新模板</a><br>
+	<#if CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin">
+	<a href="${rc.contextPath}/admin/add_template_form" class="btn btn-primary">添加一个新模板</a>
+	<br>
+	</#if>
+	
 	<#if map??>
 	<#list map?keys as key>
 		模板名称: ${key}
+		<#if CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin">
 		<a href="${rc.contextPath}/admin/modify_template?name=${key}">点击修改</a> 
 		<br>
+		</#if>
 		<table>
 			<thead>
 				<tr>

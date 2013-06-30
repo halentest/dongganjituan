@@ -53,7 +53,7 @@ public class AdminController {
 	@Autowired
 	private MyLogisticsCompanyMapper logisticsMapper;
 	
-	@RequestMapping(value="admin/account_list")
+	@RequestMapping(value="admin/action/account_list")
 	public String list(Model model) {
 		
 		//list users which type are not distributor and servicestaff 
@@ -84,7 +84,7 @@ public class AdminController {
 		
 		adminMapper.updateDistributorCheck(v, dId);
 		try {
-			resp.sendRedirect("/admin/account_list");
+			resp.sendRedirect("/admin/action/account_list");
 		} catch (IOException e) {
 		}
 	}
@@ -94,7 +94,7 @@ public class AdminController {
 		
 		adminMapper.updateShopSyncStore(v, sId);
 		try {
-			resp.sendRedirect("/admin/account_list");
+			resp.sendRedirect("/admin/action/account_list");
 		} catch (IOException e) {
 		}
 	}
@@ -161,7 +161,7 @@ public class AdminController {
 		}
 		adminService.insertUser(user, type);
 		try {
-			resp.sendRedirect("/admin/account_list");
+			resp.sendRedirect("/admin/action/account_list");
 		} catch (IOException e) {
 		}
 		return null;
@@ -212,7 +212,7 @@ public class AdminController {
 		}
 		adminMapper.insertDistributor(distributor);
 		try {
-			resp.sendRedirect("/admin/account_list");
+			resp.sendRedirect("/admin/action/account_list");
 		} catch (IOException e) {
 		}
 		return null;
@@ -242,7 +242,7 @@ public class AdminController {
 		}
 		adminMapper.updateDistributorDiscount(fDiscount, dId);
 		try {
-			resp.sendRedirect("/admin/account_list");
+			resp.sendRedirect("/admin/action/account_list");
 		} catch (IOException e) {
 		}
 		return null;
@@ -273,7 +273,7 @@ public class AdminController {
 		s.setdId(dId);
 		adminMapper.insertShop(s);
 		try {
-			resp.sendRedirect("/admin/account_list");
+			resp.sendRedirect("/admin/action/account_list");
 		} catch (IOException e) {
 		}
 		return null;
@@ -305,7 +305,7 @@ public class AdminController {
 		}
 		adminMapper.updateUserPassword(username, password);
 		try {
-			resp.sendRedirect("/admin/account_list");
+			resp.sendRedirect("/admin/action/account_list");
 		} catch (IOException e) {
 		}
 		return null;
@@ -322,7 +322,7 @@ public class AdminController {
 			adminMapper.disableUser(username);
 		}
 		try {
-			resp.sendRedirect("/admin/account_list");
+			resp.sendRedirect("/admin/action/account_list");
 		} catch (IOException e) {
 		}
 	}

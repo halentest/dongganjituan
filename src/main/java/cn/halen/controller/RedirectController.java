@@ -2,6 +2,8 @@ package cn.halen.controller;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,10 +21,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.service.ResultInfo;
+import cn.halen.service.TradeService;
 import cn.halen.service.top.AreaClient;
 import cn.halen.service.top.ItemClient;
 import cn.halen.service.top.LogisticsCompanyClient;
-import cn.halen.service.top.TopListenerStarter;
+import cn.halen.service.top.TopConfig;
 
 import com.taobao.api.ApiException;
 
@@ -41,7 +44,10 @@ public class RedirectController {
 	private AreaClient areaClient;
 	
 	@Autowired
-	private TopListenerStarter topListenerStarter;
+	private TradeService tradeService;
+	
+	@Autowired
+	private TopConfig topConfig;
 	
 	@RequestMapping(value="/login")
 	public String login(Model model) {
@@ -58,7 +64,7 @@ public class RedirectController {
 		return "index";
 	}
 	
-	@RequestMapping(value="/admin/system_init")
+	@RequestMapping(value="/admin/action/system_init")
 	public String systemInit(Model model, HttpServletRequest req) {
 		return "admin/system_init";
 	}
@@ -85,6 +91,7 @@ public class RedirectController {
 			log.error("Error while sync logistics", e);
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，更新失败");
+			return result;
 		}
 		log.info("Success sync logistics {}", count);
 		result.setErrorInfo("成功导入" + count + "条物流信息");
@@ -102,6 +109,7 @@ public class RedirectController {
 			log.error("Error while sync item", e);
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，更新失败");
+			return result;
 		}
 		log.info("Success sync item {}", count);
 		result.setErrorInfo("成功导入" + count + "条商品信息");
@@ -114,11 +122,16 @@ public class RedirectController {
 		ResultInfo result = new ResultInfo();
 		int count = 0;
 		try {
-			count = topListenerStarter.initTrades();
+			Date endDate = new Date();
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DAY_OF_MONTH, -15);
+			Date startDate = cal.getTime();
+			count = tradeService.initTrades(topConfig.listToken(), startDate, endDate);
 		} catch (ApiException e) {
 			log.error("Error while sync trade", e);
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，更新失败");
+			return result;
 		}
 		log.info("Success sync trade {}", count);
 		result.setErrorInfo("成功导入" + count + "条交易信息");
@@ -136,6 +149,7 @@ public class RedirectController {
 			log.error("Error while sync area", e);
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，更新失败");
+			return result;
 		}
 		log.info("Success sync area {}", count);
 		result.setErrorInfo("成功导入" + count + "条地区信息");

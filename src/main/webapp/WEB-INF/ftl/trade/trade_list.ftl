@@ -1,11 +1,11 @@
 <#import "/templates/root.ftl" as root >
 
-<script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
-<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
-    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
-</object>
-
-<@root.html active=3 css=["trade_list.css", "jqpagination.css"] js=["pagination.js", "jquery.jqpagination.min.js"]>
+<@root.html active=3 css=["trade_list.css", "jqpagination.css"] 
+js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js"]>
+	<script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
+	<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
+	    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
+	</object>
 	<i class="icon-list-alt"></i>订单列表
 	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
 		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
@@ -59,11 +59,47 @@
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	</div>
+	<br><br>
+	<div>
+		<a id="check-all" style="cursor: pointer;">全选</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		<a id="not-check-all" style="cursor: pointer;">全不选</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
+			<a class="btn btn-primary" id="batch-submit">批量提交</a>
+		</#if>
+		<#if CURRENT_USER.type=="DistributorManager">
+			<a class="btn btn-primary" id="batch-approve1">批量通过</a>
+		</#if>
+		<#if CURRENT_USER.type=="WareHouse">
+			<a class="btn btn-primary" id="batch-find-goods">批量拣货</a>
+			<a class="btn btn-primary" id="batch-find-goods">批量打印快递单</a>
+			<a class="btn btn-primary" id="batch-find-goods">批量打印发货单</a>
+		</#if>
+	</div>
 	<#list trade_list as trade>
+		<#assign tColor="#CCCCCC">
+		<#if trade.myStatus.getStatus()==0>
+			<#assign tColor="#FFFFFF">
+		</#if>
+		<#if trade.myStatus.getStatus()==1>
+			<#assign tColor="#CCFFFF">
+		</#if>
+		<#if trade.myStatus.getStatus()==2>
+			<#assign tColor="#99CCFF">
+		</#if>
+		<#if trade.myStatus.getStatus()==3>
+			<#assign tColor="#66CCCC">
+		</#if>
+		<#if trade.myStatus.getStatus()==4>
+			<#assign tColor="#339999">
+		</#if>
+		<#if trade.myStatus.getStatus()==-5>
+			<#assign tColor="#CC3333">
+		</#if>
 		<table>
 		    <tbody>
-		      <tr class="trade">
+		      <tr class="trade" style="background-color: ${tColor};">
 		        <td colspan="7">
+		        	<input class="wait-check" data-tid="${trade.tid}" data-status="${trade.myStatus.getStatus()}" type="checkbox"/>
 		        	${trade.come_from!}&nbsp;&nbsp;&nbsp;
 		        	<strong>订单编号：</strong></strong>${trade.tid}  &nbsp;&nbsp;&nbsp;
 		        	<strong>创建时间：</strong>${trade.created?string('yyyy-MM-dd HH:mm:ss')} &nbsp;&nbsp;&nbsp;
@@ -123,19 +159,21 @@
 				        		<p><strong>快递</strong>: 
 				        		<span>${trade.delivery}</span>
 				        		<#if trade.status=="WAIT_SELLER_SEND_GOODS" && trade.my_status==2>
-					        		<p>打印快递单 &nbsp;&nbsp; <a href="javascript:prn1_preview('${sender}', '${from}', '${from_company}', '${from_address}', '${sender_mobile}',
-										'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">预览</a></p>
-					        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
 					        		<p><a class="find-goods" data-tid="${trade.tid}" style="cursor: pointer">拣货</a></p>
 					        		<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
 				        		<#if trade.my_status==3>
+				        			<p>打印快递单 &nbsp;&nbsp; 
+					        			<a href="javascript:prn1_preview('${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
+											预览
+										</a>
+									</p>
+					        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
 				        			<p><a class="send-goods" data-tid="${trade.tid}" data-delivery="${trade.delivery}" 
-				        			data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">发货</a></p>
+				        				data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">发货</a></p>
 				        			<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
-				        		</#if>
-				        		<#if trade.my_status==-2>
-				        			<a class="refund-success" data-tid="${trade.tid}" style="cursor: pointer">退货成功</a>
 				        		</#if>
 				        	</#if> 
 				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
@@ -246,82 +284,20 @@
 
 <script>
 	
-    var LODOP; //声明为全局变量 
-	function prn1_preview(sender, from, from_company, from_address, sender_mobile,
-		receiver, to_company, to_address, receiver_mobile, to) {
-		CreateOneFormPage();	
-		LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='${rc.contextPath}/img/kuaidi/shentong.jpg'>");
-		LODOP.SET_SHOW_MODE("BKIMG_IN_PREVIEW",1); //注："BKIMG_IN_PREVIEW"-预览包含背景图 "BKIMG_IN_FIRSTPAGE"- 仅首页包含背景图
-		LODOP.SET_PRINT_STYLE("FontSize",18);
-		LODOP.SET_PRINT_STYLE("Bold",1);
-		LODOP.ADD_PRINT_TEXT(110,86,100,25,sender);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(109,253,111,26,from);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(150,87,260,25,from_company);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(187,79,302,62,from_address);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(259,103,164,25,sender_mobile);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(112,484,111,25,receiver);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(147,479,249,27,to_company);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(189,470,309,56,to_address);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(261,506,157,24,receiver_mobile);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXT(112,649,125,26,to);
-		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		//LODOP.PRINT_DESIGN();
-		LODOP.PREVIEW();	
-	};
-	function prn1_print() {		
-		CreateOneFormPage();
-		LODOP.PRINT();	
-	};
-	function prn1_printA() {		
-		CreateOneFormPage();
-		LODOP.PRINTA(); 	
-	};	
-	function CreateOneFormPage(){
-		LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));  
-		LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_表单一");
-		LODOP.SET_PRINT_STYLE("FontSize",18);
-		LODOP.SET_PRINT_STYLE("Bold",1);
-		//LODOP.ADD_PRINT_TEXT(50,231,260,39,"打印页面部分内容");
-		//LODOP.ADD_PRINT_HTM(88,200,350,600,document.getElementById("form1").innerHTML);
-	};	                     
-	function prn2_preview() {	
-		CreateTwoFormPage();	
-		LODOP.PREVIEW();	
-	};
-	function prn2_manage() {	
-		CreateTwoFormPage();
-		LODOP.PRINT_SETUP();	
-	};	
-	function CreateTwoFormPage(){
-		LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));  
-		LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_表单二");
-		LODOP.ADD_PRINT_RECT(70,27,634,242,0,1);
-		LODOP.ADD_PRINT_TEXT(29,236,279,38,"页面内容改变布局打印");
-		LODOP.SET_PRINT_STYLEA(2,"FontSize",18);
-		LODOP.SET_PRINT_STYLEA(2,"Bold",1);
-		LODOP.ADD_PRINT_HTM(88,40,321,185,document.getElementById("form1").innerHTML);
-		LODOP.ADD_PRINT_HTM(87,355,285,187,document.getElementById("form2").innerHTML);
-		LODOP.ADD_PRINT_TEXT(319,58,500,30,"注：其中《表单一》按显示大小，《表单二》在程序控制宽度(285px)内自适应调整");
-	};              
-	function prn3_preview(){
-		LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));  
-		LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_全页");
-		LODOP.ADD_PRINT_HTM(20,40,700,900,document.documentElement.innerHTML);
-		LODOP.PREVIEW();	
-	};	
-	
 	$(document).ready(function() {
-		$('.cancel, .approve1, .submit, .no-goods, .find-goods, .refund-success').click(function() {
+		$('.cancel, .approve1, .submit, .no-goods, .find-goods').click(function() {
 			var action = $(this).attr("class");
+			if(action=="cancel") {
+				var isTrue = confirm("确定作废这个订单吗？");
+				if(!isTrue) {
+					return false;
+				}
+			} else if(action=="no-goods") {
+				var isTrue = confirm("确定没有货吗？");
+				if(!isTrue) {
+					return false;
+				}
+			}
 			$.ajax({
 	            type: "post",//使用get方法访问后台
 	            dataType: "json",//返回json格式的数据
@@ -446,6 +422,125 @@
 		                window.location.reload();
 	                }
 	            }}); 
+    	})
+    	
+    	$('#check-all').click(function() {
+    		$('.wait-check').attr("checked", true);
+    	})
+    	
+    	$('#not-check-all').click(function() {
+    		$('.wait-check').attr("checked", false);
+    	})
+    	
+    	$('#batch-submit').click(function() {
+    		var checked = $('.wait-check:checked');
+    		if(checked.length==0) {
+    			alert('至少选中一个订单!');
+    			return false;
+    		}
+    		var b = true;
+    		var tids = "";
+    		$(checked).each(function(index, item) {
+    			var status = $(item).attr("data-status");
+    			if(status != 0) {
+    				b = false;
+    				return false;
+    			}
+    			var tid = $(item).attr("data-tid");
+    			tids += tid;
+    			tids += ";";
+    		})
+    		if(!b) {
+    			alert('不能提交除"新建"以外的订单!');
+    		} else {
+    			$.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "tids=" + tids + "&action=submit",
+	            url: "${rc.contextPath}/trade/action/batch_change_status",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+		                if(result.errorInfo != "success") {
+		                	alert(result.errorInfo);
+		                	window.location.reload();
+		                } else {
+			                window.location.reload();
+		                }
+	            }}); 
+    		}
+    	})
+    	
+    	$('#batch-approve1').click(function() {
+    		var checked = $('.wait-check:checked');
+    		if(checked.length==0) {
+    			alert('至少选中一个订单!');
+    			return false;
+    		}
+    		var b = true;
+    		var tids = "";
+    		$(checked).each(function(index, item) {
+    			var status = $(item).attr("data-status");
+    			if(status != 1) {
+    				b = false;
+    				return false;
+    			}
+    			var tid = $(item).attr("data-tid");
+    			tids += tid;
+    			tids += ";";
+    		})
+    		if(!b) {
+    			alert('不能审核除"待审核"以外的订单!');
+    		} else {
+    			$.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "tids=" + tids + "&action=approve1",
+	            url: "${rc.contextPath}/trade/action/batch_change_status",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+		                if(result.errorInfo != "success") {
+		                	alert(result.errorInfo);
+		                	window.location.reload();
+		                } else {
+			                window.location.reload();
+		                }
+	            }}); 
+    		}
+    	})
+    	
+    	$('#batch-find-goods').click(function() {
+    		var checked = $('.wait-check:checked');
+    		if(checked.length==0) {
+    			alert('至少选中一个订单!');
+    			return false;
+    		}
+    		var b = true;
+    		var tids = "";
+    		$(checked).each(function(index, item) {
+    			var status = $(item).attr("data-status");
+    			if(status != 2) {
+    				b = false;
+    				return false;
+    			}
+    			var tid = $(item).attr("data-tid");
+    			tids += tid;
+    			tids += ";";
+    		})
+    		if(!b) {
+    			alert('不能拣货除"待发货"以外的订单!');
+    		} else {
+    			$.ajax({
+	            type: "post",//使用get方法访问后台
+	            dataType: "json",//返回json格式的数据
+	            data: "tids=" + tids + "&action=find-goods",
+	            url: "${rc.contextPath}/trade/action/batch_change_status",//要访问的后台地址
+	            success: function(result){//msg为返回的数据，在这里做数据绑定
+		                if(result.errorInfo != "success") {
+		                	alert(result.errorInfo);
+		                	window.location.reload();
+		                } else {
+			                window.location.reload();
+		                }
+	            }}); 
+    		}
     	})
 		
 	})

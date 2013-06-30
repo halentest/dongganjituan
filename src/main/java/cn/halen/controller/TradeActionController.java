@@ -1,13 +1,20 @@
 package cn.halen.controller;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +43,11 @@ import cn.halen.filter.UserHolder;
 import cn.halen.service.ResultInfo;
 import cn.halen.service.TradeService;
 import cn.halen.service.UtilService;
+import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.domain.Status;
 import cn.halen.service.top.util.MoneyUtils;
+
+import com.taobao.api.ApiException;
 
 @Controller
 public class TradeActionController {
@@ -63,6 +73,9 @@ public class TradeActionController {
 	
 	@Autowired
 	private TradeService tradeService;
+	
+	@Autowired
+	private TopConfig topConfig;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -262,6 +275,50 @@ public class TradeActionController {
         return temp; 
 	}
 	
+	@RequestMapping(value="trade/action/batch_change_status")
+	public @ResponseBody ResultInfo batchChangeStatus(Model model, @RequestParam("tids") String tids, @RequestParam("action") String action) {
+		ResultInfo result = new ResultInfo();
+		if(StringUtils.isNotEmpty(tids)) {
+			String[] tidArr = tids.split(";");
+			try {
+				if(action.equals("approve1")) {
+					for(String tid : tidArr) {
+						if(StringUtils.isNotEmpty(tid)) {
+							tradeService.approve1(tid);
+						}
+					}
+				} else if(action.equals("submit")) {
+					for(String tid : tidArr) {
+						if(StringUtils.isNotEmpty(tid)) {
+							tradeService.submit(tid);
+						}
+					}
+				} else if(action.equals("find-goods")) {
+					for(String tid : tidArr) {
+						if(StringUtils.isNotEmpty(tid)) {
+							tradeService.findGoods(tid);
+						}
+					}
+				} 
+			} catch (InvalidStatusChangeException isce) {
+				result.setSuccess(false);
+				result.setErrorInfo("这个订单" + isce.getTid() + "不能进行此操作!");
+			} catch(InsufficientStockException ise) {
+				result.setSuccess(false);
+				result.setErrorInfo("商品" + ise.getGoodsHid() + "库存不足，不能购买！");
+			} catch(InsufficientBalanceException ibe) {
+				log.error("", ibe);
+				result.setSuccess(false);
+				result.setErrorInfo("余额不足，请打款！");
+			} catch (Exception e) {
+				log.error("", e);
+				result.setSuccess(false);
+				result.setErrorInfo("系统异常，请重试!");
+			}
+		}
+		return result;
+	}
+	
 	@RequestMapping(value="trade/action/change_status")
 	public @ResponseBody ResultInfo changeStatus(Model model, @RequestParam("tid") String tid, @RequestParam("action") String action) {
 		ResultInfo result = new ResultInfo();
@@ -364,5 +421,39 @@ public class TradeActionController {
 		return errorInfo;
 	}
 
-	
+	@RequestMapping(value="trade/action/manual_sync_trade")
+	public @ResponseBody ResultInfo syncTrade(@RequestParam("sellerNick") String sellerNick,
+			@RequestParam("start") String start, @RequestParam("end") String end) throws IOException, ServletException, JSONException, ParseException, InsufficientStockException, InsufficientBalanceException {
+		ResultInfo result = new ResultInfo();
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date startDate = null;
+		Date endDate = null;
+		try {
+			startDate = format.parse(start);
+			endDate = format.parse(end);
+			if(startDate.after(endDate)) {
+				result.setSuccess(false);
+				result.setErrorInfo("结束时间不能早于开始时间!");
+				return result;
+			}
+		} catch(Exception e) {
+			log.error("Error while sync trade", e);
+			result.setSuccess(false);
+			result.setErrorInfo("请输入正确的时间格式!");
+			return result;
+		}
+		
+		int count = 0;
+		try {
+			count = tradeService.initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
+		} catch (ApiException e) {
+			log.error("Error while sync trade", e);
+			result.setSuccess(false);
+			result.setErrorInfo("系统异常，同步失败");
+			return result;
+		}
+		log.info("Success sync trade {}", count);
+		result.setErrorInfo("成功导入" + count + "条交易信息");
+		return result;
+	}
 }

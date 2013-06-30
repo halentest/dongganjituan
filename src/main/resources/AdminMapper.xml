@@ -229,7 +229,9 @@
 	</select>
 	
 	<select id="selectShop" parameterType="Map" resultType="Shop">
-		select * from shop
+		select id, seller_nick as sellerNick, token, refresh_token as refreshToken,
+		modified, created, last_refresh as lastRefresh, auto_sync as autoSync, type, distributor_id as dId,
+		auto_sync_store as autoSyncStore from shop
 		<where>
 			<if test="autoSync != null">
 				auto_sync = #{autoSync}
@@ -295,7 +297,7 @@
 	</select>
 	
 	<select id="selectTemplateNameAll" parameterType="String" resultType="String">
-		select name from template_name
+		select name from template_name order by created asc
 	</select>
 	
 	<select id="selectTemplate" parameterType="java.util.Map" resultType="Template">
@@ -305,5 +307,14 @@
 	<update id="updateTemplate" parameterType="Template">
 		update template set start_standard = #{start_standard}, start_fee = #{start_fee}, add_standard = #{add_standard},
 			add_fee = #{add_fee} where name = #{name} and area = #{area} and logistics_type = #{logistics_type}
+	</update>
+	
+	<select id="selectSellerInfo" resultType="SellerInfo">
+		select * from seller_info
+	</select>
+	
+	<update id="updateSellerInfo" parameterType="SellerInfo">
+		update seller_info set sender=#{sender}, from_state=#{from_state}, from_company=#{from_company},
+		from_address=#{from_address}, mobile=#{mobile}, created=now()
 	</update>
 </mapper>

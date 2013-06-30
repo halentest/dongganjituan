@@ -160,11 +160,7 @@ public class TradeController {
 			model.addAttribute("shopList", adminMapper.selectDistributorMapById(currUser.getShop().getD().getId()).getShopList());
 		}
 		
-		model.addAttribute("sender", "骆驼动感");
-		model.addAttribute("from", "福建");
-		model.addAttribute("from_company", "骆驼动感集团");
-		model.addAttribute("from_address", "福建省石狮市动感骆驼仓库");
-		model.addAttribute("sender_mobile", "15257197713");
+		model.addAttribute("sellerInfo", adminMapper.selectSellerInfo());
 		return "trade/trade_list";
 	}
 	
@@ -180,5 +176,11 @@ public class TradeController {
 		}
 		Distributor d = adminMapper.selectDistributorMapById(dId);
 		return d.getShopList();
+	}
+	
+	@RequestMapping(value="trade/manual_sync_trade_form")
+	public String manaualSyncTradeForm(Model model) {
+		model.addAttribute("shopList", adminMapper.selectShop(1, null, null));
+		return "trade/manual_sync_trade_form";
 	}
 }

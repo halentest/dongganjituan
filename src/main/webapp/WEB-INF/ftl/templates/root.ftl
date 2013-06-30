@@ -43,14 +43,18 @@
     </div>
     <div class="container" style="padding-bottom: 30px;">
         <ul class="nav nav-tabs">
-	          <#if CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin">
+	          <#if CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="GoodsManager" || CURRENT_USER.type=="DistributorManager">
 			          <li <#if active==1> class="active dropdown" <#else>  class="dropdown" </#if> >
 			          		<a class="dropdown-toggle" data-toggle="dropdown" href="#">系统管理<b class="caret"></b></a>
 			          		<ul class="dropdown-menu">
-				                  <li><a href="${rc.contextPath}/admin/account_list">账户管理</a></li>
-				                  <li><a href="${rc.contextPath}/admin/template_list">运费模板管理</a></li>
+			          			<#if CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin">
+				                  <li><a href="${rc.contextPath}/admin/action/account_list">账户管理</a></li>
+				                </#if>
+				                <li><a href="${rc.contextPath}/admin/template_list">运费模板管理</a></li>
+				                  <#if CURRENT_USER.type=="SuperAdmin">
 				                  <li class="divider"></li>
-				                  <li><a href="${rc.contextPath}/admin/system_init">系统初始化</a></li>
+				                  <li><a href="${rc.contextPath}/admin/action/system_init">系统初始化</a></li>
+				                  </#if>
 			              	</ul>
 			          </li>
 	          </#if>
@@ -70,6 +74,10 @@
 	              <ul class="dropdown-menu">
 	                  <li><a href="${rc.contextPath}/trade/trade_list">订单列表</a></li>
 	                  <li><a href="${rc.contextPath}/trade/refund_list">退货列表</a></li>
+	                  <#if CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="DistributorManager">
+	                  <li class="divider"></li>
+	                  <li><a href="${rc.contextPath}/trade/manual_sync_trade_form">手工同步订单</a></li>
+	                  </#if>
 	              </ul>
 	          </li>
 	          </#if>

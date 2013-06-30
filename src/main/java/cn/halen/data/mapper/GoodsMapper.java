@@ -39,10 +39,10 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public int updatePicUrl(String url, long id) {
+	public int updatePicUrl(String url, String hid) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("pic_url", url);
-		param.put("id", id);
+		param.put("hid", hid);
 		return getSqlSession().update("cn.halen.data.mapper.GoodsMapper.updatePicUrl", param);
 	}
 	
@@ -63,5 +63,12 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 	
 	public Goods getByHid(String hid) {
 		return getSqlSession().selectOne("cn.halen.data.mapper.GoodsMapper.getByHid", hid);
+	}
+	
+	public int updateTemplate(List<String> hidList, String template) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("template", template);
+		param.put("hidList", hidList);
+		return getSqlSession().update("cn.halen.data.mapper.GoodsMapper.updateTemplate", param);
 	}
 }

@@ -27,6 +27,7 @@
 	</#list>
 </table>
 </#if>
+<br>
 <p>选择快递：
 	<select id="logistics" name="logistics" style="">
 		<#list logistics as lo>
@@ -49,21 +50,23 @@
 </p>
 <p>
 详细地址：
-	<input name="address" class="my-input" type="text"/>
+	<input name="address" class="my-input" style="width: 50%;" type="text"/>
 </p>
 <p>
 给仓库留言：
-	<input name="seller_memo" class="my-input" type="text"/>
+	<input name="seller_memo" class="my-input" style="width: 50%;" type="text"/>
 </p>
 <p>
-收货人：
+收&nbsp;&nbsp;货&nbsp;&nbsp;人：
 	<input name="receiver" class="my-input" type="text"/>
 手机：
 	<input name="mobile" class="my-input" type="text"/>
 电话:
 	<input name="phone" class="my-input" type="text"/>
 </p>
-<input type="submit" value="确定购买">
+<div class="form-actions" >
+    <input type="submit" class="btn btn-primary" value="确定购买" style="margin-left: 60%;">
+</div>
 </form>
 </@root.html>
 

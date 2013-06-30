@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.halen.data.pojo.Distributor;
+import cn.halen.data.pojo.SellerInfo;
 import cn.halen.data.pojo.Shop;
 import cn.halen.data.pojo.Template;
 import cn.halen.data.pojo.User;
@@ -206,7 +207,7 @@ public class AdminMapper extends SqlSessionDaoSupport {
 	}
 	
 	public List<String> selectTemplateNameAll() {
-		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectTemplateNameAll");
+		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.selectTemplateNameAll");
 	}
 	
 	public Template selectTemplate(String name, String logisticsType, String area) {
@@ -219,5 +220,13 @@ public class AdminMapper extends SqlSessionDaoSupport {
 	
 	public int updateTemplate(Template template) {
 		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateTemplate", template);
+	}
+	
+	public SellerInfo selectSellerInfo() {
+		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectSellerInfo");
+	}
+	
+	public int updateSellerInfo(SellerInfo info) {
+		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateSellerInfo", info);
 	}
 }

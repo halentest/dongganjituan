@@ -7,24 +7,27 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.GoodsMapper;
 import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.MySku;
 import cn.halen.service.GoodsService;
 import cn.halen.service.ResultInfo;
+import cn.halen.service.top.ItemClient;
 import cn.halen.service.top.TopConfig;
+import cn.halen.util.Constants;
 import cn.halen.util.Paging;
 
 @Controller
@@ -40,6 +43,16 @@ public class GoodsController {
 	
 	@Autowired
 	private GoodsService goodsService;
+	
+	@Autowired
+	private AdminMapper adminMapper;
+	
+	@Autowired
+	private ItemClient itemClient;
+	
+	@SuppressWarnings("rawtypes")
+	@Autowired
+	private RedisTemplate redisTemplate;
 
 	@RequestMapping(value="goods/goods_list")
 	public String list(Model model, @RequestParam(value="page", required=false) Integer page,
@@ -110,38 +123,50 @@ public class GoodsController {
 		
 		model.addAttribute("map", map);
 		model.addAttribute("list", list);
+		model.addAttribute("templateList", adminMapper.selectTemplateNameAll());
 		
 		return "goods/goods_list";
 	}
 	
-//	@RequestMapping(value="goods/action/sync_store")
-//	public @ResponseBody ResultInfo syncStore(Model model, @RequestParam("ids") String ids) {
-//		ResultInfo result = new ResultInfo();
-//		if(null == ids || StringUtils.isEmpty(ids.trim())) {
-//			result.setSuccess(false);
-//			result.setErrorInfo("请至少选择一个商品!");
-//			return result;
-//		}
-//		String[] idArr = ids.split(",");
-//		List<String> idList = new ArrayList<String>();
-//		for(String id : idArr) {
-//			idList.add(id);
-//		}
-//		try {
-//			Map<Goods, String> map = goodsService.updateSkuQuantity(idList, topConfig.getMainToken());
-//			if(map.size() > 0) {
-//				result.setSuccess(false);
-//				StringBuilder builder = new StringBuilder();
-//				for(Entry<Goods, String> entry : map.entrySet()) {
-//					builder.append(entry.getKey().getHid()).append(" : ").append(entry.getValue()).append("\r\n");
-//				}
-//				result.setErrorInfo(builder.toString());
-//			}
-//		} catch(Exception e) {
-//			log.error("", e);
-//			result.setSuccess(false);
-//			result.setErrorInfo("系统异常，请重试!");
-//		}
-//		return result;
-//	}
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="goods/action/batch_change")
+	public @ResponseBody ResultInfo syncStore(Model model, @RequestParam("hids") String hids, @RequestParam("action") String action,
+			@RequestParam(value="template", required=false) String template) {
+		ResultInfo result = new ResultInfo();
+		if(StringUtils.isEmpty(hids.trim())) {
+			result.setSuccess(false);
+			result.setErrorInfo("请至少选择一个商品!");
+			return result;
+		}
+		String[] hidArr = hids.split(";");
+		List<String> hidList = new ArrayList<String>();
+		for(String hid : hidArr) {
+			if(StringUtils.isNotEmpty(hid)) {
+				hidList.add(hid);
+			}
+		}
+		try {
+			if("sync-store".equals(action)) {
+				List<Goods> goodsList =	goodsMapper.selectById(hidList);
+				for(Goods goods : goodsList) {
+					List<MySku> skuList = goods.getSkuList();
+					for(MySku sku : skuList) {
+						String key = goods.getHid() + ";;;" + sku.getColor() + ";;;" + sku.getSize(); 
+						redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, key);
+					}
+				}
+				//notify listener to handler
+				redisTemplate.convertAndSend(Constants.REDIS_SKU_GOODS_CHANNEL, "1");
+			} else if("sync-pic".equals(action)) {
+				itemClient.updatePic(hidList);
+			} else if("change-template".equals(action)) {
+				goodsMapper.updateTemplate(hidList, template);
+			}
+		} catch(Exception e) {
+			log.error("", e);
+			result.setSuccess(false);
+			result.setErrorInfo("系统异常，请重试!");
+		}
+		return result;
+	}
 }

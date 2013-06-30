@@ -250,6 +250,17 @@ $(document).ready(function(){
 	   
 	   $('.cancel-refund, .approve-refund, .refund-money').click(function() {
 			var action = $(this).attr("class");
+			if(action=="cancel-refund") {
+				var isTrue = confirm("确定要取消退货吗？");
+				if(!isTrue) {
+					return false;
+				}
+			} else if(action=="refund-money") {
+				var isTrue = confirm("确定要退款给分销商吗？");
+				if(!isTrue) {
+					return false;
+				}
+			}
 			$.ajax({
 	            type: "post",//使用get方法访问后台
 	            dataType: "json",//返回json格式的数据

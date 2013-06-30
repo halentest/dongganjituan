@@ -30,7 +30,7 @@
 	  </#if>
 	  <div class="form-actions">
         <button type="submit" class="btn btn-primary">保存更改</button>
-        <button class="btn" onClick="javascript: window.location.href='${rc.contextPath}/admin/account_list'; return false;">取消</button>
+        <button class="btn" onClick="javascript: window.location.href='${rc.contextPath}/admin/action/account_list'; return false;">取消</button>
       </div>
 	</form>
 </@root.html>

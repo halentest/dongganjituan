@@ -25,7 +25,7 @@ public class SkuService {
 		MySku mySku = skuMapper.select(skuId);
 		//update sku
 		if(mySku.getQuantity() + quantity<0) {
-			throw new InsufficientStockException();
+			throw new InsufficientStockException(goodsId);
 		}
 		mySku.setQuantity(mySku.getQuantity() + quantity);//
 		skuMapper.update(mySku);

@@ -160,15 +160,17 @@ drop table if exists user_authority;
 create table user_authority (
 	id int primary key auto_increment,
 	username varchar(100),
-	authority varchar(20),
+	authority varchar(50),
 	modified timestamp,
 	created timestamp,
 	unique key(username, authority)
 );
 insert into user_authority values(null, 'superadmin', 'manager_system', now(), now());
+insert into user_authority values(null, 'superadmin', 'manager_system_action', now(), now());
 insert into user_authority values(null, 'superadmin', 'logined', now(), now());
 
 insert into user_authority values(null, 'admin', 'manager_system', now(), now());
+insert into user_authority values(null, 'admin', 'manager_system_action', now(), now());
 insert into user_authority values(null, 'admin', 'logined', now(), now());
 
 drop table if exists distributor;
@@ -254,10 +256,18 @@ create table template_name (
 	unique key(name)
 );
 
-drop table if exists sequence_tid;
-create table sequence_tid (
-	id bigint primary key auto_increment
-) AUTO_INCREMENT = 1000;
+drop table if exists seller_info;
+create table seller_info (
+	id int primary key auto_increment,
+	sender varchar(255),
+	from_state varchar(255),
+	from_company varchar(255),
+	from_address varchar(255),
+	mobile varchar(20),
+	modified timestamp,
+	created timestamp
+);
+insert into seller_info values(null, '毛小毛', '晋江', '骆驼动感公司', '福建省晋江市......', '110', null, now());
 
 	
 	

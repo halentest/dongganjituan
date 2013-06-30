@@ -57,6 +57,7 @@ public class AdminService {
 		List<UserAuthority> list = new ArrayList<UserAuthority>();
 		UserAuthority logined = new UserAuthority(user.getUsername(), Constants.AUTHORITY_LOGINED);
 		UserAuthority managerSystem = new UserAuthority(user.getUsername(), Constants.AUTHORITY_MANAGER_SYSTEM);
+		UserAuthority managerSystemAction = new UserAuthority(user.getUsername(), Constants.AUTHORITY_MANAGER_SYSTEM_ACTION);
 		UserAuthority buyGoods = new UserAuthority(user.getUsername(), Constants.AUTHORITY_BUY_GOODS);
 		UserAuthority accounting = new UserAuthority(user.getUsername(), Constants.AUTHORITY_ACCOUNTING);
 		UserAuthority managerGoods = new UserAuthority(user.getUsername(), Constants.AUTHORITY_MANAGER_GOODS);
@@ -68,12 +69,14 @@ public class AdminService {
 			list.add(logined);
 			list.add(managerSystem);
 			list.add(managerTrade);
+			list.add(managerSystemAction);
 		} else if(type.equals(UserType.Distributor.getValue())) {
 			list.add(logined);
 			list.add(managerTrade);
 		} else if(type.equals(UserType.GoodsManager.getValue())) {
 			list.add(logined);
 			list.add(managerGoods);
+			list.add(managerSystem);
 		} else if(type.equals(UserType.ServiceStaff.getValue())) {
 			list.add(logined);
 			list.add(managerTrade);
@@ -82,6 +85,7 @@ public class AdminService {
 			list.add(logined);
 			list.add(managerSystem);
 			list.add(managerTrade);
+			list.add(managerSystemAction);
 		} else if(type.equals(UserType.User.getValue())) {
 			list.add(logined);
 		} else if(type.equals(UserType.WareHouse.getValue())) {
@@ -89,6 +93,7 @@ public class AdminService {
 			list.add(managerTrade);
 		} else if(type.equals(UserType.DistributorManager.getValue())) {
 			list.add(logined);
+			list.add(managerSystem);
 			list.add(managerTrade);
 		}
 		adminMapper.insertAuthority(list);

@@ -41,7 +41,7 @@ public class RefundService {
 		MyTrade myTrade = tradeMapper.selectByTradeId(tid);
 		MyOrder myOrder = tradeMapper.selectOrderByOrderId(oid);
 		if(myTrade.getMy_status() != MyStatus.WaitReceive.getStatus()) {
-			throw new InvalidStatusChangeException();
+			throw new InvalidStatusChangeException(tid);
 		}
 		if(null == myTrade || null == myOrder) {
 			return false;
