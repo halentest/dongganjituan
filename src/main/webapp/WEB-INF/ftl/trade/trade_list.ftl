@@ -1,7 +1,7 @@
 <#import "/templates/root.ftl" as root >
 
 <@root.html active=3 css=["trade_list.css", "jqpagination.css"] 
-js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js"]>
+js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi-yuantong.js", "kuaidi-yunda.js", "kuaidi-ems.js", "kuaidi-sf.js"]>
 	<script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
 	<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
 	    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
@@ -71,7 +71,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js"]>
 		</#if>
 		<#if CURRENT_USER.type=="WareHouse">
 			<a class="btn btn-primary" id="batch-find-goods">批量拣货</a>
-			<a class="btn btn-primary" id="batch-find-goods">批量打印快递单</a>
+			<a class="btn btn-primary" id="batch-prn-kdd">批量打印快递单</a>
 			<a class="btn btn-primary" id="batch-find-goods">批量打印发货单</a>
 		</#if>
 	</div>
@@ -99,7 +99,13 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js"]>
 		    <tbody>
 		      <tr class="trade" style="background-color: ${tColor};">
 		        <td colspan="7">
-		        	<input class="wait-check" data-tid="${trade.tid}" data-status="${trade.myStatus.getStatus()}" type="checkbox"/>
+		        	<input class="wait-check" data-tid="${trade.tid}" data-status="${trade.myStatus.getStatus()}" 
+		        	data-delivery="${trade.delivery!''}"
+		        	data-name="${trade.name}"
+		        	data-address="${trade.state}${trade.city}${trade.district!''}${trade.address}"
+		        	data-mobile="${trade.mobile!''}"
+		        	data-state="${trade.state}"
+		        	type="checkbox"/>
 		        	${trade.come_from!}&nbsp;&nbsp;&nbsp;
 		        	<strong>订单编号：</strong></strong>${trade.tid}  &nbsp;&nbsp;&nbsp;
 		        	<strong>创建时间：</strong>${trade.created?string('yyyy-MM-dd HH:mm:ss')} &nbsp;&nbsp;&nbsp;
@@ -163,12 +169,42 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js"]>
 					        		<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
 				        		<#if trade.my_status==3>
-				        			<p>打印快递单 &nbsp;&nbsp; 
-					        			<a href="javascript:prn1_preview('${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+				        			<p>
+				        				<#if trade.delivery=="申通E物流">
+					        			<a href="javascript:prn_shentong(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
-											预览
+											打印快递单
 										</a>
+										</#if>
+										<#if trade.delivery=="圆通速递">
+					        			<a href="javascript:prn_yuantong(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
+											打印快递单
+										</a>
+										</#if>
+										<#if trade.delivery=="韵达快运">
+					        			<a href="javascript:prn_yunda(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
+											打印快递单
+										</a>
+										</#if>
+										<#if trade.delivery=="EMS">
+					        			<a href="javascript:prn_ems(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
+											打印快递单
+										</a>
+										</#if>
+										<#if trade.delivery=="顺丰速运">
+					        			<a href="javascript:prn_sf(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
+											打印快递单
+										</a>
+										</#if>
 									</p>
 					        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
 				        			<p><a class="send-goods" data-tid="${trade.tid}" data-delivery="${trade.delivery}" 
@@ -540,6 +576,48 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js"]>
 			                window.location.reload();
 		                }
 	            }}); 
+    		}
+    	})
+    	
+    	$('#batch-prn-kdd').click(function() {
+    		var checked = $('.wait-check:checked');
+    		if(checked.length==0) {
+    			alert('至少选中一个订单!');
+    			return false;
+    		}
+    		var b = true;
+    		var tids = "";
+    		var delivery;
+    		$(checked).each(function(index, item) {
+    			if(index==0) {
+					delivery = $(item).attr("data-delivery");    			
+    			} else {
+    				if(delivery != $(item).attr("data-delivery")) {
+    					b = false;
+    					return false;
+    				}
+    			}
+    		})
+    		if(!b) {
+    			alert('所有选中订单的快递必须相同!');
+    		} else {
+    			LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));  
+				LODOP.PRINT_INIT("");
+				LODOP.SET_PRINT_PAGESIZE(1,2970,2100,"");
+				LODOP.SET_PRINT_STYLE("FontSize",16);
+				LODOP.SET_PRINT_STYLE("Bold",1);	
+				$(checked).each(function(index, item) {
+					var name = $(item).attr("data-name");
+					var address = $(item).attr("data-address");
+					var mobile = $(item).attr("data-mobile");
+					var state = $(item).attr("data-state");
+	    			CreateShentongPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											name, name, address, mobile, state);
+	    		})
+				LODOP.SET_PREVIEW_WINDOW(0,0,0,0,0,"");			
+				LODOP.PREVIEW();
+    			
     		}
     	})
 		
