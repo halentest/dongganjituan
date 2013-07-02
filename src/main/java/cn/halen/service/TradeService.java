@@ -432,12 +432,12 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public long countTrade(List<String> sellerNickList, String name, String tid, List<Integer> statusList, List<Integer> notstatusList) {
-		return myTradeMapper.countTrade(sellerNickList, name, tid, statusList, notstatusList);
+	public long countTrade(List<String> sellerNickList, String name, String tid, List<Integer> statusList, List<Integer> notstatusList, String delivery) {
+		return myTradeMapper.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery);
 	}
 	
-	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<Integer> statusList, List<Integer> notstatusList) {
-		return myTradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList);
+	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<Integer> statusList, List<Integer> notstatusList, String delivery) {
+		return myTradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery);
 	}
 	
 	public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ParseException, ApiException, InsufficientStockException, InsufficientBalanceException {

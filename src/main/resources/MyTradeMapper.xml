@@ -97,6 +97,9 @@
    				<if test="name != null">
    					and t.name like CONCAT('%', #{name}, '%')
    				</if>
+   				<if test="delivery != null">
+   					and t.delivery = #{delivery}
+   				</if>
    				<if test="tid != null">
    					and t.tid like CONCAT('%', #{tid}, '%')
    				</if>
@@ -147,6 +150,9 @@
 			   				</if>
 			   				<if test="tid != null">
 			   					and trade.tid like CONCAT('%', #{tid}, '%')
+			   				</if>
+			   				<if test="delivery != null">
+			   					and trade.delivery = #{delivery}
 			   				</if>
 			   				<if test="notstatusList != null">
 			   					and trade.my_status not in (

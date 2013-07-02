@@ -38,11 +38,19 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 			</#list>
 		</select>
 		&nbsp;&nbsp;&nbsp;&nbsp;
+		<strong>快递</strong>
+		<select id="delivery" style="width: 8%;">
+			<option value="">所有快递</option>
+			<#list logistics as lo>
+				<option value="${lo.name}">${lo.name}</option>
+			</#list>
+		</select>
+		&nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>订单号</strong>
-		<input id="tid" type="input" value="" style="width: 10%; height: 20px;"/>
+		<input id="tid" type="input" value="" style="width: 10%; height: 15px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>收货人</strong>
-		<input id="name" type="input" value="" style="width: 6%; height: 20px;"/>
+		<input id="name" type="input" value="" style="width: 6%; height: 15px;"/>
 		<!-- &nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>开始时间</strong>
 		<input id="name" type="input" value="" style="width: 8%; height: 20px;"/>
@@ -611,9 +619,30 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 					var address = $(item).attr("data-address");
 					var mobile = $(item).attr("data-mobile");
 					var state = $(item).attr("data-state");
-	    			CreateShentongPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					if(delivery=="韵达快运") {
+						CreateYundaPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											name, name, address, mobile, state);
+					} else if(delivery=="申通E物流") {
+						CreateShentongPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											name, name, address, mobile, state);
+					} else if(delivery=="顺丰速运") {
+						CreateSfPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											name, name, address, mobile, state);
+					} else if(delivery=="EMS") {
+						CreateEmsPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											name, name, address, mobile, state);
+					} else if(delivery=="圆通速递") {
+						CreateYuantongPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+											name, name, address, mobile, state);
+					} else {
+						alert("暂时不支持这个快递打印" + delivery);
+					}
+	    			
 	    		})
 				LODOP.SET_PREVIEW_WINDOW(0,0,0,0,0,"");			
 				LODOP.PREVIEW();
@@ -629,5 +658,15 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 	      $('#distributor').val('${dId!-1}');
 	      $('#seller_nick').val('${seller_nick!""}');
 	      $('#status').val('${status!""}');
+	      $('#delivery').val('${delivery!""}');
 	}
+	
+	function CreateOneFormPage(){
+		LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));  
+		LODOP.PRINT_INIT("1");
+		LODOP.SET_PRINT_STYLE("FontSize",10);
+		LODOP.SET_PRINT_STYLE("Bold",1);
+		//LODOP.ADD_PRINT_TEXT(50,231,260,39,"打印页面部分内容");
+		//LODOP.ADD_PRINT_HTM(88,200,350,600,document.getElementById("form1").innerHTML);
+	};	     
 </script>

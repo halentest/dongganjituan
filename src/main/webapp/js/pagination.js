@@ -11,8 +11,9 @@ $(document).ready(function(){
 		    	var seller_nick = $('#seller_nick').val();
 		    	var name = $('#name').val();
 		    	var tid = $('#tid').val();
+		    	var delivery = $('#delivery').val();
 		        window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
-		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor;
+		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor + "&delivery=" + delivery;
 		    }
 	   });
 	   
@@ -26,8 +27,9 @@ $(document).ready(function(){
 	    	var name = $('#name').val();
 	    	var tid = $('#tid').val();
 	    	var page = $('#page').attr('data-current-page');
+	    	var delivery = $('#delivery').val();
 	   		window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
-		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor;
+		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor + "&delivery=" + delivery;
 	   });
 });
 

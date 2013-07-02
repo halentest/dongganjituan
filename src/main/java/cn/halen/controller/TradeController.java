@@ -62,6 +62,7 @@ public class TradeController {
 			@RequestParam(value="name", required=false) String name, 
 			@RequestParam(value="tid", required=false) String tid, 
 			@RequestParam(value="status", required=false) Integer status,
+			@RequestParam(value="delivery", required=false) String delivery,
 			@RequestParam(value="page", required=false) Integer page) {
 		int intPage = 1;
 		if(null!=page && page>0) {
@@ -137,12 +138,12 @@ public class TradeController {
 			model.addAttribute("statusList", WareHouse);
 		}
 		
-		long totalCount = tradeService.countTrade(sellerNickList, name, tid, statusList, notstatusList);
+		long totalCount = tradeService.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery);
 		model.addAttribute("totalCount", totalCount);
 		Paging paging = new Paging(intPage, 10, totalCount);
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
-			list = tradeService.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList);
+			list = tradeService.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery);
 		}
 		model.addAttribute("trade_list", list);
 		model.addAttribute("paging", paging);
@@ -150,6 +151,7 @@ public class TradeController {
 		model.addAttribute("tid", tid);
 		model.addAttribute("status", status);
 		model.addAttribute("seller_nick", sellerNick);
+		model.addAttribute("delivery", delivery);
 		model.addAttribute("dId", dId);
 		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
 		model.addAttribute("dList", adminMapper.listDistributor());
