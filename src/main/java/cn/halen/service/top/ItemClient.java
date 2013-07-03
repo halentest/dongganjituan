@@ -32,7 +32,7 @@ import com.taobao.api.response.ItemsOnsaleGetResponse;
 public class ItemClient {
 	private Logger log = LoggerFactory.getLogger(ItemClient.class);
 	
-	private static final int NUMBER_OF_PARAM = 40;
+	private static final int NUMBER_OF_PARAM = 20;
 	@Autowired
 	private TopConfig topConfig;
 	@Autowired
@@ -119,7 +119,7 @@ public class ItemClient {
 		ItemsOnsaleGetRequest req = new ItemsOnsaleGetRequest();
 		req.setFields("num_iid, outer_id, title, price, pic_url");
 		req.setOrderBy("num");
-		req.setPageSize(40L);
+		req.setPageSize(20L);
 		long pageNo = 1;
 		req.setPageNo(pageNo++);
 		ItemsOnsaleGetResponse response = client.execute(req , topConfig.getMainToken());
@@ -148,11 +148,17 @@ public class ItemClient {
 				}
 			}
 			totalSuccess += goodsMapper.batchInsert(goodsList);
+			StringBuilder builder = new StringBuilder();
+			for(Goods goods : goodsList) {
+				builder.append(goods.getHid());
+				builder.append(",");
+			}
+			log.info("batch insert goods is " + builder.toString());
 			importSku(goodsList);
 			
 			long total = response.getTotalResults();
-			if(total > 40L) {
-				while((pageNo - 1) * 40 < total) {
+			if(total > NUMBER_OF_PARAM) {
+				while((pageNo - 1) * NUMBER_OF_PARAM < total) {
 					req.setPageNo(pageNo++);
 					response = client.execute(req, topConfig.getMainToken());
 					if(response.isSuccess()) {
@@ -177,6 +183,12 @@ public class ItemClient {
 							}
 						}
 						totalSuccess += goodsMapper.batchInsert(goodsList);
+						builder = new StringBuilder();
+						for(Goods goods : goodsList) {
+							builder.append(goods.getHid());
+							builder.append(",");
+						}
+						log.info("batch insert goods is " + builder.toString());
 						importSku(goodsList);
 					} else {
 						log.error("Error while query ItemsOnsaleGetResponse, errorInfo {}", response.getSubCode());
@@ -192,25 +204,47 @@ public class ItemClient {
 	public void importSku(List<Goods> goodsList) throws ApiException, JSONException {
 		TaobaoClient client = topConfig.getRetryClient();
 		ItemsCustomGetRequest req = new ItemsCustomGetRequest();
-		//取得outerid list，拼成字符串，最多不超过40个
+		//取得outerid list，拼成字符串，最多不超过NUMBER_OF_PARAM个
 		
-		for(int loop=0,count=0;;loop++) {
 			StringBuilder builder = new StringBuilder();
-			for(count=NUMBER_OF_PARAM*loop; count<goodsList.size() && count<(loop+1)*NUMBER_OF_PARAM; count++) {
-				builder.append(goodsList.get(count).getHid());
-				if(count != (loop+1)*NUMBER_OF_PARAM-1 && count != goodsList.size()-1) {
+			int count = 0;
+			for(Goods goods : goodsList) {
+				builder.append(goods.getHid());
+				if(count != goodsList.size()-1) {
 					builder.append(",");
 				}
+				count ++;
 			}
 			req.setOuterId(builder.toString());
+			log.info(builder.toString());
 			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props");
 			ItemsCustomGetResponse response = client.execute(req , topConfig.getMainToken());
 			List<Item> itemList = response.getItems();
-			insertSku(itemList);
-			if(count==goodsList.size()) {
-				break;
+			builder = new StringBuilder();
+			for(Item item : itemList) {
+				builder.append(item.getOuterId());
+				builder.append(",");
 			}
-		}
+			log.info("Item is :" + builder.toString());
+			insertSku(itemList);
+		
+//		for(int loop=0,count=0;;loop++) {
+//			StringBuilder builder = new StringBuilder();
+//			for(count=NUMBER_OF_PARAM*loop; count<goodsList.size() && count<(loop+1)*NUMBER_OF_PARAM; count++) {
+//				builder.append(goodsList.get(count).getHid());
+//				if(count != (loop+1)*NUMBER_OF_PARAM-1 && count != goodsList.size()-1) {
+//					builder.append(",");
+//				}
+//			}
+//			req.setOuterId(builder.toString());
+//			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props");
+//			ItemsCustomGetResponse response = client.execute(req , topConfig.getMainToken());
+//			List<Item> itemList = response.getItems();
+//			insertSku(itemList);
+//			if(count==goodsList.size()) {
+//				break;
+//			}
+//		}
 	}
 	
 	private void insertSku(List<Item> list) {
@@ -219,6 +253,7 @@ public class ItemClient {
 		Map<String, Boolean> has = new HashMap<String, Boolean>();
 		for(Item item : list) {
 			if(has.containsKey(item.getOuterId())) {
+				log.info("insertSku {} has is true", item.getOuterId());
 				continue;
 			}
 			Map<String, String> alias = new HashMap<String, String>();
@@ -260,7 +295,7 @@ public class ItemClient {
 				mySku.setSize(size);
 				mySku.setTao_id(sku.getSkuId());
 				try {
-					skuMapper.insert(mySku);
+					int count = skuMapper.insert(mySku);
 				} catch (Exception e) {
 					log.error("有重复的sku", e);
 				}
