@@ -250,7 +250,11 @@ public class ItemClient {
 				mySku.setQuantity(sku.getQuantity());
 				mySku.setSize(size);
 				mySku.setTao_id(sku.getSkuId());
-				skuMapper.insert(mySku);
+				try {
+					skuMapper.insert(mySku);
+				} catch (Exception e) {
+					log.error("有重复的sku", e);
+				}
 			}
  			
 		}
