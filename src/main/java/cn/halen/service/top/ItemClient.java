@@ -124,12 +124,15 @@ public class ItemClient {
 		req.setPageNo(pageNo++);
 		ItemsOnsaleGetResponse response = client.execute(req , topConfig.getMainToken());
 		List<Goods> goodsList = new ArrayList<Goods>();
+		
+		Map<String, Boolean> has = new HashMap<String, Boolean>();
+		
 		if(response.isSuccess()) {
 			List<Item> list = response.getItems();
 			log.debug("Got {} items from top api", list.size());
 			for(Item item : list) {
 				Goods dbGoods = dbGoodsMap.get(item.getOuterId());
-				if(StringUtils.isNotEmpty(item.getOuterId()) && null == dbGoods) {//数据库里没有的才需要同步
+				if(StringUtils.isNotEmpty(item.getOuterId()) && null == dbGoods && !has.containsKey(item.getOuterId())) {//数据库里没有的才需要同步
 					Goods goods = new Goods();
 					goods.setTao_id(item.getNumIid());
 					goods.setHid(item.getOuterId());
@@ -139,6 +142,7 @@ public class ItemClient {
 					goods.setTemplate("默认模板");
 					goods.setStatus(1);
 					goodsList.add(goods);
+					has.put(goods.getHid(), true);
 				} else if(null != dbGoods && StringUtils.isEmpty(dbGoods.getUrl())) {
 					goodsMapper.updatePicUrl(item.getPicUrl(), dbGoods.getHid());
 				}
@@ -157,7 +161,7 @@ public class ItemClient {
 						goodsList.clear();
 						for(Item item : list) {
 							Goods dbGoods = dbGoodsMap.get(item.getOuterId());
-							if(StringUtils.isNotEmpty(item.getOuterId()) && null == dbGoods) {//数据库里没有的才需要同步
+							if(StringUtils.isNotEmpty(item.getOuterId()) && null == dbGoods && !has.containsKey(item.getOuterId())) {//数据库里没有的才需要同步
 								Goods goods = new Goods();
 								goods.setTao_id(item.getNumIid());
 								goods.setHid(item.getOuterId());
@@ -167,6 +171,7 @@ public class ItemClient {
 								goods.setTemplate("默认模板");
 								goods.setStatus(1);
 								goodsList.add(goods);
+								has.put(goods.getHid(), true);
 							} else if(null != dbGoods && StringUtils.isEmpty(dbGoods.getUrl())) {
 								goodsMapper.updatePicUrl(item.getPicUrl(), dbGoods.getHid());
 							}
@@ -211,7 +216,11 @@ public class ItemClient {
 	private void insertSku(List<Item> list) {
 		if(null == list || list.size() == 0)
 			return;
+		Map<String, Boolean> has = new HashMap<String, Boolean>();
 		for(Item item : list) {
+			if(has.containsKey(item.getOuterId())) {
+				continue;
+			}
 			Map<String, String> alias = new HashMap<String, String>();
 			String propertyAlias = item.getPropertyAlias();
 			if(StringUtils.isNotBlank(propertyAlias)) {
@@ -256,7 +265,7 @@ public class ItemClient {
 					log.error("有重复的sku", e);
 				}
 			}
- 			
+			has.put(item.getOuterId(), true);
 		}
 	}
 }
