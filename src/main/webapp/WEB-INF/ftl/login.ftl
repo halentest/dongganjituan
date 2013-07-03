@@ -21,7 +21,7 @@
 				    <div class="control-group">
 				      <label class="control-label" for="j_password">密码</label>
 				      <div class="controls">
-				        <input type="text" class="input-medium" id="j_password" name="j_password">
+				        <input type="password" class="input-medium" id="j_password" name="j_password">
 				      </div>
 				    </div>
 				    <div class="control-group">
