@@ -46,7 +46,7 @@ public class DataConfig {
 	@Bean()
 	public DataSource mysqlDataSource() {
 		BasicDataSource dataSource = new BasicDataSource();
-		String url = String.format("jdbc:mysql://%s:%s/%s", mysqlDbHost, mysqlDbPort,
+		String url = String.format("jdbc:mysql://%s:%s/%s?characterEncoding=utf8", mysqlDbHost, mysqlDbPort,
 				mysqlDbName);
 		dataSource.setUrl(url);
 		dataSource.setUsername(mysqlDbUsername);
