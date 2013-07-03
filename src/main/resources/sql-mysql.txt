@@ -8,7 +8,6 @@ create table logistics_company (
 	modified timestamp,
 	created timestamp
 );
-
 drop table if exists item_prop;
 create table item_prop (
 	id int primary key auto_increment,
@@ -18,7 +17,6 @@ create table item_prop (
 	created timestamp,
 	unique key(pid, name)
 );
-
 drop table if exists prop_value;
 create table prop_value (
 	id int primary key auto_increment,
@@ -29,7 +27,6 @@ create table prop_value (
 	created timestamp,
 	unique key(vid, name, pid)
 );
-
 drop table if exists goods;
 create table goods (
 	id bigint primary key auto_increment, 
@@ -45,7 +42,6 @@ create table goods (
 	modified timestamp,
 	created timestamp
 );
-
 drop table if exists sku;
 create table sku (
 	id bigint primary key auto_increment,
@@ -59,7 +55,6 @@ create table sku (
 	created timestamp,
 	unique key(goods_id, color, size)
 );
-
 drop table if exists area;
 create table area (
 	id bigint primary key,
@@ -69,7 +64,6 @@ create table area (
 	modified timestamp,
 	created timestamp
 	);
-
 drop table if exists refund;
 create table refund (
 	id bigint primary key auto_increment,
@@ -88,7 +82,6 @@ create table refund (
 	created timestamp,
 	unique key(tid, oid)
 );
-
 drop table if exists trade;
 create table trade (
 	id bigint primary key auto_increment,
@@ -119,7 +112,6 @@ create table trade (
 	created timestamp,
 	operator varchar(50)
 );
-
 drop table if exists order1;
 create table order1
 (
@@ -141,7 +133,6 @@ create table order1
 	modified timestamp,
 	created timestamp
 );
-
 drop table if exists user1;
 create table user1 (
 	id int primary key auto_increment,
@@ -155,7 +146,6 @@ create table user1 (
 );
 insert into user1 values(null, 'superadmin', 'superadmin', 1, 'SuperAdmin', now(), now(), -1);
 insert into user1 values(null, 'admin', 'admin', 1, 'Admin', now(), now(), -1);
-
 drop table if exists user_authority;
 create table user_authority (
 	id int primary key auto_increment,
@@ -168,11 +158,9 @@ create table user_authority (
 insert into user_authority values(null, 'superadmin', 'manager_system', now(), now());
 insert into user_authority values(null, 'superadmin', 'manager_system_action', now(), now());
 insert into user_authority values(null, 'superadmin', 'logined', now(), now());
-
 insert into user_authority values(null, 'admin', 'manager_system', now(), now());
 insert into user_authority values(null, 'admin', 'manager_system_action', now(), now());
 insert into user_authority values(null, 'admin', 'logined', now(), now());
-
 drop table if exists distributor;
 create table distributor (
 	id int primary key auto_increment,
@@ -185,7 +173,6 @@ create table distributor (
 	modified timestamp,
 	created timestamp
 );
-
 drop table if exists shop;
 create table shop (
 	id int primary key auto_increment,
@@ -201,37 +188,6 @@ create table shop (
 	auto_sync_store tinyint
 );
 
-drop table if exists province;
-create table province (
-	id int primary key auto_increment,
-	name varchar(20) not null,
-	unique key(name)
-);
-insert into province values (null, "安徽");
-insert into province values (null, "浙江");
-
-drop table if exists city;
-create table city (
-	id int primary key auto_increment,
-	name varchar(20) not null,
-	pid int not null,
-	unique key(id, name)
-);
-insert into city values(null, "滁州", 1);
-insert into city values(null, "合肥", 1);
-insert into city values(null, "杭州", 2);
-insert into city values(null, "湖州", 2);
-insert into city values(null, "宁波", 2);
-insert into city values(null, "衢州", 2);
-
-drop table if exists delivery;
-create table delivery (
-	id int primary key auto_increment,
-	name varchar(20) not null
-);
-insert into delivery values (null, "申通");
-insert into delivery values(null, "顺丰");	
-
 drop table if exists template;
 create table template (
 	id int primary key auto_increment,
@@ -246,7 +202,6 @@ create table template (
 	created timestamp,
 	unique key(name, logistics_type, area)
 );
-
 drop table if exists template_name;
 create table template_name (
 	id int primary key auto_increment,
@@ -255,7 +210,6 @@ create table template_name (
 	created timestamp,
 	unique key(name)
 );
-
 drop table if exists seller_info;
 create table seller_info (
 	id int primary key auto_increment,

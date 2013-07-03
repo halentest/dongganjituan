@@ -59,6 +59,7 @@ public class TopListenerStarter implements InitializingBean {
 	public void start() throws ApiException, ParseException, InsufficientStockException, InsufficientBalanceException {
 		
 		log.info("Start Top Listener!");
+		log.info("系统启动");
 		
 		final TaobaoClient client = new AutoRetryTaobaoClient(topConfig.getUrl(), topConfig.getAppKey()
 				, topConfig.getAppSecret());
