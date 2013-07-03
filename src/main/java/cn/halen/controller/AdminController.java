@@ -481,4 +481,11 @@ public class AdminController {
 		}
 		return result;
 	}
+	
+	@RequestMapping(value="/callback")
+	public String callback(Model model, @RequestParam(value="view", required=false) String view) {
+		log.info("view is {}", view);
+		model.addAttribute("view", view);
+		return "callback";
+	}
 }

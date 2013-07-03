@@ -13,6 +13,7 @@
 
     <!--登录页面不过滤 -->  
     <http pattern="/favicon.ico" security="none"/>
+    <http pattern="/callback" security="none"/>
     <http pattern="/login" security="none"/>
     <http pattern="/css/**" security="none"/>
     <http pattern="/js/**" security="none"/>
