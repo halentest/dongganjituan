@@ -46,11 +46,13 @@ public class DataConfig {
 	@Bean()
 	public DataSource mysqlDataSource() {
 		BasicDataSource dataSource = new BasicDataSource();
-		String url = String.format("jdbc:mysql://%s:%s/%s?characterEncoding=utf8", mysqlDbHost, mysqlDbPort,
+		String url = String.format("jdbc:mysql://%s:%s/%s", mysqlDbHost, mysqlDbPort,
 				mysqlDbName);
 		dataSource.setUrl(url);
 		dataSource.setUsername(mysqlDbUsername);
 		dataSource.setPassword(mysqlDbPassword);
+		dataSource.addConnectionProperty("useUnicode", "true");
+		dataSource.addConnectionProperty("characterEncoding", "UTF-8");
 		dataSource.setMaxActive(4);
 		dataSource.setMaxIdle(2);
 		dataSource.setInitialSize(2);
