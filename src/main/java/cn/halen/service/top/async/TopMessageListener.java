@@ -27,7 +27,7 @@ import com.taobao.api.response.IncrementTradesGetResponse;
 
 public class TopMessageListener implements TopCometMessageListener {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private Logger log = LoggerFactory.getLogger(TopMessageListener.class);
 			
 	private WorkerService workerService;
 	
@@ -77,7 +77,7 @@ public class TopMessageListener implements TopCometMessageListener {
 			if(response.isSuccess()) {
 				List<DiscardInfo> list = response.getDiscardInfoList();
 				for(DiscardInfo info : list) {
-					log.info("handle discard msg nick: {}, start: {}, end: {}", info.getNick(), begin, end);
+                    log.info("handle discard msg nick {}, start {}, end {}", info.getNick(), begin, end);
 					long pageNo = 1;
 					boolean hasNext = true;
 					long queryTotal = 0;
