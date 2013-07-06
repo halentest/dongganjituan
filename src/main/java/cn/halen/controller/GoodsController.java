@@ -1,13 +1,12 @@
 package cn.halen.controller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
+import cn.halen.exception.InsufficientStockException;
+import cn.halen.service.SkuService;
+import cn.halen.service.excel.ExcelReader;
+import cn.halen.service.excel.Row;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,9 @@ import cn.halen.service.top.ItemClient;
 import cn.halen.service.top.TopConfig;
 import cn.halen.util.Constants;
 import cn.halen.util.Paging;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class GoodsController {
@@ -49,6 +51,9 @@ public class GoodsController {
 	
 	@Autowired
 	private ItemClient itemClient;
+
+    @Autowired
+    private SkuService skuService;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -169,4 +174,173 @@ public class GoodsController {
 		}
 		return result;
 	}
+
+    @RequestMapping(value="goods/action/upload")
+    public String upload(Model model, @RequestParam("action") String action) {
+        model.addAttribute("action", action);
+        return "goods/upload";
+    }
+
+    @RequestMapping(value="goods/action/do_upload")
+    public String doUpload(Model model, @RequestParam("action") String action,
+                           @RequestParam("file") MultipartFile file) {
+        model.addAttribute("action", action);
+        if(!file.isEmpty()) {
+            String type = file.getContentType();
+            if(!"application/vnd.ms-excel".equals(type)) {
+                model.addAttribute("errorInfo", "选择的文件必须是03版本的excel表格!");
+                return "goods/upload";
+            }
+            try {
+                String fileName = new String(file.getOriginalFilename().getBytes("iso8859-1"), "UTF-8");
+                File dest = null;
+                if("buy".equals(action)) {
+                    dest = new File(topConfig.getFileBuyGoods() + "\\" + fileName);
+                } else if("refund".equals(action)) {
+                    dest = new File(topConfig.getFileRefundGoods() + "\\" + fileName);
+                } else {
+                    model.addAttribute("errorInfo", "无效参数!");
+                    return "goods/upload";
+                }
+                if(dest.exists()) {
+                    model.addAttribute("errorInfo", "这个" + (action.equals("buy")==true?"进货单":"退货单") + "已经存在，不能重复添加!");
+                    return "goods/upload";
+                }
+                byte[] bytes = file.getBytes();
+                OutputStream out = new FileOutputStream(dest);
+                out.write(bytes);
+                out.flush();
+                out.close();
+                if(!handleExcel(model, dest, action)) {
+                    dest.delete();
+                    return "goods/upload";
+                }
+            } catch (IOException e) {
+                log.error("Upload file failed, ", e);
+                model.addAttribute("errorInfo", "上传文件失败，请重试!");
+                return "goods/upload";
+            }
+        } else {
+            model.addAttribute("errorInfo", "必须选择一个文件!");
+            return "goods/upload";
+        }
+        model.addAttribute("successInfo", "导入" + (action.equals("buy")==true?"进货单":"退货单") + "成功!");
+        return "goods/upload";
+    }
+
+    private boolean handleExcel(Model model, File file, String action) {
+        ExcelReader reader = null;
+        try {
+            reader = new ExcelReader(file);
+        } catch (Exception e) {
+            log.error("Handle excel failed, ", e);
+            model.addAttribute("errorInfo", "系统异常，请联系管理员!");
+            return false;
+        }
+        boolean checkColumn = reader.checkColumn();
+        if(!checkColumn) {
+            model.addAttribute("errorInfo", "格式不正确，必须有 编号、颜色、尺码、数量 这几列!");
+            return false;
+        }
+        int checkData = reader.checkData();
+        if(checkData != 0) {
+            model.addAttribute("errorInfo", "第 " + (checkData + 1) + " 行数据格式不正确，请修改后重试!");
+            return false;
+        }
+        List<Row> rows = reader.getData();
+        Row row = skuService.checkRow(rows);
+        if(null != row) {
+            model.addAttribute("errorInfo", "这个商品(" + row.getGoodsId() + "," + row.getColor() + "," + row.getSize() + ")不存在，请检查是否存在错误或者在系统中添加该商品之后重试!");
+            return false;
+        }
+        try {
+            skuService.execRow(rows, action);
+        } catch (InsufficientStockException e) {
+            model.addAttribute("errorInfo", "这个商品(" + e.getGoodsHid() + ")库存不足，更新失败!");
+            return false;
+        } catch (Exception e) {
+            model.addAttribute("errorInfo", "系统异常，请重试!");
+            return false;
+        }
+        return true;
+    }
+
+    @RequestMapping(value="goods/upload_list")
+    public String doUpload(Model model, @RequestParam("action") String action) {
+        File filePath = null;
+        model.addAttribute("action", action);
+        if("buy".equals(action)) {
+            filePath = new File(topConfig.getFileBuyGoods());
+        } else if ("refund".equals(action)) {
+            filePath = new File(topConfig.getFileRefundGoods());
+        } else {
+            model.addAttribute("errorInfo", "参数错误!");
+            return "error_page";
+        }
+        if(filePath.exists()) {
+            File[] files = filePath.listFiles();
+            List<File> fileList = Arrays.asList(files);
+            Collections.sort(fileList, new Comparator<File>() {
+                @Override
+                public int compare(File o1, File o2) {
+                    long date1 = o1.lastModified();
+                    long date2 = o2.lastModified();
+                    if(date1 > date2) {
+                        return -1;
+                    } else if(date1 < date2) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+            Map<String, Date> map = new LinkedHashMap<String, Date>(fileList.size());
+            for(File file : fileList) {
+                map.put(file.getName(), new Date(file.lastModified()));
+            }
+            model.addAttribute("map", map);
+        }
+        return "goods/upload_list";
+    }
+
+    @RequestMapping("goods/download")
+    public void download(Model model, HttpServletResponse response, @RequestParam("name") String name,
+                         @RequestParam("action") String action) {
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("multipart/form-data");
+        File file = null;
+        if("buy".equals(action)) {
+            file = new File(topConfig.getFileBuyGoods() + "//" + name);
+        } else if ("refund".equals(action)) {
+            file = new File(topConfig.getFileRefundGoods() + "//" + name);
+        }
+        if(!file.exists()) {
+            log.info("File {} not exists, can not be download!");
+            return;
+        }
+
+        try {
+            response.setHeader("Content-Disposition", "attachment;fileName=" + new String(name.getBytes("UTF-8"), "ISO8859-1"));
+        } catch (UnsupportedEncodingException e) {
+            log.error("", e);
+        }
+        OutputStream os = null;
+        try {
+            response.flushBuffer();
+            os = response.getOutputStream();
+            byte[] b=new byte[1024];
+            int length;
+            InputStream is = new FileInputStream(file);
+            while((length = is.read(b))>0){
+                os.write(b, 0, length);
+            }
+        } catch (IOException e) {
+            log.error("", e);
+        } finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+            }
+        }
+    }
 }

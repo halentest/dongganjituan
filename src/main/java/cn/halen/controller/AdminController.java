@@ -519,7 +519,11 @@ public class AdminController {
             String sellerNick = jsonObject.getString("taobao_user_nick");
             log.info("用户 {} 获取access token成功 ：{}", sellerNick, accessToken);
             //更新数据库
-            adminMapper.updateShopToken(accessToken, sellerNick);
+            int count = adminMapper.updateShopToken(accessToken, sellerNick);
+            if(count == 0) {
+                model.addAttribute("errorInfo", "对不起，系统内目前没有你的店铺信息，不能自动同步订单，请先联系管理员添加您的店铺信息！");
+                return "error_page";
+            }
             //重新permit
             starter.permitUser(accessToken);
 

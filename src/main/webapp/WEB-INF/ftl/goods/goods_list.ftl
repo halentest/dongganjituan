@@ -9,7 +9,7 @@
 	<i class="icon-list-alt"></i>商品列表
 	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
 		<strong>商品编号</strong>
-		<input id="goods-id" type="input" value="" style="width: 6%; height: 20px;"/>
+		<input id="goods-id" type="input" value="" style="width: 6%; height: 15px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品
 		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
@@ -101,9 +101,11 @@
 	    <p>
 	    	请选择模板 
 	    	<select id="template">
-	    		<#list templateList as template>
-	    		<option value=${template}>${template}</option>
-	    		</#list>
+	    	    <#if templateList??>
+                    <#list templateList as template>
+                    <option value=${template}>${template}</option>
+                    </#list>
+	    		</#if>
 	    	</select>
 	    	<input type="hidden" id="hids"/>
 	    </p>

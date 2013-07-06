@@ -37,6 +37,12 @@ public class TopConfig {
 
     @Value("${top.token.url}")
     private String topTokenUrl;
+
+    @Value("${file.buygoods}")
+    private String fileBuyGoods;
+
+    @Value("${file.refundgoods}")
+    private String fileRefundGoods;
 	
 	@Autowired
 	private AdminMapper adminMapper;
@@ -59,6 +65,14 @@ public class TopConfig {
 
     public String getTopTokenUrl() {
         return topTokenUrl;
+    }
+
+    public String getFileRefundGoods() {
+        return fileRefundGoods;
+    }
+
+    public String getFileBuyGoods() {
+        return fileBuyGoods;
     }
 
     public String getToken(String sellerNick) {

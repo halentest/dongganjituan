@@ -64,8 +64,11 @@
 	                  <li><a href="${rc.contextPath}/goods/goods_list">商品列表</a></li>
 	                  <li><a href="#">添加商品</a></li>
 	                  <li class="divider"></li>
-	                  <li><a href="#">进货(excel批量导入)</a></li>
-	                  <li><a href="#">出货(excel批量导入)</a></li>
+	                  <li><a href="${rc.contextPath}/goods/action/upload?action=buy">进仓(excel批量导入)</a></li>
+	                  <li><a href="${rc.contextPath}/goods/action/upload?action=refund">退仓(excel批量导入)</a></li>
+                      <li class="divider"></li>
+                      <li><a href="${rc.contextPath}/goods/upload_list?action=buy">进仓单列表</a></li>
+                      <li><a href="${rc.contextPath}/goods/upload_list?action=refund">退仓单列表</a></li>
 	              </ul>
 	          </li>
 	          <#if CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="WareHouse" || CURRENT_USER.type=="DistributorManager">

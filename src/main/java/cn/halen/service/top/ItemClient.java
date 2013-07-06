@@ -217,7 +217,7 @@ public class ItemClient {
 			}
 			req.setOuterId(builder.toString());
 			log.info(builder.toString());
-			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props");
+			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props,approve_status");
 			ItemsCustomGetResponse response = client.execute(req , topConfig.getMainToken());
 			List<Item> itemList = response.getItems();
 			builder = new StringBuilder();
@@ -256,6 +256,10 @@ public class ItemClient {
 				log.info("insertSku {} has is true", item.getOuterId());
 				continue;
 			}
+            if(!item.getApproveStatus().equals("onsale")) {
+                log.info("这个商品不是在售商品，不导入到系统中，状态是 {}", item.getApproveStatus());
+                continue;
+            }
 			Map<String, String> alias = new HashMap<String, String>();
 			String propertyAlias = item.getPropertyAlias();
 			if(StringUtils.isNotBlank(propertyAlias)) {
