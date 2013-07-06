@@ -9,7 +9,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.halen.service.top.TopConfig;
+import cn.halen.service.top.TopListenerStarter;
+import com.taobao.api.ApiException;
+import com.taobao.api.internal.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +58,12 @@ public class AdminController {
 	
 	@Autowired
 	private MyLogisticsCompanyMapper logisticsMapper;
+
+    @Autowired
+    private TopConfig topConfig;
+
+    @Autowired
+    private TopListenerStarter starter;
 	
 	@RequestMapping(value="admin/action/account_list")
 	public String list(Model model) {
@@ -483,9 +495,48 @@ public class AdminController {
 	}
 	
 	@RequestMapping(value="/callback")
-	public String callback(Model model, @RequestParam(value="view", required=false) String view) {
-		log.info("view is {}", view);
-		model.addAttribute("view", view);
-		return "callback";
+	public String callback(Model model, @RequestParam(value="code", required=false) String code,
+                           @RequestParam(value="error", required = false) String error,
+                           @RequestParam(value = "error_description", required = false) String errorDesc) {
+		if(StringUtils.isNotEmpty(error) || StringUtils.isEmpty(code)) {
+            log.error("获取授权码失败，errorCode ： {}, errorDesc ： {}", error, errorDesc);
+            model.addAttribute("errorInfo", "获取授权码失败，errorCode : " + error +
+            " errorDesc : " + errorDesc);
+            return "error_page";
+        }
+        //获取access token
+        Map<String, String> param = new HashMap<String, String>();
+        param.put("grant_type", "authorization_code");
+        param.put("code", code);
+        param.put("client_id", topConfig.getAppKey());
+        param.put("client_secret", topConfig.getAppSecret());
+        param.put("redirect_uri", topConfig.getCallback());
+        param.put("view", "web");
+        try {
+            String responseJson = WebUtils.doPost(topConfig.getTopTokenUrl(), param, 3000, 3000);
+            JSONObject jsonObject = new JSONObject(responseJson);
+            String accessToken = jsonObject.getString("access_token");
+            String sellerNick = jsonObject.getString("taobao_user_nick");
+            log.info("用户 {} 获取access token成功 ：{}", sellerNick, accessToken);
+            //更新数据库
+            adminMapper.updateShopToken(accessToken, sellerNick);
+            //重新permit
+            starter.permitUser(accessToken);
+
+        } catch (IOException e) {
+            log.error("获取access token失败，", e);
+            model.addAttribute("errorInfo", "获取access token失败，请重试!");
+            return "error_page";
+        } catch (JSONException e) {
+            log.error("获取access token失败, ", e);
+            model.addAttribute("errorInfo", "获取access token失败，请重试!");
+            return "error_page";
+        } catch (ApiException e) {
+            log.error("Permit user 失败, ", e);
+            model.addAttribute("errorInfo", "Permit user 失败，请重试!");
+            return "error_page";
+        }
+
+        return "callback";
 	}
 }

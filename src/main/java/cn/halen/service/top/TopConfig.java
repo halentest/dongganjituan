@@ -31,6 +31,12 @@ public class TopConfig {
 	
 	@Value("${top.main.sellernick}")
 	private String mainSeller;
+
+    @Value("${top.callback}")
+    private String callback;
+
+    @Value("${top.token.url}")
+    private String topTokenUrl;
 	
 	@Autowired
 	private AdminMapper adminMapper;
@@ -46,8 +52,16 @@ public class TopConfig {
 		}
 		return result;
 	}
-	
-	public String getToken(String sellerNick) {
+
+    public String getCallback() {
+        return callback;
+    }
+
+    public String getTopTokenUrl() {
+        return topTokenUrl;
+    }
+
+    public String getToken(String sellerNick) {
 		Shop s = adminMapper.selectShopBySellerNick(sellerNick);
 		if(null != s) {
 			return s.getToken();

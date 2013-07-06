@@ -252,6 +252,10 @@
 		insert into shop values(null, #{sellerNick}, #{token}, #{refreshToken}, null, now(), now(), #{autoSync},
 		#{type}, #{dId}, #{autoSyncStore})
 	</insert>
+
+    <update id="updateShopToken" parameterType="java.util.Map">
+        update shop set token=#{token}, auto_sync=1 where seller_nick=#{sellerNick}
+    </update>
 	
 	<select id="selectShopMap" parameterType="String" resultMap="shopMap">
 		select <include refid="shopColumns"/>

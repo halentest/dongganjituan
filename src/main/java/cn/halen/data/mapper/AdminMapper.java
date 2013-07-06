@@ -151,6 +151,13 @@ public class AdminMapper extends SqlSessionDaoSupport {
 	public int insertShop(Shop shop) {
 		return getSqlSession().insert("cn.halen.data.mapper.AdminMapper.insertShop", shop);
 	}
+
+    public int updateShopToken(String token, String sellerNick) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("token", token);
+        param.put("sellerNick", sellerNick);
+        return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateShopToken", param);
+    }
 	
 	public Shop selectShopMapBySellerNick(String sellerNick) {
 		return getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectShopMap", sellerNick);

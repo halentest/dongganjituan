@@ -66,7 +66,7 @@ public class TopListenerStarter implements InitializingBean {
 
 		// 启动主动通知监听器
 		for(String token : topConfig.listToken()) {
-			permitUser(client, token);
+			permitUser(token);
 		}
 		Configuration conf = new Configuration(topConfig.getAppKey(), topConfig.getAppSecret(), null);
 		TopCometStream stream = new TopCometStreamFactory(conf).getInstance();
@@ -82,11 +82,15 @@ public class TopListenerStarter implements InitializingBean {
 //		tradeService.initTrades(topConfig.listToken(), startDate, endDate);
 	}
 	
-	private void permitUser(TaobaoClient client, String sessionKey) throws ApiException {
+	public void permitUser(String sessionKey) throws ApiException {
 		IncrementCustomerPermitRequest req = new IncrementCustomerPermitRequest();
 		req.setType("get,notify");
-		TaobaoResponse response = client.execute(req, sessionKey);
-		System.out.println(response.getErrorCode());
+		TaobaoResponse response = topConfig.getRetryClient().execute(req, sessionKey);
+		if(!response.isSuccess()) {
+            log.error("failed to permit user, ", response.getErrorCode());
+        } else {
+            log.info("success permit user {}", sessionKey);
+        }
 	}
 
 	@Override

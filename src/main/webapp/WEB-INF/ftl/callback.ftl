@@ -9,8 +9,7 @@
 
  <body>
  	<div class="container" style="margin-top: 150px; width: 450px;">
-		 购买成功!
-		 view is ${view!''}
+		 授权成功！您的订单可以自动同步到系统了！
  	</div>
  </body>
 </html>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration scan="true">
-    <property resource="platform.properties" />
+    <!-- <property resource="config.properties" /> -->
 
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
-            <charset>gb2312</charset>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
@@ -15,12 +15,12 @@
             <level>TRACE</level>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${root.repo}/log/manager-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <fileNamePattern>log/manager-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
             <maxHistory>10</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
-            <charset>gb2312</charset>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 

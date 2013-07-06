@@ -279,7 +279,7 @@ public class ItemClient {
 							color = itemArray[3];
 						}
 					}
-					if(itemArray[0].equals("21921")) {
+					if(itemArray[0].equals("21921") || itemArray[0].equals("20518")) {
 						size = alias.get(itemArray[0] + ":" + itemArray[1]);
 						if(size==null) {
 							size = itemArray[3];
