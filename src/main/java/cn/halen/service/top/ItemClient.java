@@ -220,6 +220,8 @@ public class ItemClient {
 			req.setFields("num_iid,sku,props_name,outer_id,property_alias,props,approve_status");
 			ItemsCustomGetResponse response = client.execute(req , topConfig.getMainToken());
 			List<Item> itemList = response.getItems();
+            if(null == itemList || itemList.size() == 0)
+                return;
 			builder = new StringBuilder();
 			for(Item item : itemList) {
 				builder.append(item.getOuterId());

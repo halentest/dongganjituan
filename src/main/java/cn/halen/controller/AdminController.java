@@ -1,6 +1,7 @@
 package cn.halen.controller;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -516,7 +517,7 @@ public class AdminController {
             String responseJson = WebUtils.doPost(topConfig.getTopTokenUrl(), param, 3000, 3000);
             JSONObject jsonObject = new JSONObject(responseJson);
             String accessToken = jsonObject.getString("access_token");
-            String sellerNick = new String(jsonObject.getString("taobao_user_nick").getBytes("ISO-8859-1"), "UTF-8");
+            String sellerNick = URLDecoder.decode(jsonObject.getString("taobao_user_nick"), "UTF-8");
             log.info("用户 {} 获取access token成功 ：{}", sellerNick, accessToken);
             //更新数据库
             int count = adminMapper.updateShopToken(accessToken, sellerNick);
