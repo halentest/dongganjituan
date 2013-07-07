@@ -518,6 +518,8 @@ public class AdminController {
             JSONObject jsonObject = new JSONObject(responseJson);
             String accessToken = jsonObject.getString("access_token");
             String sellerNick = URLDecoder.decode(jsonObject.getString("taobao_user_nick"), "UTF-8");
+            long expire = jsonObject.getLong("expires_in");
+            log.info("user {} session expire is {}", sellerNick, expire);
             log.info("用户 {} 获取access token成功 ：{}", sellerNick, accessToken);
             //更新数据库
             int count = adminMapper.updateShopToken(accessToken, sellerNick);
