@@ -70,6 +70,8 @@ public class SkuService {
                 count = Math.abs(row.getCount());
             } else if(action.equals("refund")) {
                 count = -Math.abs(row.getCount());
+            } else {
+                throw new IllegalArgumentException("无效参数");
             }
             updateSku(row.getGoodsId(), row.getColor(), row.getSize(), count);
         }

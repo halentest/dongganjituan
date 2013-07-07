@@ -53,7 +53,7 @@
         	  		<#list map2?keys as key2>
         	  			<#if key2_index==0>
         	  				<#list map2[key2]?keys as key3>
-        	  					<th style="padding: 2px;">${key3}</th>
+        	  					<th class="can-change" data-goods="${goods.hid}" data-type="size" data-value="${key3}" style="padding: 2px;">${key3}</th>
         	  				</#list>
         	  			</#if>
         	  		</#list>
@@ -67,7 +67,7 @@
         	  </tr>
         	  <#list map2?keys as key2>
         	  <tr>
-        	  		<td>${key2}</td>
+        	  		<td data-goods="${goods.hid}" data-type="color" data-value="${key2}" class="can-change">${key2}</td>
         	  		<#list map2[key2]?keys as key3>
         	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2}" data-size="${key3}" 
         	  			is-selected="false" style="padding: 2px;"
@@ -288,7 +288,42 @@
 	                }
 	            }}); 
     	})
-		   
+
+        $('.can-change').dblclick(function() {
+            var v = $(this).attr('data-value');
+            $(this).html('<input id="tempInput" style="width: 50px; height: 12px;" type="text" onblur="changeGoods(this)" value=' + v + '>');
+            $('#tempInput').focus();
+        });
+
 	});
+
+    function changeGoods(param) {
+        var isTrue = confirm("确定修改它吗？");
+        var value = $(param).parent().attr('data-value');
+        if(!isTrue) {
+            $(param).parent().html(value);
+            return false;
+        }
+        var type = $(param).parent().attr('data-type');
+        var hid = $(param).parent().attr('data-goods');
+        var newValue = $(param).val();
+        if(value==newValue) {
+            $(param).parent().html(newValue);
+            return;
+        }
+        $.ajax({
+            type: "post",//使用get方法访问后台
+            dataType: "json",//返回json格式的数据
+            data: "hid=" + hid + "&type=" + type + '&value=' + newValue + "&oldValue=" + value,
+            url: "${rc.contextPath}/goods/action/change_goods",//要访问的后台地址
+            success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(result.errorInfo != "success") {
+                alert(result.errorInfo);
+            } else {
+                $(param).parent().html(newValue);
+            }
+        }});
+
+    }
 </script>
 

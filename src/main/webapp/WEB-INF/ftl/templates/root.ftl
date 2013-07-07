@@ -62,13 +62,14 @@
 	              <a class="dropdown-toggle" data-toggle="dropdown" href="#">库存管理 <b class="caret"></b></a>
 	              <ul class="dropdown-menu">
 	                  <li><a href="${rc.contextPath}/goods/goods_list">商品列表</a></li>
-	                  <li><a href="#">添加商品</a></li>
 	                  <li class="divider"></li>
 	                  <li><a href="${rc.contextPath}/goods/action/upload?action=buy">进仓(excel批量导入)</a></li>
 	                  <li><a href="${rc.contextPath}/goods/action/upload?action=refund">退仓(excel批量导入)</a></li>
+                      <li><a href="${rc.contextPath}/goods/action/upload?action=new">新建商品(excel批量导入)</a></li>
                       <li class="divider"></li>
                       <li><a href="${rc.contextPath}/goods/upload_list?action=buy">进仓单列表</a></li>
                       <li><a href="${rc.contextPath}/goods/upload_list?action=refund">退仓单列表</a></li>
+                      <li><a href="${rc.contextPath}/goods/upload_list?action=new">新建商品单列表</a></li>
 	              </ul>
 	          </li>
 	          <#if CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="WareHouse" || CURRENT_USER.type=="DistributorManager">

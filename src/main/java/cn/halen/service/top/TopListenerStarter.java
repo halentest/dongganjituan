@@ -96,7 +96,6 @@ public class TopListenerStarter implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		log.info("afterPropertiesSet======================================================================1111");
-		this.start();
+		//this.start();
 	}
 }

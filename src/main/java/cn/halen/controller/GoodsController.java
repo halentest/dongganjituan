@@ -3,9 +3,12 @@ package cn.halen.controller;
 import java.io.*;
 import java.util.*;
 
+import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.service.SkuService;
 import cn.halen.service.excel.ExcelReader;
+import cn.halen.service.excel.GoodsExcelReader;
+import cn.halen.service.excel.GoodsRow;
 import cn.halen.service.excel.Row;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -54,6 +57,9 @@ public class GoodsController {
 
     @Autowired
     private SkuService skuService;
+
+    @Autowired
+    private MySkuMapper skuMapper;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -185,6 +191,7 @@ public class GoodsController {
     public String doUpload(Model model, @RequestParam("action") String action,
                            @RequestParam("file") MultipartFile file) {
         model.addAttribute("action", action);
+        String actionName = null;
         if(!file.isEmpty()) {
             String type = file.getContentType();
             if(!"application/vnd.ms-excel".equals(type)) {
@@ -196,14 +203,19 @@ public class GoodsController {
                 File dest = null;
                 if("buy".equals(action)) {
                     dest = new File(topConfig.getFileBuyGoods() + "\\" + fileName);
+                    actionName = "进仓单";
                 } else if("refund".equals(action)) {
                     dest = new File(topConfig.getFileRefundGoods() + "\\" + fileName);
+                    actionName = "出仓单";
+                } else if("new".equals(action)) {
+                    dest = new File(topConfig.getFileNewGoods() + "\\" + fileName);
+                    actionName = "新建商品单";
                 } else {
                     model.addAttribute("errorInfo", "无效参数!");
                     return "goods/upload";
                 }
                 if(dest.exists()) {
-                    model.addAttribute("errorInfo", "这个" + (action.equals("buy")==true?"进货单":"退货单") + "已经存在，不能重复添加!");
+                    model.addAttribute("errorInfo", "这个" + actionName + "已经存在，不能重复添加!");
                     return "goods/upload";
                 }
                 byte[] bytes = file.getBytes();
@@ -211,7 +223,8 @@ public class GoodsController {
                 out.write(bytes);
                 out.flush();
                 out.close();
-                if(!handleExcel(model, dest, action)) {
+                boolean handleResult = action.equals("new")==false? handleExcel(model, dest, action) : handleExcel4New(model, dest);
+                if(!handleResult) {
                     dest.delete();
                     return "goods/upload";
                 }
@@ -224,30 +237,34 @@ public class GoodsController {
             model.addAttribute("errorInfo", "必须选择一个文件!");
             return "goods/upload";
         }
-        model.addAttribute("successInfo", "导入" + (action.equals("buy")==true?"进货单":"退货单") + "成功!");
+        model.addAttribute("successInfo", "导入" + actionName + "成功!");
         return "goods/upload";
     }
 
     private boolean handleExcel(Model model, File file, String action) {
         ExcelReader reader = null;
+        List<Row> rows = null;
         try {
             reader = new ExcelReader(file);
+            boolean checkColumn = reader.checkColumn();
+            if(!checkColumn) {
+                model.addAttribute("errorInfo", "格式不正确，必须有 编号、颜色、尺码、数量 这几列!");
+                return false;
+            }
+            int checkData = reader.checkData();
+            if(checkData != 0) {
+                model.addAttribute("errorInfo", "第 " + (checkData + 1) + " 行数据格式不正确，请修改后重试!");
+                return false;
+            }
+            rows = reader.getData();
         } catch (Exception e) {
             log.error("Handle excel failed, ", e);
             model.addAttribute("errorInfo", "系统异常，请联系管理员!");
             return false;
+        } finally {
+            reader.destroy();
         }
-        boolean checkColumn = reader.checkColumn();
-        if(!checkColumn) {
-            model.addAttribute("errorInfo", "格式不正确，必须有 编号、颜色、尺码、数量 这几列!");
-            return false;
-        }
-        int checkData = reader.checkData();
-        if(checkData != 0) {
-            model.addAttribute("errorInfo", "第 " + (checkData + 1) + " 行数据格式不正确，请修改后重试!");
-            return false;
-        }
-        List<Row> rows = reader.getData();
+
         Row row = skuService.checkRow(rows);
         if(null != row) {
             model.addAttribute("errorInfo", "这个商品(" + row.getGoodsId() + "," + row.getColor() + "," + row.getSize() + ")不存在，请检查是否存在错误或者在系统中添加该商品之后重试!");
@@ -265,14 +282,55 @@ public class GoodsController {
         return true;
     }
 
+    private boolean handleExcel4New(Model model, File file) {
+        GoodsExcelReader reader = null;
+        List<GoodsRow> rows = null;
+        try {
+            reader = new GoodsExcelReader(file);
+            boolean checkColumn = reader.checkColumn();
+            if(!checkColumn) {
+                model.addAttribute("errorInfo", "格式不正确，必须有 编号、名称、价格、颜色、尺码 这几列!");
+                return false;
+            }
+            int checkData = reader.checkData();
+            if(checkData != 0) {
+                model.addAttribute("errorInfo", "第 " + (checkData + 1) + " 行数据格式不正确，请修改后重试!");
+                return false;
+            }
+            rows = reader.getData();
+        } catch (Exception e) {
+            log.error("Handle excel failed, ", e);
+            model.addAttribute("errorInfo", "系统异常，请联系管理员!");
+            return false;
+        } finally {
+            reader.destroy();
+        }
+
+        String result = goodsService.checkRow(rows);
+        if(null != result) {
+            model.addAttribute("errorInfo", result);
+            return false;
+        }
+        try {
+            goodsService.execRow(rows);
+        } catch (Exception e) {
+            model.addAttribute("errorInfo", "系统异常，请重试!");
+            log.error("error", e);
+            return false;
+        }
+        return true;
+    }
+
     @RequestMapping(value="goods/upload_list")
-    public String doUpload(Model model, @RequestParam("action") String action) {
+    public String uploadList(Model model, @RequestParam("action") String action) {
         File filePath = null;
         model.addAttribute("action", action);
         if("buy".equals(action)) {
             filePath = new File(topConfig.getFileBuyGoods());
         } else if ("refund".equals(action)) {
             filePath = new File(topConfig.getFileRefundGoods());
+        } else if("new".equals(action)) {
+            filePath = new File(topConfig.getFileNewGoods());
         } else {
             model.addAttribute("errorInfo", "参数错误!");
             return "error_page";
@@ -311,6 +369,8 @@ public class GoodsController {
         File file = null;
         if("buy".equals(action)) {
             file = new File(topConfig.getFileBuyGoods() + "//" + name);
+        } else if("new".equals(action)) {
+            file = new File(topConfig.getFileNewGoods() + "//" + name);
         } else if ("refund".equals(action)) {
             file = new File(topConfig.getFileRefundGoods() + "//" + name);
         }
@@ -342,5 +402,38 @@ public class GoodsController {
             } catch (IOException e) {
             }
         }
+    }
+
+    @RequestMapping(value="goods/action/change_goods")
+    public @ResponseBody ResultInfo changeGoods(Model model, @RequestParam("hid") String hid, @RequestParam("type") String type,
+                                                @RequestParam("value") String value, @RequestParam("oldValue") String oldValue) {
+        ResultInfo result = new ResultInfo();
+        try {
+            if("color".equals(type)) {
+                List<MySku> list = skuMapper.selectByGoodsIdColor(hid, value);
+                if(list.size()>0) {
+                    result.setSuccess(false);
+                    result.setErrorInfo("更新失败，颜色" + value + "已经存在!");
+                } else {
+                    skuMapper.updateColorByGoodsIdColor(hid, oldValue, value);
+                }
+            } else if("size".equals(type)) {
+                List<MySku> list = skuMapper.selectByGoodsIdSize(hid, value);
+                if(list.size()>0) {
+                    result.setSuccess(false);
+                    result.setErrorInfo("更新失败，尺寸" + value + "已经存在!");
+                } else {
+                    skuMapper.updateSizeByGoodsIdSize(hid, oldValue, value);
+                }
+            } else {
+                result.setErrorInfo("参数错误!");
+                result.setSuccess(false);
+            }
+        } catch (Exception e) {
+            result.setErrorInfo("系统异常，请重试!");
+            result.setSuccess(false);
+            log.error("更新商品属性失败,", e);
+        }
+        return result;
     }
 }

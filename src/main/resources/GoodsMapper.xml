@@ -63,7 +63,7 @@
 	
 	<insert id="insert" parameterType="Goods" >
 	  	insert into goods(<include refid="insertColumns"/>) values(#{tao_id}, #{hid}, #{title}, #{url}, #{weight}, 
-	  		#{price}, #{template}, #{status}, #{discount}, now(), now())
+	  		#{price}, #{template}, #{status}, #{discount}, now())
 	</insert>
 	
 	<insert id="batchInsert" parameterType="java.util.List">

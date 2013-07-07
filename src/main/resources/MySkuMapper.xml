@@ -24,4 +24,24 @@
 	<select id="selectBySkuId" parameterType="long" resultType="MySku">
 		select * from sku where id=#{skuId}
 	</select>
+
+    <select id="selectByGoodsId" parameterType="String" resultType="MySku">
+        select * from sku where goods_id=#{goodsId}
+    </select>
+
+    <select id="selectByGoodsIdColor" parameterType="Map" resultType="MySku">
+        select * from sku where goods_id=#{goodsId} and color=#{color}
+    </select>
+
+    <select id="selectByGoodsIdSize" parameterType="Map" resultType="MySku">
+        select * from sku where goods_id=#{goodsId} and size=#{size1}
+    </select>
+
+    <update id="updateColorByGoodsIdColor" parameterType="Map">
+        update sku set color=#{newColor} where goods_id=#{goodsId} and color=#{color}
+    </update>
+
+    <update id="updateSizeByGoodsIdSize" parameterType="Map">
+        update sku set size=#{newSize} where goods_id=#{goodsId} and size=#{size1}
+    </update>
 </mapper>

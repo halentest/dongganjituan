@@ -30,7 +30,7 @@ create table prop_value (
 drop table if exists goods;
 create table goods (
 	id bigint primary key auto_increment, 
-	tao_id bigint unique,
+	tao_id bigint,
 	hid varchar(100) not null unique,
 	title varchar(255), 
 	url varchar(255),

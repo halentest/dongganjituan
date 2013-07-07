@@ -7,7 +7,12 @@
         .file{ position:absolute; top:0; right:80px; height:24px; filter:alpha(opacity:0);opacity: 0;width:260px }
         .btn{margin-top: -10px;}
     </style>
-	<#if action="buy"><i class="icon-ok"></i>进仓<#else><i class="icon-remove"></i>退仓</#if>
+	<#if action="buy"><i class="icon-ok"></i>进仓
+    <#else>
+            <#if action="new"><i class="icon-pencil"></i>新建商品
+            <#else><i class="icon-remove"></i>退仓
+            </#if>
+    </#if>
     <br><br><br>
     <div class="file-box">
         <form action="${rc.contextPath}/goods/action/do_upload" method="post" enctype="multipart/form-data">

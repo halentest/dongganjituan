@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ import java.util.List;
  * Time: 4:49 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ExcelReader {
+public class GoodsExcelReader {
 
     private File file;
 
@@ -28,8 +29,8 @@ public class ExcelReader {
 
     private int rowCount;
 
-    public List<Row> getData() {
-        List<Row> list = new ArrayList<Row>();
+    public List<GoodsRow> getData() {
+        List<GoodsRow> list = new ArrayList<GoodsRow>();
         int rows = sheet.getRows();
         for(int i=1; i<rows; i++) {
             Cell[] cells = sheet.getRow(i);
@@ -37,42 +38,50 @@ public class ExcelReader {
             String cell1 = cells[1].getContents();
             String cell2 = cells[2].getContents();
             String cell3 = cells[3].getContents();
-            Row row = new Row(cell0, cell1, cell2, Integer.parseInt(cell3));
+            String cell4 = cells[4].getContents();
+
+            List<String> colors = new ArrayList<String>();
+            for(String s : cell3.replaceAll("；", ";").split(";")) {
+                if(StringUtils.isNotEmpty(s)) {
+                    colors.add(s);
+                }
+            }
+            List<String> sizes = new ArrayList<String>();
+            for(String s : cell4.replaceAll("；", ";").split(";")) {
+                if(StringUtils.isNotEmpty(s)) {
+                    sizes.add(s);
+                }
+            }
+            GoodsRow row = new GoodsRow(cell0, cell1, Integer.parseInt(cell2)*100, colors, sizes);
             list.add(row);
         }
         return list;
     }
 
-    public ExcelReader(String filePath) throws IOException, BiffException {
+    public GoodsExcelReader(String filePath) throws IOException, BiffException {
         this.file = new File(filePath);
         this.book = Workbook.getWorkbook(file);
         this.sheet = book.getSheet(0);
     }
 
-    public ExcelReader(File file) throws IOException, BiffException {
+    public GoodsExcelReader(File file) throws IOException, BiffException {
         this.file = file;
         this.book = Workbook.getWorkbook(file);
         this.sheet = book.getSheet(0);
     }
 
-    public static void main(String[] args) throws IOException, BiffException {
-        String filePath = "C:\\Users\\hzhang\\Desktop\\进货单1.xls";
-        ExcelReader reader = new ExcelReader(filePath);
-        boolean checkColumn = reader.checkColumn();
-        int checkData = reader.checkData();
-        System.out.println("checkColumn is " + checkColumn);
-        System.out.println("checkData is " + checkData);
-        System.out.println("rowCount is " + reader.rowCount);
-    }
-
     public boolean checkColumn() {
         Cell[] cells = sheet.getRow(0);
+        if(cells.length < 5) {
+            return false;
+        }
         String c0 = cells[0].getContents();
         String c1 = cells[1].getContents();
         String c2 = cells[2].getContents();
         String c3 = cells[3].getContents();
-        if(!"货号".equals(c0) || !"颜色".equals(c1) || !"尺码".equals(c2) ||
-                !"数量".equals(c3)) {
+        String c4 = cells[4].getContents();
+        if(!"货号".equals(c0) || !"名称".equals(c1) || !"价格".equals(c2) ||
+                !"颜色".equals(c3) || !"尺码".equals(c4)) {
             return false;
         }
         return true;
@@ -87,24 +96,20 @@ public class ExcelReader {
         int rows = sheet.getRows();
         for(int row=1; row<rows; row++) {
             Cell[] cells = sheet.getRow(row);
-            if (cells.length < 4) {
+            if (cells.length < 5) {
                 return row;
             }
             String cell0 = cells[0].getContents();
-            System.out.print("cell0 is " + cell0 + "; ");
             String cell1 = cells[1].getContents();
-            System.out.print("cell1 is " + cell1 + "; ");
             String cell2 = cells[2].getContents();
-            System.out.print("cell2 is " + cell2 + "; ");
             String cell3 = cells[3].getContents();
-            System.out.print("cell3 is " + cell3 + "; ");
-            System.out.println();
+            String cell4 = cells[4].getContents();
             if (StringUtils.isEmpty(cell0) || StringUtils.isEmpty(cell1) || StringUtils.isEmpty(cell2) ||
-                    StringUtils.isEmpty(cell3)) {
+                    (StringUtils.isEmpty(cell3) && StringUtils.isEmpty(cell4))) {
                 return row;
             }
             try {
-                Integer.parseInt(cell3);
+                Integer.parseInt(cell2);
             } catch (Exception e) {
                 return row;
             }

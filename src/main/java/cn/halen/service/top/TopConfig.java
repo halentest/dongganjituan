@@ -43,6 +43,9 @@ public class TopConfig {
 
     @Value("${file.refundgoods}")
     private String fileRefundGoods;
+
+    @Value("${file.newgoods}")
+    private String fileNewGoods;
 	
 	@Autowired
 	private AdminMapper adminMapper;
@@ -86,8 +89,12 @@ public class TopConfig {
 	public String getMainToken() {
 		return getToken(mainSeller);
 	}
-	
-	public TaobaoClient getRetryClient() {
+
+    public String getFileNewGoods() {
+        return fileNewGoods;
+    }
+
+    public TaobaoClient getRetryClient() {
 		return new AutoRetryTaobaoClient(url, appKey, appSecret);
 	}
 	
