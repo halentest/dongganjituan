@@ -27,8 +27,8 @@
 		LODOP.ADD_PRINT_TEXT(112 + y,649 + x,125,26,to);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		//LODOP.PRINT_DESIGN();
-		//LODOP.PRINT();	
-		LODOP.PREVIEW();	
+		LODOP.PRINT();
+		//LODOP.PREVIEW();
 	};
 	function CreateShentongPage(x, y, sender, from, from_company, from_address, sender_mobile,
 		receiver, to_company, to_address, receiver_mobile, to){

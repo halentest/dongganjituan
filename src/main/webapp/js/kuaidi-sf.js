@@ -24,8 +24,8 @@
 		LODOP.ADD_PRINT_TEXT(377+y,202+x,111,24,receiver_mobile);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		//LODOP.PRINT_DESIGN();
-		//LODOP.PRINT();	
-		LODOP.PREVIEW();	
+		LODOP.PRINT();
+		//LODOP.PREVIEW();
 	};
 	function CreateSfPage(x, y, sender, from, from_company, from_address, sender_mobile,
 		receiver, to_company, to_address, receiver_mobile, to){

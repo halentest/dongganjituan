@@ -186,7 +186,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 										</a>
 										</#if>
 										<#if trade.delivery=="圆通速递">
-					        			<a href="javascript:prn_yuantong(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+					        			<a href="javascript:prn_yuantong(0, -20, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
 											打印快递单

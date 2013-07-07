@@ -28,8 +28,8 @@
 		LODOP.ADD_PRINT_TEXT(117+y,658+x,125,26,to);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		//LODOP.PRINT_DESIGN();
-		//LODOP.PRINT();	
-		LODOP.PREVIEW();	
+		LODOP.PRINT();
+		//LODOP.PREVIEW();
 	};
 	
 	function CreateYuantongPage(x, y, sender, from, from_company, from_address, sender_mobile,

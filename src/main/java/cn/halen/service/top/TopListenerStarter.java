@@ -69,7 +69,7 @@ public class TopListenerStarter implements InitializingBean {
 			permitUser(token);
 		}
 		Configuration conf = new Configuration(topConfig.getAppKey(), topConfig.getAppSecret(), null);
-        conf.setConnectUrl("http://stream.api.tbsandbox.com/stream");
+        //conf.setConnectUrl("http://stream.api.tbsandbox.com/stream");
 		TopCometStream stream = new TopCometStreamFactory(conf).getInstance();
 		stream.setConnectionListener(new ConnectionLifeCycleListenerImpl());
 		stream.setMessageListener(new TopMessageListener(workerService, topConfig));
@@ -96,6 +96,6 @@ public class TopListenerStarter implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		//this.start();
+		this.start();
 	}
 }

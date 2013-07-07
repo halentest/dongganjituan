@@ -25,8 +25,8 @@
 		LODOP.ADD_PRINT_TEXT(227+y,90+x,123,26,to);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		//LODOP.PRINT_DESIGN();
-		//LODOP.PRINT();	
-		LODOP.PREVIEW();	
+		LODOP.PRINT();
+		//LODOP.PREVIEW();
 	};
 	
 	function CreateEmsPage(x, y, sender, from, from_company, from_address, sender_mobile,

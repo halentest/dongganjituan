@@ -31,7 +31,7 @@
         				</label>
 				      </div>
 				    </div>
-				    <#if error??><div class="alert">登录失败！用户名或密码输入不正确，请重新输入</div></#if>
+				    <#if error??><div class="alert alert-error">登录失败！用户名或密码输入不正确，请重新输入</div></#if>
 				    
 				    <div class="form-actions">
 				    	<button class="btn" type="reset">重置</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
