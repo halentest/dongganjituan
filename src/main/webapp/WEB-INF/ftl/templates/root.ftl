@@ -1,4 +1,4 @@
-<#macro html title="欢迎登录动感集团电子商务管理系统" active=1 css=[] js=[] custom_css="" custom_js="">
+<#macro html title="欢迎来到易分销电子商务管理系统" active=1 css=[] js=[] custom_css="" custom_js="">
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -78,7 +78,7 @@
 	              <ul class="dropdown-menu">
 	                  <li><a href="${rc.contextPath}/trade/trade_list">订单列表</a></li>
 	                  <li><a href="${rc.contextPath}/trade/refund_list">退货列表</a></li>
-	                  <#if CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="DistributorManager">
+	                  <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 	                  <li class="divider"></li>
 	                  <li><a href="${rc.contextPath}/trade/manual_sync_trade_form">手工同步订单</a></li>
 	                  </#if>

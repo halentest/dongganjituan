@@ -1,13 +1,13 @@
 package cn.halen.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -43,6 +43,8 @@ public class TradeController {
 	
 	@Autowired
 	private AdminMapper adminMapper;
+
+    private Logger log = LoggerFactory.getLogger(TradeController.class);
 	
 	//private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
 	
@@ -63,6 +65,8 @@ public class TradeController {
 			@RequestParam(value="tid", required=false) String tid, 
 			@RequestParam(value="status", required=false) Integer status,
 			@RequestParam(value="delivery", required=false) String delivery,
+            @RequestParam(value="start", required = false) String start,
+            @RequestParam(value = "end", required = false) String end,
 			@RequestParam(value="page", required=false) Integer page) {
 		int intPage = 1;
 		if(null!=page && page>0) {
@@ -80,6 +84,35 @@ public class TradeController {
 			model.addAttribute("errorInfo", "对不起，您没有权限查看此页面！");
 			return "error_page";
 		}
+
+        Date startTime = null;
+        Date endTime = null;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        boolean customTime = false;
+        //检查日期
+        if(StringUtils.isNotEmpty(start) && StringUtils.isNotEmpty(end)) {
+            try {
+                startTime = format.parse(start);
+                endTime = format.parse(end);
+            } catch (Exception e) {
+                model.addAttribute("errorInfo", "请输入正确的开始时间和结束时间!");
+                return "error_page";
+            }
+            if(endTime.before(startTime)) {
+                model.addAttribute("errorInfo", "结束时间不能早于开始时间!");
+                return "error_page";
+            }
+            customTime = true;
+        } else {
+            endTime = new Date();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(endTime);
+            cal.add(Calendar.MONTH, -3);
+            startTime = cal.getTime();
+            start = format.format(startTime);
+            end = format.format(endTime);
+        }
+        log.info("start time is {}, end time is {}", format.format(startTime), format.format(endTime));
 		
 		List<String> sellerNickList = new ArrayList<String>();
 		if(currType.equals(UserType.ServiceStaff.getValue())) {
@@ -138,12 +171,12 @@ public class TradeController {
 			model.addAttribute("statusList", WareHouse);
 		}
 		
-		long totalCount = tradeService.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery);
+		long totalCount = tradeService.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery, start, end);
 		model.addAttribute("totalCount", totalCount);
 		Paging paging = new Paging(intPage, 10, totalCount);
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
-			list = tradeService.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery);
+			list = tradeService.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery, start, end);
 		}
 		model.addAttribute("trade_list", list);
 		model.addAttribute("paging", paging);
@@ -155,6 +188,10 @@ public class TradeController {
 		model.addAttribute("dId", dId);
 		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
 		model.addAttribute("dList", adminMapper.listDistributor());
+        if(customTime) {
+            model.addAttribute("start", start);
+            model.addAttribute("end", end);
+        }
 		if(null != dId && -1 != dId) {
 			model.addAttribute("shopList", adminMapper.selectDistributorMapById(dId).getShopList());
 		}
@@ -182,7 +219,27 @@ public class TradeController {
 	
 	@RequestMapping(value="trade/manual_sync_trade_form")
 	public String manaualSyncTradeForm(Model model) {
-		model.addAttribute("shopList", adminMapper.selectShop(1, null, null));
+		List<Shop> allSyncShop = adminMapper.selectShop(1, null, null);
+        List<String> allSyncSellerNick = new ArrayList<String>();
+        for(Shop shop : allSyncShop) {
+            allSyncSellerNick.add(shop.getSellerNick());
+        }
+        List<Shop> validShopList = new ArrayList<Shop>();
+        User user = UserHolder.get();
+        if(user.getUserType()==UserType.Distributor) {
+            List<Shop> currShopList = adminMapper.selectDistributorMapById(user.getShop().getD().getId()).getShopList();
+            for(Shop shop : currShopList) {
+                if(allSyncSellerNick.contains(shop.getSellerNick())) {
+                    validShopList.add(shop);
+                }
+            }
+        } else if(user.getUserType()==UserType.ServiceStaff) {
+            Shop shop = user.getShop();
+            if(allSyncSellerNick.contains(shop.getSellerNick())) {
+                validShopList.add(shop);
+            }
+        }
+        model.addAttribute("shopList", validShopList);
 		return "trade/manual_sync_trade_form";
 	}
 }

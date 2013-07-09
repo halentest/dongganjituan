@@ -1,11 +1,14 @@
 package cn.halen.service;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import freemarker.template.SimpleDate;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,8 +99,6 @@ public class TradeService {
 	
 	/**
 	 * 发货
-	 * @param myOrder
-	 * @param mySku
 	 */
 	@Transactional(rollbackFor=Exception.class)
 	public String send(String tid, String outSid, String companyName, String from, String sellerNick) {
@@ -283,7 +284,7 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public int insertMyTrade(MyTrade myTrade, boolean manual) {
+	public int insertMyTrade(MyTrade myTrade, boolean manual) throws ApiException {
 		int count = myTradeMapper.insert(myTrade);
 		for(MyOrder order : myTrade.getMyOrderList()) {
 			
@@ -291,8 +292,15 @@ public class TradeService {
 			order.setSku_id(mySku.getId());
 			myTradeMapper.insertMyOrder(order);
 		}
-		return count;
-	}
+        if("淘宝自动同步".equals(myTrade.getCome_from())) {
+            //update memo
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date now = new Date();
+            String memo = (StringUtils.isEmpty(myTrade.getSeller_memo())?"":myTrade.getSeller_memo()) + "[已同步:" + format.format(now) + "]";
+            tradeClient.updateMemo(Long.parseLong(myTrade.getTid()), myTrade.getSeller_nick(), memo);
+        }
+        return count;
+    }
 	
 	public MyOrder selectOrderByOrderId(String oid) {
 		return myTradeMapper.selectOrderByOrderId(oid);
@@ -341,7 +349,7 @@ public class TradeService {
 		return count;
 	}
 	
-	public MyTrade toMyTrade(Trade trade) {
+	public MyTrade toMyTrade(Trade trade) throws ApiException {
 		
 		List<Order> orderList = trade.getOrders();
 		int goodsCount = 0;
@@ -357,6 +365,11 @@ public class TradeService {
 			Goods goods = goodsMapper.getByHid(order.getOuterIid());
 			if(null == goods) { //检查商品是否存在
 				log.info("This goods {} not exist!", order.getOuterIid());
+                    //update memo
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date now = new Date();
+                String memo = (StringUtils.isEmpty(trade.getSellerMemo())?"":trade.getSellerMemo()) + "[同步失败，因为商品不存在:" + format.format(now) + "]";
+                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
 				continue;
 			}
 			String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
@@ -366,6 +379,10 @@ public class TradeService {
 			MySku sku = mySkuMapper.select(order.getOuterIid(), color, size);
 			if(null == sku) {  //检查sku是否存在
 				log.info("This sku {} {} {} not exist!", order.getOuterIid(), color, size);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date now = new Date();
+                String memo = (StringUtils.isEmpty(trade.getSellerMemo())?"":trade.getSellerMemo()) + "[同步失败，因为sku不存在:" + format.format(now) + "]";
+                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
 				continue;
 			}
 			goodsHid = goods.getHid();
@@ -432,12 +449,14 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public long countTrade(List<String> sellerNickList, String name, String tid, List<Integer> statusList, List<Integer> notstatusList, String delivery) {
-		return myTradeMapper.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery);
+	public long countTrade(List<String> sellerNickList, String name, String tid, List<Integer> statusList, List<Integer> notstatusList, String delivery,
+                           String startTime, String endTime) {
+		return myTradeMapper.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery, startTime, endTime);
 	}
 	
-	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<Integer> statusList, List<Integer> notstatusList, String delivery) {
-		return myTradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery);
+	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<Integer> statusList, List<Integer> notstatusList, String delivery,
+                                   String startTime, String endTime) {
+		return myTradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery, startTime, endTime);
 	}
 	
 	public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ParseException, ApiException, InsufficientStockException, InsufficientBalanceException {

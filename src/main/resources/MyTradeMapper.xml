@@ -119,6 +119,7 @@
 			        </foreach>
 			        )
    				</if>
+                and t.created between '${startTime}' and '${endTime}'
    			</where>
 	</select>
 	
@@ -170,6 +171,7 @@
 						        </foreach>
 						        )
 			   				</if>
+                            and trade.created between '${startTime}' and '${endTime}'
 			   			</where>
 			   			order by trade.created desc limit #{start}, #{page_size}) as t
 			   		</when>

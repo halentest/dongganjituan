@@ -7,7 +7,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 	    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
 	</object>
 	<i class="icon-list-alt"></i>订单列表
-	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
+	<div style="width: 100%; height: 60px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
 		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
 		<strong>分销商</strong>
 		<select id="distributor" style="width: 8%;">
@@ -58,7 +58,19 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 		<strong>结束时间</strong>
 		<input id="name" type="input" value="" style="width: 8%; height: 20px;"/> -->
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个
+        <div style="margin-top: 5px;">
+            <strong>开始时间</strong>
+            <input id="start" style="height: 15px;" type="input" placeholder="格式:2013-06-29 12:30:30">
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <strong>结束时间</strong>
+            <input id="end" style="height: 15px;" type="input" placeholder="格式:2013-06-29 12:30:30">
+            <span style="float: right; margin-right:15px;">
+                <button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}条交易
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button id="search">查看报表</button>
+            </span>
+        </div>
+
 	</div>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
@@ -659,6 +671,8 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 	      $('#seller_nick').val('${seller_nick!""}');
 	      $('#status').val('${status!""}');
 	      $('#delivery').val('${delivery!""}');
+          $('#start').val('${start!""}');
+        $('#end').val('${end!""}');
 	}
 	
 	function CreateOneFormPage(){

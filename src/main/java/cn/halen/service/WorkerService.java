@@ -96,7 +96,7 @@ public class WorkerService {
 												}
 											}
 										} else if(null != dbMyTrade) {
-											if(status.equals(NotifyTradeStatus.TradeMemoModified)) {
+											if(status.equals(NotifyTradeStatus.TradeMemoModified.getValue())) {
 												log.debug("Receive 'TradeMemoModified' notify, tid = {}, oid = {}",  nt.getTid(), nt.getOid());
 												if(dbMyTrade.getModified().getTime() < trade.getModified().getTime()) {
 													tradeService.updateTradeMemo(trade.getSellerMemo(), dbMyTrade.getTid(), trade.getModified());

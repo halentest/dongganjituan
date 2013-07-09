@@ -46,6 +46,9 @@ public class TopConfig {
 
     @Value("${file.newgoods}")
     private String fileNewGoods;
+
+    @Value("${is.sandbox}")
+    private boolean isSandbox;
 	
 	@Autowired
 	private AdminMapper adminMapper;
@@ -64,6 +67,10 @@ public class TopConfig {
 
     public String getCallback() {
         return callback;
+    }
+
+    public boolean isSandbox() {
+        return isSandbox;
     }
 
     public String getTopTokenUrl() {

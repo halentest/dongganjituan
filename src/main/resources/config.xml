@@ -17,7 +17,7 @@
 		lazy-init="default" autowire="default">
 		<property name="locations">
 			<list>
-				<value>classpath:config.properties</value>
+				<value>classpath:config_${env}.properties</value>
 			</list>
 		</property>
 		 <property name="fileEncoding">

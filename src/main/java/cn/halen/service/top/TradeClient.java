@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.taobao.api.request.*;
+import com.taobao.api.response.*;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +21,6 @@ import com.taobao.api.domain.NotifyTrade;
 import com.taobao.api.domain.Task;
 import com.taobao.api.domain.Trade;
 import com.taobao.api.internal.util.AtsUtils;
-import com.taobao.api.request.IncrementTradesGetRequest;
-import com.taobao.api.request.TopatsResultGetRequest;
-import com.taobao.api.request.TopatsTradesSoldGetRequest;
-import com.taobao.api.request.TradeFullinfoGetRequest;
-import com.taobao.api.request.TradesSoldGetRequest;
-import com.taobao.api.response.IncrementTradesGetResponse;
-import com.taobao.api.response.TopatsResultGetResponse;
-import com.taobao.api.response.TopatsTradesSoldGetResponse;
-import com.taobao.api.response.TradeFullinfoGetResponse;
-import com.taobao.api.response.TradesSoldGetResponse;
 
 @Service
 public class TradeClient {
@@ -127,6 +119,18 @@ public class TradeClient {
 		}
 		return result;
 	}
+
+    public void updateMemo(long tid, String sellerNick, String memo) throws ApiException {
+        TradeMemoUpdateRequest req = new TradeMemoUpdateRequest();
+        req.setTid(tid);
+        req.setMemo(memo);
+        TradeMemoUpdateResponse response = topConfig.getRetryClient().execute(req, topConfig.getToken(sellerNick));
+        if(!response.isSuccess()) {
+            log.error("Update memo failed (tid:{},  sellerNick:{}, memo:{}, errorCode:{})",
+                    tid, sellerNick, memo, response.getSubMsg());
+            throw new ApiException("Update memo failed");
+        }
+    }
 	
 	
 	//////////////////////////////////
