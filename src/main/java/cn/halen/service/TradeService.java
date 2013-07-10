@@ -292,13 +292,13 @@ public class TradeService {
 			order.setSku_id(mySku.getId());
 			myTradeMapper.insertMyOrder(order);
 		}
-        if("淘宝自动同步".equals(myTrade.getCome_from())) {
-            //update memo
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date now = new Date();
-            String memo = (StringUtils.isEmpty(myTrade.getSeller_memo())?"":myTrade.getSeller_memo()) + "[已同步:" + format.format(now) + "]";
-            tradeClient.updateMemo(Long.parseLong(myTrade.getTid()), myTrade.getSeller_nick(), memo);
-        }
+//        if("淘宝自动同步".equals(myTrade.getCome_from())) {
+//            //update memo
+//            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            Date now = new Date();
+//            String memo = (StringUtils.isEmpty(myTrade.getSeller_memo())?"":myTrade.getSeller_memo()) + "已同步";
+//            tradeClient.updateMemo(Long.parseLong(myTrade.getTid()), myTrade.getSeller_nick(), memo);
+//        }
         return count;
     }
 	
@@ -366,10 +366,10 @@ public class TradeService {
 			if(null == goods) { //检查商品是否存在
 				log.info("This goods {} not exist!", order.getOuterIid());
                     //update memo
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date now = new Date();
-                String memo = (StringUtils.isEmpty(trade.getSellerMemo())?"":trade.getSellerMemo()) + "[同步失败，因为商品不存在:" + format.format(now) + "]";
-                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
+//                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                Date now = new Date();
+//                String memo = (StringUtils.isEmpty(trade.getSellerMemo())?"":trade.getSellerMemo()) + "同步失败1";
+//                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
 				continue;
 			}
 			String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
@@ -379,10 +379,10 @@ public class TradeService {
 			MySku sku = mySkuMapper.select(order.getOuterIid(), color, size);
 			if(null == sku) {  //检查sku是否存在
 				log.info("This sku {} {} {} not exist!", order.getOuterIid(), color, size);
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date now = new Date();
-                String memo = (StringUtils.isEmpty(trade.getSellerMemo())?"":trade.getSellerMemo()) + "[同步失败，因为sku不存在:" + format.format(now) + "]";
-                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
+//                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                Date now = new Date();
+//                String memo = (StringUtils.isEmpty(trade.getSellerMemo())?"":trade.getSellerMemo()) + "同步失败2";
+//                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
 				continue;
 			}
 			goodsHid = goods.getHid();
