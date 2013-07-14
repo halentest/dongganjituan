@@ -217,29 +217,4 @@ public class TradeController {
 		return d.getShopList();
 	}
 	
-	@RequestMapping(value="trade/manual_sync_trade_form")
-	public String manaualSyncTradeForm(Model model) {
-		List<Shop> allSyncShop = adminMapper.selectShop(1, null, null);
-        List<String> allSyncSellerNick = new ArrayList<String>();
-        for(Shop shop : allSyncShop) {
-            allSyncSellerNick.add(shop.getSellerNick());
-        }
-        List<Shop> validShopList = new ArrayList<Shop>();
-        User user = UserHolder.get();
-        if(user.getUserType()==UserType.Distributor) {
-            List<Shop> currShopList = adminMapper.selectDistributorMapById(user.getShop().getD().getId()).getShopList();
-            for(Shop shop : currShopList) {
-                if(allSyncSellerNick.contains(shop.getSellerNick())) {
-                    validShopList.add(shop);
-                }
-            }
-        } else if(user.getUserType()==UserType.ServiceStaff) {
-            Shop shop = user.getShop();
-            if(allSyncSellerNick.contains(shop.getSellerNick())) {
-                validShopList.add(shop);
-            }
-        }
-        model.addAttribute("shopList", validShopList);
-		return "trade/manual_sync_trade_form";
-	}
 }

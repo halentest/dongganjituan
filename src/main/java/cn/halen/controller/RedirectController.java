@@ -61,7 +61,7 @@ public class RedirectController {
 	
 	@RequestMapping(value="/")
 	public String main(Model model, HttpServletRequest req) {
-		return "index";
+		return "templates/frame";
 	}
 	
 	@RequestMapping(value="/admin/action/system_init")
@@ -71,8 +71,44 @@ public class RedirectController {
 	
 	@RequestMapping(value="/index")
 	public String index(Model model, HttpServletRequest req) {
-		return "index";
+		return "templates/frame";
 	}
+
+    @RequestMapping(value="/left1")
+    public String left(Model model, HttpServletRequest req) {
+        return "templates/left1";
+    }
+
+    @RequestMapping(value="/left2")
+    public String left2(Model model, HttpServletRequest req) {
+        return "templates/left2";
+    }
+
+    @RequestMapping(value="/left3")
+    public String left3(Model model, HttpServletRequest req) {
+        return "templates/left3";
+    }
+
+    @RequestMapping(value="/left4")
+    public String left4(Model model, HttpServletRequest req) {
+        return "templates/left4";
+    }
+
+    @RequestMapping(value="/left5")
+    public String left5(Model model, HttpServletRequest req) {
+        return "templates/left5";
+    }
+
+    @RequestMapping(value="/head")
+    public String head(Model model, HttpServletRequest req) {
+
+        return "templates/head";
+    }
+
+    @RequestMapping(value="/list")
+    public String list(Model model, HttpServletRequest req) {
+        return "templates/list";
+    }
 	
 	@RequestMapping(value="/login_failed")
 	public String loginFailed(Model model, HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
@@ -145,7 +181,7 @@ public class RedirectController {
 		int count = 0;
 		try {
 			count = areaClient.import2db();
-		} catch (ApiException e) {
+		} catch (Exception e) {
 			log.error("Error while sync area", e);
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，更新失败");

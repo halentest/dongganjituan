@@ -1,8 +1,7 @@
 <#import "/templates/root.ftl" as root >
 
 <@root.html active=3 css=["trade_list.css", "jqpagination.css"] js=["jquery.jqpagination.min.js"]>
-	<i class="icon-list-alt"></i>退货列表
-	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
+	<div style="width: 100%; height: 30px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px;">
 		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
 		<strong>分销商</strong>
 		<select id="distributor" style="width: 8%;">
@@ -25,14 +24,7 @@
 		</select>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		</#if>
-		<strong>状态</strong>
-		<select id="status" style="width: 8%;">
-			<option value="">所有状态</option>
-			<#list statusList as status>
-				<option value="${status.getValue()}">${status.getDesc()}</option>
-			</#list>
-		</select>
-		&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="hidden" id="status"/>
 		<strong>订单号</strong>
 		<input id="tid" type="input" value="" style="width: 10%; height: 15px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
@@ -47,6 +39,7 @@
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个
 	</div>
+<#if refund_list?size gt 0>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
 	    <a href="#" class="previous" data-action="previous">&lsaquo;</a>
@@ -162,7 +155,12 @@
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	</div>
-	
+<#else>
+        <div class="alert" style="margin: 5px;">
+            <a class="close" data-dismiss="alert">×</a>
+            <strong>无内容！</strong>
+        </div>
+</#if>
 </@root.html>
 
 <!-- start 提示框 -->

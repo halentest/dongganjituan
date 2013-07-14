@@ -89,10 +89,10 @@ public class GoodsController {
 			return "goods/goods_list";
 		}
 		
-		//<Goods, <颜色, <尺码, 数量>>>
-		Map<String, Map<String, Map<String, Long>>> map = new HashMap<String, Map<String, Map<String, Long>>>();
+		//<Goods, <颜色, <尺码, 可用数量/实际数量>>>
+		Map<String, Map<String, Map<String, String>>> map = new HashMap<String, Map<String, Map<String, String>>>();
 		for(Goods goods : list) {
-			Map<String, Map<String, Long>> map2 = new HashMap<String, Map<String, Long>>();
+			Map<String, Map<String, String>> map2 = new HashMap<String, Map<String, String>>();
 			map.put(goods.getHid(), map2);
 			List<MySku> skuList = goods.getSkuList();
 			//按size排序sku
@@ -123,12 +123,12 @@ public class GoodsController {
 			
 			for(MySku sku : skuList) {
 				String color = sku.getColor();
-				Map<String, Long> map3 = map2.get(color);
+				Map<String, String> map3 = map2.get(color);
 				if(null == map3) {
-					map3 = new LinkedHashMap<String, Long>();
+					map3 = new LinkedHashMap<String, String>();
 					map2.put(color, map3);
 				}
-				map3.put(sku.getSize(), sku.getQuantity());
+				map3.put(sku.getSize(), sku.getQuantity()-sku.getLock_quantity() + "/" + sku.getQuantity());
 			}
 		}
 		
@@ -289,7 +289,7 @@ public class GoodsController {
             reader = new GoodsExcelReader(file);
             boolean checkColumn = reader.checkColumn();
             if(!checkColumn) {
-                model.addAttribute("errorInfo", "格式不正确，必须有 编号、名称、价格、颜色、尺码 这几列!");
+                model.addAttribute("errorInfo", "格式不正确，必须有 编号、名称、价格、颜色编码、颜色、尺码 这几列!");
                 return false;
             }
             int checkData = reader.checkData();
@@ -321,7 +321,7 @@ public class GoodsController {
         return true;
     }
 
-    @RequestMapping(value="goods/upload_list")
+    @RequestMapping(value="goods/action/upload_list")
     public String uploadList(Model model, @RequestParam("action") String action) {
         File filePath = null;
         model.addAttribute("action", action);

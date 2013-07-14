@@ -9,7 +9,7 @@
 	<#if errorInfo??>
 		${errorInfo}
 	<#else>
-		<p>创建订单成功！您可以<a href="${rc.contextPath}/goods/goods_list">继续下单</a>或者<a href="${rc.contextPath}/trade/trade_list">查看订单</a></p>
+		<p>创建订单成功！</p>
 	</#if>
 </@root.html>
 <script>

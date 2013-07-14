@@ -10,7 +10,7 @@
 			ua.created as ua_created,
 			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store,
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.rate as s_rate,
 			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created</sql>
 			
@@ -19,14 +19,14 @@
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created,
 			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store,
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.rate as s_rate,
 			u.id as u_id, u.username as u_username, u.password as u_password, u.enabled as u_enabled,
 			u.type as u_type, u.modified as u_modified, u.created as u_created, u.shop_id as u_shop_id</sql>
 			
 	<sql id="shopColumns">
 			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store,
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.rate as s_rate,
 			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created</sql>
 	
@@ -49,6 +49,7 @@
 		    <result property="autoSync" column="s_auto_sync"/>
 		    <result property="autoSyncStore" column="s_auto_sync_store"/>
 		    <result property="type" column="s_type"/>
+            <result property="rate" column="s_rate"/>
 		    <association property="d" javaType="Distributor">
 			    <id property="id" column="d_id"/>
 			    <result property="name" column="d_name"/>
@@ -91,6 +92,7 @@
 		    <result property="autoSync" column="s_auto_sync"/>
 		     <result property="autoSyncStore" column="s_auto_sync_store"/>
 		    <result property="type" column="s_type"/>
+            <result property="rate" column="s_rate"/>
 		    <collection property="userList" ofType="User" >
 		      	<id property="id" column="u_id"/>
 				<result property="username" column="u_username"/>
@@ -114,6 +116,7 @@
 	    <result property="autoSync" column="s_auto_sync"/>
 	    <result property="autoSyncStore" column="s_auto_sync_store"/>
 	    <result property="type" column="s_type"/>
+        <result property="rate" column="s_rate"/>
 	    <association property="d" javaType="Distributor">
 		    <id property="id" column="d_id"/>
 		    <result property="name" column="d_name"/>
@@ -231,7 +234,7 @@
 	<select id="selectShop" parameterType="Map" resultType="Shop">
 		select id, seller_nick as sellerNick, token, refresh_token as refreshToken,
 		modified, created, last_refresh as lastRefresh, auto_sync as autoSync, type, distributor_id as dId,
-		auto_sync_store as autoSyncStore from shop
+		auto_sync_store as autoSyncStore, rate from shop
 		<where>
 			<if test="autoSync != null">
 				auto_sync = #{autoSync}
@@ -250,7 +253,7 @@
 	
 	<insert id="insertShop" parameterType="Shop">
 		insert into shop values(null, #{sellerNick}, #{token}, #{refreshToken}, null, now(), now(), #{autoSync},
-		#{type}, #{dId}, #{autoSyncStore})
+		#{type}, #{dId}, #{autoSyncStore}, #{rate})
 	</insert>
 
     <update id="updateShopToken" parameterType="java.util.Map">
@@ -321,4 +324,8 @@
 		update seller_info set sender=#{sender}, from_state=#{from_state}, from_company=#{from_company},
 		from_address=#{from_address}, mobile=#{mobile}, created=now()
 	</update>
+
+    <update id="updateShopRate" parameterType="java.util.Map">
+        update shop set rate=#{v} where id=#{id}
+    </update>
 </mapper>

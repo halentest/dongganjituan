@@ -88,9 +88,19 @@ public class RefundService {
 		refundMapper.updateRefund(refund);
 		tradeMapper.updateOrderStatus(Status.RejectRefund.getValue(), tid, oid);
 	}
-	
+
+    /**
+     * 收到退货
+     * 货物可以二次销售，quantity + 1
+     * 不能二次销售，残次品数量 + 1
+     * @param id
+     * @param tid
+     * @param oid
+     * @param comment2
+     * @param isTwice
+     */
 	@Transactional(rollbackFor=Exception.class)
-	public void receiveRefund(long id, String tid, String oid, String comment2, boolean isTwice) {
+	public void receiveRefund(long id, String tid, String oid, String comment2, boolean isTwice) throws InsufficientStockException {
 		MyRefund refund = refundMapper.selectByTidOid(tid, oid);
 		refund.setStatus(Status.ReceiveRefund.getValue());
 		refund.setComment2(comment2);
@@ -100,10 +110,7 @@ public class RefundService {
 		
 		if(isTwice) {
 			MyOrder myOrder = tradeMapper.selectOrderByOrderId(oid);
-			try {
-				skuService.updateSku(myOrder.getGoods_id(), myOrder.getSku_id(), myOrder.getQuantity());
-			} catch (InsufficientStockException e) {
-			}
+			skuService.updateSku(myOrder.getSku_id(), myOrder.getQuantity(), true);
 		}
 	}
 	

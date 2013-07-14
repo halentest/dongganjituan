@@ -13,6 +13,7 @@ public class Goods {
 	
 	private int weight; //
 	private int price;
+    private int purchase_price;
 	
 	private int status;
 	
@@ -32,7 +33,16 @@ public class Goods {
 		weight = 3000;
 		discount = 0.38F;
 	}
-	public long getId() {
+
+    public int getPurchase_price() {
+        return purchase_price;
+    }
+
+    public void setPurchase_price(int purchase_price) {
+        this.purchase_price = purchase_price;
+    }
+
+    public long getId() {
 		return id;
 	}
 	public void setId(long id) {

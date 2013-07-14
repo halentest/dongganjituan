@@ -41,18 +41,15 @@ public class SkuChangeListener extends MessageListenerAdapter {
 			keyList.add((String)obj);
 			obj = redisTemplate.opsForSet().pop(Constants.REDIS_SKU_GOODS_SET);
 		}
-		log.info("goodsHidList size is {}", keyList.size());
+		log.info("keyList size is {}", keyList.size());
 		
-		List<String> tokenList = new ArrayList<String>();
 		List<Shop> shopList = adminMapper.selectShop(1, null, 1);
-		for(Shop shop : shopList) {
-			tokenList.add(shop.getToken());
-		}
-		
-		if(!Util.isEmpty(tokenList) && !Util.isEmpty(keyList)) {
-			for(String token : tokenList) {
+        log.info("auto sync store shop size is {}", shopList.size());
+
+		if(!Util.isEmpty(shopList) && !Util.isEmpty(keyList)) {
+			for(Shop shop : shopList) {
 				try {
-					goodsService.updateSkuQuantity(keyList, token);
+					goodsService.updateSkuQuantity(keyList, shop);
 				} catch (ApiException e) {
 					log.error("", e);
 				}

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import cn.halen.data.pojo.*;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -31,11 +32,6 @@ import cn.halen.data.mapper.AreaMapper;
 import cn.halen.data.mapper.GoodsMapper;
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
-import cn.halen.data.pojo.Goods;
-import cn.halen.data.pojo.MyOrder;
-import cn.halen.data.pojo.MyStatus;
-import cn.halen.data.pojo.MyTrade;
-import cn.halen.data.pojo.User;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.InvalidStatusChangeException;
@@ -303,9 +299,6 @@ public class TradeActionController {
 			} catch (InvalidStatusChangeException isce) {
 				result.setSuccess(false);
 				result.setErrorInfo("这个订单" + isce.getTid() + "不能进行此操作!");
-			} catch(InsufficientStockException ise) {
-				result.setSuccess(false);
-				result.setErrorInfo("商品" + ise.getGoodsHid() + "库存不足，不能购买！");
 			} catch(InsufficientBalanceException ibe) {
 				log.error("", ibe);
 				result.setSuccess(false);
@@ -320,7 +313,8 @@ public class TradeActionController {
 	}
 	
 	@RequestMapping(value="trade/action/change_status")
-	public @ResponseBody ResultInfo changeStatus(Model model, @RequestParam("tid") String tid, @RequestParam("action") String action) {
+	public @ResponseBody ResultInfo changeStatus(Model model, @RequestParam("tid") String tid,
+                                                 @RequestParam("oid") String oid, @RequestParam("action") String action) {
 		ResultInfo result = new ResultInfo();
 		try {
 			if(action.equals("cancel")) {
@@ -332,7 +326,7 @@ public class TradeActionController {
 			} else if(action.equals("find-goods")) {
 				tradeService.findGoods(tid);
 			} else if(action.equals("no-goods")) {
-				tradeService.noGoods(tid);
+				tradeService.noGoods(tid, oid);
 			} else if(action.equals("refund-success")) {
 				tradeService.refundSuccess(tid);
 			}
@@ -420,6 +414,32 @@ public class TradeActionController {
 		}
 		return errorInfo;
 	}
+
+    @RequestMapping(value="trade/manual_sync_trade_form")
+    public String manaualSyncTradeForm(Model model) {
+        List<Shop> allSyncShop = adminMapper.selectShop(1, null, null);
+        List<String> allSyncSellerNick = new ArrayList<String>();
+        for(Shop shop : allSyncShop) {
+            allSyncSellerNick.add(shop.getSellerNick());
+        }
+        List<Shop> validShopList = new ArrayList<Shop>();
+        User user = UserHolder.get();
+        if(user.getUserType()==UserType.Distributor) {
+            List<Shop> currShopList = adminMapper.selectDistributorMapById(user.getShop().getD().getId()).getShopList();
+            for(Shop shop : currShopList) {
+                if(allSyncSellerNick.contains(shop.getSellerNick())) {
+                    validShopList.add(shop);
+                }
+            }
+        } else if(user.getUserType()==UserType.ServiceStaff) {
+            Shop shop = user.getShop();
+            if(allSyncSellerNick.contains(shop.getSellerNick())) {
+                validShopList.add(shop);
+            }
+        }
+        model.addAttribute("shopList", validShopList);
+        return "trade/manual_sync_trade_form";
+    }
 
 	@RequestMapping(value="trade/action/manual_sync_trade")
 	public @ResponseBody ResultInfo syncTrade(@RequestParam("sellerNick") String sellerNick,

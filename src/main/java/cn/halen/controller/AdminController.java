@@ -133,6 +133,13 @@ public class AdminController {
 		model.addAttribute("dId", dId);
 		return "admin/change_discount_form";
 	}
+
+    @RequestMapping(value="admin/change_rate_form")
+    public String changeRateForm(Model model, @RequestParam("sId") Integer sId, @RequestParam("oldRate") float oldRate) {
+        model.addAttribute("sId", sId);
+        model.addAttribute("oldRate", oldRate);
+        return "admin/change_rate_form";
+    }
 	
 	@RequestMapping(value="admin/add_distributor_form")
 	public String addDistributorForm(Model model) {
@@ -232,7 +239,7 @@ public class AdminController {
 	}
 	
 	@RequestMapping(value="admin/change_discount")
-	public String addDistributor(Model model, HttpServletResponse resp, @RequestParam("dId") int dId, 
+	public String changeDiscount(Model model, HttpServletResponse resp, @RequestParam("dId") int dId,
 			@RequestParam("v") String v) {
 		String errorMsg = null;
 		float fDiscount = 0;
@@ -260,6 +267,36 @@ public class AdminController {
 		}
 		return null;
 	}
+
+    @RequestMapping(value="admin/change_rate")
+    public String changeRate(Model model, HttpServletResponse resp, @RequestParam("sId") int sId,
+                                 @RequestParam("v") String v) {
+        String errorMsg = null;
+        float rate = 0;
+        v = v.trim();
+
+        if(StringUtils.isBlank(v)) {
+            errorMsg = "必须填写上货比率!";
+        }
+        try {
+            rate = Float.parseFloat(v);
+            if(rate>1 || rate<0) {
+                errorMsg = "上货比率必须在0-1之间!";
+            }
+        } catch(Exception e) {
+            errorMsg = "请填写正确的上货比率!";
+        }
+        if(null != errorMsg) {
+            model.addAttribute("errorInfo", errorMsg);
+            return "error_page";
+        }
+        adminMapper.updateShopRate(rate, sId);
+        try {
+            resp.sendRedirect("/admin/action/account_list");
+        } catch (IOException e) {
+        }
+        return null;
+    }
 	
 	@RequestMapping(value="admin/add_shop")
 	public String addShop(Model model, HttpServletResponse resp, @RequestParam("sellerNick") String sellerNick, @RequestParam("type") String type,

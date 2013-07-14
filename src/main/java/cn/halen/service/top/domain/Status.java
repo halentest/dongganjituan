@@ -11,7 +11,8 @@ public enum Status {
 	TRADE_FINISHED("TRADE_FINISHED", "交易成功"),
 	WAIT_SELLER_SEND_GOODS("WAIT_SELLER_SEND_GOODS", "已付款"),
 	TRADE_CLOSED("TRADE_CLOSED", "交易关闭"),
-	
+    NoGoods("NoGoods", "无货"),
+
 	Refunding("Refunding", "等待买家退货"),
 	Refund("Refund", "退货成功但未退款"),
 	RefundSuccess("RefundSuccess", "退货退款成功"),

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.halen.data.pojo.Goods;
+import cn.halen.data.pojo.Shop;
 import cn.halen.service.excel.GoodsRow;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class GoodsService {
 	/**
 	 * @throws ApiException
 	 */
-	public void updateSkuQuantity(List<String> keyList, String token) throws ApiException {
+	public void updateSkuQuantity(List<String> keyList, Shop shop) throws ApiException {
 		Set<String> hidSet = new HashSet<String>();
 		Map<String, Set<String>> map = new HashMap<String, Set<String>>();
 		for(String key : keyList) {
@@ -62,7 +63,7 @@ public class GoodsService {
 		for(String hid : hidSet) {
 			hidList.add(hid);
 		}
-		List<Item> itemList = itemClient.getItemList(hidList, token);
+		List<Item> itemList = itemClient.getItemList(hidList, shop.getToken());
 		
 		for(Item item : itemList) {
 			Map<String, Long> taoSkuMap = getTaoSku(item); //color+size -> sku_id
@@ -74,10 +75,15 @@ public class GoodsService {
 				Long skuId = taoSkuMap.get(color + size);
 				if(null != skuId) {
 					MySku mySku = skuMapper.select(item.getOuterId(), color, size);
-					boolean b = itemClient.updateSkuQuantity(item.getNumIid(), skuId, mySku.getQuantity(), token);
+                    long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()) * shop.getRate());
+					boolean b = itemClient.updateSkuQuantity(item.getNumIid(), skuId, onlineQuantity, shop.getToken());
 					if(!b) {
-						logger.info("Sku {} for item {} update failed", skuId, item.getNumIid() + "-" + item.getOuterId());
-					}
+						logger.error("update online sku ({}, {}, {}, {}) failed", shop.getSellerNick(), item.getOuterId(),
+                                color, size);
+					} else {
+                        logger.debug("update online sku ({}, {}, {}, {}) successed", shop.getSellerNick(), item.getOuterId(),
+                                color, size);
+                    }
 				}
 			}
 		}
@@ -156,6 +162,8 @@ public class GoodsService {
     public void execRow(List<GoodsRow> rows) {
         for(GoodsRow row : rows) {
             Goods goods = goodsMapper.getByHid(row.getGoodsId());
+            List<String> colorIds = row.getColorIds();
+            List<String> colors = row.getColors();
             if(null == goods) {
                 goods = new Goods();
                 goods.setHid(row.getGoodsId());
@@ -164,52 +172,59 @@ public class GoodsService {
                 goods.setStatus(1);
                 goods.setTemplate("默认模板");
                 goodsMapper.insert(goods);
-                for(String color : row.getColors()) {
+                for(int i=0; i<colors.size(); i++) {
+                    String color = colors.get(i);
                     for(String size : row.getSizes()) {
                         MySku sku = new MySku();
                         sku.setGoods_id(row.getGoodsId());
                         sku.setColor(color);
                         sku.setSize(size);
+                        sku.setHid(colorIds.get(i) + size);
                         sku.setQuantity(0);
                         skuMapper.insert(sku);
                     }
                 }
             } else {
                 List<MySku> skuList = skuMapper.selectByGoodsId(row.getGoodsId());
-                Set<String> colorSet = new HashSet<String>();
+                Map<String, String> colorMap = new HashMap<String, String>();
                 Set<String> sizeSet = new HashSet<String>();
                 for(MySku sku : skuList) {
-                    colorSet.add(sku.getColor());
+                    colorMap.put(sku.getColor(), sku.getHid());
                     sizeSet.add(sku.getSize());
                 }
                 //先把新建的加进去
-                for(String color : row.getColors()) {
+                for(int i=0; i<colors.size(); i++) {
+                    String color = colors.get(i);
                     for(String size : row.getSizes()) {
                         MySku sku = new MySku();
                         sku.setGoods_id(row.getGoodsId());
                         sku.setColor(color);
                         sku.setSize(size);
+                        sku.setHid(colorIds.get(i) + size);
                         sku.setQuantity(0);
                         skuMapper.insert(sku);
                     }
                 }
                 //补全之前就存在的
-                for(String color : row.getColors()) {
+                for(int i=0; i<colors.size(); i++) {
+                    String color = colors.get(i);
                     for(String size : sizeSet) {
                         MySku sku = new MySku();
                         sku.setGoods_id(row.getGoodsId());
                         sku.setColor(color);
                         sku.setSize(size);
+                        sku.setHid(colorIds.get(i) + size);
                         sku.setQuantity(0);
                         skuMapper.insert(sku);
                     }
                 }
-                for(String color : colorSet) {
+                for(Map.Entry<String, String> colorEntry : colorMap.entrySet()) {
                     for(String size : row.getSizes()) {
                         MySku sku = new MySku();
                         sku.setGoods_id(row.getGoodsId());
-                        sku.setColor(color);
+                        sku.setColor(colorEntry.getKey());
                         sku.setSize(size);
+                        sku.setHid(colorEntry.getValue() + size);
                         sku.setQuantity(0);
                         skuMapper.insert(sku);
                     }

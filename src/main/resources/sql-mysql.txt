@@ -7,7 +7,8 @@ create table logistics_company (
 	status int,
 	modified timestamp,
 	created timestamp
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists item_prop;
 create table item_prop (
 	id int primary key auto_increment,
@@ -16,7 +17,8 @@ create table item_prop (
 	modified timestamp,
 	created timestamp,
 	unique key(pid, name)
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists prop_value;
 create table prop_value (
 	id int primary key auto_increment,
@@ -26,7 +28,8 @@ create table prop_value (
 	modified timestamp,
 	created timestamp,
 	unique key(vid, name, pid)
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists goods;
 create table goods (
 	id bigint primary key auto_increment, 
@@ -35,26 +38,31 @@ create table goods (
 	title varchar(255), 
 	url varchar(255),
 	weight int unsigned,
-	price int unsigned,
+	price int unsigned, #吊牌价
+    purchase_price int unsigned, #采购价
 	status int,
 	template varchar(50),
 	discount decimal(3, 2) default 0.00,
 	modified timestamp,
 	created timestamp
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists sku;
 create table sku (
 	id bigint primary key auto_increment,
 	tao_id bigint unsigned,
+	hid varchar(20), #编码 = color编号+size
 	goods_id varchar(100),
 	color varchar(20),
 	size varchar(20),
 	price int unsigned,
-	quantity int unsigned,
+	quantity int unsigned,  #实际库存
+	lock_quantity int unsigned, #锁定库存
 	modified timestamp,
 	created timestamp,
 	unique key(goods_id, color, size)
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists area;
 create table area (
 	id bigint primary key,
@@ -63,7 +71,8 @@ create table area (
 	type bigint,
 	modified timestamp,
 	created timestamp
-	);
+	) DEFAULT CHARACTER SET utf8;
+
 drop table if exists refund;
 create table refund (
 	id bigint primary key auto_increment,
@@ -81,7 +90,8 @@ create table refund (
 	modified timestamp,
 	created timestamp,
 	unique key(tid, oid)
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists trade;
 create table trade (
 	id bigint primary key auto_increment,
@@ -111,7 +121,8 @@ create table trade (
 	modified timestamp default current_timestamp,
 	created timestamp,
 	operator varchar(50)
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists order1;
 create table order1
 (
@@ -132,7 +143,8 @@ create table order1
 	status varchar(50),
 	modified timestamp,
 	created timestamp
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists user1;
 create table user1 (
 	id int primary key auto_increment,
@@ -143,9 +155,10 @@ create table user1 (
 	modified timestamp,
 	created timestamp,
 	shop_id int
-);
+) DEFAULT CHARACTER SET utf8;
 insert into user1 values(null, 'superadmin', 'superadmin', 1, 'SuperAdmin', now(), now(), -1);
 insert into user1 values(null, 'admin', 'admin', 1, 'Admin', now(), now(), -1);
+
 drop table if exists user_authority;
 create table user_authority (
 	id int primary key auto_increment,
@@ -154,13 +167,14 @@ create table user_authority (
 	modified timestamp,
 	created timestamp,
 	unique key(username, authority)
-);
+) DEFAULT CHARACTER SET utf8;
 insert into user_authority values(null, 'superadmin', 'manager_system', now(), now());
 insert into user_authority values(null, 'superadmin', 'manager_system_action', now(), now());
 insert into user_authority values(null, 'superadmin', 'logined', now(), now());
 insert into user_authority values(null, 'admin', 'manager_system', now(), now());
 insert into user_authority values(null, 'admin', 'manager_system_action', now(), now());
 insert into user_authority values(null, 'admin', 'logined', now(), now());
+
 drop table if exists distributor;
 create table distributor (
 	id int primary key auto_increment,
@@ -172,7 +186,8 @@ create table distributor (
 	nocheck tinyint,
 	modified timestamp,
 	created timestamp
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists shop;
 create table shop (
 	id int primary key auto_increment,
@@ -185,8 +200,9 @@ create table shop (
 	auto_sync tinyint,
 	type varchar(20),
 	distributor_id int,
-	auto_sync_store tinyint
-);
+	auto_sync_store tinyint,
+	rate decimal(3, 2) default 1.00
+) DEFAULT CHARACTER SET utf8;
 
 drop table if exists template;
 create table template (
@@ -201,7 +217,8 @@ create table template (
 	modified timestamp,
 	created timestamp,
 	unique key(name, logistics_type, area)
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists template_name;
 create table template_name (
 	id int primary key auto_increment,
@@ -209,7 +226,8 @@ create table template_name (
 	modified timestamp,
 	created timestamp,
 	unique key(name)
-);
+) DEFAULT CHARACTER SET utf8;
+
 drop table if exists seller_info;
 create table seller_info (
 	id int primary key auto_increment,
@@ -220,8 +238,8 @@ create table seller_info (
 	mobile varchar(20),
 	modified timestamp,
 	created timestamp
-);
-insert into seller_info values(null, 'ëСë', '����', '���ն��й�˾', '����ʡ������......', '110', null, now());
+)  DEFAULT CHARACTER SET utf8;
+insert into seller_info values(null, '毛小毛', '你好', '三千五百爸爸表示', '三千五百爸爸表示.....', '110', null, now());
 
 	
 	

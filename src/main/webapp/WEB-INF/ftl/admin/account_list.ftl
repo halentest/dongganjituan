@@ -234,6 +234,7 @@
 					<th>id</th>
 					<th>店铺名称</th>
 					<th>店铺类型</th>
+                    <th>上货比率</th>
 					<th>自动同步订单</th>
 					<th>自动同步库存</th>
 					<th>创建时间</th>
@@ -246,6 +247,7 @@
 					<td>${shop.id}</td>
 					<td>${shop.sellerNick}</td>
 					<td>${shop.type}</td>
+                    <td>${shop.rate?string.percent}</td>
 					<td><#if shop.autoSync==1>是<#else>否</#if></td>
 					<td><#if shop.autoSyncStore==1>
 						<a href="${rc.contextPath}/admin/change_sync_store?v=0&sId=${shop.id}">是</a>
@@ -258,6 +260,7 @@
 					<td>
 					<a href="${rc.contextPath}/admin/add_user_form?type=ServiceStaff&shopId=${shop.id}">添加客服</a> &nbsp;&nbsp;
 					<a href="${rc.contextPath}/admin/add_user_form?type=Distributor&shopId=${shop.id}">添加客服经理</a>
+                    <a href="${rc.contextPath}/admin/change_rate_form?sId=${shop.id}&oldRate=${shop.rate}">修改上货比率</a>
 					</td>
 				</tr>
 			</tbody>

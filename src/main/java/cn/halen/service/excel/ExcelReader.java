@@ -37,7 +37,7 @@ public class ExcelReader {
             String cell1 = cells[1].getContents();
             String cell2 = cells[2].getContents();
             String cell3 = cells[3].getContents();
-            Row row = new Row(cell0, cell1, cell2, Integer.parseInt(cell3));
+            Row row = new Row(cell0.trim(), cell1.trim(), cell2.trim(), Integer.parseInt(cell3.trim()));
             list.add(row);
         }
         return list;
@@ -99,8 +99,8 @@ public class ExcelReader {
             String cell3 = cells[3].getContents();
             System.out.print("cell3 is " + cell3 + "; ");
             System.out.println();
-            if (StringUtils.isEmpty(cell0) || StringUtils.isEmpty(cell1) || StringUtils.isEmpty(cell2) ||
-                    StringUtils.isEmpty(cell3)) {
+            if (StringUtils.isBlank(cell0) || StringUtils.isBlank(cell1) || StringUtils.isBlank(cell2) ||
+                    StringUtils.isBlank(cell3)) {
                 return row;
             }
             try {

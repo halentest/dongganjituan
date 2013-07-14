@@ -18,12 +18,15 @@ public class GoodsRow {
 
     private List<String> colors;
 
+    private List<String> colorIds;
+
     private List<String> sizes;
 
-    public GoodsRow(String goodsId, String name, int price, List<String> colors, List<String> sizes) {
+    public GoodsRow(String goodsId, String name, int price, List<String> colorIds, List<String> colors, List<String> sizes) {
         this.goodsId = goodsId;
         this.name = name;
         this.price = price;
+        this.colorIds = colorIds;
         this.colors = colors;
         this.sizes = sizes;
     }
@@ -50,6 +53,14 @@ public class GoodsRow {
 
     public void setSizes(List<String> sizes) {
         this.sizes = sizes;
+    }
+
+    public List<String> getColorIds() {
+        return colorIds;
+    }
+
+    public void setColorIds(List<String> colorIds) {
+        this.colorIds = colorIds;
     }
 
     public int getPrice() {

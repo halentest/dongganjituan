@@ -1,46 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>欢迎登录动感集团电子商务管理系统</title>
-    <link href="${rc.contextPath}/css/bootstrap.css" rel="stylesheet">
- </head>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>用户登录</title>
+    <LINK href="${rc.contextPath}/css/login/User_Login.css" type=text/css rel=stylesheet>
+    <META http-equiv=Content-Type content="text/html; charset=utf-8">
+</HEAD>
+<BODY id=userlogin_body>
+<form action="j_spring_security_check" method="POST">
+    <DIV id=user_login>
 
- <body>
- 	<div class="container" style="margin-top: 150px; width: 450px;">
-		 	<form class="form-horizontal" action="j_spring_security_check" method="POST"> 
-		 		<fieldset>
-		 			<legend>欢迎登录动感集团电子商务管理系统</legend>
-		 			<div class="control-group">
-				      <label class="control-label" for="j_username">用户名</label>
-				      <div class="controls">
-				        <input type="text" class="input-medium" id="j_username" name="j_username">
-				      </div>
-				    </div>
-				    <div class="control-group">
-				      <label class="control-label" for="j_password">密码</label>
-				      <div class="controls">
-				        <input type="password" class="input-medium" id="j_password" name="j_password">
-				      </div>
-				    </div>
-				    <div class="control-group">
-				      <div class="controls">
-				        <label class="checkbox">
-          					<input type="checkbox" name="_spring_security_remember_me"> 记住我
-        				</label>
-				      </div>
-				    </div>
-				    <#if error??><div class="alert alert-error">登录失败！用户名或密码输入不正确，请重新输入</div></#if>
-				    
-				    <div class="form-actions">
-				    	<button class="btn" type="reset">重置</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            			<button type="submit" class="btn btn-primary">登录</button>
-          			</div>
-			 	</fieldset>
-		 	</form>
- 	</div>
- </body>
- <script src="${rc.contextPath}/js/bootstrap.js"></script>
+        <DL>
+            <DD id=user_top>
+                <UL>
+                    <LI class=user_top_l></LI>
+                    <LI class=user_top_c></LI>
+                    <LI class=user_top_r></LI>
+                </UL>
+            <DD id=user_main>
+                <UL>
 
-</html>
+                    <LI class=user_main_l></LI>
+                    <LI class=user_main_c>
+                        <DIV class=user_main_box>
+                            <UL>
+                                <LI class=user_main_text>用户名： </LI>
+                                <LI class=user_main_input>
+                                    <INPUT class=TxtUserNameCssClass maxLength=20 name="j_username" style="width: 140px;">
+                                </LI>
+                            </UL>
+                            <UL>
+                                <LI class=user_main_text>密 码： </LI>
+                                <LI class=user_main_input>
+                                    <input class=TxtPasswordCssClass id="j_password" name="j_password" type="password" style="width: 140px;">
+                                </LI>
+                            </UL>
+                        </DIV>
+                    </LI>
+                    <LI class=user_main_r>
+                        <INPUT class="IbtnEnterCssClass" value=""
+                               type="submit" src="${rc.contextPath}/css/login/user_botton.gif" /></LI></UL>
+            <DD id=user_bottom>
+                <UL>
+                    <LI class=user_bottom_l></LI>
+                    <LI class=user_bottom_c><SPAN style="MARGIN-TOP: 40px"></SPAN> </LI>
+                    <LI class=user_bottom_r></LI>
+                </UL>
+            </DD>
+        </DL>
+    </DIV>
+    <SPAN id=ValrUserName style="DISPLAY: none; COLOR: red"></SPAN>
+    <SPAN id=ValrPassword style="DISPLAY: none; COLOR: red"></SPAN>
+    <SPAN id=ValrValidateCode style="DISPLAY: none; COLOR: red"></SPAN>
+    <DIV id=ValidationSummary1 style="DISPLAY: none; COLOR: red"></DIV>
+    <DIV></DIV>
+</form>
+</BODY>
+</HTML>

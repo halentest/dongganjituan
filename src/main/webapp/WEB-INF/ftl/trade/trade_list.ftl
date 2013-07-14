@@ -2,12 +2,11 @@
 
 <@root.html active=3 css=["trade_list.css", "jqpagination.css"] 
 js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi-yuantong.js", "kuaidi-yunda.js", "kuaidi-ems.js", "kuaidi-sf.js"]>
-	<script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
+    <script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
 	<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
 	    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
 	</object>
-	<i class="icon-list-alt"></i>订单列表
-	<div style="width: 100%; height: 60px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
+	<div style="width: 98%; height: 60px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px; margin-top: -20px;">
 		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
 		<strong>分销商</strong>
 		<select id="distributor" style="width: 8%;">
@@ -30,14 +29,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 		</select>
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		</#if>
-		<strong>状态</strong>
-		<select id="status" style="width: 8%;">
-			<option value="">所有状态</option>
-			<#list statusList as status>
-				<option value="${status.getStatus()}">${status.getDesc()}</option>
-			</#list>
-		</select>
-		&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="hidden" id="status">
 		<strong>快递</strong>
 		<select id="delivery" style="width: 8%;">
 			<option value="">所有快递</option>
@@ -72,6 +64,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
         </div>
 
 	</div>
+<#if trade_list?size gt 0>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
 	    <a href="#" class="previous" data-action="previous">&lsaquo;</a>
@@ -84,37 +77,24 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 		<a id="check-all" style="cursor: pointer;">全选</a>&nbsp;&nbsp;&nbsp;&nbsp;
 		<a id="not-check-all" style="cursor: pointer;">全不选</a>&nbsp;&nbsp;&nbsp;&nbsp;
 		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
-			<a class="btn btn-primary" id="batch-submit">批量提交</a>
-		</#if>
-		<#if CURRENT_USER.type=="DistributorManager">
+            <#if status==0>
+                <a class="btn btn-primary" id="batch-submit">批量提交</a>
+            </#if>
+        </#if>
+		<#if CURRENT_USER.type=="DistributorManager" && status==1>
 			<a class="btn btn-primary" id="batch-approve1">批量通过</a>
 		</#if>
 		<#if CURRENT_USER.type=="WareHouse">
-			<a class="btn btn-primary" id="batch-find-goods">批量拣货</a>
-			<a class="btn btn-primary" id="batch-prn-kdd">批量打印快递单</a>
-			<a class="btn btn-primary" id="batch-find-goods">批量打印发货单</a>
+            <#if status?? && status=2>
+                <a class="btn btn-primary" id="batch-find-goods">批量拣货</a>
+            </#if>
+            <#if status?? && status=3>
+                <a class="btn btn-primary" id="batch-prn-kdd">批量打印</a>
+            </#if>
 		</#if>
 	</div>
 	<#list trade_list as trade>
-		<#assign tColor="#CCCCCC">
-		<#if trade.myStatus.getStatus()==0>
-			<#assign tColor="#FFFFFF">
-		</#if>
-		<#if trade.myStatus.getStatus()==1>
-			<#assign tColor="#CCFFFF">
-		</#if>
-		<#if trade.myStatus.getStatus()==2>
-			<#assign tColor="#99CCFF">
-		</#if>
-		<#if trade.myStatus.getStatus()==3>
-			<#assign tColor="#66CCCC">
-		</#if>
-		<#if trade.myStatus.getStatus()==4>
-			<#assign tColor="#339999">
-		</#if>
-		<#if trade.myStatus.getStatus()==-5>
-			<#assign tColor="#CC3333">
-		</#if>
+		<#assign tColor="#d6dff7">
 		<table>
 		    <tbody>
 		      <tr class="trade" style="background-color: ${tColor};">
@@ -138,7 +118,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 		      <#list orderList as order>
 		      	  <tr class="order_list">
 		      	  		<td  style="width: 80px;">
-		      	  			<img style="width: 80px; height: 80px;" src="${order.pic_path}_80x80.jpg" />
+		      	  			<img style="width: 80px; height: 80px;" src="${order.pic_path!''}_80x80.jpg" />
 		      	  		</td>
 				        <td style="width: 25%;">
 				        	<p><strong>名称：</strong>${order.title}</p>
@@ -149,6 +129,11 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 				        	<p><strong>${order.oStatus.desc}</strong></p>
 				        	<p><strong>数量：</strong>${order.quantity}</p>
 				        	<p><strong>价格：</strong>${order.payment/100}元</p>
+                            <#if CURRENT_USER.type=="WareHouse">
+                                <#if trade.status=="WAIT_SELLER_SEND_GOODS" && trade.my_status==2 || trade.my_status==3>
+                                    <p><a class="no-goods" data-tid="${trade.tid}" data-oid="${order.oid}" style="cursor: pointer">无货</a></p>
+                                </#if>
+                            </#if>
 				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 				        		<#if trade.my_status==4 && order.status=="WAIT_BUYER_CONFIRM_GOODS">
 				        			<p>
@@ -226,8 +211,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 										</a>
 										</#if>
 									</p>
-					        		<p>打印发货单 &nbsp;&nbsp; 预览</p>
-				        			<p><a class="send-goods" data-tid="${trade.tid}" data-delivery="${trade.delivery}" 
+				        			<p><a class="send-goods" data-tid="${trade.tid}" data-delivery="${trade.delivery}"
 				        				data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">发货</a></p>
 				        			<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
@@ -293,7 +277,12 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	</div>
-	
+<#else>
+        <div class="alert" style="margin: 5px;">
+            <a class="close" data-dismiss="alert">×</a>
+            <strong>无内容！</strong>
+        </div>
+</#if>
 </@root.html>
 
 <!-- start 提示框 -->
@@ -357,7 +346,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 			$.ajax({
 	            type: "post",//使用get方法访问后台
 	            dataType: "json",//返回json格式的数据
-	            data: "tid=" + $(this).attr("data-tid") + "&action=" + action,
+	            data: "tid=" + $(this).attr("data-tid") + "&action=" + action + "&oid=" + $(this).attr("data-oid"),
 	            url: "${rc.contextPath}/trade/action/change_status",//要访问的后台地址
 	            success: function(result){//msg为返回的数据，在这里做数据绑定
 	                if(result.success == false) {

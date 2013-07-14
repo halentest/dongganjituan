@@ -6,8 +6,7 @@
 			cursor: pointer;
 		}
 	</style>
-	<i class="icon-list-alt"></i>商品列表
-	<div style="width: 100%; height: 30px; background-color: #99CCCC; padding-top: 5px; padding-left: 20px;">
+	<div style="width: 98%; height: 30px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px;">
 		<strong>商品编号</strong>
 		<input id="goods-id" type="input" value="" style="width: 6%; height: 15px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
@@ -16,6 +15,7 @@
 		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
 		</#if>
 	</div>
+<#if list?size gt 0>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
 	    <a href="#" class="previous" data-action="previous">&lsaquo;</a>
@@ -88,7 +88,12 @@
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	 </div>
-        
+<#else>
+        <div class="alert" style="margin: 5px;">
+            <a class="close" data-dismiss="alert">×</a>
+            <strong>无内容！</strong>
+        </div>
+</#if>
 </@root.html>
 
 <!-- start 提示框 -->

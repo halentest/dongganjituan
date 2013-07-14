@@ -12,7 +12,8 @@ public enum MyStatus {
 	Refunding(-2, "退货中"),
 	Refund(-3, "已退货"),
 	ApplyRefund(-4, "申请退货"),
-	NoGoods(-5, "无货");
+	NoGoods(-5, "无货"),
+    WaitHandle(-6, "待处理");
 	
 	
 	private int status;
@@ -55,6 +56,9 @@ public enum MyStatus {
 		case -5 :
 			result = NoGoods;
 			break;
+        case -6 :
+            result = WaitHandle;
+            break;
 		}
 		return result;
 	}

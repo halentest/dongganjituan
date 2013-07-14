@@ -21,8 +21,18 @@ public class Shop {
 	private int autoSync;
 	
 	private int autoSyncStore;
-	
-	public int getAutoSyncStore() {
+
+    private float rate;
+
+    public float getRate() {
+        return rate;
+    }
+
+    public void setRate(float rate) {
+        this.rate = rate;
+    }
+
+    public int getAutoSyncStore() {
 		return autoSyncStore;
 	}
 

@@ -93,6 +93,13 @@ public class AdminMapper extends SqlSessionDaoSupport {
 		param.put("id", id);
 		return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateDistributorDiscount", param);
 	}
+
+    public int updateShopRate(float v, int id) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("v", v);
+        param.put("id", id);
+        return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateShopRate", param);
+    }
 	
 	public int insertAuthority(List<UserAuthority> list) {
 		return getSqlSession().insert("cn.halen.data.mapper.AdminMapper.batchInsertAuthority", list);

@@ -1,5 +1,6 @@
 package cn.halen.service.top;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +43,7 @@ public class AreaClient {
 		}
 		
 		for(Area area : list) {
-			if(map.get(area.getId())==null) {
+			if(map.get(area.getId())==null && Charset.forName("utf-8").newEncoder().canEncode(area.getName())) {
 				nonExistList.add(area);
 			}
 		}

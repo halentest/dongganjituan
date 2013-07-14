@@ -1,0 +1,169 @@
+BODY {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-FAMILY: 宋体; BACKGROUND-COLOR: #d6dff7
+}
+A {
+	FONT: 12px 宋体; COLOR: #000000; TEXT-DECORATION: none
+}
+A:hover {
+	COLOR: #428eff
+}
+TD {
+	FONT-SIZE: 12px; LINE-HEIGHT: 15px; FONT-FAMILY: 宋体
+}
+TH {
+	FONT-WEIGHT: bold; FONT-SIZE: 12px; BACKGROUND-IMAGE: url(images/admin_bg_1.gif); COLOR: white; BACKGROUND-COLOR: #4455aa
+}
+TD.txlHeaderBackgroundAlternate {
+	COLOR: #ffffff; BACKGROUND-COLOR: #799ae1
+}
+#TableTitleLink A:link {
+	COLOR: #ffffff; TEXT-DECORATION: none
+}
+#TableTitleLink A:visited {
+	COLOR: #ffffff; TEXT-DECORATION: none
+}
+#TableTitleLink A:active {
+	COLOR: #ffffff; TEXT-DECORATION: none
+}
+#TableTitleLink A:hover {
+	COLOR: #ffffff; TEXT-DECORATION: underline
+}
+TD.txlRow {
+	BACKGROUND-COLOR: #dee5fa
+}
+TD.txlRowHighlight {
+	BACKGROUND-COLOR: #d4def9
+}
+.tableBorder {
+	BORDER-RIGHT: #6595d6 1px solid; BORDER-TOP: #6595d6 1px solid; BORDER-LEFT: #6595d6 1px solid; BORDER-BOTTOM: #6595d6 1px solid; BACKGROUND-COLOR: #ffffff
+}
+INPUT {
+	FONT-SIZE: 12px; LINE-HEIGHT: 15px; FONT-FAMILY: Tahoma,Verdana,宋体
+}
+SELECT {
+	FONT-SIZE: 12px; LINE-HEIGHT: 15px; FONT-FAMILY: Tahoma,Verdana,宋体
+}
+TEXTAREA {
+	FONT-SIZE: 12px; LINE-HEIGHT: 15px; FONT-FAMILY: Tahoma,Verdana,宋体
+}
+.STYLE3 {font-size: 12px}
+
+.my-nav {
+    padding-left: 80px;
+    background-color: red;
+}
+
+.my-nav ul {
+    list-style: none;
+}
+
+.my-nav li {
+    float: left;
+    margin-left: 20px;
+}
+
+.active{
+    -webkit-align-items: flex-start;
+    -webkit-appearance: none;
+    -webkit-writing-mode: horizontal-tb;
+    background-color: white;
+    border-bottom-color: rgb(222, 222, 222);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-image-outset: 0px;
+    border-image-repeat: stretch;
+    border-image-slice: 100%;
+    border-image-source: none;
+    border-image-width: 1;
+    border-left-color: rgb(238, 238, 238);
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-right-color: rgb(222, 222, 222);
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-top-color: rgb(238, 238, 238);
+    border-top-style: solid;
+    border-top-width: 1px;
+    box-sizing: border-box;
+    color: rgb(82, 146, 20);
+    cursor: pointer;
+    display: block;
+    float: left;
+    font-family: 'Lucida Grande', Tahoma, Arial, Verdana, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    height: 29px;
+    letter-spacing: normal;
+    line-height: 17px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 7px;
+    margin-top: 0px;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding-bottom: 5px;
+    padding-left: 7px;
+    padding-right: 10px;
+    padding-top: 5px;
+    text-align: center;
+    text-decoration: none;
+    text-indent: 0px;
+    text-shadow: none;
+    text-transform: none;
+    width: 75px;
+    word-spacing: 0px;
+    writing-mode: lr-tb;
+}
+
+button {
+    -webkit-align-items: flex-start;
+    -webkit-appearance: none;
+    -webkit-writing-mode: horizontal-tb;
+    background-color: #d6dff7;
+    border-bottom-color: rgb(222, 222, 222);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-image-outset: 0px;
+    border-image-repeat: stretch;
+    border-image-slice: 100%;
+    border-image-source: none;
+    border-image-width: 1;
+    border-left-color: rgb(238, 238, 238);
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-right-color: rgb(222, 222, 222);
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-top-color: rgb(238, 238, 238);
+    border-top-style: solid;
+    border-top-width: 1px;
+    box-sizing: border-box;
+    color: rgb(82, 146, 20);
+    cursor: pointer;
+    display: block;
+    float: left;
+    font-family: 'Lucida Grande', Tahoma, Arial, Verdana, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    height: 29px;
+    letter-spacing: normal;
+    line-height: 17px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 7px;
+    margin-top: 0px;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding-bottom: 5px;
+    padding-left: 7px;
+    padding-right: 10px;
+    padding-top: 5px;
+    text-align: center;
+    text-decoration: none;
+    text-indent: 0px;
+    text-shadow: none;
+    text-transform: none;
+    width: 75px;
+    word-spacing: 0px;
+    writing-mode: lr-tb;
+}
