@@ -117,15 +117,15 @@
     });
 
     $('#buy-list').click(function() {
-        parent.frames[2].location.href="${rc.contextPath}/goods/action/upload_list?action=buy";
+        parent.frames[2].location.href="${rc.contextPath}/goods/upload_list?action=buy";
     });
 
     $('#refund-list').click(function() {
-        parent.frames[2].location.href="${rc.contextPath}/goods/action/upload_list?action=refund";
+        parent.frames[2].location.href="${rc.contextPath}/goods/upload_list?action=refund";
     });
 
     $('#new-list').click(function() {
-        parent.frames[2].location.href="${rc.contextPath}/goods/action/upload_list?action=new";
+        parent.frames[2].location.href="${rc.contextPath}/goods/upload_list?action=new";
     });
     })
 </script>

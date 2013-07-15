@@ -15,7 +15,7 @@
 		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
 		</#if>
 	</div>
-<#if list?size gt 0>
+<#if list?? && list?size gt 0>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
 	    <a href="#" class="previous" data-action="previous">&lsaquo;</a>
@@ -43,7 +43,12 @@
         	  		<th rowspan="${map2?size+1}" style="width: 2%;"><input class="wait-check" data-hid=${goods.hid} type="checkbox"/></th>
         	  		</#if>
         	  		<th rowspan="${map2?size+1}" style="width: 12%;">
-        	  		<img style="width: 80px; height: 80px" src="<#if goods.url??>${goods.url}_80x80.jpg</#if>" />
+                        <#if goods.url??>
+                            <#assign picPath = goods.url/>
+                            <#else>
+                                <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
+                        </#if>
+        	  		    <img style="width: 80px; height: 80px" src="<#if goods.url??>${picPath}_80x80.jpg</#if>" />
         	  		</th>
         	  		<th rowspan="${map2?size+1}" style="width: 9%;">${goods.hid}</th>
         	  		<th rowspan="${map2?size+1}" style="width: 15%;">${goods.title!''}</th>
@@ -69,9 +74,13 @@
         	  <tr>
         	  		<td data-goods="${goods.hid}" data-type="color" data-value="${key2}" class="can-change">${key2}</td>
         	  		<#list map2[key2]?keys as key3>
-        	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2}" data-size="${key3}" 
+        	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2}" data-size="${key3}"
         	  			is-selected="false" style="padding: 2px;"
-        	  			<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">class="can-click"</#if>>
+        	  			<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
+                            <#if map2[key2][key3]?substring(0,1) != '0'>
+                                class="can-click"
+                            </#if>
+                        </#if>>
         	  			${map2[key2][key3]}
         	  		</td>
         	  		</#list>
@@ -148,7 +157,7 @@
 		   		var isSelected = $(this).attr("is-selected");
 		   		if(isSelected=="false") {
 		   			$(this).attr("is-selected", "true");
-		   			$(this).css("background-color", "#99CCCC");
+		   			$(this).css("background-color", "#d6dff7");
 		   		} else {
 		   			$(this).attr("is-selected", "false");
 		   			$(this).css("background-color", "white");

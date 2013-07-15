@@ -25,17 +25,18 @@
                             <UL>
                                 <LI class=user_main_text>用户名： </LI>
                                 <LI class=user_main_input>
-                                    <INPUT class=TxtUserNameCssClass maxLength=20 name="j_username" style="width: 140px;">
+                                    <INPUT id="j_username" maxLength=20 name="j_username" style="width: 140px;">
                                 </LI>
                             </UL>
                             <UL>
                                 <LI class=user_main_text>密 码： </LI>
                                 <LI class=user_main_input>
-                                    <input class=TxtPasswordCssClass id="j_password" name="j_password" type="password" style="width: 140px;">
+                                    <input id="j_password" name="j_password" type="password" style="width: 140px;">
                                 </LI>
                             </UL>
                         </DIV>
                     </LI>
+                    <#if error??><script>alert('登录失败！用户名或密码输入不正确，请重新输入')</script></#if>
                     <LI class=user_main_r>
                         <INPUT class="IbtnEnterCssClass" value=""
                                type="submit" src="${rc.contextPath}/css/login/user_botton.gif" /></LI></UL>

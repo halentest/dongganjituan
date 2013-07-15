@@ -118,7 +118,12 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 		      <#list orderList as order>
 		      	  <tr class="order_list">
 		      	  		<td  style="width: 80px;">
-		      	  			<img style="width: 80px; height: 80px;" src="${order.pic_path!''}_80x80.jpg" />
+                            <#if order.pic_path??>
+                                <#assign picPath = order.pic_path/>
+                            <#else>
+                                <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
+                            </#if>
+		      	  			<img style="width: 80px; height: 80px;" src="${picPath}_80x80.jpg" />
 		      	  		</td>
 				        <td style="width: 25%;">
 				        	<p><strong>名称：</strong>${order.title}</p>

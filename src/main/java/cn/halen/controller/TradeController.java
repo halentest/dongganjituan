@@ -80,7 +80,9 @@ public class TradeController {
 		String currType = currUser.getType();
 		if(!currType.equals(UserType.Admin.getValue()) && !currType.equals(UserType.SuperAdmin.getValue()) &&
 				!currType.equals(UserType.Distributor.getValue()) && !currType.equals(UserType.WareHouse.getValue()) &&
-				!currType.equals(UserType.DistributorManager.getValue()) && !currType.equals(UserType.ServiceStaff.getValue())) {
+				!currType.equals(UserType.DistributorManager.getValue()) && !currType.equals(UserType.ServiceStaff.getValue())
+                && !currType.equals(UserType.Accounting.getValue())
+                && !currType.equals(UserType.GoodsManager.getValue())) {
 			model.addAttribute("errorInfo", "对不起，您没有权限查看此页面！");
 			return "error_page";
 		}

@@ -27,6 +27,9 @@ $(document).ready(function(){
 		    	var name = $('#name').val();
 		    	var tid = $('#tid').val();
 		    	var delivery = $('#delivery').val();
+		    	if(!page) {
+		    	    page = 1;
+		    	}
 		        window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
 		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor + "&delivery=" + delivery + "&start=" + start
                     + "&end=" + end;;
@@ -59,6 +62,9 @@ $(document).ready(function(){
 	    	var tid = $('#tid').val();
 	    	var page = $('#page').attr('data-current-page');
 	    	var delivery = $('#delivery').val();
+	    	if(!page) {
+                page = 1;
+            }
 	   		window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
 		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor + "&delivery=" + delivery + "&start=" + start
 		        	+ "&end=" + end;

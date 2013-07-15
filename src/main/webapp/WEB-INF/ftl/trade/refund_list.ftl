@@ -64,7 +64,12 @@
 		      </tr>
 		      	  <tr class="order_list">
 		      	  		<td  style="width: 80px;">
-		      	  			<img style="width: 80px; height: 80px;" src="${order.pic_path}_80x80.jpg" />
+                            <#if order.pic_path??>
+                                <#assign picPath = order.pic_path/>
+                                <#else>
+                                    <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
+                            </#if>
+		      	  			<img style="width: 80px; height: 80px;" src="${picPath}_80x80.jpg" />
 		      	  		</td>
 				        <td style="width: 25%;">
 				        	<p><strong>名称：</strong>${order.title}</p>
@@ -227,6 +232,9 @@ $(document).ready(function(){
 		    	var seller_nick = $('#seller_nick').val();
 		    	var tid = $('#tid').val();
 		    	var name = $('#name').val();
+                if(!page) {
+                    page = 1;
+                }
 		        window.location.href="/trade/refund_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
 		        	+ "&tid=" + tid + "&dId=" + distributor + "&name=" + name;
 		    }
@@ -242,6 +250,9 @@ $(document).ready(function(){
 	    	var tid = $('#tid').val();
 	    	var page = $('#page').attr('data-current-page');
 	    	var name = $('#name').val();
+            if(!page) {
+                page = 1;
+            }
 	   		window.location.href="/trade/refund_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
 		        	+ "&tid=" + tid + "&dId=" + distributor + "&name=" + name;
 	   });

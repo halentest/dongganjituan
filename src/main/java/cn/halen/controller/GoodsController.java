@@ -321,7 +321,7 @@ public class GoodsController {
         return true;
     }
 
-    @RequestMapping(value="goods/action/upload_list")
+    @RequestMapping(value="goods/upload_list")
     public String uploadList(Model model, @RequestParam("action") String action) {
         File filePath = null;
         model.addAttribute("action", action);

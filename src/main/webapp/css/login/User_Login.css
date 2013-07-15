@@ -187,7 +187,7 @@ user_main_c {
 .user_main_box .user_main_input IMG {
 	MARGIN-BOTTOM: -2px; MARGIN-LEFT: -25px
 }
-.TxtUserNameCssClass {
+#j_username {
 	BORDER-TOP-WIDTH: 0px; PADDING-LEFT: 25px; BORDER-LEFT-WIDTH: 0px; BACKGROUND: url(../login/user_login_name.gif) no-repeat; BORDER-BOTTOM-WIDTH: 0px; WIDTH: 165px; LINE-HEIGHT: 20px; HEIGHT: 21px; BORDER-RIGHT-WIDTH: 0px
 }
 #j_password {
