@@ -225,7 +225,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 				        		<p><strong>快递</strong>: 
 				        		<span>${trade.delivery}</span>
 				        		<#if trade.my_status==0 || trade.my_status==1>
-				        			<select style="display: none;">
+				        			<select style="display: none; width: 80px;">
 				        				<#list logistics as lo>
 				        					<option value="${lo.code}" <#if trade.delivery==lo.name>selected</#if>>${lo.name}</option>
 				        				</#list>
@@ -242,6 +242,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 				        		</#if>
 				        		<#if trade.my_status==0 || trade.my_status==1 || trade.my_status==2>
 				        			<p><a class="cancel" data-tid="${trade.tid}" style="cursor: pointer">作废</a></p>
+                                    <p><a href="${rc.contextPath}/trade/action/modify_receiver_info_form?tid=${trade.tid}" style="cursor: pointer">修改收货地址</a></p>
 				        		</#if>
 				        	</#if> 
 				        	<#if CURRENT_USER.type=="DistributorManager">

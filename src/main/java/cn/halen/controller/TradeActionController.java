@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import cn.halen.data.mapper.*;
 import cn.halen.data.pojo.*;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -27,11 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.halen.controller.formbean.ClientOrder;
-import cn.halen.data.mapper.AdminMapper;
-import cn.halen.data.mapper.AreaMapper;
-import cn.halen.data.mapper.GoodsMapper;
-import cn.halen.data.mapper.MyLogisticsCompanyMapper;
-import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.InvalidStatusChangeException;
@@ -69,6 +65,9 @@ public class TradeActionController {
 	
 	@Autowired
 	private TradeService tradeService;
+
+    @Autowired
+    MyTradeMapper tradeMapper;
 	
 	@Autowired
 	private TopConfig topConfig;
@@ -476,4 +475,58 @@ public class TradeActionController {
 		result.setErrorInfo("成功导入" + count + "条交易信息");
 		return result;
 	}
+
+    @RequestMapping(value="trade/action/modify_receiver_info_form")
+    public String modifyReceiverInfoForm(Model model, @RequestParam("tid") String tid) {
+
+        model.addAttribute("logistics", myLogisticsCompanyMapper.list());
+        model.addAttribute("tid", tid);
+        return "trade/modify_receiver_info_form";
+    }
+
+    @RequestMapping(value="trade/action/modify_receiver_info")
+    public String modifyReceiverInfo(Model model, HttpServletRequest req) {
+
+        String province = req.getParameter("province");
+        String city = req.getParameter("city");
+        String district = req.getParameter("district");
+        String address = req.getParameter("address");
+        String receiver = req.getParameter("receiver");
+        String phone = req.getParameter("phone");
+        String mobile = req.getParameter("mobile");
+        String tid = req.getParameter("tid");
+        String errorInfo = validateAddress(model, province, city, district, address, receiver, mobile);
+        if(null != errorInfo) {
+            model.addAttribute("errorInfo", errorInfo);
+            return "error_page";
+        }
+        String postcode = req.getParameter("postcode");
+
+        String provinceName = (String) redisTemplate.opsForValue().get(REDIS_AREA + ":" + province);
+        if(null == provinceName) {
+            provinceName = areaMapper.selectById(Long.parseLong(province)).getName();
+            redisTemplate.opsForValue().set(REDIS_AREA + ":" + province, provinceName);
+        }
+
+        String cityName = (String) redisTemplate.opsForValue().get(REDIS_AREA + ":" + city);
+        if(null == cityName) {
+            cityName = areaMapper.selectById(Long.parseLong(city)).getName();
+            redisTemplate.opsForValue().set(REDIS_AREA + ":" + city, cityName);
+        }
+
+        String districtName = (String) redisTemplate.opsForValue().get(REDIS_AREA + ":" + district);
+        if(null == districtName) {
+            districtName = areaMapper.selectById(Long.parseLong(district)).getName();
+            redisTemplate.opsForValue().set(REDIS_AREA + ":" + district, districtName);
+        }
+        int count = tradeMapper.updateLogisticsAddress(provinceName, cityName, districtName, address, mobile, phone,
+                postcode, receiver, new Date(), tid);
+        if(count > 0) {
+            model.addAttribute("info", "修改收货地址成功!");
+        } else {
+            model.addAttribute("info", "修改收货地址失败!");
+        }
+        return "success_page";
+    }
+
 }

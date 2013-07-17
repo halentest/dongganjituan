@@ -220,6 +220,6 @@
 	
 	<update id="updateLogisticsAddress" parameterType="java.util.HashMap">
 		update trade set state=#{state}, city=#{city}, district=#{district}, address=#{address}, mobile=#{mobile}, phone=#{phone},
-			postcode=#{zip}, name=#{name}, modified=#{modified} where tid=#{tid}
+			postcode=#{zip}, name=#{name}, modified=#{modified} where tid=#{tradeId}
 	</update>
 </mapper>

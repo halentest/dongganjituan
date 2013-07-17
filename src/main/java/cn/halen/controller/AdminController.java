@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.halen.data.pojo.*;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TopListenerStarter;
 import com.taobao.api.ApiException;
@@ -30,12 +31,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.AreaMapper;
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
-import cn.halen.data.pojo.Distributor;
-import cn.halen.data.pojo.MyLogisticsCompany;
-import cn.halen.data.pojo.Shop;
-import cn.halen.data.pojo.Template;
-import cn.halen.data.pojo.User;
-import cn.halen.data.pojo.UserType;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.service.AdminService;
 import cn.halen.service.ResultInfo;
@@ -583,4 +578,41 @@ public class AdminController {
 
         return "callback";
 	}
+
+    @RequestMapping("admin/seller_info")
+    public String sellerInfo(Model model) {
+        SellerInfo sellerInfo = adminMapper.selectSellerInfo();
+        model.addAttribute("sellerInfo", sellerInfo);
+        return "seller_info";
+    }
+
+    @RequestMapping("admin/modify_seller_info_form")
+     public String modifySellerInfoForm(Model model) {
+        return "admin/modify_seller_info_form";
+    }
+
+    @RequestMapping("admin/modify_seller_info")
+    public String modifySellerInfo(Model model, @RequestParam("sender") String sender, @RequestParam("from_state") String fromState,
+                                   @RequestParam("from_company") String fromCompany, @RequestParam("from_address") String fromAddress,
+                                   @RequestParam("mobile") String mobile) {
+        if(StringUtils.isBlank(fromAddress) || StringUtils.isBlank(mobile)) {
+            model.addAttribute("errorInfo", "发件地址和联系电话不能为空!");
+            return "error_page";
+        }
+
+        SellerInfo sellerInfo = new SellerInfo();
+        sellerInfo.setSender(sender);
+        sellerInfo.setFrom_state(fromState);
+        sellerInfo.setFrom_company(fromCompany);
+        sellerInfo.setFrom_address(fromAddress);
+        sellerInfo.setMobile(mobile);
+        int count = adminMapper.updateSellerInfo(sellerInfo);
+        if(count > 0) {
+            model.addAttribute("info", "更新卖家发货信息成功!");
+        } else {
+            model.addAttribute("info", "更新卖家发货信息失败!");
+        }
+        return "success_page";
+    }
+
 }

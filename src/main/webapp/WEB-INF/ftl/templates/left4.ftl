@@ -67,6 +67,9 @@
                                     <TR>
                                         <TD height=20><a id="account">账户管理</a></TD>
                                     </TR>
+                                    <TR>
+                                        <TD height=20><a id="seller-info">卖家发货信息管理</a></TD>
+                                    </TR>
                                 </#if>
                                 <#if CURRENT_USER.type=="SuperAdmin">
                                     <TR>
@@ -115,6 +118,10 @@
 
     $('#init-system').click(function() {
     parent.frames[2].location.href="${rc.contextPath}/admin/action/system_init";
+    });
+
+    $('#seller-info').click(function() {
+    parent.frames[2].location.href="${rc.contextPath}/admin/seller_info";
     });
  })
 
