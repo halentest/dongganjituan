@@ -11,7 +11,7 @@
     <TBODY>
         <TR>
             <TD class=txlHeaderBackgroundAlternate id=TableTitleLink vAlign=center
-                width="43%" height=23>&nbsp;${CURRENT_USER.userType.getName()!''} ${CURRENT_USER.username!'无名氏'} 您好!欢迎来到易分销电子商务管理系统</TD>
+                width="43%" height=23>&nbsp;${CURRENT_USER.userType.getName()!''} ${CURRENT_USER.username!'无名氏'} 您好!欢迎来到骆驼动感ERP管理系统</TD>
             <TD class=txlHeaderBackgroundAlternate id=TableTitleLink vAlign=center
                 width="21%"></TD>
             <TD class=txlHeaderBackgroundAlternate id=TableTitleLink vAlign=center
