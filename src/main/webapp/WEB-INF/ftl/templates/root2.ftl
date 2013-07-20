@@ -1,4 +1,4 @@
-<#macro html title="欢迎来到易分销电子商务管理系统" active=1 css=[] js=[] custom_css="" custom_js="">
+<#macro html title="欢迎来到骆驼动感ERP管理系统" active=1 css=[] js=[] custom_css="" custom_js="">
 <!DOCTYPE html>
 <html lang="en">
   <head>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>易分销电子商务管理系统</title>
+    <title>骆驼动感ERP管理系统</title>
 </head>
 <frameset rows="62,*" frameborder="no" border="0" framespacing="0">
     <frame src="${rc.contextPath}/head" name="topFrame" scrolling="No" noresize="noresize" id="topFrame" title="topFrame" />

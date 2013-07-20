@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>欢迎来到易分销电子商务管理系统</title>
+    <title>欢迎来到骆驼动感ERP管理系统</title>
     <link href="${rc.contextPath}/css/bootstrap.css" rel="stylesheet">
 </head>
 <div class="alert alert-error" style="margin: 5px;">
