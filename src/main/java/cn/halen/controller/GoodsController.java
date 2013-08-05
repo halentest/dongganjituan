@@ -89,7 +89,7 @@ public class GoodsController {
 			return "goods/goods_list";
 		}
 		
-		//<Goods, <颜色, <尺码, 可用数量/实际数量>>>
+		//<Goods, <颜色(编号), <尺码, 可用数量/实际数量>>>
 		Map<String, Map<String, Map<String, String>>> map = new HashMap<String, Map<String, Map<String, String>>>();
 		for(Goods goods : list) {
 			Map<String, Map<String, String>> map2 = new HashMap<String, Map<String, String>>();
@@ -123,10 +123,13 @@ public class GoodsController {
 			
 			for(MySku sku : skuList) {
 				String color = sku.getColor();
-				Map<String, String> map3 = map2.get(color);
+                String hid = sku.getHid();
+                String colorId = hid.substring(0, 2);
+                String colorAndId = color + "(" + colorId + ")";
+				Map<String, String> map3 = map2.get(colorAndId);
 				if(null == map3) {
 					map3 = new LinkedHashMap<String, String>();
-					map2.put(color, map3);
+					map2.put(colorAndId, map3);
 				}
 				map3.put(sku.getSize(), sku.getQuantity()-sku.getLock_quantity() + "/" + sku.getQuantity());
 			}

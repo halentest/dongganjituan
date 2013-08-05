@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>用户登录</title>
@@ -25,13 +25,16 @@
                             <UL>
                                 <LI class=user_main_text>用户名： </LI>
                                 <LI class=user_main_input>
-                                    <INPUT id="j_username" maxLength=20 name="j_username" style="width: 140px;">
+                                    <INPUT id="j_username" maxLength=20 name="j_username" style="width: 140px;
+                                    BACKGROUND: url(${rc.contextPath}/css/login/user_login_name.gif) no-repeat;
+                                    margin-top: 6px;">
                                 </LI>
                             </UL>
                             <UL>
                                 <LI class=user_main_text>密 码： </LI>
                                 <LI class=user_main_input>
-                                    <input id="j_password" name="j_password" type="password" style="width: 140px;">
+                                    <input id="j_password" name="j_password" type="password" style="width: 140px;
+                                    margin-top: 6px;">
                                 </LI>
                             </UL>
                         </DIV>

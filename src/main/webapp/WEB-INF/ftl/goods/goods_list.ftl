@@ -74,7 +74,7 @@
         	  <tr>
         	  		<td data-goods="${goods.hid}" data-type="color" data-value="${key2}" class="can-change">${key2}</td>
         	  		<#list map2[key2]?keys as key3>
-        	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2}" data-size="${key3}"
+        	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2?substring(0, key2?index_of('('))}" data-size="${key3}"
         	  			is-selected="false" style="padding: 2px;"
         	  			<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
                             <#if map2[key2][key3]?substring(0,1) != '0'>
@@ -152,7 +152,7 @@
 		    	var page = $('#page').attr('data-current-page');
 		   		window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId;
 		   });
-		   
+
 		   $('td.can-click').click(function() {
 		   		var isSelected = $(this).attr("is-selected");
 		   		if(isSelected=="false") {
@@ -302,8 +302,8 @@
 	                }
 	            }}); 
     	})
-
-        $('.can-change').dblclick(function() {
+        //暂时隐藏这个功能
+        $('.can-change-invalid').dblclick(function() {
             var v = $(this).attr('data-value');
             $(this).html('<input id="tempInput" style="width: 50px; height: 12px;" type="text" onblur="changeGoods(this)" value=' + v + '>');
             $('#tempInput').focus();

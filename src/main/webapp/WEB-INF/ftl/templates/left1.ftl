@@ -62,7 +62,7 @@
                         <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="Admin" ||
                                 CURRENT_USER.type=="SuperAdmin">
                             <tr>
-                                <td height="20" class="active"><a id='wait-handle'>问题订单</a></td>
+                                <td height="20" class="active"><a id='wait-handle'>库存不足订单</a></td>
                             </tr>
                         </#if>
                         <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="Admin" ||
