@@ -124,7 +124,7 @@ public class GoodsController {
 			for(MySku sku : skuList) {
 				String color = sku.getColor();
                 String hid = sku.getHid();
-                String colorAndId = color;
+                String colorAndId = color + "()";
                 if(null != hid) {
                     String colorId = hid.substring(0, 2);
                     colorAndId = color + "(" + colorId + ")";
