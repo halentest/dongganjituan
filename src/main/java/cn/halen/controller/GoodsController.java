@@ -124,8 +124,11 @@ public class GoodsController {
 			for(MySku sku : skuList) {
 				String color = sku.getColor();
                 String hid = sku.getHid();
-                String colorId = hid.substring(0, 2);
-                String colorAndId = color + "(" + colorId + ")";
+                String colorAndId = color;
+                if(null != hid) {
+                    String colorId = hid.substring(0, 2);
+                    colorAndId = color + "(" + colorId + ")";
+                }
 				Map<String, String> map3 = map2.get(colorAndId);
 				if(null == map3) {
 					map3 = new LinkedHashMap<String, String>();
