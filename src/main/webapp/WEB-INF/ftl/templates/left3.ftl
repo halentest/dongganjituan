@@ -60,6 +60,9 @@
                 <TD id=submenu2><DIV class=sec_menu style="WIDTH: 158px">
                     <TABLE cellSpacing=0 cellPadding=0 width=135 align=center>
                         <TBODY>
+                        <TR>
+                            <TD height=20 class="active"><a id="query-balance">余额查询</a></TD>
+                        </TR>
                         <#if CURRENT_USER.type=="Accounting">
                         <TR>
                             <TD height=20 class="active"><a id="dakuan">分销商打款</a></TD>
@@ -88,14 +91,20 @@
 <script src="${rc.contextPath}/js/jquery-min.js"></script>
 <script>
     $(document).ready(function() {
-    $('a').click(function() {
-    $('td').css("background-color", "#d6dff7");
-    $(this).parent().css("background-color", "white");
-    })
+        $('a').click(function() {
+            $('td').css("background-color", "#d6dff7");
+            $(this).parent().css("background-color", "white");
+        })
 
-    $('#dakuan').click(function() {
-    parent.frames[2].location.href="${rc.contextPath}/accounting/distributor_list";
-    });
+        $('#dakuan').click(function() {
+            parent.frames[2].location.href="${rc.contextPath}/accounting/distributor_list";
+        });
+
+        $('#query-balance').click(function() {
+            parent.frames[2].location.href="${rc.contextPath}/accounting/query-balance";
+        })
+
+        $('a').first().click();
 
     })
 

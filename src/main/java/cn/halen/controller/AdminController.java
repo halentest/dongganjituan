@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.halen.data.pojo.*;
+import cn.halen.filter.UserHolder;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TopListenerStarter;
 import com.taobao.api.ApiException;
@@ -505,6 +506,12 @@ public class AdminController {
 	public @ResponseBody ResultInfo recharge(Model model, @RequestParam("dId") int dId,
 			@RequestParam("how_much") String howmuch) {
 		ResultInfo result = new ResultInfo();
+        if(!UserHolder.get().getUserType().getValue().equals(UserType.Accounting.getValue())) {
+            result.setErrorInfo("你没有权限打款!");
+            result.setSuccess(false);
+            return result;
+        }
+
 		howmuch = howmuch.trim();
 		long lHowmuch = 0;
 		try {
@@ -613,6 +620,17 @@ public class AdminController {
             model.addAttribute("info", "更新卖家发货信息失败!");
         }
         return "success_page";
+    }
+
+    @RequestMapping("accounting/query-balance")
+    public String queryBalance(Model model) {
+        String userType = UserHolder.get().getUserType().getValue();
+        if(UserType.Distributor.getValue().equals(userType) ||
+                UserType.ServiceStaff.getValue().equals(userType)) {
+            long deposit = UserHolder.get().getShop().getD().getDeposit();
+            model.addAttribute("deposit", deposit);
+        }
+        return "accounting/query_balance";
     }
 
 }

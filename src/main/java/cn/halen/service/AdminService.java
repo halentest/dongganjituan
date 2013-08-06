@@ -73,6 +73,7 @@ public class AdminService {
 		} else if(type.equals(UserType.Distributor.getValue())) {
 			list.add(logined);
 			list.add(managerTrade);
+            list.add(accounting);
 		} else if(type.equals(UserType.GoodsManager.getValue())) {
 			list.add(logined);
 			list.add(managerGoods);
@@ -81,6 +82,7 @@ public class AdminService {
 			list.add(logined);
 			list.add(managerTrade);
 			list.add(buyGoods);
+            list.add(accounting);
 		} else if(type.equals(UserType.SuperAdmin.getValue())) {
 			list.add(logined);
 			list.add(managerSystem);

@@ -67,7 +67,7 @@
 
     $('#b3').click(function() {
         parent.frames[1].location.href="${rc.contextPath}/left3";
-        parent.frames[2].location.href="${rc.contextPath}/accounting/distributor_list";
+        //parent.frames[2].location.href="${rc.contextPath}/accounting/distributor_list";
     });
 
     $('#b4').click(function() {
