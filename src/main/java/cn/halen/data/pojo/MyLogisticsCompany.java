@@ -37,10 +37,10 @@ public class MyLogisticsCompany {
 		myLogisticsCompany.setId(logisticsCompany.getId());
 		myLogisticsCompany.setName(logisticsCompany.getName());
 		myLogisticsCompany.setReg_mail_no(logisticsCompany.getRegMailNo());
-		if(logisticsCompany.getName().equals("申通E物流") || logisticsCompany.getName().equals("韵达快运")
+		if(logisticsCompany.getName().equals("申通E物流") || logisticsCompany.getName().equals("圆通速递")
 				|| logisticsCompany.getName().equals("顺丰速运") || logisticsCompany.getName().equals("EMS")) {
 			myLogisticsCompany.setStatus(0);
-		} else if(logisticsCompany.getName().equals("圆通速递")) {
+		} else if(logisticsCompany.getName().equals("韵达快运")) {
 			myLogisticsCompany.setStatus(1);
 		} else {
 			myLogisticsCompany.setStatus(-1);

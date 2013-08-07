@@ -2,11 +2,13 @@
 
 <@root.html active=3 css=["trade_list.css", "jqpagination.css"] 
 js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi-yuantong.js", "kuaidi-yunda.js", "kuaidi-ems.js", "kuaidi-sf.js"]>
+    <#if CURRENT_USER.type=="WareHouse">
     <script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
 	<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
 	    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
 	</object>
-	<div style="width: 98%; height: 60px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px; margin-top: -20px;">
+    </#if>
+	<div style="width: 98%; height: 60px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px; <#if CURRENT_USER.type=="WareHouse">margin-top: -20px;</#if>">
 		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
 		<strong>分销商</strong>
 		<select id="distributor" style="width: 8%;">

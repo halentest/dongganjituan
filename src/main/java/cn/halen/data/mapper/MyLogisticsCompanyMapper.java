@@ -1,6 +1,8 @@
 package cn.halen.data.mapper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
@@ -43,4 +45,11 @@ public class MyLogisticsCompanyMapper extends SqlSessionDaoSupport {
 	public int update(MyLogisticsCompany myLogisticCompany) {
 		return getSqlSession().update("cn.halen.data.mapper.MyLogisticsCompanyMapper.update", myLogisticCompany);
 	}
+
+    public int updateStatus(int status, long id) {
+        Map<String, Object> param = new HashMap<String, Object>(2);
+        param.put("status", status);
+        param.put("id", id);
+        return  getSqlSession().update("cn.halen.data.mapper.MyLogisticsCompanyMapper.updateStatus", param);
+    }
 }

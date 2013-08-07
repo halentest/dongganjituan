@@ -3,6 +3,8 @@ package cn.halen.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.halen.data.mapper.MyLogisticsCompanyMapper;
+import cn.halen.data.pojo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.halen.data.mapper.AdminMapper;
-import cn.halen.data.pojo.Distributor;
-import cn.halen.data.pojo.Template;
-import cn.halen.data.pojo.User;
-import cn.halen.data.pojo.UserAuthority;
-import cn.halen.data.pojo.UserType;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.util.Constants;
 
@@ -25,6 +22,9 @@ public class AdminService {
 	
 	@Autowired
 	private AdminMapper adminMapper;
+
+    @Autowired
+    private MyLogisticsCompanyMapper logisticsCompanyMapper;
 	
 	@Transactional(rollbackFor=Exception.class)
 	public int insertNewTemplate(List<Template> list, String templateName) {
@@ -37,6 +37,16 @@ public class AdminService {
 			throw new RuntimeException(e);
 		}
 	}
+
+    @Transactional(rollbackFor=Exception.class)
+    public boolean updateDefaultDelivery(long id) {
+        //把默认快递改为普通快递  0
+        MyLogisticsCompany c = logisticsCompanyMapper.select(1);
+        int i1 = logisticsCompanyMapper.updateStatus(0, c.getId());
+        //把当前快递设为默认快递 1
+        int i2 = logisticsCompanyMapper.updateStatus(1, id);
+        return i1==1 && i2==1;
+    }
 	
 	@Transactional(rollbackFor=Exception.class)
 	public int updateTemplate(List<Template> list) {

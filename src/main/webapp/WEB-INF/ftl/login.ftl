@@ -25,15 +25,14 @@
                             <UL>
                                 <LI class=user_main_text>用户名： </LI>
                                 <LI class=user_main_input>
-                                    <INPUT id="j_username" maxLength=20 name="j_username" style="width: 140px;
-                                    BACKGROUND: url(${rc.contextPath}/css/login/user_login_name.gif) no-repeat;
+                                    <INPUT id="j_username" maxLength=20 name="j_username" style="
                                     margin-top: 6px;">
                                 </LI>
                             </UL>
                             <UL>
                                 <LI class=user_main_text>密 码： </LI>
                                 <LI class=user_main_input>
-                                    <input id="j_password" name="j_password" type="password" style="width: 140px;
+                                    <input id="j_password" name="j_password" type="password" style="
                                     margin-top: 6px;">
                                 </LI>
                             </UL>

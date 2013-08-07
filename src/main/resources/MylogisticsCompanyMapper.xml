@@ -19,7 +19,7 @@
 	</insert>
 	
 	<select id="listAll" resultType="MyLogisticsCompany">
-		select * from logistics_company
+		select * from logistics_company order by status desc
 	</select>
 	
 	<select id="list" resultType="MyLogisticsCompany">
@@ -42,4 +42,8 @@
 		update logistics_company set name = #{name}, reg_mail_no = #{reg_mail_no}, status = #{status} 
 			where code = #{code};
 	</update>
+
+    <update id="updateStatus" parameterType="Map">
+        update logistics_company set status=#{status} where id=#{id}
+    </update>
 </mapper>

@@ -633,4 +633,27 @@ public class AdminController {
         return "accounting/query_balance";
     }
 
+    @RequestMapping("admin/delivery")
+    public String adminDelivery(Model model) {
+        List<MyLogisticsCompany> deliveryList = logisticsMapper.listAll();
+        model.addAttribute("deliveryList", deliveryList);
+        return "admin/delivery";
+    }
+
+    @RequestMapping("admin/update_delivery")
+    public String updateDelivery(Model model, @RequestParam("id") long id, @RequestParam("status") int status) {
+        boolean result = false;
+        if(status==1) {
+            result = adminService.updateDefaultDelivery(id);
+        } else {
+            result = logisticsMapper.updateStatus(status, id) == 1;
+        }
+        if(result) {
+            model.addAttribute("info", "更新快递成功!");
+            return "success_page";
+        } else {
+            model.addAttribute("errorInfo", "更新快递失败，请重试!");
+            return "error_page";
+        }
+    }
 }

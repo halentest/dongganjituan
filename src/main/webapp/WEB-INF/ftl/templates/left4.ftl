@@ -70,6 +70,9 @@
                                     <TR>
                                         <TD height=20><a id="seller-info">卖家发货信息管理</a></TD>
                                     </TR>
+                                    <tr>
+                                        <TD height=20><a id="delivery">快递管理</a></TD>
+                                    </tr>
                                 </#if>
                                 <#if CURRENT_USER.type=="SuperAdmin">
                                     <TR>
@@ -122,6 +125,9 @@
 
     $('#seller-info').click(function() {
     parent.frames[2].location.href="${rc.contextPath}/admin/seller_info";
+    });
+    $('#delivery').click(function() {
+        parent.frames[2].location.href="${rc.contextPath}/admin/delivery";
     });
  })
 
