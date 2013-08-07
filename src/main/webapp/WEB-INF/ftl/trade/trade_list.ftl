@@ -1,7 +1,7 @@
 <#import "/templates/root.ftl" as root >
 
 <@root.html active=3 css=["trade_list.css", "jqpagination.css"] 
-js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi-yuantong.js", "kuaidi-yunda.js", "kuaidi-ems.js", "kuaidi-sf.js"]>
+js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-shentong.js", "kuaidi-yuantong.js", "kuaidi-yunda.js", "kuaidi-ems.js", "kuaidi-sf.js"]>
     <#if CURRENT_USER.type=="WareHouse">
     <script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
 	<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
@@ -183,40 +183,22 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 				        		<#if trade.my_status==3>
 				        			<p>
 				        				<#if trade.delivery=="申通E物流">
-					        			<a href="javascript:prn_shentong(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+                                            <#assign prnFunc='prn_shentong'/>
+                                        <#elseif trade.delivery=="圆通速递">
+                                            <#assign prnFunc='prn_yuantong'/>
+                                        <#elseif trade.delivery=="韵达快运">
+                                            <#assign prnFunc='prn_yunda'/>
+                                        <#elseif trade.delivery=="EMS">
+                                            <#assign prnFunc='prn_ems'/>
+                                        <#elseif trade.delivery=="顺丰速运">
+                                            <#assign prnFunc='prn_sf'/>
+										</#if>
+                                        <a href="${rc.contextPath}/set_print?delivery=${trade.delivery}">打印调整</a> &nbsp;&nbsp;
+					        			<a href="javascript:prn(${prnFunc}, '${trade.delivery}', '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
 											打印快递单
 										</a>
-										</#if>
-										<#if trade.delivery=="圆通速递">
-					        			<a href="javascript:prn_yuantong(0, -20, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
-											打印快递单
-										</a>
-										</#if>
-										<#if trade.delivery=="韵达快运">
-					        			<a href="javascript:prn_yunda(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
-											打印快递单
-										</a>
-										</#if>
-										<#if trade.delivery=="EMS">
-					        			<a href="javascript:prn_ems(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
-											打印快递单
-										</a>
-										</#if>
-										<#if trade.delivery=="顺丰速运">
-					        			<a href="javascript:prn_sf(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
-											打印快递单
-										</a>
-										</#if>
 									</p>
 				        			<p><a class="send-goods" data-tid="${trade.tid}" data-delivery="${trade.delivery}"
 				        				data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">发货</a></p>
@@ -631,24 +613,36 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 					var address = $(item).attr("data-address");
 					var mobile = $(item).attr("data-mobile");
 					var state = $(item).attr("data-state");
+                    var x = $.cookie(delivery + "x");
+                    var y = $.cookie(delivery + "y");
+                    if(!x) {
+                        x = 0;
+                    } else {
+                        x = parseInt(x);
+                    }
+                    if(!y) {
+                        y = 0;
+                    } else {
+                        y = parseInt(y);
+                    }
 					if(delivery=="韵达快运") {
-						CreateYundaPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+						CreateYundaPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											name, name, address, mobile, state);
 					} else if(delivery=="申通E物流") {
-						CreateShentongPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+						CreateShentongPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											name, name, address, mobile, state);
 					} else if(delivery=="顺丰速运") {
-						CreateSfPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+						CreateSfPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											name, name, address, mobile, state);
 					} else if(delivery=="EMS") {
-						CreateEmsPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+						CreateEmsPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											name, name, address, mobile, state);
 					} else if(delivery=="圆通速递") {
-						CreateYuantongPage(0, 0, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}', 
+						CreateYuantongPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											name, name, address, mobile, state);
 					} else {
@@ -682,5 +676,24 @@ js=["pagination.js", "jquery.jqpagination.min.js", "kuaidi-shentong.js", "kuaidi
 		LODOP.SET_PRINT_STYLE("Bold",1);
 		//LODOP.ADD_PRINT_TEXT(50,231,260,39,"打印页面部分内容");
 		//LODOP.ADD_PRINT_HTM(88,200,350,600,document.getElementById("form1").innerHTML);
-	};	     
+	};
+
+    function prn(func, delivery, sender, from, from_company, from_address, sender_mobile,
+        receiver, to_company, to_address, receiver_mobile, to) {
+        var x = $.cookie(delivery + "x");
+        var y = $.cookie(delivery + "y");
+        if(!x) {
+            x = 0;
+        } else {
+            x = parseInt(x);
+        }
+        if(!y) {
+            y = 0;
+        } else {
+            y = parseInt(y);
+        }
+        console.log("x=" + x + " y=" + y);
+        func(x, y, sender, from, from_company, from_address, sender_mobile,
+            receiver, to_company, to_address, receiver_mobile, to);
+    }
 </script>

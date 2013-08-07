@@ -8,9 +8,7 @@
     <link href="${rc.contextPath}/css/bootstrap.css" rel="stylesheet">
     <link href="${rc.contextPath}/css/bootstrap-responsive.css" rel="stylesheet">
     <link href="${rc.contextPath}/css/ea.css" rel="stylesheet">
-    <link href="${rc.contextPath}/css/jdpicker.css" rel="stylesheet">
     <link href="${rc.contextPath}/css/theme.bootstrap.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="${rc.contextPath}/css/highslide.css" />
     <#list css as entry>
       <link href="${rc.contextPath}/css/${entry}" rel="stylesheet">
     </#list>
@@ -36,13 +34,8 @@
     <script src="${rc.contextPath}/js/bootstrap-modal.js"></script>
     <script src="${rc.contextPath}/js/bootstrap-transition.js"></script>
     <script src="${rc.contextPath}/js/jquery.flot.js"></script>
-    <script src="${rc.contextPath}/js/jquery.jdpicker.js"></script>
-    <script src="${rc.contextPath}/js/jquery.tablesorter.min.js"></script>
-    <script src="${rc.contextPath}/js/jquery.tablesorter.widgets.js"></script>
     <!-- Additional files for the Highslide popup effect -->
-    <script type="text/javascript" src="${rc.contextPath}/js/highslide-full.min.js"></script>
-    <script type="text/javascript" src="${rc.contextPath}/js/highslide.config.js" charset="utf-8"></script>
-    
+
 
     <#list js as entry>
     <script src="${rc.contextPath}/js/${entry}"></script>

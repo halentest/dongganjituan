@@ -6,7 +6,7 @@
 		LODOP.SET_SHOW_MODE("BKIMG_IN_PREVIEW",1); 
 		LODOP.SET_PRINT_STYLE("FontSize",18);
 		LODOP.SET_PRINT_STYLE("Bold",1);
-		
+		console.log("x+101 is " + (101+x));
 		LODOP.ADD_PRINT_TEXT(101+y,129+x,53,25,sender);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		LODOP.ADD_PRINT_TEXT(101+y,275+x,111,26,from);
@@ -28,14 +28,13 @@
 		LODOP.ADD_PRINT_TEXT(117+y,658+x,125,26,to);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		//LODOP.PRINT_DESIGN();
-		LODOP.PRINT();
-		//LODOP.PREVIEW();
+		//LODOP.PRINT();
+		LODOP.PREVIEW();
 	};
 	
 	function CreateYuantongPage(x, y, sender, from, from_company, from_address, sender_mobile,
 		receiver, to_company, to_address, receiver_mobile, to){
 		LODOP.NewPage();
-		
 		LODOP.ADD_PRINT_TEXTA("text1", 101+y,129+x,53,25,sender);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		LODOP.ADD_PRINT_TEXTA("text2", 101+y,275+x,111,26,from);
