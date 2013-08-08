@@ -68,6 +68,10 @@ public class GoodsController {
 	@RequestMapping(value="goods/goods_list")
 	public String list(Model model, @RequestParam(value="page", required=false) Integer page,
 			@RequestParam(value="goods_id", required=false) String goodsId) {
+
+        model.addAttribute("quantity", skuMapper.sumQuantity());
+        model.addAttribute("lockQuantity", skuMapper.sumLockQuantity());
+
 		int intPage = 1;
 		if(null!=page && page>0) {
 			intPage = page;
@@ -165,9 +169,7 @@ public class GoodsController {
         model.addAttribute("goodsCount", goodsCount);
 		model.addAttribute("list", list);
 		model.addAttribute("templateList", adminMapper.selectTemplateNameAll());
-        model.addAttribute("quantity", skuMapper.sumQuantity());
-        model.addAttribute("lockQuantity", skuMapper.sumLockQuantity());
-		
+
 		return "goods/goods_list";
 	}
 	

@@ -10,7 +10,7 @@
 		<strong>商品编号</strong>
 		<input id="goods-id" type="input" value="" style="width: 6%; height: 15px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品 (${lockQuantity}/${quantity})
+		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品 (${lockQuantity!'0'}/${quantity!'0'})
 		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
 		</#if>
