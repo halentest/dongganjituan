@@ -1,9 +1,21 @@
 <#import "/templates/root.ftl" as root >
-<@root.html css=[] js=[] >
-    <p>发件人姓名：${sellerInfo.sender!''}</p>
-    <p>始发地：${sellerInfo.from_state!''}</p>
-    <p>发件公司：${sellerInfo.from_company!''}</p>
-    <p>详细地址：${sellerInfo.from_address!''}</p>
-    <p>联系电话：${sellerInfo.mobile!''}</p>
-    <p><a class="btn btn-primary" href="${rc.contextPath}/admin/modify_seller_info_form">修改</a></p>
+<@root.html css=["trade_list.css"] js=[] >
+    <table>
+        <tr>
+            <th>发件人姓名</th>
+            <th>始发地</th>
+            <th>发件公司</th>
+            <th>详细地址</th>
+            <th>联系电话</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>${sellerInfo.sender!''}</td>
+            <td>${sellerInfo.from_state!''}</td>
+            <td>${sellerInfo.from_company!''}</td>
+            <td>${sellerInfo.from_address!''}</td>
+            <td>${sellerInfo.mobile!''}</td>
+            <td><a href="${rc.contextPath}/admin/modify_seller_info_form">修改</a></td>
+        </tr>
+    </table>
 </@root.html>

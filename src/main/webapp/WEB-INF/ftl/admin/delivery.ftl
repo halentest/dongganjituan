@@ -1,5 +1,5 @@
 <#import "/templates/root.ftl" as root >
-<@root.html css=["jdpicker.css", "trade_list.css"] js=["highcharts.js", "exporting.js"] >
+<@root.html css=["trade_list.css"] js=[] >
     <table>
         <tr>
             <th>快递编码</th>

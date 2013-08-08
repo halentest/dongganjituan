@@ -236,13 +236,13 @@ public class GoodsController {
                 String fileName = new String(file.getOriginalFilename().getBytes("iso8859-1"), "UTF-8");
                 File dest = null;
                 if("buy".equals(action)) {
-                    dest = new File(topConfig.getFileBuyGoods() + "\\" + fileName);
+                    dest = new File(topConfig.getFileBuyGoods() + "/" + fileName);
                     actionName = "进仓单";
                 } else if("refund".equals(action)) {
-                    dest = new File(topConfig.getFileRefundGoods() + "\\" + fileName);
+                    dest = new File(topConfig.getFileRefundGoods() + "/" + fileName);
                     actionName = "出仓单";
                 } else if("new".equals(action)) {
-                    dest = new File(topConfig.getFileNewGoods() + "\\" + fileName);
+                    dest = new File(topConfig.getFileNewGoods() + "/" + fileName);
                     actionName = "新建商品单";
                 } else {
                     model.addAttribute("errorInfo", "无效参数!");
