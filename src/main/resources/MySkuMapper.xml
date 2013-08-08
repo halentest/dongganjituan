@@ -9,6 +9,14 @@
 	  	insert into sku(<include refid="insertColumns"/>) values(#{tao_id}, #{goods_id}, #{hid}, #{color}, #{size}, #{price},
         #{quantity}, #{lock_quantity}, now(), now())
 	</insert>
+
+    <select id="sumQuantity" resultType="Long">
+        select sum(quantity) as q from sku;
+    </select>
+
+    <select id="sumLockQuantity" resultType="Long">
+        select sum(lock_quantity) as q from sku;
+    </select>
 	
 	<update id="update" parameterType="MySku">
 		update sku set tao_id=#{tao_id}, hid=#{hid}, color=#{color}, size=#{size}, price=#{price}, quantity=#{quantity},

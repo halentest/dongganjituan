@@ -91,6 +91,8 @@ public class GoodsController {
 		
 		//<Goods, <颜色(编号), <尺码, 可用数量/实际数量>>>
 		Map<String, Map<String, Map<String, String>>> map = new HashMap<String, Map<String, Map<String, String>>>();
+        //<hid, 可用数量/实际数量> 或者 <hid-color, 可用数量/实际数量>
+        Map<String, String> goodsCount = new HashMap<String, String>();
 		for(Goods goods : list) {
 			Map<String, Map<String, String>> map2 = new HashMap<String, Map<String, String>>();
 			map.put(goods.getHid(), map2);
@@ -120,7 +122,9 @@ public class GoodsController {
 					return len1 - len2;
 				}
 			});
-			
+
+            long q = 0;
+            long lockQ = 0;
 			for(MySku sku : skuList) {
 				String color = sku.getColor();
                 String hid = sku.getHid();
@@ -134,13 +138,35 @@ public class GoodsController {
 					map3 = new LinkedHashMap<String, String>();
 					map2.put(colorAndId, map3);
 				}
-				map3.put(sku.getSize(), sku.getQuantity()-sku.getLock_quantity() + "/" + sku.getQuantity());
+				map3.put(sku.getSize(), sku.getLock_quantity() + "/" + sku.getQuantity());
+
+                q += sku.getQuantity();
+                lockQ += sku.getLock_quantity();
 			}
+            goodsCount.put(goods.getHid(), lockQ + "/" + q);
 		}
+
+        for(Map.Entry<String, Map<String, Map<String, String>>> e : map.entrySet()) {
+            String hid = e.getKey();
+            for(Map.Entry<String, Map<String, String>> e2 : e.getValue().entrySet()) {
+                String color = e2.getKey();
+                long q = 0;
+                long lockQ = 0;
+                for(Map.Entry<String, String> e3 : e2.getValue().entrySet()) {
+                    String[] ss = e3.getValue().split("/");
+                    lockQ += Long.parseLong(ss[0]);
+                    q += Long.parseLong(ss[1]);
+                }
+                goodsCount.put(hid+color, lockQ + "/" + q);
+            }
+        }
 		
 		model.addAttribute("map", map);
+        model.addAttribute("goodsCount", goodsCount);
 		model.addAttribute("list", list);
 		model.addAttribute("templateList", adminMapper.selectTemplateNameAll());
+        model.addAttribute("quantity", skuMapper.sumQuantity());
+        model.addAttribute("lockQuantity", skuMapper.sumLockQuantity());
 		
 		return "goods/goods_list";
 	}

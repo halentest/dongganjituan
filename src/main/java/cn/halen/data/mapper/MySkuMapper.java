@@ -19,7 +19,15 @@ public class MySkuMapper extends SqlSessionDaoSupport {
 		int count = getSqlSession().delete("cn.halen.data.mapper.SkuMapper.delete", id);
 		return count;
 	}
-	
+
+    public long sumQuantity() {
+        return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.sumQuantity");
+    }
+
+    public long sumLockQuantity() {
+        return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.sumLockQuantity");
+    }
+
 	public int update(MySku sku) {
 		int count = getSqlSession().update("cn.halen.data.mapper.SkuMapper.update", sku);
 		return count;

@@ -10,7 +10,7 @@
 		<strong>商品编号</strong>
 		<input id="goods-id" type="input" value="" style="width: 6%; height: 15px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品
+		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品 (${lockQuantity}/${quantity})
 		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
 		</#if>
@@ -72,7 +72,7 @@
         	  </tr>
         	  <#list map2?keys as key2>
         	  <tr>
-        	  		<td data-goods="${goods.hid}" data-type="color" data-value="${key2}" class="can-change">${key2}</td>
+        	  		<td data-goods="${goods.hid}" data-type="color" data-value="${key2}" class="can-change">${key2} (${goodsCount[goods.hid + key2]!'0/0'})</td>
         	  		<#list map2[key2]?keys as key3>
         	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2?substring(0, key2?index_of('('))}" data-size="${key3}"
         	  			is-selected="false" style="padding: 2px;"
