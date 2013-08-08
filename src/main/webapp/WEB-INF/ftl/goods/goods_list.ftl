@@ -147,6 +147,9 @@
 	      $('.pagination').jqPagination({
 			    paged: function(page) {
 			    	var goodsId = $('#goods-id').val();
+                    if(!page) {
+                        page = 1;
+                    }
 			        window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId;
 			    }
 		   });
@@ -154,6 +157,9 @@
 		   $('#search').click(function() {
 		   		var goodsId = $('#goods-id').val();
 		    	var page = $('#page').attr('data-current-page');
+                if(!page) {
+                    page = 1;
+                }
 		   		window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId;
 		   });
 
