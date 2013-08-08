@@ -77,7 +77,11 @@
         	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2?substring(0, key2?index_of('('))}" data-size="${key3}"
         	  			is-selected="false" style="padding: 2px;"
         	  			<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
-                            <#if map2[key2][key3]?substring(0,1) != '0'>
+                            <#assign q = map2[key2][key3]?split("/")/>
+                            <#assign lockQ = q[0]?number/>
+                            <#assign actualQ = q[1]?number/>
+
+                            <#if actualQ-lockQ &gt; 0>
                                 class="can-click"
                             </#if>
                         </#if>>
