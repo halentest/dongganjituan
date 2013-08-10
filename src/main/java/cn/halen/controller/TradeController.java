@@ -175,7 +175,7 @@ public class TradeController {
 		
 		long totalCount = tradeService.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery, start, end);
 		model.addAttribute("totalCount", totalCount);
-		Paging paging = new Paging(intPage, 10, totalCount);
+		Paging paging = new Paging(intPage, 20, totalCount);
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
 			list = tradeService.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery, start, end);

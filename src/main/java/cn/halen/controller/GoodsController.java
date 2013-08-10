@@ -81,7 +81,7 @@ public class GoodsController {
 		}
 		model.addAttribute("goods_id", goodsId);
 		long totalCount = goodsMapper.countGoodsPaging(goodsId);
-		Paging paging = new Paging(intPage, 10, totalCount);
+		Paging paging = new Paging(intPage, 20, totalCount);
 		model.addAttribute("paging", paging);
 		model.addAttribute("totalCount", totalCount);
 		if(0 == totalCount) {

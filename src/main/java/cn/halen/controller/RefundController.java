@@ -156,7 +156,7 @@ public class RefundController {
 		
 		long totalCount = refundMapper.countRefund(sellerNickList, tid, name, statusList);
 		model.addAttribute("totalCount", totalCount);
-		Paging paging = new Paging(intPage, 10, totalCount);
+		Paging paging = new Paging(intPage, 20, totalCount);
 		List<MyRefund> list = Collections.emptyList();
 		if(totalCount > 0) {
 			list = refundMapper.listRefund(sellerNickList, tid, name, paging, statusList);
