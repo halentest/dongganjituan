@@ -1,7 +1,7 @@
 package cn.halen.util;
 
 public class Paging {
-	private static final int PAGE_SIZE = 10;
+	private static final int PAGE_SIZE = 20;
 	
 	private int start;
 	
