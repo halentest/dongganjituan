@@ -418,6 +418,10 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 		
 		$('#save').click(function() {
 			  var trackingNumber = $('#tracking-number').val();
+              if(!trackingNumber || trackingNumber.length==0) {
+                    alert("单号不能为空！");
+                    return false;
+              }
 			  var tid = $('#curr-tid').val();
 			  var delivery = $('#curr-delivery').val();
 			  var from = $('#curr-from').val();
