@@ -654,9 +654,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 					}
 	    			
 	    		})
-				//LODOP.SET_PREVIEW_WINDOW(0,0,0,0,0,"");
-				//LODOP.PREVIEW();
-                LODOP.PRINT();
+				LODOP.SET_PREVIEW_WINDOW(0,0,0,0,0,"");
+				LODOP.PREVIEW();
+                //LODOP.PRINT();
     			
     		}
     	})
