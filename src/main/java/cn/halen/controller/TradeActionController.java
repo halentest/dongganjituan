@@ -1,6 +1,9 @@
 package cn.halen.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import cn.halen.data.mapper.*;
 import cn.halen.data.pojo.*;
+import cn.halen.service.SkuService;
+import cn.halen.service.excel.ExcelReader;
+import cn.halen.service.excel.Row;
+import cn.halen.service.excel.TradeExcelReader;
+import cn.halen.service.excel.TradeRow;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -40,6 +48,7 @@ import cn.halen.service.top.domain.Status;
 import cn.halen.service.top.util.MoneyUtils;
 
 import com.taobao.api.ApiException;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class TradeActionController {
@@ -71,6 +80,9 @@ public class TradeActionController {
 	
 	@Autowired
 	private TopConfig topConfig;
+
+    @Autowired
+    private SkuService skuService;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -81,7 +93,82 @@ public class TradeActionController {
 	private static final String REDIS_LOGISTICS_CODE = "redis:code";
 	
 	private static final String REDIS_AREA = "redis:area";
-	
+
+    @RequestMapping(value="trade/action/upload")
+    public String upload(Model model) {
+        return "trade/upload";
+    }
+
+    @RequestMapping(value="trade/action/do_upload")
+    public String doUpload(Model model, @RequestParam("file") MultipartFile file) {
+        if(!file.isEmpty()) {
+            String type = file.getContentType();
+            if(!"application/vnd.ms-excel".equals(type)) {
+                model.addAttribute("errorInfo", "选择的文件必须是03版本的excel表格!");
+                return "goods/upload";
+            }
+            File dest = null;
+            try {
+                String fileName = new String(file.getOriginalFilename().getBytes("iso8859-1"), "UTF-8");
+                dest = new File(topConfig.getFileBatchTrade() + "/" + fileName);
+                if(dest.exists()) {
+                    model.addAttribute("errorInfo", "这个文件已经存在，不能重复添加!");
+                    return "trade/upload";
+                }
+                byte[] bytes = file.getBytes();
+                OutputStream out = new FileOutputStream(dest);
+                out.write(bytes);
+                out.flush();
+                out.close();
+                boolean handleResult = handleExcel(model, dest);
+                if(!handleResult) {
+                    dest.delete();
+                    return "trade/upload";
+                }
+            } catch (Exception e) {
+                dest.delete();
+                log.error("Upload file failed, ", e);
+                model.addAttribute("errorInfo", "上传文件失败，请重试!");
+                return "trade/upload";
+            }
+        } else {
+            model.addAttribute("errorInfo", "必须选择一个文件!");
+            return "trade/upload";
+        }
+        model.addAttribute("successInfo", "批量导入订单成功!");
+        return "trade/upload";
+    }
+
+    private boolean handleExcel(Model model, File file) throws ApiException {
+        TradeExcelReader reader = null;
+        List<TradeRow> rows = null;
+        try {
+            reader = new TradeExcelReader(file);
+            boolean checkColumn = reader.checkColumn();
+            if(!checkColumn) {
+                model.addAttribute("errorInfo", "格式不正确，请选择正确的文件!");
+                return false;
+            }
+            rows = reader.getData();
+        } catch (Exception e) {
+            log.error("Handle excel failed, ", e);
+            model.addAttribute("errorInfo", "系统异常，请联系管理员!");
+            return false;
+        } finally {
+            reader.destroy();
+        }
+
+        String sellerNick = UserHolder.get().getShop().getSellerNick();
+
+        List<MyTrade> tList = tradeService.toMyTrade(rows, sellerNick);
+        List<Integer> lost = skuService.checkExist(tList);
+        for(MyTrade t : tList) {
+            tradeService.insertMyTrade(t, true);
+        }
+
+        return true;
+    }
+
 	@RequestMapping(value="trade/action/buy_goods_form")
 	public String buyGoodsForm(Model model, @RequestParam(value="orders", required=false) String orders, 
 			@RequestParam(value="fromcart", required=false) String fromCart) {

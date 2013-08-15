@@ -1,7 +1,10 @@
 package cn.halen.service;
 
 import cn.halen.data.pojo.MyOrder;
+import cn.halen.data.pojo.MyTrade;
 import cn.halen.service.excel.Row;
+import cn.halen.service.excel.TradeRow;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,8 @@ import cn.halen.exception.InsufficientStockException;
 import cn.halen.util.Constants;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -27,6 +32,32 @@ public class SkuService {
 	@SuppressWarnings("rawtypes")
 	@Autowired
 	private RedisTemplate redisTemplate;
+
+    public List<Integer> checkExist(List<MyTrade> list) {
+        List<Integer> result = new ArrayList<Integer>();
+        int excelRow = 2;
+        for(MyTrade t : list) {
+            Iterator<MyOrder> it2 = t.getMyOrderList().iterator();
+            while(it2.hasNext()) {
+                MyOrder o = it2.next();
+                if(null == skuMapper.select(o.getGoods_id(), o.getColor(), o.getSize())) {
+                    result.add(excelRow);
+                    it2.remove();
+                }
+                excelRow ++;
+            }
+        }
+        //清除order为空的trade
+        Iterator<MyTrade> it = list.iterator();
+        while(it.hasNext()) {
+            MyTrade t = it.next();
+            if(0 == t.getMyOrderList().size()) {
+                it.remove();
+            }
+        }
+
+        return result;
+    }
 	
 	synchronized public long updateSku(long skuId, long quantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
 		

@@ -99,6 +99,9 @@
                         <TR>
                             <TD height=20><a href="${rc.contextPath}/trade/manual_sync_trade_form" target="mainFrame">手工同步订单</a></TD>
                         </TR>
+                        <TR>
+                            <TD height=20><a href="${rc.contextPath}/trade/action/upload" target="mainFrame">批量导入</a></TD>
+                        </TR>
                         </#if>
                         </TBODY>
                     </TABLE>

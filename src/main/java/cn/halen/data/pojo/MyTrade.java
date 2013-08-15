@@ -1,5 +1,6 @@
 package cn.halen.data.pojo;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +56,13 @@ public class MyTrade {
 				+ ", postcode=" + postcode + ", seller_memo=" + seller_memo
 				+ ", buyer_message=" + buyer_message + "]";
 	}
+
+    public void addOrder(MyOrder order) {
+        if(null == myOrderList) {
+            myOrderList = new ArrayList<MyOrder>();
+        }
+        myOrderList.add(order);
+    }
 
 	public String getTid() {
 		return tid;

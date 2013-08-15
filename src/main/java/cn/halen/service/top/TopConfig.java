@@ -47,9 +47,12 @@ public class TopConfig {
     @Value("${file.newgoods}")
     private String fileNewGoods;
 
+    @Value("${file.batchtrade}")
+    private String fileBatchTrade;
+
     @Value("${is.sandbox}")
     private boolean isSandbox;
-	
+
 	@Autowired
 	private AdminMapper adminMapper;
 	
@@ -79,6 +82,10 @@ public class TopConfig {
 
     public String getFileRefundGoods() {
         return fileRefundGoods;
+    }
+
+    public String getFileBatchTrade() {
+        return fileBatchTrade;
     }
 
     public String getFileBuyGoods() {

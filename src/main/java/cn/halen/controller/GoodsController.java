@@ -226,6 +226,7 @@ public class GoodsController {
                            @RequestParam("file") MultipartFile file) {
         model.addAttribute("action", action);
         String actionName = null;
+        File dest = null;
         if(!file.isEmpty()) {
             String type = file.getContentType();
             if(!"application/vnd.ms-excel".equals(type)) {
@@ -234,7 +235,6 @@ public class GoodsController {
             }
             try {
                 String fileName = new String(file.getOriginalFilename().getBytes("iso8859-1"), "UTF-8");
-                File dest = null;
                 if("buy".equals(action)) {
                     dest = new File(topConfig.getFileBuyGoods() + "/" + fileName);
                     actionName = "进仓单";
@@ -263,6 +263,7 @@ public class GoodsController {
                     return "goods/upload";
                 }
             } catch (IOException e) {
+                dest.delete();
                 log.error("Upload file failed, ", e);
                 model.addAttribute("errorInfo", "上传文件失败，请重试!");
                 return "goods/upload";

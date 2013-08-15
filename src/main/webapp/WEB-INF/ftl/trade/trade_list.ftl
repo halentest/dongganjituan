@@ -104,9 +104,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 		        	<input class="wait-check" data-tid="${trade.tid}" data-status="${trade.myStatus.getStatus()}" 
 		        	data-delivery="${trade.delivery!''}"
 		        	data-name="${trade.name}"
-		        	data-address="${trade.state}${trade.city}${trade.district!''}${trade.address}"
+		        	data-address="${trade.state!''}${trade.city!''}${trade.district!''}${trade.address}"
 		        	data-mobile="${trade.mobile!''}"
-		        	data-state="${trade.state}"
+		        	data-state="${trade.state!''}"
 		        	type="checkbox"/>
 		        	${trade.come_from!}&nbsp;&nbsp;&nbsp;
 		        	<strong>订单编号：</strong></strong>${trade.tid}  &nbsp;&nbsp;&nbsp;
@@ -152,13 +152,13 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 				        </td>
 				        <#if order_index==0>
 				        <td rowspan="${orderList?size}" style="width: 25%;">
-				        	<p><strong>地址：</strong>${trade.state}${trade.city}${trade.district!''}${trade.address}</p>
+				        	<p><strong>地址：</strong>${trade.state!''}${trade.city!''}${trade.district!''}${trade.address}</p>
 				        	<p>
 				        		<strong>收货人：</strong>${trade.name} &nbsp;&nbsp;
 				        		<strong>电话：</strong>${trade.phone!''} &nbsp;&nbsp;
 				        		<strong>手机：</strong>${trade.mobile} &nbsp;&nbsp;
 				        	</p>
-				        	<p><strong>邮编：</strong>${trade.postcode}</p>
+				        	<p><strong>邮编：</strong>${trade.postcode!''}</p>
 				        	<#if trade.status=="WAIT_BUYER_CONFIRM_GOODS">
 				        		<p><strong>快递：</strong>${order.logistics_company} &nbsp;&nbsp;<strong>单号：</strong>${order.invoice_no}</p>
 				        	</#if>
@@ -216,7 +216,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 									</select>
 				        			<a style="cursor: pointer;" class="modify-delivery">修改</a>
 				        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}" 
-				        				data-goods="${order.goods_id}" data-province="${trade.state}"
+				        				data-goods="${order.goods_id}" data-province="${trade.state!''}"
 				        				class="modify-delivery-submit">保存</a>
 				        			<a style="cursor: pointer; display: none;" class="modify-delivery-cancel">取消</a>
 				        		</#if>

@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import cn.halen.service.excel.TradeRow;
 import freemarker.template.SimpleDate;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -438,7 +439,60 @@ public class TradeService {
 		int count = myTradeMapper.updateMyTrade(myTrade);
 		return count;
 	}
-	
+
+    public List<MyTrade> toMyTrade(List<TradeRow> list, String sellerNick) {
+        List<MyTrade> result = new ArrayList<MyTrade>();
+        MyTrade lastTrade = null;
+        int c = 1;
+        for(TradeRow row : list) {
+            if(StringUtils.isNotBlank(row.getShopName())) {
+                c = 1;
+                MyTrade myTrade = new MyTrade();
+                myTrade.setTid(row.getTradeId());
+                myTrade.setName(row.getName());
+                myTrade.setPhone(row.getPhone());
+                myTrade.setMobile(row.getMobile());
+                myTrade.setDistributor_id(1);
+                myTrade.setSeller_memo(row.getComment());
+                myTrade.setSeller_nick(sellerNick);
+                myTrade.setCome_from("批量导入");
+                myTrade.setModified(new Date());
+                myTrade.setCreated(new Date());
+                myTrade.setAddress(row.getAddress());
+                myTrade.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
+                MyLogisticsCompany mc = logisticsMapper.select(1);
+                myTrade.setLogistics_company(mc.getName());
+
+                MyOrder myOrder = new MyOrder();
+                myOrder.setTid(row.getTradeId());
+                myOrder.setOid(row.getTradeId() + c);
+                myOrder.setColor(row.getColor());
+                myOrder.setSize(row.getSize());
+                myOrder.setGoods_id(row.getGoodsId());
+                myOrder.setTitle(row.getTitle());
+                myOrder.setQuantity(row.getNum());
+                myOrder.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
+                myTrade.addOrder(myOrder);
+                result.add(myTrade);
+
+                lastTrade = myTrade;
+            } else {
+                c ++;
+                MyOrder myOrder = new MyOrder();
+                myOrder.setTid(lastTrade.getTid());
+                myOrder.setOid(lastTrade.getTid() + c);
+                myOrder.setColor(row.getColor());
+                myOrder.setSize(row.getSize());
+                myOrder.setGoods_id(row.getGoodsId());
+                myOrder.setTitle(row.getTitle());
+                myOrder.setQuantity(row.getNum());
+                myOrder.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
+                lastTrade.addOrder(myOrder);
+            }
+        }
+        return result;
+    }
+
 	public MyTrade toMyTrade(Trade trade) throws ApiException {
 		
 		List<Order> orderList = trade.getOrders();
