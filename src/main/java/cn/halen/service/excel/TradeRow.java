@@ -35,8 +35,14 @@ public class TradeRow {
 
     private String title;
 
+    public int getPrice() {
+        return price;
+    }
+
+    private int price;
+
     public TradeRow(String shopName, String tradeId, String goodsId, String color, String size, int num, String name,
-                    String mobile, String phone, String address, String comment, String delivery, String title) {
+                    String mobile, String phone, String address, String comment, String delivery, String title, int price) {
         this.shopName = shopName;
         this.tradeId = tradeId;
         this.goodsId = goodsId;
@@ -50,6 +56,7 @@ public class TradeRow {
         this.comment = comment;
         this.delivery = delivery;
         this.title = title;
+        this.price = price;
     }
 
     public String getTitle() {

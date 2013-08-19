@@ -162,9 +162,19 @@ public class TradeActionController {
 
         List<MyTrade> tList = tradeService.toMyTrade(rows, sellerNick);
         List<Integer> lost = skuService.checkExist(tList);
+        List<String> repeated = new ArrayList<String>();
+        List<String> successed = new ArrayList<String>();
         for(MyTrade t : tList) {
-            tradeService.insertMyTrade(t, true);
+            int result = tradeService.insertMyTrade(t, true);
+            if(0==result) {
+                repeated.add(t.getTid());
+            } else {
+                successed.add(t.getTid());
+            }
         }
+        model.addAttribute("lost", lost);
+        model.addAttribute("repeated", repeated);
+        model.addAttribute("successed", successed);
 
         return true;
     }
@@ -335,7 +345,7 @@ public class TradeActionController {
 		trade.setDelivery_money(utilService.calDeliveryMoney(goodsId, totalGoods, logistics, province));
 		
 		try{
-			tradeService.insertMyTrade(trade, true);
+			tradeService.insertMyTrade(trade, false);
 		} catch(Exception e) {
 			log.error("", e);
 			model.addAttribute("errorInfo", "系统异常，请重试！");
@@ -446,8 +456,11 @@ public class TradeActionController {
 				redisTemplate.opsForValue().set(REDIS_LOGISTICS_CODE + ":" + delivery, logisticsCompany);
 			}
 			result.setErrorInfo(logisticsCompany);
-			int deliveryMoney = utilService.calDeliveryMoney(goods, quantity, delivery, province);
-		
+			int deliveryMoney = 0;
+            if(StringUtils.isNotBlank(province)) {
+                deliveryMoney = utilService.calDeliveryMoney(goods, quantity, delivery, province);
+            }
+
 			tradeService.changeDelivery(tid, logisticsCompany, deliveryMoney);
 		} catch (InvalidStatusChangeException isce) {
 			result.setSuccess(false);

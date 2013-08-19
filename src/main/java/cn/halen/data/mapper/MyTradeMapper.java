@@ -45,6 +45,11 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		MyOrder myOrder = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectOrderByOrderId", oid);
 		return myOrder;
 	}
+
+    public boolean isTidExist(String tid) {
+        Object id = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.checkTidExist", tid);
+        return null != id;
+    }
 	
 	public int updateTradeMemo(String memo, String tradeId, Date modified) {
 		Map<String, Object> param = new HashMap<String, Object>();

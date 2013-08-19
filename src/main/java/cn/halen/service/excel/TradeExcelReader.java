@@ -46,9 +46,10 @@ public class TradeExcelReader {
             String delivery = cells[25].getContents();
             String comment = cells[28].getContents();
             String title = cells[7].getContents();
+            int price = (int) (100 * Double.parseDouble(cells[15].getContents()));
 
             TradeRow row = new TradeRow(shopName, tradeId, goodsId, color, size, Integer.parseInt(num), name,
-                    mobile, phone, address, delivery, comment, title);
+                    mobile, phone, address, comment, delivery, title, price);
             list.add(row);
         }
         return list;

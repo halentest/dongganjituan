@@ -28,6 +28,26 @@
             <a class="close" data-dismiss="alert">×</a>
             <strong>成功了！</strong> ${successInfo}
         </div>
+        <div>
+            <h4>成功订单列表</h4>
+            <ul>
+            <#list successed as s>
+                <li>${s}</li>
+            </#list>
+            </ul>
+            <h4>已存在订单列表</h4>
+            <ul>
+                <#list repeated as r>
+                    <li>${r}</li>
+                </#list>
+            </ul>
+            <h4>商品不存在订单列表</h4>
+            <ul>
+                <#list lost as l>
+                    <li>${l}</li>
+                </#list>
+            </ul>
+        </div>
     </#if>
 
 </@root.html>

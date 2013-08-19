@@ -269,11 +269,13 @@ public class TradeService {
 		}
 		int change = myTrade.getDelivery_money() - deliveryMoney;
 		myTrade.setDelivery(delivery);
-		myTrade.setDelivery_money(deliveryMoney);
-		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
-		if(myTrade.getMy_status() != MyStatus.New.getStatus() && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
-			adminService.updateDeposit(d.getId(), change);
-		}
+        if(deliveryMoney > 0) {
+            myTrade.setDelivery_money(deliveryMoney);
+            Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
+            if(myTrade.getMy_status() != MyStatus.New.getStatus() && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+                adminService.updateDeposit(d.getId(), change);
+            }
+        }
 		return myTradeMapper.updateMyTrade(myTrade) > 0;
 	}
 
@@ -358,12 +360,23 @@ public class TradeService {
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public int insertMyTrade(MyTrade myTrade, boolean manual) throws ApiException {
+	public int insertMyTrade(MyTrade myTrade, boolean checkExist) throws ApiException {
+        if(checkExist && myTradeMapper.isTidExist(myTrade.getTid())) {
+            return 0;
+        }
         List<MyOrder> orderList = myTrade.getMyOrderList();
         boolean enough = skuService.lockSku(orderList, true);
+        int payment = 0;
+        int quantity = 0;
 		for(MyOrder order : orderList) {
 			myTradeMapper.insertMyOrder(order);
+            quantity += order.getQuantity();
+            payment += order.getPayment() * order.getQuantity();
 		}
+        if(checkExist) {
+            myTrade.setPayment(payment);
+            myTrade.setGoods_count(quantity);
+        }
         if(!enough) {
             myTrade.setMy_status(MyStatus.WaitHandle.getStatus());
         }
@@ -468,6 +481,7 @@ public class TradeService {
                 myOrder.setOid(row.getTradeId() + c);
                 myOrder.setColor(row.getColor());
                 myOrder.setSize(row.getSize());
+                myOrder.setPayment(row.getPrice());
                 myOrder.setGoods_id(row.getGoodsId());
                 myOrder.setTitle(row.getTitle());
                 myOrder.setQuantity(row.getNum());
@@ -486,6 +500,7 @@ public class TradeService {
                 myOrder.setGoods_id(row.getGoodsId());
                 myOrder.setTitle(row.getTitle());
                 myOrder.setQuantity(row.getNum());
+                myOrder.setPayment(row.getPrice());
                 myOrder.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
                 lastTrade.addOrder(myOrder);
             }
