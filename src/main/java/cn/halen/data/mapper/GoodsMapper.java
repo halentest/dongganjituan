@@ -23,6 +23,11 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 		List<Goods> list = getSqlSession().selectList("cn.halen.data.mapper.GoodsMapper.listGoodsDetail", param);
 		return list;
 	}
+
+    public List<Goods> listAllGoodsDetail() {
+        List<Goods> list = getSqlSession().selectList("cn.halen.data.mapper.GoodsMapper.listAllGoodsDetail");
+        return list;
+    }
 	
 	public int countGoodsPaging(String goodsId) {
 		Map<String, Object> param = new HashMap<String, Object>();

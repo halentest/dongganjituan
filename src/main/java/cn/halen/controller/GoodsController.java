@@ -65,6 +65,78 @@ public class GoodsController {
 	@Autowired
 	private RedisTemplate redisTemplate;
 
+    private List<String> getSizeList(List<Goods> list) {
+        List<String> result = new ArrayList<String>();
+        Set<String> sizeSet = new HashSet<String>();
+        for(Goods g : list) {
+            for(MySku s : g.getSkuList()) {
+                sizeSet.add(s.getSize());
+            }
+        }
+        for(String size : sizeSet) {
+            result.add(size);
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    @RequestMapping(value="goods/export")
+    public void export(Model model, HttpServletResponse response) throws IOException {
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("multipart/form-data");
+
+        List<Goods> list = goodsMapper.listAllGoodsDetail();
+        List<String> sizeList = getSizeList(list);
+        Map<String, Map<String, Map<String, Long>>> map = f2(list);
+
+        Date now = new Date();
+        String fileName = "store-" + now.getTime() + ".csv";
+        File f = new File(topConfig.getFileExport() + File.separator + fileName);
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
+        String title = "货号,颜色";
+        for(String size : sizeList) {
+            title += "," + size;
+        }
+        w.write(title);
+        w.write("\r\n");
+        StringBuilder builder = new StringBuilder();
+        for(Map.Entry<String, Map<String, Map<String, Long>>> e : map.entrySet()) {
+
+            String itemId = e.getKey();
+            for(Map.Entry<String, Map<String, Long>> e2 : e.getValue().entrySet()) {
+                String color = e2.getKey();
+                Map<String, Long> sizeMap = e2.getValue();
+                builder.delete(0, builder.length());//清空builder
+                builder.append(itemId).append(",").append(color);
+                for(String size : sizeList) {
+
+                    builder.append(",").append(sizeMap.get(size)==null?"" : sizeMap.get(size));
+                }
+                w.write(builder.toString());
+                w.write("\r\n");
+            }
+        }
+        w.flush();
+        w.close();
+
+        response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
+        response.flushBuffer();
+
+        OutputStream os=response.getOutputStream();
+        InputStream in = new FileInputStream(f);
+        try {
+            byte[] b=new byte[1024];
+            int length;
+            while((length=in.read(b))>0){
+                os.write(b,0,length);
+            }
+        }catch (IOException e) {
+            log.error("export store failed.", e);
+        }finally {
+            os.close();
+        }
+    }
+
 	@RequestMapping(value="goods/goods_list")
 	public String list(Model model, @RequestParam(value="page", required=false) Integer page,
 			@RequestParam(value="goods_id", required=false) String goodsId) {
@@ -92,86 +164,140 @@ public class GoodsController {
 		if(null == list || list.size() == 0) {
 			return "goods/goods_list";
 		}
-		
-		//<Goods, <颜色(编号), <尺码, 可用数量/实际数量>>>
-		Map<String, Map<String, Map<String, String>>> map = new HashMap<String, Map<String, Map<String, String>>>();
+        f(list, model);
+		model.addAttribute("list", list);
+		model.addAttribute("templateList", adminMapper.selectTemplateNameAll());
+
+		return "goods/goods_list";
+	}
+
+    public Map<String, Map<String, Map<String, Long>>> f2(List<Goods> list) {
+        //<Goods, <颜色, <尺码, 可用数量>>>
+        Map<String, Map<String, Map<String, Long>>> map = new HashMap<String, Map<String, Map<String, Long>>>();
+        for(Goods goods : list) {
+            Map<String, Map<String, Long>> map2 = new HashMap<String, Map<String, Long>>();
+            map.put(goods.getHid(), map2);
+            List<MySku> skuList = goods.getSkuList();
+            //按size排序sku
+            Collections.sort(skuList, new Comparator<MySku>() {
+
+                @Override
+                public int compare(MySku o1, MySku o2) {
+
+                    String size1 = o1.getSize();
+                    String size2 = o2.getSize();
+                    int len1 = size1.length();
+                    int len2 = size2.length();
+                    int n = Math.min(len1, len2);
+                    char[] v1 = size1.toCharArray();
+                    char[] v2 = size2.toCharArray();
+                    int k = 0;
+                    while(k < n) {
+                        char c1 = v1[k];
+                        char c2 = v2[k];
+                        if(c1 != c2) {
+                            return c1 - c2;
+                        }
+                        k++;
+                    }
+                    return len1 - len2;
+                }
+            });
+
+            for(MySku sku : skuList) {
+                String color = sku.getColor();
+                Map<String, Long> map3 = map2.get(color);
+                if(null == map3) {
+                    map3 = new LinkedHashMap<String, Long>();
+                    map2.put(color, map3);
+                }
+                long saved = sku.getQuantity() - sku.getLock_quantity();
+                map3.put(sku.getSize(), saved);
+            }
+        }
+
+        return map;
+    }
+
+    public Map<String, Map<String, Map<String, String>>> f(List<Goods> list, Model model) {
+        //<Goods, <颜色(编号), <尺码, 可用数量/实际数量>>>
+        Map<String, Map<String, Map<String, String>>> map = new HashMap<String, Map<String, Map<String, String>>>();
         //<hid, 可用数量/实际数量> 或者 <hid-color, 可用数量/实际数量>
         Map<String, String> goodsCount = new HashMap<String, String>();
-		for(Goods goods : list) {
-			Map<String, Map<String, String>> map2 = new HashMap<String, Map<String, String>>();
-			map.put(goods.getHid(), map2);
-			List<MySku> skuList = goods.getSkuList();
-			//按size排序sku
-			Collections.sort(skuList, new Comparator<MySku>() {
+        for(Goods goods : list) {
+            Map<String, Map<String, String>> map2 = new HashMap<String, Map<String, String>>();
+            map.put(goods.getHid(), map2);
+            List<MySku> skuList = goods.getSkuList();
+            //按size排序sku
+            Collections.sort(skuList, new Comparator<MySku>() {
 
-				@Override
-				public int compare(MySku o1, MySku o2) {
-					
-					String size1 = o1.getSize();
-					String size2 = o2.getSize();
-					int len1 = size1.length();
-					int len2 = size2.length();
-					int n = Math.min(len1, len2);
-					char[] v1 = size1.toCharArray();
-					char[] v2 = size2.toCharArray();
-					int k = 0;
-					while(k < n) {
-						char c1 = v1[k];
-						char c2 = v2[k];
-						if(c1 != c2) {
-							return c1 - c2;
-						}
-						k++;
-					}
-					return len1 - len2;
-				}
-			});
+                @Override
+                public int compare(MySku o1, MySku o2) {
+
+                    String size1 = o1.getSize();
+                    String size2 = o2.getSize();
+                    int len1 = size1.length();
+                    int len2 = size2.length();
+                    int n = Math.min(len1, len2);
+                    char[] v1 = size1.toCharArray();
+                    char[] v2 = size2.toCharArray();
+                    int k = 0;
+                    while(k < n) {
+                        char c1 = v1[k];
+                        char c2 = v2[k];
+                        if(c1 != c2) {
+                            return c1 - c2;
+                        }
+                        k++;
+                    }
+                    return len1 - len2;
+                }
+            });
 
             long q = 0;
             long lockQ = 0;
-			for(MySku sku : skuList) {
-				String color = sku.getColor();
+            for(MySku sku : skuList) {
+                String color = sku.getColor();
                 String hid = sku.getHid();
                 String colorAndId = color + "()";
                 if(null != hid) {
                     String colorId = hid.substring(0, 2);
                     colorAndId = color + "(" + colorId + ")";
                 }
-				Map<String, String> map3 = map2.get(colorAndId);
-				if(null == map3) {
-					map3 = new LinkedHashMap<String, String>();
-					map2.put(colorAndId, map3);
-				}
-				map3.put(sku.getSize(), sku.getLock_quantity() + "/" + sku.getQuantity());
+                Map<String, String> map3 = map2.get(colorAndId);
+                if(null == map3) {
+                    map3 = new LinkedHashMap<String, String>();
+                    map2.put(colorAndId, map3);
+                }
+                long saved = sku.getQuantity() - sku.getLock_quantity();
+                map3.put(sku.getSize(), saved + "/" + sku.getQuantity());
 
                 q += sku.getQuantity();
                 lockQ += sku.getLock_quantity();
-			}
-            goodsCount.put(goods.getHid(), lockQ + "/" + q);
-		}
+            }
+            goodsCount.put(goods.getHid(), (q-lockQ) + "/" + q);
+        }
 
         for(Map.Entry<String, Map<String, Map<String, String>>> e : map.entrySet()) {
             String hid = e.getKey();
             for(Map.Entry<String, Map<String, String>> e2 : e.getValue().entrySet()) {
                 String color = e2.getKey();
                 long q = 0;
-                long lockQ = 0;
+                long savedQ = 0;
                 for(Map.Entry<String, String> e3 : e2.getValue().entrySet()) {
                     String[] ss = e3.getValue().split("/");
-                    lockQ += Long.parseLong(ss[0]);
+                    savedQ += Long.parseLong(ss[0]);
                     q += Long.parseLong(ss[1]);
                 }
-                goodsCount.put(hid+color, lockQ + "/" + q);
+                goodsCount.put(hid+color, savedQ + "/" + q);
             }
         }
-		
-		model.addAttribute("map", map);
-        model.addAttribute("goodsCount", goodsCount);
-		model.addAttribute("list", list);
-		model.addAttribute("templateList", adminMapper.selectTemplateNameAll());
-
-		return "goods/goods_list";
-	}
+        if(null != model) {
+            model.addAttribute("map", map);
+            model.addAttribute("goodsCount", goodsCount);
+        }
+        return map;
+    }
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="goods/action/batch_change")

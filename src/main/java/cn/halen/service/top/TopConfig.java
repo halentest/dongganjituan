@@ -50,13 +50,24 @@ public class TopConfig {
     @Value("${file.batchtrade}")
     private String fileBatchTrade;
 
+    @Value("${file.export}")
+    private String fileExport;
+
     @Value("${is.sandbox}")
     private boolean isSandbox;
 
 	@Autowired
 	private AdminMapper adminMapper;
-	
-	public List<String> listToken() {
+
+    public String getFileExport() {
+        return fileExport;
+    }
+
+    public void setFileExport(String fileExport) {
+        this.fileExport = fileExport;
+    }
+
+    public List<String> listToken() {
 		List<String> result = new ArrayList<String>();
 		List<Shop> list = adminMapper.selectShop(Constants.SHOP_SYNC_YES, null, null);
 		for(Shop s : list) {

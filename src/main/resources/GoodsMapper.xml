@@ -54,8 +54,15 @@
 			limit #{start}, #{page_size}) g 
 			left join sku s on g.hid = s.goods_id 
 			order by g.hid 
-	</select>	
-	
+	</select>
+
+    <select id="listAllGoodsDetail" resultMap="goodsMap">
+        select <include refid="selectColumns"/>, <include refid="selectColumnsSku"/>
+        from goods g
+        left join sku s on g.hid = s.goods_id
+        order by g.hid
+    </select>
+
 	<select id="goodsCountPaging" parameterType="java.util.Map" resultType="int">
 		select count(*) from goods
 			<where>

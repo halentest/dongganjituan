@@ -13,6 +13,7 @@
 		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品 (${lockQuantity!'0'}/${quantity!'0'})
 		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/goods/export">导出库存</a>
 		</#if>
 	</div>
 <#if list?? && list?size gt 0>
@@ -76,16 +77,19 @@
         	  		<#list map2[key2]?keys as key3>
         	  		<td data-goods="${goods.hid}" data-url="${goods.url!''}" data-title="${goods.title}" data-color="${key2?substring(0, key2?index_of('('))}" data-size="${key3}"
         	  			is-selected="false" style="padding: 2px;"
+                        <#assign q = map2[key2][key3]?split("/")/>
+                        <#assign savedQ = q[0]?number/>
+                        <#assign actualQ = q[1]?number/>
         	  			<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
-                            <#assign q = map2[key2][key3]?split("/")/>
-                            <#assign lockQ = q[0]?number/>
-                            <#assign actualQ = q[1]?number/>
-
-                            <#if actualQ-lockQ &gt; 0>
+                            <#if savedQ &gt; 0>
                                 class="can-click"
                             </#if>
                         </#if>>
-        	  			${map2[key2][key3]}
+                        <#if savedQ != actualQ>
+                            <font color='red'>${map2[key2][key3]}</font>
+                        <#else>
+                            ${map2[key2][key3]}
+                        </#if>
         	  		</td>
         	  		</#list>
         	  </tr>
