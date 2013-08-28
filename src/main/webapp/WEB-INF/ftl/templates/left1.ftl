@@ -81,7 +81,7 @@
                             <td height="20" class=""><a id="wait-send">待发货订单</a></td>
                         </tr>
                         <tr>
-                            <td height="20" class=""><a id="finding">拣货中订单</a></td>
+                            <td height="20" class=""><a id="finding">待打印订单</a></td>
                         </tr>
                         <tr>
                             <td height="20" class=""><a id="wait-receive">已发货订单</a></td>

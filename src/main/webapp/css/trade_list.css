@@ -33,3 +33,9 @@ tr.trade {
 	background-color: #CCCCCC;
 	border: 0px;
 }
+
+.action-bar {
+    height: 30px;
+    padding-left: 10px;
+    margin-top: 10px;
+}

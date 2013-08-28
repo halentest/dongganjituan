@@ -1,10 +1,10 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=3 css=["trade_list.css", "jqpagination.css"] 
+<@root.html active=3 css=["trade_list.css", "jqpagination.css"]
 js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-shentong.js", "kuaidi-yuantong.js", "kuaidi-yunda.js", "kuaidi-ems.js", "kuaidi-sf.js"]>
     <#if CURRENT_USER.type=="WareHouse">
     <script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
-	<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
+	<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
 	    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
 	</object>
     </#if>
@@ -67,6 +67,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 
 	</div>
 <#if trade_list?size gt 0>
+
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
 	    <a href="#" class="previous" data-action="previous">&lsaquo;</a>
@@ -74,40 +75,20 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	</div>
-	<br><br>
-	<div>
-		<a id="check-all" style="cursor: pointer;">全选</a>&nbsp;&nbsp;&nbsp;&nbsp;
-		<a id="not-check-all" style="cursor: pointer;">全不选</a>&nbsp;&nbsp;&nbsp;&nbsp;
-		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
-            <#if status==0>
-                <a class="btn btn-primary" id="batch-submit">批量提交</a>
-            </#if>
-        </#if>
-		<#if CURRENT_USER.type=="DistributorManager" && status==1>
-			<a class="btn btn-primary" id="batch-approve1">批量通过</a>
-		</#if>
-		<#if CURRENT_USER.type=="WareHouse">
-            <#if status?? && status=2>
-                <a class="btn btn-primary" id="batch-find-goods">批量拣货</a>
-            </#if>
-            <#if status?? && status=3>
-                <a class="btn btn-primary" id="batch-prn-kdd">批量打印</a>
-            </#if>
-		</#if>
-	</div>
+	<br>
 	<#list trade_list as trade>
 		<#assign tColor="#d6dff7">
 		<table>
 		    <tbody>
 		      <tr class="trade" style="background-color: ${tColor};">
 		        <td colspan="7">
-		        	<input class="wait-check" data-tid="${trade.tid}" data-status="${trade.myStatus.getStatus()}" 
+		        	<input class="wait-check" data-tid="${trade.tid}" data-status="${trade.myStatus.getStatus()}"
 		        	data-delivery="${trade.delivery!''}"
 		        	data-name="${trade.name}"
 		        	data-address="${trade.state!''}${trade.city!''}${trade.district!''}${trade.address}"
 		        	data-mobile="${trade.mobile!''}"
 		        	data-state="${trade.state!''}"
-		        	type="checkbox"/>
+		        	type="checkbox"/> &nbsp;&nbsp;&nbsp;
 		        	${trade.come_from!}&nbsp;&nbsp;&nbsp;
 		        	<strong>订单编号：</strong></strong>${trade.tid}  &nbsp;&nbsp;&nbsp;
 		        	<strong>创建时间：</strong>${trade.created?string('yyyy-MM-dd HH:mm:ss')} &nbsp;&nbsp;&nbsp;
@@ -144,11 +125,11 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 				        		<#if trade.my_status==4 && order.status=="WAIT_BUYER_CONFIRM_GOODS">
 				        			<p>
-				        			<a style="cursor: pointer;" data-tid="${trade.tid}" 
+				        			<a style="cursor: pointer;" data-tid="${trade.tid}"
 				        			 data-oid="${order.oid}" class="apply-refund">申请退货</a>
 				        			</p>
 				        		</#if>
-				        	</#if> 
+				        	</#if>
 				        </td>
 				        <#if order_index==0>
 				        <td rowspan="${orderList?size}" style="width: 25%;">
@@ -174,10 +155,10 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 				        </td>
 				        <td rowspan="${orderList?size}" style="text-align: right; padding-right: 10px;">
 				        	<#if CURRENT_USER.type=="WareHouse">
-				        		<p><strong>快递</strong>: 
+				        		<p><strong>快递</strong>:
 				        		<span>${trade.delivery}</span>
 				        		<#if trade.status=="WAIT_SELLER_SEND_GOODS" && trade.my_status==2>
-					        		<p><a class="find-goods" data-tid="${trade.tid}" style="cursor: pointer">拣货</a></p>
+					        		<p><a class="find-goods" data-tid="${trade.tid}" style="cursor: pointer"></a></p>
 					        		<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
 				        		<#if trade.my_status==3>
@@ -186,7 +167,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                                             <#assign prnFunc='prn_shentong'/>
                                         <#elseif trade.delivery=="圆通速递">
                                             <#assign prnFunc='prn_yuantong'/>
-                                        <#elseif trade.delivery=="韵达快运">
+                                        <#elseif trade.delivery=="韵达快运" || trade.delivery=="韵达">
                                             <#assign prnFunc='prn_yunda'/>
                                         <#elseif trade.delivery=="EMS">
                                             <#assign prnFunc='prn_ems'/>
@@ -196,7 +177,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                                         <a href="${rc.contextPath}/set_print?delivery=${trade.delivery}">打印调整</a> &nbsp;&nbsp;
 					        			<a href="javascript:prn(${prnFunc}, '${trade.delivery}', '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											'${trade.name}', '${trade.name}', '${trade.state}${trade.city}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state}')">
+											'${trade.name}', '${trade.name}', '${trade.state!''}${trade.city!''}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state!''}')">
 											打印快递单
 										</a>
 									</p>
@@ -204,9 +185,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 				        				data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">发货</a></p>
 				        			<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
-				        	</#if> 
+				        	</#if>
 				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
-				        		<p><strong>快递</strong>: 
+				        		<p><strong>快递</strong>:
 				        		<span>${trade.delivery}</span>
 				        		<#if trade.my_status==0 || trade.my_status==1>
 				        			<select style="display: none; width: 80px;">
@@ -215,7 +196,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 				        				</#list>
 									</select>
 				        			<a style="cursor: pointer;" class="modify-delivery">修改</a>
-				        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}" 
+				        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}"
 				        				data-goods="${order.goods_id}" data-province="${trade.state!''}"
 				        				class="modify-delivery-submit">保存</a>
 				        			<a style="cursor: pointer; display: none;" class="modify-delivery-cancel">取消</a>
@@ -231,9 +212,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                                 <#if trade.my_status==-6>
                                     <a class="cancel" data-tid="${trade.tid}" style="cursor: pointer">已处理</a>
                                 </#if>
-				        	</#if> 
+				        	</#if>
 				        	<#if CURRENT_USER.type=="DistributorManager">
-				        		<p><strong>快递</strong>: 
+				        		<p><strong>快递</strong>:
 					        		<span>${trade.delivery}</span>
 					        		<#if trade.my_status==2>
 					        			<select style="display: none;">
@@ -242,7 +223,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 					        				</#list>
 										</select>
 					        			<a style="cursor: pointer;" class="modify-delivery">修改</a>
-					        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}" 
+					        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}"
 					        				data-goods="${order.goods_id}" data-province="${trade.state}"
 					        				class="modify-delivery-submit">保存</a>
 					        			<a style="cursor: pointer; display: none;" class="modify-delivery-cancel">取消</a>
@@ -255,7 +236,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 				        		<#if trade.my_status==-4>
 				        			同意   不同意
 				        		</#if>
-				        	</#if> 
+				        	</#if>
 				        </td>
 				        </#if>
 			      </tr>
@@ -270,6 +251,28 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	</div>
+    <div class="action-bar">
+        <a id="check-all" style="cursor: pointer;">全选</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a id="not-check-all" style="cursor: pointer;">全不选</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
+            <#if status==0>
+                <a id="batch-submit" style="cursor: pointer;">批量提交</a>
+            </#if>
+        </#if>
+        <#if CURRENT_USER.type=="DistributorManager" && status==1>
+            <a id="batch-approve1" style="cursor: pointer;">批量通过</a>
+        </#if>
+        <#if CURRENT_USER.type=="WareHouse">
+            <#if status?? && status=2>
+                <a id="batch-find-goods" style="cursor: pointer;">批量拣货</a>
+            </#if>
+            <#if status?? && status=3>
+                <a id="batch-prn-kdd" style="cursor: pointer;">批量打印快递单</a>
+                <a href="${rc.contextPath}/trade/export_finding" style="cursor: pointer;">打印拣货单</a>
+                <a id="batch-prn-kdd" style="cursor: pointer;">打印面单</a>
+            </#if>
+        </#if>
+    </div>
 <#else>
         <div class="alert" style="margin: 5px;">
             <a class="close" data-dismiss="alert">×</a>
@@ -299,7 +302,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
       </div>
   </div>
   <!-- end 提示框 -->
-  
+
   <!-- start 提示框 -->
   <div class="modal hide" id="pop-up2">
       <div class="modal-header">
@@ -321,7 +324,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
   <!-- end 提示框 -->
 
 <script>
-	
+
 	$(document).ready(function() {
 		$('.cancel, .approve1, .submit, .no-goods, .find-goods').click(function() {
 			var action = $(this).attr("class");
@@ -347,9 +350,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	                } else {
 	                	window.location.reload();
 	                }
-	            }}); 
+	            }});
 		})
-		
+
 		$('.modify-delivery').click(function() {
 			$(this).css("display", "none");
 			$(this).next().css("display", "inline");
@@ -357,7 +360,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 			$(this).prev().prev("span").css("display", "none");
 			$(this).prev("select").css("display", "inline");
 		})
-		
+
 		$('.modify-delivery-cancel').click(function() {
 			$(this).css("display", "none");
 			$(this).prev().css("display", "none");
@@ -365,7 +368,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 			$(this).prev().prev().prev().prev("span").css("display", "inline");
 			$(this).prev().prev().prev("select").css("display", "none");
 		})
-		
+
 		$('.modify-delivery-submit').click(function() {
 			var selected = $(this).prev().prev().val();
 			var curr = $(this);
@@ -386,9 +389,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	                	$(curr).prev().prev().prev().html(result.errorInfo);
 	                	$(curr).prev().prev().prev().css("display", "inline");
 	                }
-	            }}); 
+	            }});
 		})
-		
+
 		$('#distributor').change(function() {
 			$('#seller_nick').empty();
 	        $('#seller_nick').append('<option value="">所有店铺</option>');
@@ -401,9 +404,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	                $.each(shopList, function(index, shop) {
 	                    $('#seller_nick').append('<option value="' + shop.sellerNick + '">' + shop.sellerNick + '</option>');
 	                });
-	            }}); 
+	            }});
 		})
-		
+
 		$('.send-goods').click(function() {
 			$('#curr-tid').val($(this).attr("data-tid"));
 			$('#curr-delivery').val($(this).attr("data-delivery"));
@@ -415,7 +418,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
             })
             $('#tracking-number').focus();
 		})
-		
+
 		$('#save').click(function() {
 			  var trackingNumber = $('#tracking-number').val();
               if(!trackingNumber || trackingNumber.length==0) {
@@ -437,9 +440,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	                } else {
 		                window.location.reload();
 	                }
-	            }}); 
+	            }});
     	})
-    	
+
     	$('.apply-refund').click(function() {
     		$('#refund-curr-tid').val($(this).attr("data-tid"));
 			$('#refund-curr-oid').val($(this).attr("data-oid"));
@@ -447,11 +450,11 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                 keyboard: false
             })
     	})
-    	
+
     	$('#save2').click(function() {
 			  var tid = $('#refund-curr-tid').val();
 			  var oid = $('#refund-curr-oid').val();
-			  var refundReason = $('#refund-reason').val(); 
+			  var refundReason = $('#refund-reason').val();
 	          $.ajax({
 	            type: "post",//使用get方法访问后台
 	            dataType: "json",//返回json格式的数据
@@ -463,17 +466,17 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	                } else {
 		                window.location.reload();
 	                }
-	            }}); 
+	            }});
     	})
-    	
+
     	$('#check-all').click(function() {
     		$('.wait-check').attr("checked", true);
     	})
-    	
+
     	$('#not-check-all').click(function() {
     		$('.wait-check').attr("checked", false);
     	})
-    	
+
     	$('#batch-submit').click(function() {
     		var checked = $('.wait-check:checked');
     		if(checked.length==0) {
@@ -507,10 +510,10 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 		                } else {
 			                window.location.reload();
 		                }
-	            }}); 
+	            }});
     		}
     	})
-    	
+
     	$('#batch-approve1').click(function() {
     		var checked = $('.wait-check:checked');
     		if(checked.length==0) {
@@ -544,10 +547,10 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 		                } else {
 			                window.location.reload();
 		                }
-	            }}); 
+	            }});
     		}
     	})
-    	
+
     	$('#batch-find-goods').click(function() {
     		var checked = $('.wait-check:checked');
     		if(checked.length==0) {
@@ -581,10 +584,10 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 		                } else {
 			                window.location.reload();
 		                }
-	            }}); 
+	            }});
     		}
     	})
-    	
+
     	$('#batch-prn-kdd').click(function() {
     		var checked = $('.wait-check:checked');
     		if(checked.length==0) {
@@ -596,7 +599,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
     		var delivery;
     		$(checked).each(function(index, item) {
     			if(index==0) {
-					delivery = $(item).attr("data-delivery");    			
+					delivery = $(item).attr("data-delivery");
     			} else {
     				if(delivery != $(item).attr("data-delivery")) {
     					b = false;
@@ -607,11 +610,11 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
     		if(!b) {
     			alert('所有选中订单的快递必须相同!');
     		} else {
-    			LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));  
+    			LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
 				LODOP.PRINT_INIT("");
 				LODOP.SET_PRINT_PAGESIZE(1,2970,2100,"");
 				LODOP.SET_PRINT_STYLE("FontSize",16);
-				LODOP.SET_PRINT_STYLE("Bold",1);	
+				LODOP.SET_PRINT_STYLE("Bold",1);
 				$(checked).each(function(index, item) {
 					var name = $(item).attr("data-name");
 					var address = $(item).attr("data-address");
@@ -652,17 +655,17 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 					} else {
 						alert("暂时不支持这个快递打印" + delivery);
 					}
-	    			
+
 	    		})
 				LODOP.SET_PREVIEW_WINDOW(0,0,0,0,0,"");
 				LODOP.PREVIEW();
                 //LODOP.PRINT();
-    			
+
     		}
     	})
-		
+
 	})
-	
+
 	function initpage() {
 	      $('#name').val('${name!""}');
 	      $('#tid').val('${tid!""}');
@@ -673,9 +676,9 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
           $('#start').val('${start!""}');
         $('#end').val('${end!""}');
 	}
-	
+
 	function CreateOneFormPage(){
-		LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));  
+		LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
 		LODOP.PRINT_INIT("1");
 		LODOP.SET_PRINT_STYLE("FontSize",10);
 		LODOP.SET_PRINT_STYLE("Bold",1);

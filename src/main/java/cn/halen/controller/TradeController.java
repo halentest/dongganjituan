@@ -1,10 +1,14 @@
 package cn.halen.controller;
 
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.halen.data.mapper.MyTradeMapper;
+import cn.halen.data.pojo.*;
+import cn.halen.service.top.TopConfig;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
-import cn.halen.data.pojo.Distributor;
-import cn.halen.data.pojo.MyStatus;
-import cn.halen.data.pojo.MyTrade;
-import cn.halen.data.pojo.Shop;
-import cn.halen.data.pojo.User;
-import cn.halen.data.pojo.UserType;
 import cn.halen.filter.UserHolder;
 import cn.halen.service.TradeService;
 import cn.halen.util.Paging;
@@ -40,6 +38,12 @@ public class TradeController {
 	@SuppressWarnings("rawtypes")
 	@Autowired
 	private RedisTemplate redisTemplate;
+
+    @Autowired
+    private MyTradeMapper tradeMapper;
+
+    @Autowired
+    private TopConfig topConfig;
 	
 	@Autowired
 	private AdminMapper adminMapper;
@@ -48,21 +52,71 @@ public class TradeController {
 	
 	//private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
 	
-	private static final List<MyStatus> SuperAdmin = Arrays.asList(MyStatus.New, MyStatus.Cancel, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
+	private static final List<MyStatus> SuperAdmin = Arrays.asList(MyStatus.New, MyStatus.Cancel, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.WaitPrint,
 			MyStatus.WaitReceive, MyStatus.NoGoods);
-	private static final List<MyStatus> Admin = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
+	private static final List<MyStatus> Admin = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.WaitPrint,
 			MyStatus.WaitReceive, MyStatus.NoGoods);
-	private static final List<MyStatus> Distributor = Arrays.asList(MyStatus.New, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
+	private static final List<MyStatus> Distributor = Arrays.asList(MyStatus.New, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.WaitPrint,
 			MyStatus.WaitReceive, MyStatus.Cancel, MyStatus.NoGoods);
-	private static final List<MyStatus> WareHouse = Arrays.asList(MyStatus.WaitSend, MyStatus.Finding, MyStatus.WaitReceive);
-	private static final List<MyStatus> DistributorManager = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.Finding,
+	private static final List<MyStatus> WareHouse = Arrays.asList(MyStatus.WaitSend, MyStatus.WaitPrint, MyStatus.WaitReceive);
+	private static final List<MyStatus> DistributorManager = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.WaitPrint,
 			MyStatus.WaitReceive, MyStatus.NoGoods);
-	
+
+    @RequestMapping(value="trade/export_finding")
+    public void exportFinding(Model model, HttpServletResponse response) throws IOException {
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("multipart/form-data");
+        List<Integer> status = Arrays.asList(MyStatus.WaitPrint.getStatus());
+        List<MyTrade> list = tradeMapper.listTrade(null, null, null, null, status, null, null, null, null);
+
+        Date now = new Date();
+        String fileName = "jianhuodan-" + now.getTime() + ".csv";
+        File f = new File(topConfig.getJianhuodan() + File.separator + fileName);
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
+        String title = "商品名称,货号,条码,颜色,规格,数量,备注";
+        w.write(title);
+        w.write("\r\n");
+        for(MyTrade t : list) {
+            List<MyOrder> orderList = t.getMyOrderList();
+            for(MyOrder o : orderList) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(o.getTitle()).append(",")
+                        .append(o.getGoods_id()).append(",")
+                        .append(o.getGoods_id() + o.getSku().getHid()).append(",")
+                        .append(o.getSku().getColor()).append(",")
+                        .append(o.getSku().getSize()).append(",")
+                        .append(o.getQuantity()).append(",")
+                        .append(t.getBuyer_message());
+                w.write(builder.toString());
+                w.write("\r\n");
+            }
+        }
+        w.flush();
+        w.close();
+
+        response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
+        response.flushBuffer();
+
+        OutputStream os=response.getOutputStream();
+        InputStream in = new FileInputStream(f);
+        try {
+            byte[] b=new byte[1024];
+            int length;
+            while((length=in.read(b))>0){
+                os.write(b,0,length);
+            }
+        }catch (IOException e) {
+            log.error("export jianhuodan failed.", e);
+        }finally {
+            os.close();
+        }
+    }
+
 	@RequestMapping(value="trade/trade_list")
 	public String list(Model model, HttpServletResponse resp, @RequestParam(value="seller_nick", required=false) String sellerNick,
 			@RequestParam(value="dId", required=false) Integer dId,
-			@RequestParam(value="name", required=false) String name, 
-			@RequestParam(value="tid", required=false) String tid, 
+			@RequestParam(value="name", required=false) String name,
+			@RequestParam(value="tid", required=false) String tid,
 			@RequestParam(value="status", required=false) Integer status,
 			@RequestParam(value="delivery", required=false) String delivery,
             @RequestParam(value="start", required = false) String start,
@@ -72,10 +126,10 @@ public class TradeController {
 		if(null!=page && page>0) {
 			intPage = page;
 		}
-		
+
 		List<Integer> notstatusList = null;
 		List<Integer> statusList = null;
-		
+
 		User currUser = UserHolder.get();
 		String currType = currUser.getType();
 		if(!currType.equals(UserType.Admin.getValue()) && !currType.equals(UserType.SuperAdmin.getValue()) &&
@@ -115,7 +169,7 @@ public class TradeController {
             end = format.format(endTime);
         }
         log.info("start time is {}, end time is {}", format.format(startTime), format.format(endTime));
-		
+
 		List<String> sellerNickList = new ArrayList<String>();
 		if(currType.equals(UserType.ServiceStaff.getValue())) {
 			sellerNickList.add(currUser.getShop().getSellerNick());
@@ -155,12 +209,12 @@ public class TradeController {
 			if(currType.equals(UserType.Admin.getValue())) {
 				notstatusList = Arrays.asList(MyStatus.New.getStatus(), MyStatus.Cancel.getStatus());
 			} else if(currType.equals(UserType.WareHouse.getValue())) {
-				statusList = Arrays.asList(MyStatus.WaitSend.getStatus(), MyStatus.WaitReceive.getStatus(), MyStatus.Finding.getStatus(), MyStatus.Refunding.getStatus());
+				statusList = Arrays.asList(MyStatus.WaitSend.getStatus(), MyStatus.WaitReceive.getStatus(), MyStatus.WaitPrint.getStatus(), MyStatus.Refunding.getStatus());
 			} else if(currType.equals(UserType.DistributorManager.getValue())) {
 				notstatusList = Arrays.asList(MyStatus.New.getStatus(), MyStatus.Cancel.getStatus());
 			}
 		}
-		
+
 		if(currType.equals(UserType.Admin.getValue())) {
 			model.addAttribute("statusList", Admin);
 		} else if(currType.equals(UserType.SuperAdmin.getValue())) {
@@ -172,7 +226,7 @@ public class TradeController {
 		} else if(currType.equals(UserType.WareHouse.getValue())) {
 			model.addAttribute("statusList", WareHouse);
 		}
-		
+
 		long totalCount = tradeService.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery, start, end);
 		model.addAttribute("totalCount", totalCount);
 		Paging paging = new Paging(intPage, 20, totalCount);
@@ -200,7 +254,7 @@ public class TradeController {
 		if(currType.equals(UserType.Distributor.getValue()) || currType.equals(UserType.ServiceStaff.getValue())) {
 			model.addAttribute("shopList", adminMapper.selectDistributorMapById(currUser.getShop().getD().getId()).getShopList());
 		}
-		
+
 		model.addAttribute("sellerInfo", adminMapper.selectSellerInfo());
 		return "trade/trade_list";
 	}

@@ -23,6 +23,7 @@ import cn.halen.service.excel.ExcelReader;
 import cn.halen.service.excel.Row;
 import cn.halen.service.excel.TradeExcelReader;
 import cn.halen.service.excel.TradeRow;
+import cn.halen.util.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -282,7 +283,8 @@ public class TradeActionController {
 		trade.setMobile(mobile);
 		trade.setMy_status(MyStatus.New.getStatus());
 		trade.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
-		trade.setCome_from("手工下单");
+		trade.setCome_from(Constants.MANAUAL);
+        trade.setPay_type(Constants.PAY_TYPE_ONLINE);
 		
 		boolean hasNext = true;
 		

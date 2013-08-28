@@ -1,14 +1,15 @@
 package cn.halen.service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import cn.halen.service.excel.TradeRow;
-import freemarker.template.SimpleDate;
+import cn.halen.service.top.util.DateUtils;
+import com.jd.open.api.sdk.domain.order.ItemInfo;
+import com.jd.open.api.sdk.domain.order.OrderSearchInfo;
+import com.jd.open.api.sdk.domain.order.UserInfo;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,7 +214,7 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public boolean noGoods(String tid, String oid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus() && myTrade.getMy_status() != MyStatus.Finding.getStatus()) {
+		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus() && myTrade.getMy_status() != MyStatus.WaitPrint.getStatus()) {
 			throw new InvalidStatusChangeException(tid);
 		}
 		List<MyOrder> list = myTrade.getMyOrderList();
@@ -313,7 +314,7 @@ public class TradeService {
 		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
 			throw new InvalidStatusChangeException(tid);
 		}
-		return myTradeMapper.updateTradeStatus(MyStatus.Finding.getStatus(), tid) > 0;
+		return myTradeMapper.updateTradeStatus(MyStatus.WaitPrint.getStatus(), tid) > 0;
 	}
 
     /**
@@ -453,6 +454,68 @@ public class TradeService {
 		return count;
 	}
 
+    /**
+     * 转换京东的订单
+     * @param list
+     * @return
+     */
+    public List<MyTrade> toMyTrade(List<OrderSearchInfo> list) throws ParseException {
+        List<MyTrade> result = new ArrayList<MyTrade>();
+        for(OrderSearchInfo orderInfo : list) {
+            MyTrade t = new MyTrade();
+            t.setTid(orderInfo.getOrderId());
+            t.setSeller_nick(orderInfo.getVenderId());
+            String payType = orderInfo.getPayType();
+            String[] split = payType.split("-");
+            t.setPay_type(Integer.parseInt(split[0]));
+            t.setPayment(MoneyUtils.convert(orderInfo.getOrderSellerPrice()));
+            t.setDelivery_money(MoneyUtils.convert(orderInfo.getFreightPrice()));
+            t.setBuyer_message(orderInfo.getOrderRemark());
+            t.setCreated(DateUtils.parseDateTime(orderInfo.getOrderStartTime()));
+
+            int iReturnOrder = 0;
+            String returnOrder = orderInfo.getReturnOrder();
+            if(StringUtils.isNotBlank(returnOrder)) {
+                iReturnOrder = Integer.parseInt(returnOrder);
+            }
+            t.setReturn_order(iReturnOrder);
+            t.setSeller_memo(orderInfo.getVenderRemark());
+
+            UserInfo userInfo = orderInfo.getConsigneeInfo();
+            t.setName(userInfo.getFullname());
+            t.setAddress(userInfo.getFullAddress());
+            t.setPhone(userInfo.getTelephone());
+            t.setMobile(userInfo.getMobile());
+            t.setState(userInfo.getProvince());
+            t.setCity(userInfo.getCity());
+            t.setDistrict(userInfo.getCounty());
+
+            List<ItemInfo> itemList = orderInfo.getItemInfoList();
+            int n = 1; //用来给子订单编号。子订单编号为主订单编号 + n
+            for(ItemInfo item : itemList) {
+                String skuId = item.getOuterSkuId(); //商家自定义id  = 商品自定义id + 颜色id + 尺寸
+                //检查sku是否存在
+                MySku sku = mySkuMapper.selectByHid(skuId);
+                if(null == sku) {
+                    log.info("This sku {} does not exist!", skuId);
+                    continue;
+                }
+                int num = Integer.parseInt(item.getItemTotal()); //商品数量
+                MyOrder order = new MyOrder();
+                order.setSku_id(sku.getId());
+                order.setTid(orderInfo.getOrderId());
+                order.setQuantity(num);
+                order.setOid(orderInfo.getOrderId() + n);
+                n++;
+                t.addOrder(order);
+            }
+            if(t.getMyOrderList() != null && t.getMyOrderList().size() > 0) {
+                result.add(t);
+            }
+        }
+        return result;
+    }
+
     public List<MyTrade> toMyTrade(List<TradeRow> list, String sellerNick) {
         List<MyTrade> result = new ArrayList<MyTrade>();
         MyTrade lastTrade = null;
@@ -508,6 +571,12 @@ public class TradeService {
         return result;
     }
 
+    /**
+     * 把淘宝自动同步的订单对象转为MyTrade对象， 同时会检查商品和sku是否存在，以及根据收货人的省份和运费模板计算快递费用
+     * @param trade
+     * @return
+     * @throws ApiException
+     */
 	public MyTrade toMyTrade(Trade trade) throws ApiException {
 		
 		List<Order> orderList = trade.getOrders();
@@ -589,12 +658,13 @@ public class TradeService {
 		myTrade.setSeller_memo(trade.getSellerMemo());
 		myTrade.setBuyer_message(trade.getBuyerMessage());
 		myTrade.setSeller_nick(trade.getSellerNick());
-		myTrade.setCome_from("淘宝自动同步");
+		myTrade.setCome_from(Constants.TOP);
 		myTrade.setModified(trade.getModified());
 		myTrade.setCreated(trade.getPayTime());
 		myTrade.setMyOrderList(myOrderList);
 		myTrade.setGoods_count(goodsCount);
 		myTrade.setStatus(trade.getStatus());
+        myTrade.setPay_type(Constants.PAY_TYPE_ONLINE); //目前只支持淘宝的在线支付订单
 		MyLogisticsCompany mc = logisticsMapper.select(1);
 		myTrade.setLogistics_company(mc.getName());
 		if(!isSelf) {

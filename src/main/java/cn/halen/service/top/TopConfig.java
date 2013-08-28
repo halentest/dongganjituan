@@ -53,6 +53,9 @@ public class TopConfig {
     @Value("${file.export}")
     private String fileExport;
 
+    @Value("${file.jianhuodan}")
+    private String jianhuodan;
+
     @Value("${is.sandbox}")
     private boolean isSandbox;
 
@@ -61,6 +64,10 @@ public class TopConfig {
 
     public String getFileExport() {
         return fileExport;
+    }
+
+    public String getJianhuodan() {
+        return jianhuodan;
     }
 
     public void setFileExport(String fileExport) {

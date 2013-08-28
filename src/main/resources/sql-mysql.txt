@@ -111,16 +111,18 @@ create table trade (
 	total_weight int unsigned, 
 	goods_count bigint unsigned,
 	payment int unsigned, 
-	distributor_id int unsigned, 
+	distributor_id int unsigned,
 	status varchar(50),
 	my_status tinyint,
 	seller_memo varchar(255),
 	buyer_message varchar(255),
 	seller_nick varchar(50),
 	come_from varchar(25),
+	operator varchar(50), #最后的操作人，TODO
+	pay_type tinyint, #支付方式（1，货到付款  4，在线支付）
+    return_order tinyint default 0, #是否换货订单（1，是  0， 否）
 	modified timestamp default current_timestamp,
-	created timestamp,
-	operator varchar(50)
+	created timestamp
 ) DEFAULT CHARACTER SET utf8;
 
 drop table if exists order1;

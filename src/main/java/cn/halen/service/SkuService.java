@@ -75,6 +75,9 @@ public class SkuService {
         boolean enough = true;
         for(MyOrder order : orderList) {
             MySku sku = skuMapper.select(order.getGoods_id(), order.getColor(), order.getSize());
+            if(null == sku) {
+                skuMapper.select(order.getSku_id());
+            }
             order.setSku_id(sku.getId());
             order.setSku(sku);
             long salableQuantity = sku.getQuantity() - sku.getLock_quantity();

@@ -17,5 +17,17 @@ public class Constants {
 	public static final int SHOP_SYNC_NO = 0;
 	
     public static final String REDIS_SKU_GOODS_SET = "redis:sku:goods:set";
-    public static final String REDIS_SKU_GOODS_CHANNEL = "foo"; 
+    public static final String REDIS_SKU_GOODS_CHANNEL = "foo";
+
+    //支付方式
+    public static final int PAY_TYPE_AFTER_RECEIVE = 1; //货到付款
+    public static final int PAY_TYPE_ONLINE = 4; //在线支付
+
+    //订单来源
+    public static final String MANAUAL = "手工下单";
+    public static final String TOP = "淘宝自动同步";
+    public static final String JD = "JD自动同步";
+    public static final String DANGDANG = "DD自动同步";
+    public static final String YIHAODIAN = "YHD自动同步";
+
 }

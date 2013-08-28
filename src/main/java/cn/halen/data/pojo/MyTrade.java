@@ -34,6 +34,9 @@ public class MyTrade {
 	private String buyer_message;
 	private String seller_nick;
 	private String come_from;
+
+    private int pay_type;
+    private int return_order;
 	private Date created;
 	private Date modified;
 	
@@ -72,7 +75,15 @@ public class MyTrade {
 		this.tid = tid;
 	}
 
-	public String getSeller_nick() {
+    public int getReturn_order() {
+        return return_order;
+    }
+
+    public void setReturn_order(int return_order) {
+        this.return_order = return_order;
+    }
+
+    public String getSeller_nick() {
 		return seller_nick;
 	}
 
@@ -87,8 +98,16 @@ public class MyTrade {
 	public String getCome_from() {
 		return come_from;
 	}
-	
-	public Status getoStatus() {
+
+    public int getPay_type() {
+        return pay_type;
+    }
+
+    public void setPay_type(int pay_type) {
+        this.pay_type = pay_type;
+    }
+
+    public Status getoStatus() {
 		return oStatus;
 	}
 

@@ -5,9 +5,11 @@ public enum MyStatus {
 	New(0, "新建"),
 	WaitCheck(1, "待审核"),
 	WaitSend(2, "待发货"),
-	Finding(3, "拣货中"),
+	WaitPrint(3, "待打印"),
 	WaitReceive(4, "已发货"),
 	Finished(5, "已完成"),
+    WaitOut(6, "待出库"),
+
 	Cancel(-1, "已作废"),
 	Refunding(-2, "退货中"),
 	Refund(-3, "已退货"),
@@ -33,7 +35,7 @@ public enum MyStatus {
 			result = WaitSend;
 			break;
 		case 3 :
-			result = Finding;
+			result = WaitPrint;
 			break;
 		case 4 :
 			result = WaitReceive;

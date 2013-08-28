@@ -10,6 +10,15 @@ import cn.halen.data.pojo.MySku;
 
 public class MySkuMapper extends SqlSessionDaoSupport {
 
+    /**
+     * 依据商家自定义sku id查询sku
+     * @param hid
+     * @return
+     */
+    public MySku selectByHid(String hid) {
+        return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.selectByHid", hid);
+    }
+
 	public int insert(MySku sku) {
 		int count = getSqlSession().insert("cn.halen.data.mapper.SkuMapper.insert", sku);
 		return count;
@@ -21,11 +30,23 @@ public class MySkuMapper extends SqlSessionDaoSupport {
 	}
 
     public long sumQuantity() {
-        return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.sumQuantity");
+        long result = 0;
+        try{
+            result = getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.sumQuantity");
+        } catch (Exception e) {
+        //当表为空时，会抛出Null异常，这里不做异常处理，返回数量为0
+        }
+        return result;
     }
 
     public long sumLockQuantity() {
-        return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.sumLockQuantity");
+        long result = 0;
+        try {
+            result = getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.sumLockQuantity");
+        } catch (Exception e) {
+            //当表为空时，会抛出Null异常，这里不做异常处理，返回数量为0
+        }
+        return result;
     }
 
 	public int update(MySku sku) {
