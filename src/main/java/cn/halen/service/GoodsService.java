@@ -179,7 +179,7 @@ public class GoodsService {
                         sku.setGoods_id(row.getGoodsId());
                         sku.setColor(color);
                         sku.setSize(size);
-                        sku.setHid(colorIds.get(i) + size);
+                        sku.setColor_id(colorIds.get(i));
                         sku.setQuantity(0);
                         skuMapper.insert(sku);
                     }
@@ -189,7 +189,7 @@ public class GoodsService {
                 Map<String, String> colorMap = new HashMap<String, String>();
                 Set<String> sizeSet = new HashSet<String>();
                 for(MySku sku : skuList) {
-                    colorMap.put(sku.getColor(), sku.getHid());
+                    colorMap.put(sku.getColor(), sku.getColor_id());
                     sizeSet.add(sku.getSize());
                 }
                 //先把新建的加进去
@@ -200,7 +200,7 @@ public class GoodsService {
                         sku.setGoods_id(row.getGoodsId());
                         sku.setColor(color);
                         sku.setSize(size);
-                        sku.setHid(colorIds.get(i) + size);
+                        sku.setColor_id(colorIds.get(i));
                         sku.setQuantity(0);
                         skuMapper.insert(sku);
                     }
@@ -213,7 +213,7 @@ public class GoodsService {
                         sku.setGoods_id(row.getGoodsId());
                         sku.setColor(color);
                         sku.setSize(size);
-                        sku.setHid(colorIds.get(i) + size);
+                        sku.setColor_id(colorIds.get(i));
                         sku.setQuantity(0);
                         skuMapper.insert(sku);
                     }
@@ -224,7 +224,7 @@ public class GoodsService {
                         sku.setGoods_id(row.getGoodsId());
                         sku.setColor(colorEntry.getKey());
                         sku.setSize(size);
-                        sku.setHid(colorEntry.getValue() + size);
+                        sku.setColor_id(colorEntry.getValue());
                         sku.setQuantity(0);
                         skuMapper.insert(sku);
                     }

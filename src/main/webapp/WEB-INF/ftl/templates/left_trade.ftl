@@ -84,6 +84,9 @@
                             <td height="20" class=""><a id="finding">待打印订单</a></td>
                         </tr>
                         <tr>
+                            <td height="20" class=""><a id="have-delivery">已扫描订单</a></td>
+                        </tr>
+                        <tr>
                             <td height="20" class=""><a id="wait-receive">已发货订单</a></td>
                         </tr>
                         <tr>
@@ -146,6 +149,10 @@
 
         $('#finding').click(function() {
             parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=3";
+        });
+
+        $('#have-delivery').click(function() {
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=6";
         });
 
         $('#wait-receive').click(function() {

@@ -8,7 +8,7 @@
     <frame src="${rc.contextPath}/head" name="topFrame" scrolling="No" noresize="noresize" id="topFrame" title="topFrame" />
 
     <frameset cols="158,*" frameborder="yes" border="1" framespacing="0">
-        <frame src="${rc.contextPath}/left1" name="leftFrame" frameborder="no" border="1" scrolling="no" noresize="noresize" id="leftFrame" title="leftFrame" />
+        <frame src="${rc.contextPath}/left_trade" name="leftFrame" frameborder="no" border="1" scrolling="no" noresize="noresize" id="leftFrame" title="leftFrame" />
         <frame src="" name="mainFrame" frameborder="no" id="mainFrame" scrolling="auto" title="mainFrame" />
     </frameset>
 </frameset>

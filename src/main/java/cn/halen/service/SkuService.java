@@ -69,9 +69,13 @@ public class SkuService {
     /**
      * 检查可用库存是否够用顺带把查出来的sku id设置到order里以减少数据库查询，是：锁定库存并返回true，否：直接返回false
      * @param orderList
+     * @param sendSkuChangeNotify 是否出发店铺库存修改
+     * @param type 1:quantity（实际库存）  2:lock_quantity（锁定库存）  3:manaual_lock_quantity（手动锁定库存）
+     *             可用库存 = 实际库存 - 锁定库存 - 手动锁定库存
      * @return
      */
-    synchronized public boolean lockSku(List<MyOrder> orderList, boolean sendSkuChangeNotify) {
+    synchronized public boolean changeSku(List<MyOrder> orderList, boolean sendSkuChangeNotify,
+                                        int type) {
         boolean enough = true;
         for(MyOrder order : orderList) {
             MySku sku = skuMapper.select(order.getGoods_id(), order.getColor(), order.getSize());
@@ -80,9 +84,9 @@ public class SkuService {
             }
             order.setSku_id(sku.getId());
             order.setSku(sku);
-            long salableQuantity = sku.getQuantity() - sku.getLock_quantity();
+            long salableQuantity = sku.getQuantity() - sku.getLock_quantity() - sku.getManaual_lock_quantity();
             if(salableQuantity < order.getQuantity()) {
-                log.debug("Lock sku({},{},{},{}) failed for salable quantity {} not enough", order.getGoods_id(), order.getColor(), order.getSize(),
+                log.debug("Change sku({},{},{},{}) failed for salable quantity {} not enough", order.getGoods_id(), order.getColor(), order.getSize(),
                         order.getQuantity(), salableQuantity);
                 enough = false;
             }
@@ -90,12 +94,18 @@ public class SkuService {
         if(enough) {
             for (MyOrder order : orderList) {
                 MySku sku = order.getSku();
-                sku.setLock_quantity(sku.getLock_quantity() + order.getQuantity());
+                if(Constants.QUANTITY==type) {
+                    sku.setQuantity(sku.getQuantity() - order.getQuantity());
+                } else if(Constants.LOCK_QUANTITY==type) {
+                    sku.setLock_quantity(sku.getLock_quantity() + order.getQuantity());
+                } else if(Constants.MANUAL_LOCK_QUANTITY==type) {
+                    sku.setManaual_lock_quantity(sku.getManaual_lock_quantity() + order.getQuantity());
+                }
                 skuMapper.update(sku);
                 if (sendSkuChangeNotify) {
                     sendSkuChangeNotify(sku);
                 }
-                log.debug("Lock sku({},{},{},{}) successed", order.getGoods_id(), order.getColor(), order.getSize(),
+                log.debug("Change sku({},{},{},{}) successed", order.getGoods_id(), order.getColor(), order.getSize(),
                         order.getQuantity());
             }
         }

@@ -81,9 +81,9 @@ public class RedirectController {
 		return "templates/frame";
 	}
 
-    @RequestMapping(value="/left1")
+    @RequestMapping(value="/left_trade")
     public String left(Model model, HttpServletRequest req) {
-        return "templates/left1";
+        return "templates/left_trade";
     }
 
     @RequestMapping(value="/left2")

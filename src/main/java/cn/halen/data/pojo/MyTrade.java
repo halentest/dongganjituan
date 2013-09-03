@@ -19,15 +19,17 @@ public class MyTrade {
 	private String district;
 	private String address; 
 	private String postcode; 
-	private String delivery;
-	private int delivery_money;
+
+    private String delivery;
+    private String delivery_number;
+
+    private int delivery_money;
+
 	private int template_id;
 	private int total_weight; 
 	private long goods_count;
 	private int payment; 
 	private int distributor_id;
-	private String logistics_company;
-	private String invoice_no;
 	private String status;
 	private int my_status;
 	private String seller_memo;
@@ -174,24 +176,24 @@ public class MyTrade {
 	public String getBuyer_message() {
 		return buyer_message;
 	}
-	
-	public String getLogistics_company() {
-		return logistics_company;
-	}
 
-	public void setLogistics_company(String logistics_company) {
-		this.logistics_company = logistics_company;
-	}
+    public String getDelivery_number() {
+        return delivery_number;
+    }
 
-	public String getInvoice_no() {
-		return invoice_no;
-	}
+    public void setDelivery_number(String delivery_number) {
+        this.delivery_number = delivery_number;
+    }
 
-	public void setInvoice_no(String invoice_no) {
-		this.invoice_no = invoice_no;
-	}
+    public String getDelivery() {
+        return delivery;
+    }
 
-	public void setBuyer_message(String buyer_message) {
+    public void setDelivery(String delivery) {
+        this.delivery = delivery;
+    }
+
+    public void setBuyer_message(String buyer_message) {
 		this.buyer_message = buyer_message;
 	}
 
@@ -293,13 +295,6 @@ public class MyTrade {
 		this.template = template;
 	}
 	
-	public String getDelivery() {
-		return delivery;
-	}
-	public void setDelivery(String delivery) {
-		this.delivery = delivery;
-	}
-
 	public int getTemplate_id() {
 		return template_id;
 	}

@@ -7,8 +7,12 @@ import java.util.Map;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
 import cn.halen.data.pojo.MySku;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MySkuMapper extends SqlSessionDaoSupport {
+
+    private Logger log = LoggerFactory.getLogger(MySkuMapper.class);
 
     /**
      * 依据商家自定义sku id查询sku
@@ -20,6 +24,12 @@ public class MySkuMapper extends SqlSessionDaoSupport {
     }
 
 	public int insert(MySku sku) {
+        MySku exist = this.select(sku.getGoods_id(), sku.getColor(), sku.getSize());
+        if(null != exist) {
+            log.debug("sku ({}, {}, {}) has exists, will not insert again.", sku.getGoods_id(),
+                    sku.getColor(), sku.getSize());
+            return 0;
+        }
 		int count = getSqlSession().insert("cn.halen.data.mapper.SkuMapper.insert", sku);
 		return count;
 	}

@@ -2,6 +2,7 @@ package cn.halen.service;
 
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.service.jd.JdTradeClient;
+import cn.halen.util.Constants;
 import com.jd.open.api.sdk.JdClient;
 import com.jd.open.api.sdk.JdException;
 import com.jd.open.api.sdk.domain.order.OrderSearchInfo;
@@ -51,7 +52,7 @@ public class TradeServiceTest {
         List<MyTrade> tradeList = tradeService.toMyTrade(orderList);
         int count = 0;
         for(MyTrade t : tradeList) {
-            count += tradeService.insertMyTrade(t, true);
+            count += tradeService.insertMyTrade(t, true, Constants.LOCK_QUANTITY);
         }
         System.out.println(count);
     }

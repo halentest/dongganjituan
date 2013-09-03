@@ -42,10 +42,12 @@ public class AdminService {
     public boolean updateDefaultDelivery(long id) {
         //把默认快递改为普通快递  0
         MyLogisticsCompany c = logisticsCompanyMapper.select(1);
-        int i1 = logisticsCompanyMapper.updateStatus(0, c.getId());
+        if(null != c) {
+            logisticsCompanyMapper.updateStatus(0, c.getId());
+        }
         //把当前快递设为默认快递 1
         int i2 = logisticsCompanyMapper.updateStatus(1, id);
-        return i1==1 && i2==1;
+        return i2==1;
     }
 	
 	@Transactional(rollbackFor=Exception.class)

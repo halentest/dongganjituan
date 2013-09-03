@@ -99,21 +99,36 @@ public class TradeService {
 			throw new RuntimeException(e);
 		}
 	}
+
+    /**
+     * 填写快递单号
+     * @param tid 订单号
+     * @param companyName 快递名称
+     * @param outSid 快递单号
+     */
+    public void addTrackingNumber(String tid, String companyName, String outSid) {
+        MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+        myTrade.setDelivery(companyName);
+        myTrade.setDelivery_number(outSid);
+        myTrade.setMy_status(MyStatus.WaitOut.getStatus());
+        myTradeMapper.updateMyTrade(myTrade);
+    }
 	
 	/**
 	 * 发货
      * 1，如果是淘宝自动同步的订单，需要调用淘宝的接口完成店铺发货
 	 */
 	@Transactional(rollbackFor=Exception.class)
-	public String send(String tid, String outSid, String companyName, String from, String sellerNick) {
+	public String send(String tid) {
 		try {
-			String companyCode = logisticsMapper.selectByName(companyName).getCode();
+            MyTrade t = myTradeMapper.selectByTradeId(tid);
+			String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
 			String errorInfo = null;
-			if("淘宝自动同步".equals(from)) {
-				errorInfo = logisticsClient.send(tid, outSid, companyCode, sellerNick);
+			if("淘宝自动同步".equals(t.getCome_from())) {
+				errorInfo = logisticsClient.send(tid, t.getDelivery_number(), companyCode, t.getSeller_nick());
 			}
 			if(null == errorInfo) {
-				doSend(tid, companyName, outSid, companyCode, true);
+				doSend(tid, t.getDelivery(), t.getDelivery_number(), true);
 			}
 			return errorInfo;
 		} catch(Exception e) {
@@ -135,7 +150,7 @@ public class TradeService {
 		try {
 			String errorInfo = logisticsClient.reSend(tid, outSid, companyCode);
 			if(null == errorInfo) {
-				doSend(tid, companyName, outSid, companyCode, false);
+				doSend(tid, companyName, outSid, false);
 			}
 			return errorInfo;
 		} catch(Exception e) {
@@ -325,21 +340,18 @@ public class TradeService {
      * @param tid
      * @param companyName
      * @param outSid
-     * @param companyCode
      */
-	private void doSend(String tid, String companyName, String outSid, String companyCode, boolean updateSku) throws InsufficientStockException {
+	private void doSend(String tid, String companyName, String outSid, boolean updateSku) throws InsufficientStockException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
 		myTrade.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
-		myTrade.setLogistics_company(companyName);
-		myTrade.setInvoice_no(outSid);
 		myTrade.setMy_status(MyStatus.WaitReceive.getStatus());
 		myTradeMapper.updateMyTrade(myTrade);
 		
 		List<MyOrder> list = myTrade.getMyOrderList();
 		for(MyOrder myOrder : list) {
 			myOrder.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
-			myOrder.setLogistics_company(companyName);
-			myOrder.setInvoice_no(outSid);
+			myOrder.setDelivery(companyName);
+			myOrder.setDelivery_number(outSid);
 			myTradeMapper.updateMyOrder(myOrder);
             if(updateSku) {
                 //2
@@ -359,14 +371,23 @@ public class TradeService {
 	public void updateTrade(MyTrade myTrade) {
 		myTradeMapper.updateMyTrade(myTrade);
 	}
-	
+
+    /**
+     *
+     * @param myTrade
+     * @param checkExist
+     * @param type 1:quantity（实际库存）  2:lock_quantity（锁定库存）  3:manaual_lock_quantity（手动锁定库存）
+     *             可用库存 = 实际库存 - 锁定库存 - 手动锁定库存
+     * @return
+     * @throws ApiException
+     */
 	@Transactional(rollbackFor=Exception.class)
-	public int insertMyTrade(MyTrade myTrade, boolean checkExist) throws ApiException {
+	public int insertMyTrade(MyTrade myTrade, boolean checkExist, int type) throws ApiException {
         if(checkExist && myTradeMapper.isTidExist(myTrade.getTid())) {
             return 0;
         }
         List<MyOrder> orderList = myTrade.getMyOrderList();
-        boolean enough = skuService.lockSku(orderList, true);
+        boolean enough = skuService.changeSku(orderList, true, type);
         int payment = 0;
         int quantity = 0;
 		for(MyOrder order : orderList) {
@@ -433,7 +454,7 @@ public class TradeService {
 			return 0;
 		}
 		int deliveryMoney = utilService.calDeliveryMoney(myTrade.getMyOrderList().get(0).getGoods_id(), Integer.valueOf(String.valueOf(myTrade.getGoods_count())),
-				myTrade.getLogistics_company(), myTrade.getState());
+				myTrade.getDelivery(), myTrade.getState());
 		
 		int change = myTrade.getDelivery_money() - deliveryMoney;
 		myTrade.setDelivery_money(deliveryMoney);
@@ -537,7 +558,7 @@ public class TradeService {
                 myTrade.setAddress(row.getAddress());
                 myTrade.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
                 MyLogisticsCompany mc = logisticsMapper.select(1);
-                myTrade.setLogistics_company(mc.getName());
+                myTrade.setDelivery(mc.getName());
 
                 MyOrder myOrder = new MyOrder();
                 myOrder.setTid(row.getTradeId());
@@ -635,8 +656,8 @@ public class TradeService {
 				myOrder.setPrice(MoneyUtils.convert(order.getPrice()));
 				myOrder.setPayment(MoneyUtils.convert(order.getPayment()));
 			}
-			myOrder.setLogistics_company(order.getLogisticsCompany());
-			myOrder.setInvoice_no(order.getInvoiceNo());
+			myOrder.setDelivery(order.getLogisticsCompany());
+			myOrder.setDelivery_number(order.getInvoiceNo());
 			myOrder.setStatus(order.getStatus());
 			myOrderList.add(myOrder);
 		}
@@ -666,7 +687,7 @@ public class TradeService {
 		myTrade.setStatus(trade.getStatus());
         myTrade.setPay_type(Constants.PAY_TYPE_ONLINE); //目前只支持淘宝的在线支付订单
 		MyLogisticsCompany mc = logisticsMapper.select(1);
-		myTrade.setLogistics_company(mc.getName());
+		myTrade.setDelivery(mc.getName());
 		if(!isSelf) {
 			myTrade.setDelivery_money(utilService.calDeliveryMoney(goodsHid, goodsCount, mc.getCode(), trade.getReceiverState()));
 			myTrade.setPayment(totalPayment);
@@ -701,7 +722,7 @@ public class TradeService {
 				continue;
 			if(null == dbMyTrade) {
 				myTrade.setMy_status(MyStatus.New.getStatus());
-				int count = insertMyTrade(myTrade, false);
+				int count = insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY);
 				totalCount += count;
 			} else {
 				handleExisting(myTrade);

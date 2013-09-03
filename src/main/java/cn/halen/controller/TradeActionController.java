@@ -166,7 +166,7 @@ public class TradeActionController {
         List<String> repeated = new ArrayList<String>();
         List<String> successed = new ArrayList<String>();
         for(MyTrade t : tList) {
-            int result = tradeService.insertMyTrade(t, true);
+            int result = tradeService.insertMyTrade(t, true, Constants.QUANTITY);
             if(0==result) {
                 repeated.add(t.getTid());
             } else {
@@ -253,8 +253,7 @@ public class TradeActionController {
 			redisTemplate.opsForValue().set(REDIS_LOGISTICS_CODE + ":" + logistics, logisticsCompany);
 		}
 		trade.setDelivery(logisticsCompany);
-		trade.setLogistics_company(logisticsCompany);
-		
+
 		String provinceName = (String) redisTemplate.opsForValue().get(REDIS_AREA + ":" + province);
 		if(null == provinceName) {
 			provinceName = areaMapper.selectById(Long.parseLong(province)).getName();
@@ -347,7 +346,7 @@ public class TradeActionController {
 		trade.setDelivery_money(utilService.calDeliveryMoney(goodsId, totalGoods, logistics, province));
 		
 		try{
-			tradeService.insertMyTrade(trade, false);
+			tradeService.insertMyTrade(trade, false, Constants.LOCK_QUANTITY);
 		} catch(Exception e) {
 			log.error("", e);
 			model.addAttribute("errorInfo", "系统异常，请重试！");
@@ -477,18 +476,21 @@ public class TradeActionController {
 		}
 		return result;
 	}
-	
-	@RequestMapping(value="trade/send")
-	public @ResponseBody ResultInfo recharge(Model model, @RequestParam("tid") String tid, @RequestParam("delivery") String delivery, 
-			@RequestParam("from") String from, @RequestParam("trackingNumber") String trackingNumber,
-			@RequestParam("sellerNick") String sellerNick) {
+
+    /**
+     * 扫描单号
+     * @param model
+     * @param tid
+     * @param delivery
+     * @param trackingNumber 快递单号
+     * @return
+     */
+	@RequestMapping(value="trade/add_tracking_number")
+	public @ResponseBody ResultInfo addTrackingNumber(Model model, @RequestParam("tid") String tid, @RequestParam("delivery") String delivery,
+			@RequestParam("trackingNumber") String trackingNumber) {
 		ResultInfo result = new ResultInfo();
 		try {
-			String errorInfo = tradeService.send(tid, trackingNumber, delivery, from, sellerNick);
-			if(null != errorInfo) {
-				result.setErrorInfo(errorInfo);
-				result.setSuccess(false);
-			}
+			tradeService.addTrackingNumber(tid, delivery, trackingNumber);
 		} catch (Exception e) {
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，请重试!");
@@ -496,6 +498,29 @@ public class TradeActionController {
 		}
 		return result;
 	}
+
+    /**
+     * 发放单号
+     * @param model
+     * @param tid
+     * @return
+     */
+    @RequestMapping(value="trade/delivery_tracking_number")
+    public @ResponseBody ResultInfo send(Model model, @RequestParam("tid") String tid) {
+        ResultInfo result = new ResultInfo();
+        try {
+            String errorInfo = tradeService.send(tid);
+            if(null != errorInfo) {
+                result.setErrorInfo(errorInfo);
+                result.setSuccess(false);
+            }
+        } catch (Exception e) {
+            result.setSuccess(false);
+            result.setErrorInfo("系统异常，请重试!");
+            return result;
+        }
+        return result;
+    }
 	
 	private String validateAddress(Model model, String province, String city, String district, String address
 			, String receiver, String mobile) {

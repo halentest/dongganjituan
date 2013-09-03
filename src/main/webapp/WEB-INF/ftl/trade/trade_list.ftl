@@ -140,8 +140,8 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 				        		<strong>手机：</strong>${trade.mobile} &nbsp;&nbsp;
 				        	</p>
 				        	<p><strong>邮编：</strong>${trade.postcode!''}</p>
-				        	<#if trade.status=="WAIT_BUYER_CONFIRM_GOODS">
-				        		<p><strong>快递：</strong>${order.logistics_company} &nbsp;&nbsp;<strong>单号：</strong>${order.invoice_no}</p>
+				        	<#if trade.my_status==6 || trade.my_status==4>
+				        		<p><strong>快递：</strong>${order.logistics_company!''} &nbsp;&nbsp;<strong>单号：</strong>${order.invoice_no!''}</p>
 				        	</#if>
 				        	<p>
 				        		<strong>总数：</strong>${trade.goods_count} &nbsp;&nbsp;
@@ -182,13 +182,13 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 										</a>
 									</p>
 				        			<p><a class="send-goods" data-tid="${trade.tid}" data-delivery="${trade.delivery}"
-				        				data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">发货</a></p>
+				        				data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">扫描单号</a></p>
 				        			<p><a class="no-goods" data-tid="${trade.tid}" style="cursor: pointer">无货</a></p>
 				        		</#if>
 				        	</#if>
 				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 				        		<p><strong>快递</strong>:
-				        		<span>${trade.delivery}</span>
+				        		<span>${trade.delivery!''}</span>
 				        		<#if trade.my_status==0 || trade.my_status==1>
 				        			<select style="display: none; width: 80px;">
 				        				<#list logistics as lo>
@@ -266,10 +266,12 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
             <#if status?? && status=2>
                 <a id="batch-find-goods" style="cursor: pointer;">批量拣货</a>
             </#if>
+            <#if status?? && status=6>
+                <a id="batch-find-goods" style="cursor: pointer;">批量发货</a>
+            </#if>
             <#if status?? && status=3>
                 <a id="batch-prn-kdd" style="cursor: pointer;">批量打印快递单</a>
-                <a href="${rc.contextPath}/trade/export_finding" style="cursor: pointer;">打印拣货单</a>
-                <a id="batch-prn-kdd" style="cursor: pointer;">打印面单</a>
+                <a href="${rc.contextPath}/trade/export_finding" style="cursor: pointer;">生成拣货单</a>
             </#if>
         </#if>
     </div>
@@ -432,8 +434,8 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	          $.ajax({
 	            type: "post",//使用get方法访问后台
 	            dataType: "json",//返回json格式的数据
-	            data: "tid=" + tid + "&delivery=" + delivery + "&from=" + from + "&trackingNumber=" + trackingNumber + "&sellerNick=" + sellerNick,
-	            url: "${rc.contextPath}/trade/send",//要访问的后台地址
+	            data: "tid=" + tid + "&delivery=" + delivery + "&trackingNumber=" + trackingNumber,
+	            url: "${rc.contextPath}/trade/add_tracking_number",//要访问的后台地址
 	            success: function(result){//msg为返回的数据，在这里做数据绑定
 	                if(result.errorInfo != "success") {
 	                	alert(result.errorInfo);

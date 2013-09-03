@@ -5,7 +5,7 @@ import java.util.Date;
 public class MySku {
 	private long id;
 	private long tao_id;
-    private String hid;
+    private String color_id;
 	private String goods_id;
 	private String color;
 	private String size;
@@ -13,6 +13,8 @@ public class MySku {
 	private long quantity;
 
     private long lock_quantity;
+
+    private long manaual_lock_quantity;
 
 	private Date modified;
 	private Date created;
@@ -25,7 +27,15 @@ public class MySku {
 		return price;
 	}
 
-	public void setPrice(long price) {
+    public long getManaual_lock_quantity() {
+        return manaual_lock_quantity;
+    }
+
+    public void setManaual_lock_quantity(long manaual_lock_quantity) {
+        this.manaual_lock_quantity = manaual_lock_quantity;
+    }
+
+    public void setPrice(long price) {
 		this.price = price;
 	}
 	public long getQuantity() {
@@ -36,12 +46,12 @@ public class MySku {
 		this.quantity = quantity;
 	}
 
-    public String getHid() {
-        return hid;
+    public String getColor_id() {
+        return color_id;
     }
 
-    public void setHid(String hid) {
-        this.hid = hid;
+    public void setColor_id(String color_id) {
+        this.color_id = color_id;
     }
 
     public long getLock_quantity() {

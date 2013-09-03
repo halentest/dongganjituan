@@ -56,7 +56,7 @@
     });
 
     $('#b1').click(function() {
-        parent.frames[1].location.href="${rc.contextPath}/left1";
+        parent.frames[1].location.href="${rc.contextPath}/left_trade";
         //parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=-6";
     });
 

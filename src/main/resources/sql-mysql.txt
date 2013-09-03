@@ -51,13 +51,14 @@ drop table if exists sku;
 create table sku (
 	id bigint primary key auto_increment,
 	tao_id bigint unsigned,
-	hid varchar(20), #编码 = color编号+size
+	color_id varchar(20), #颜色编号
 	goods_id varchar(100),
 	color varchar(20),
 	size varchar(20),
 	price int unsigned,
 	quantity int unsigned,  #实际库存
 	lock_quantity int unsigned, #锁定库存
+	manaual_lock_quantity int unsigned, #手动锁定库存
 	modified timestamp,
 	created timestamp,
 	unique key(goods_id, color, size)
@@ -105,9 +106,10 @@ create table trade (
 	district varchar(20),
 	address varchar(255) not null, 
 	postcode varchar(20), 
-	delivery varchar(20),
-	delivery_money int,
-	template_id int, 
+	delivery varchar(20), #快递名称
+	delivery_number varchar(20), #快递单号
+	delivery_money int, #快递费用
+	template_id int, #模板id
 	total_weight int unsigned, 
 	goods_count bigint unsigned,
 	payment int unsigned, 
@@ -140,8 +142,8 @@ create table order1
 	discount decimal(3,2), 
 	weight int unsigned default 0,
 	payment int unsigned,
-	logistics_company varchar(50),
-	invoice_no varchar(50),
+	delivery varchar(50),
+	delivery_number varchar(50),
 	status varchar(50),
 	modified timestamp,
 	created timestamp

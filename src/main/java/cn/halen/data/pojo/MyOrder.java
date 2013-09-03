@@ -20,8 +20,8 @@ public class MyOrder {
 	private float discount;
 	private int weight;
 	private int payment;
-	private String logistics_company;
-	private String invoice_no;
+	private String delivery;
+	private String delivery_number;
 	private String status;
 	private Date created;
 	private Date modified;
@@ -75,19 +75,24 @@ public class MyOrder {
 	public void setSize(String size) {
 		this.size = size;
 	}
-	public String getLogistics_company() {
-		return logistics_company;
-	}
-	public void setLogistics_company(String logistics_company) {
-		this.logistics_company = logistics_company;
-	}
-	public String getInvoice_no() {
-		return invoice_no;
-	}
-	public void setInvoice_no(String invoice_no) {
-		this.invoice_no = invoice_no;
-	}
-	public Date getCreated() {
+
+    public String getDelivery() {
+        return delivery;
+    }
+
+    public void setDelivery(String delivery) {
+        this.delivery = delivery;
+    }
+
+    public String getDelivery_number() {
+        return delivery_number;
+    }
+
+    public void setDelivery_number(String delivery_number) {
+        this.delivery_number = delivery_number;
+    }
+
+    public Date getCreated() {
 		return created;
 	}
 	
@@ -156,16 +161,29 @@ public class MyOrder {
 	public void setPayment(int payment) {
 		this.payment = payment;
 	}
-	@Override
-	public String toString() {
-		return "MyOrder [id=" + id + ", tid=" + tid + ", oid=" + oid
-				+ ", goods_id=" + goods_id + ", title=" + title + ", pic_path="
-				+ pic_path + ", sku_id=" + sku_id + ", color=" + color
-				+ ", size=" + size + ", quantity=" + quantity + ", price="
-				+ price + ", discount=" + discount + ", weight=" + weight
-				+ ", payment=" + payment + ", logistics_company="
-				+ logistics_company + ", invoice_no=" + invoice_no
-				+ ", status=" + status + ", created=" + created + ", modified="
-				+ modified + ", oStatus=" + oStatus + ", sku=" + sku + "]";
-	}
+
+    @Override
+    public String toString() {
+        return "MyOrder{" +
+                "id=" + id +
+                ", tid='" + tid + '\'' +
+                ", oid='" + oid + '\'' +
+                ", goods_id='" + goods_id + '\'' +
+                ", title='" + title + '\'' +
+                ", pic_path='" + pic_path + '\'' +
+                ", sku_id=" + sku_id +
+                ", color='" + color + '\'' +
+                ", size='" + size + '\'' +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                ", discount=" + discount +
+                ", weight=" + weight +
+                ", payment=" + payment +
+                ", delivery='" + delivery + '\'' +
+                ", delivery_number='" + delivery_number + '\'' +
+                ", status='" + status + '\'' +
+                ", created=" + created +
+                ", modified=" + modified +
+                '}';
+    }
 }

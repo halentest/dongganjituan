@@ -61,6 +61,9 @@ public enum MyStatus {
         case -6 :
             result = WaitHandle;
             break;
+        case 6 :
+            result = WaitOut;
+            break;
 		}
 		return result;
 	}

@@ -30,4 +30,8 @@ public class Constants {
     public static final String DANGDANG = "DD自动同步";
     public static final String YIHAODIAN = "YHD自动同步";
 
+    //库存数量类型
+    public static final int QUANTITY = 1;
+    public static final int LOCK_QUANTITY = 2;
+    public static final int MANUAL_LOCK_QUANTITY = 3;
 }

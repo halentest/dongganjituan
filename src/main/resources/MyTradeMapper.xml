@@ -16,9 +16,9 @@
 		<result property="district" column="t_district"/>
 		<result property="address" column="t_address"/>
 		<result property="postcode" column="t_postcode"/>
-		<result property="delivery" column="t_delivery"/>
-		<result property="delivery_money" column="t_delivery_money"/>
-		<result property="logistics_company" column="t_logistics_company"/>
+        <result property="delivery" column="t_delivery"/>
+        <result property="delivery_number" column="t_delivery_number"/>
+        <result property="delivery_money" column="t_delivery_money"/>
 		<result property="template_id" column="t_template_id"/>
 		<result property="total_weight" column="t_total_weight"/>
 		<result property="goods_count" column="t_goods_count"/>
@@ -47,8 +47,8 @@
 	      	<result property="discount" column="o_discount"/>
 	      	<result property="weight" column="o_weight"/>
 	      	<result property="payment" column="o_payment"/>
-	      	<result property="logistics_company" column="o_logistics_company"/>
-	      	<result property="invoice_no" column="o_invoice_no"/>
+	      	<result property="delivery" column="o_delivery"/>
+	      	<result property="delivery_number" column="o_delivery_number"/>
 	      	<result property="status" column="o_status"/>
 	      	<result property="modified" column="o_modified"/>
 	      	<result property="created" column="o_created"/>
@@ -64,7 +64,7 @@
 	<insert id="insert" parameterType="MyTrade">
 		insert into trade(tid, name, phone, mobile, state, city, district, address, postcode, delivery, delivery_money,
 			goods_count, payment, distributor_id, status, my_status, seller_memo, buyer_message, seller_nick, come_from, pay_type, return_order, modified, created) values (
-			#{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{logistics_company},
+			#{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery},
 			#{delivery_money}, #{goods_count}, #{payment}, #{distributor_id}, #{status}, #{my_status}, #{seller_memo},
 			#{buyer_message}, #{seller_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created})
 	</insert>
@@ -76,9 +76,9 @@
 	</insert>
 	
 	<insert id="insertOrder" parameterType="MyOrder">
-		insert into order1(oid, tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, logistics_company, invoice_no, status, created) 
+		insert into order1(oid, tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, delivery, delivery_number, status, created)
 		values(#{oid}, #{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment},
-		#{logistics_company}, #{invoice_no}, #{status}, now())
+		#{delivery}, #{delivery_number}, #{status}, now())
 	</insert>
 
     <select id="checkTidExist" parameterType="String" resultType="String">
@@ -132,13 +132,13 @@
 	<select id="selectTradeDetail" parameterType="java.util.Map" resultMap="myTradeMap" >
 		select t.id as t_id, t.tid as t_tid, t.name as t_name, t.phone as t_phone, t.mobile as t_mobile, t.area_id as t_area_id, t.state as t_state,
 		       t.city as t_city, t.district as t_district, t.address as t_address, t.postcode as t_postcode, t.delivery as t_delivery,
-			   t.delivery_money as t_delivery_money, t.delivery as o_logistics_company, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count, 
+			   t.delivery_money as t_delivery_money, t.delivery_number as o_delivery_number, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count,
 			   t.payment as t_payment, t.distributor_id as t_distributor_id, t.status as t_status, t.my_status as t_my_status, t.seller_memo as t_seller_memo, 
 			   t.buyer_message as t_buyer_message, t.seller_nick as t_seller_nick, t.come_from as t_come_from, t.pay_type as t_pay_type, t.return_order as t_return_order,
                t.modified as t_modified, t.created as t_created,
 			   o.id as o_id, o.tid as o_tid, o.oid as o_oid, o.goods_id as o_goods_id, o.title as o_title, o.pic_path as o_pic_path, o.sku_id as o_sku_id, o.quantity as o_quantity, o.price as o_price, 
-			   o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.logistics_company as o_logistics_company,
-			   o.invoice_no as o_invoice_no, o.status as o_status, o.modified as o_modified, o.created as o_created,
+			   o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.delivery as o_delivery,
+			   o.delivery_number as o_delivery_number, o.status as o_status, o.modified as o_modified, o.created as o_created,
 			   s.hid as s_hid, s.color as s_color, s.size as s_size, s.id as s_id
 			   from 
 			   <choose>
@@ -214,7 +214,7 @@
 	
 	<update id="updateTrade" parameterType="MyTrade">
 		update trade set name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
-			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money},
+			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money}, delivery_number=#{delivery_number},
 			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, status=#{status}, my_status=#{my_status},
 			 seller_memo=#{seller_memo}, buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, come_from=#{come_from},
 			 modified=#{modified} where tid=#{tid}
@@ -230,8 +230,8 @@
 	
 	<update id="updateOrder" parameterType="MyOrder">
 		update order1 set oid=#{oid}, tid=#{tid}, goods_id=#{goods_id}, sku_id=#{sku_id}, quantity=#{quantity}, 
-			price=#{price}, discount=#{discount}, weight=#{weight}, payment=#{payment}, logistics_company=#{logistics_company}, 
-			invoice_no=#{invoice_no}, status=#{status} where oid=#{oid}
+			price=#{price}, discount=#{discount}, weight=#{weight}, payment=#{payment}, delivery=#{delivery},
+            delivery_number=#{delivery_number}, status=#{status} where oid=#{oid}
 	</update>
 	
 	<update id="updateLogisticsAddress" parameterType="java.util.HashMap">

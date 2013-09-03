@@ -3,16 +3,16 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.halen.data.mapper.SkuMapper">
-	<sql id="insertColumns">tao_id, goods_id, hid, color, size, price, quantity, lock_quantity, modified, created</sql>
+	<sql id="insertColumns">tao_id, goods_id, color_id, color, size, price, quantity, lock_quantity, manaual_lock_quantity, modified, created</sql>
 
     <!--依据商家自定义sku id查询sku-->
     <select id="selectByHid" parameterType="String" resultType="MySku">
-        select * from sku where concat(goods_id, hid) = #{skuId}
+        select * from sku where concat(goods_id, color_id, size) = #{skuId}
     </select>
 
 	<insert id="insert" parameterType="MySku" >
-	  	insert into sku(<include refid="insertColumns"/>) values(#{tao_id}, #{goods_id}, #{hid}, #{color}, #{size}, #{price},
-        #{quantity}, #{lock_quantity}, now(), now())
+	  	insert into sku(<include refid="insertColumns"/>) values(#{tao_id}, #{goods_id}, #{color_id}, #{color}, #{size}, #{price},
+        #{quantity}, #{lock_quantity}, #{manaual_lock_quantity}, now(), now())
 	</insert>
 
     <select id="sumQuantity" resultType="Long">
@@ -24,7 +24,7 @@
     </select>
 	
 	<update id="update" parameterType="MySku">
-		update sku set tao_id=#{tao_id}, hid=#{hid}, color=#{color}, size=#{size}, price=#{price}, quantity=#{quantity},
+		update sku set tao_id=#{tao_id}, color_id=#{color_id}, color=#{color}, size=#{size}, price=#{price}, quantity=#{quantity},
             lock_quantity=#{lock_quantity} where id=#{id}
 	</update>
 	

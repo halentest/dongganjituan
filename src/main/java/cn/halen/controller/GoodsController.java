@@ -258,10 +258,9 @@ public class GoodsController {
             long lockQ = 0;
             for(MySku sku : skuList) {
                 String color = sku.getColor();
-                String hid = sku.getHid();
+                String colorId = sku.getColor_id();
                 String colorAndId = color + "()";
-                if(null != hid) {
-                    String colorId = hid.substring(0, 2);
+                if(null != colorId) {
                     colorAndId = color + "(" + colorId + ")";
                 }
                 Map<String, String> map3 = map2.get(colorAndId);

@@ -1,7 +1,6 @@
 package cn.halen.service.top.domain;
 
 public enum Status {
-	TRADE_NO_CREATE_PAY("TRADE_NO_CREATE_PAY", "没有创建支付宝交易"),
 	WAIT_BUYER_PAY("WAIT_BUYER_PAY", "等待买家付款"),
 	TRADE_BUYER_SIGNED("TRADE_BUYER_SIGNED", "买家已签收,货到付款专用"),
 	TRADE_CLOSED_BY_TAOBAO("TRADE_CLOSED_BY_TAOBAO", "付款以前，卖家或买家主动关闭交易"),

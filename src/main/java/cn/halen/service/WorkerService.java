@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import cn.halen.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +91,7 @@ public class WorkerService {
 											if(null != myTrade) {
 												myTrade.setMy_status(MyStatus.New.getStatus());
 												try{
-													tradeService.insertMyTrade(myTrade, false);
+													tradeService.insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY);
 												} catch(Exception e) {
 													log.error("", e);
 												}
