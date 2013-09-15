@@ -25,7 +25,7 @@
 	
 	<update id="update" parameterType="MySku">
 		update sku set tao_id=#{tao_id}, color_id=#{color_id}, color=#{color}, size=#{size}, price=#{price}, quantity=#{quantity},
-            lock_quantity=#{lock_quantity} where id=#{id}
+            lock_quantity=#{lock_quantity}, manaual_lock_quantity=#{manaual_lock_quantity} where id=#{id}
 	</update>
 	
 	<delete id="delete" parameterType="long">
@@ -59,4 +59,19 @@
     <update id="updateSizeByGoodsIdSize" parameterType="Map">
         update sku set size=#{newSize} where goods_id=#{goodsId} and size=#{size1}
     </update>
+
+    <select id="selectManaualLock" parameterType="Map" resultType="MySku">
+        select * from sku where manaual_lock_quantity > 0
+        <if test="goodsId != null">
+            and goods_id like CONCAT('%', #{goodsId}, '%')
+        </if>
+        limit #{start}, #{pageSize}
+    </select>
+
+    <select id="countManaualLock" parameterType="Map" resultType="int">
+        select count(1) from sku where manaual_lock_quantity > 0
+        <if test="goodsId != null">
+            and goods_id like CONCAT('%', #{goodsId}, '%')
+        </if>
+    </select>
 </mapper>

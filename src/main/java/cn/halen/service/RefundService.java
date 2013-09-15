@@ -110,7 +110,7 @@ public class RefundService {
 		
 		if(isTwice) {
 			MyOrder myOrder = tradeMapper.selectOrderByOrderId(oid);
-			skuService.updateSku(myOrder.getSku_id(), myOrder.getQuantity(), true);
+			skuService.updateSku(myOrder.getSku_id(), myOrder.getQuantity(), 0, 0, true);
 		}
 	}
 	

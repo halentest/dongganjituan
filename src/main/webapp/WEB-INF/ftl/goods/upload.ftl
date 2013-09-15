@@ -10,7 +10,9 @@
 	<#if action="buy"><i class="icon-ok"></i>进仓
     <#else>
             <#if action="new"><i class="icon-pencil"></i>新建商品
-            <#else><i class="icon-remove"></i>退仓
+            <#elseif action="refund"><i class="icon-remove"></i>退仓
+            <#else>
+                <i class="icon-lock"></i>手动锁定
             </#if>
     </#if>
     <br><br><br>

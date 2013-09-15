@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.halen.util.Paging;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
 import cn.halen.data.pojo.MySku;
@@ -21,6 +22,20 @@ public class MySkuMapper extends SqlSessionDaoSupport {
      */
     public MySku selectByHid(String hid) {
         return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.selectByHid", hid);
+    }
+
+    public List<MySku> selectManaualLock(Paging paging, String goodsId) {
+        Map<Object, Object> param = new HashMap<Object, Object>();
+        param.put("goodsId", goodsId);
+        param.put("start", paging.getStart());
+        param.put("pageSize", paging.getPageSize());
+        return getSqlSession().selectList("cn.halen.data.mapper.SkuMapper.selectManaualLock", param);
+    }
+
+    public int countManaualLock(String goodsId) {
+        Map<Object, Object> param = new HashMap<Object, Object>();
+        param.put("goodsId", goodsId);
+        return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.countManaualLock", param);
     }
 
 	public int insert(MySku sku) {

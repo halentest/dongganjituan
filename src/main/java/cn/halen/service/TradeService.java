@@ -355,7 +355,7 @@ public class TradeService {
 			myTradeMapper.updateMyOrder(myOrder);
             if(updateSku) {
                 //2
-                skuService.updateSku(myOrder.getSku_id(), -myOrder.getQuantity(), false);
+                skuService.updateSku(myOrder.getSku_id(), -myOrder.getQuantity(), 0, 0, false);
             }
 		}
         if(updateSku) {
@@ -387,7 +387,7 @@ public class TradeService {
             return 0;
         }
         List<MyOrder> orderList = myTrade.getMyOrderList();
-        boolean enough = skuService.changeSku(orderList, true, type);
+        boolean enough = skuService.reduceSku(orderList, true, type);
         int payment = 0;
         int quantity = 0;
 		for(MyOrder order : orderList) {

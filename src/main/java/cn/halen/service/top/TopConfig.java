@@ -56,6 +56,9 @@ public class TopConfig {
     @Value("${file.jianhuodan}")
     private String jianhuodan;
 
+    @Value("${file.lockgoods}")
+    private String fileLockGoods;
+
     @Value("${is.sandbox}")
     private boolean isSandbox;
 
@@ -64,6 +67,10 @@ public class TopConfig {
 
     public String getFileExport() {
         return fileExport;
+    }
+
+    public String getFileLockGoods() {
+        return fileLockGoods;
     }
 
     public String getJianhuodan() {

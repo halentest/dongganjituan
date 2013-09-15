@@ -54,7 +54,7 @@
 	      	<result property="created" column="o_created"/>
 	      	<association property="sku" javaType="MySku">
 			    <id property="id" column="s_id"/>
-                <result property="hid" column="s_hid"/>
+                <result property="color_id" column="s_color_id"/>
 			    <result property="color" column="s_color"/>
 			    <result property="size" column="s_size"/>
 			</association>
@@ -139,7 +139,7 @@
 			   o.id as o_id, o.tid as o_tid, o.oid as o_oid, o.goods_id as o_goods_id, o.title as o_title, o.pic_path as o_pic_path, o.sku_id as o_sku_id, o.quantity as o_quantity, o.price as o_price, 
 			   o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.delivery as o_delivery,
 			   o.delivery_number as o_delivery_number, o.status as o_status, o.modified as o_modified, o.created as o_created,
-			   s.hid as s_hid, s.color as s_color, s.size as s_size, s.id as s_id
+			   s.color_id as s_color_id, s.color as s_color, s.size as s_size, s.id as s_id
 			   from 
 			   <choose>
 			   		<when test="start != null and page_size != null">

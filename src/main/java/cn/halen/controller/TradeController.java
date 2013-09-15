@@ -64,7 +64,7 @@ public class TradeController {
 
     @RequestMapping(value="trade/export_finding")
     public void exportFinding(Model model, HttpServletResponse response) throws IOException {
-        response.setCharacterEncoding("utf-8");
+        response.setCharacterEncoding("ANSI");
         response.setContentType("multipart/form-data");
         List<Integer> status = Arrays.asList(MyStatus.WaitPrint.getStatus());
         List<MyTrade> list = tradeMapper.listTrade(null, null, null, null, status, null, null, null, null);
@@ -72,7 +72,7 @@ public class TradeController {
         Date now = new Date();
         String fileName = "jianhuodan-" + now.getTime() + ".csv";
         File f = new File(topConfig.getJianhuodan() + File.separator + fileName);
-        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "ANSI"));
         String title = "商品名称,货号,条码,颜色,规格,数量,备注";
         w.write(title);
         w.write("\r\n");

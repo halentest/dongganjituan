@@ -63,11 +63,18 @@
                         <TR>
                             <TD class="active" height=20><a id="goods-list" target="mainFrame">商品列表</a></TD>
                         </TR>
+                        <#if CURRENT_USER.type=="GoodsManager" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin">
+                        <TR>
+                            <TD height=20><a id="lock-list" target="mainFrame">锁定列表</a></TD>
+                        </TR>
                         <TR>
                             <TD height=20><a id="buy" target="mainFrame">进仓(excel批量导入)</a></TD>
                         </TR>
                         <TR>
                             <TD height=20><a id="refund" target="mainFrame">退仓(excel批量导入)</a></TD>
+                        </TR>
+                        <TR>
+                            <TD height=20><a id="lock" target="mainFrame">锁定(excel批量导入)</a></TD>
                         </TR>
                         <TR>
                             <TD height=20><a id="new" target="mainFrame">新建商品(批量导入)</a></TD>
@@ -79,8 +86,12 @@
                             <TD height=20><a id="refund-list" target="mainFrame">退仓单列表</a></TD>
                         </TR>
                         <TR>
+                            <TD height=20><a id="lock-invoice-list" target="mainFrame">锁定单列表</a></TD>
+                        </TR>
+                        <TR>
                             <TD height=20><a id="new-list" target="mainFrame">新建商品单列表</a></TD>
                         </TR>
+                        </#if>
                         </TBODY>
                     </TABLE>
                 </DIV>
@@ -104,12 +115,20 @@
         parent.frames[2].location.href="${rc.contextPath}/goods/goods_list";
     });
 
+    $('#lock-list').click(function() {
+        parent.frames[2].location.href="${rc.contextPath}/goods/action/lock_list";
+    });
+
     $('#buy').click(function() {
         parent.frames[2].location.href="${rc.contextPath}/goods/action/upload?action=buy";
     });
 
     $('#refund').click(function() {
-    parent.frames[2].location.href="${rc.contextPath}/goods/action/upload?action=refund";
+        parent.frames[2].location.href="${rc.contextPath}/goods/action/upload?action=refund";
+    });
+
+    $('#lock').click(function() {
+        parent.frames[2].location.href="${rc.contextPath}/goods/action/upload?action=lock";
     });
 
     $('#new').click(function() {
@@ -122,6 +141,10 @@
 
     $('#refund-list').click(function() {
         parent.frames[2].location.href="${rc.contextPath}/goods/upload_list?action=refund";
+    });
+
+    $('#lock-invoice-list').click(function() {
+        parent.frames[2].location.href="${rc.contextPath}/goods/upload_list?action=lock";
     });
 
     $('#new-list').click(function() {

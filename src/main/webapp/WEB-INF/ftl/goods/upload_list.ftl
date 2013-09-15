@@ -1,7 +1,13 @@
 <#import "/templates/root.ftl" as root >
 
 <@root.html active=2 css=["trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js"]>
-	<i class="icon-list-alt"></i><#if action=="buy">进仓单列表<#else>退仓单列表</#if>
+	<i class="icon-list-alt"></i>
+    <#if action=="buy">
+        进仓单列表
+    <#elseif action="refund">退仓单列表
+    <#elseif action="new">新建商品单列表
+    <#elseif action="lock">锁定单列表
+    </#if>
     <table class="table table-striped table-bordered table-condensed">
         <thead>
         <tr>

@@ -137,6 +137,55 @@ public class GoodsController {
         }
     }
 
+    @RequestMapping(value="goods/action/lock_list")
+    public String lockList(Model model, @RequestParam(value="page", required=false) Integer page,
+                       @RequestParam(value="goods_id", required=false) String goodsId) {
+
+        int intPage = 1;
+        if(null!=page && page>0) {
+            intPage = page;
+        }
+        if(null != goodsId) {
+            goodsId = goodsId.trim();
+        }
+        model.addAttribute("goods_id", goodsId);
+        long totalCount = skuMapper.countManaualLock(goodsId);
+        Paging paging = new Paging(intPage, 4, totalCount);
+        model.addAttribute("paging", paging);
+        model.addAttribute("totalCount", totalCount);
+        if(0 == totalCount) {
+            return "goods/lock_list";
+        }
+
+        List<MySku> list = skuMapper.selectManaualLock(paging, goodsId);
+        if(null == list || list.size() == 0) {
+            return "goods/lock_list";
+        }
+        model.addAttribute("list", list);
+        return "goods/lock_list";
+    }
+
+    @RequestMapping(value="goods/action/change_manaual_lock")
+    public void changeManaualLock(HttpServletResponse resp, @RequestParam(value="page", required=false) Integer page,
+                                    @RequestParam(value="goods_id", required=false) String goodsId, @RequestParam long id, @RequestParam String action) {
+        MySku sku = skuMapper.select(id);
+        try {
+            if(null != sku) {
+                if("unlock".equals(action)) {
+                    skuService.updateSku(sku, 0, 0, -Math.abs(sku.getManaual_lock_quantity()), true);
+                } else if("refund".equals(action)) {
+                    skuService.updateSku(sku, -Math.abs(sku.getManaual_lock_quantity()), 0, -Math.abs(sku.getManaual_lock_quantity()), true);
+                }
+            }
+        } catch (InsufficientStockException e) {
+            log.error("changeManaualLock error", e);
+        }
+        try {
+            resp.sendRedirect("/goods/action/lock_list?page=" + page + "&goods_id=" + goodsId);
+        } catch (IOException e) {
+        }
+    }
+
 	@RequestMapping(value="goods/goods_list")
 	public String list(Model model, @RequestParam(value="page", required=false) Integer page,
 			@RequestParam(value="goods_id", required=false) String goodsId) {
@@ -171,6 +220,11 @@ public class GoodsController {
 		return "goods/goods_list";
 	}
 
+    /**
+     * 用于导出库存
+     * @param list
+     * @return
+     */
     public Map<String, Map<String, Map<String, Long>>> f2(List<Goods> list) {
         //<Goods, <颜色, <尺码, 可用数量>>>
         Map<String, Map<String, Map<String, Long>>> map = new HashMap<String, Map<String, Map<String, Long>>>();
@@ -211,8 +265,8 @@ public class GoodsController {
                     map3 = new LinkedHashMap<String, Long>();
                     map2.put(color, map3);
                 }
-                long saved = sku.getQuantity() - sku.getLock_quantity();
-                map3.put(sku.getSize(), saved);
+                long salable = sku.getQuantity() - sku.getLock_quantity() - sku.getManaual_lock_quantity(); //可用库存
+                map3.put(sku.getSize(), salable);
             }
         }
 
@@ -268,8 +322,8 @@ public class GoodsController {
                     map3 = new LinkedHashMap<String, String>();
                     map2.put(colorAndId, map3);
                 }
-                long saved = sku.getQuantity() - sku.getLock_quantity();
-                map3.put(sku.getSize(), saved + "/" + sku.getQuantity());
+                long salable = sku.getQuantity() - sku.getLock_quantity() - sku.getManaual_lock_quantity();  //可售库存
+                map3.put(sku.getSize(), salable + "/" + sku.getQuantity());
 
                 q += sku.getQuantity();
                 lockQ += sku.getLock_quantity();
@@ -369,6 +423,9 @@ public class GoodsController {
                 } else if("new".equals(action)) {
                     dest = new File(topConfig.getFileNewGoods() + "/" + fileName);
                     actionName = "新建商品单";
+                } else if("lock".equals(action)) {
+                    dest = new File(topConfig.getFileLockGoods() + "/" + fileName);
+                    actionName = "手动锁定库存单";
                 } else {
                     model.addAttribute("errorInfo", "无效参数!");
                     return "goods/upload";
@@ -491,6 +548,8 @@ public class GoodsController {
             filePath = new File(topConfig.getFileRefundGoods());
         } else if("new".equals(action)) {
             filePath = new File(topConfig.getFileNewGoods());
+        } else if("lock".equals(action)) {
+            filePath = new File(topConfig.getFileLockGoods());
         } else {
             model.addAttribute("errorInfo", "参数错误!");
             return "error_page";

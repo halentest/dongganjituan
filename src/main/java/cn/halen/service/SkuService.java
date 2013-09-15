@@ -59,22 +59,17 @@ public class SkuService {
         return result;
     }
 	
-	synchronized public long updateSku(long skuId, long quantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
-		
-		MySku mySku = skuMapper.select(skuId);
-        updateSku(mySku, quantity, sendSkuChangeNotify);
-        return mySku.getId();
-	}
 
     /**
      * 检查可用库存是否够用顺带把查出来的sku id设置到order里以减少数据库查询，是：锁定库存并返回true，否：直接返回false
+     * 为了保持库存一致性，实现了导入又一城订单功能。导入的订单已经发货，所以直接减去实际库存。
      * @param orderList
      * @param sendSkuChangeNotify 是否出发店铺库存修改
      * @param type 1:quantity（实际库存）  2:lock_quantity（锁定库存）  3:manaual_lock_quantity（手动锁定库存）
      *             可用库存 = 实际库存 - 锁定库存 - 手动锁定库存
      * @return
      */
-    synchronized public boolean changeSku(List<MyOrder> orderList, boolean sendSkuChangeNotify,
+    synchronized public boolean reduceSku(List<MyOrder> orderList, boolean sendSkuChangeNotify,
                                         int type) {
         boolean enough = true;
         for(MyOrder order : orderList) {
@@ -114,6 +109,7 @@ public class SkuService {
 
     /**
      * unlock sku, 如果lock_quantity数量不足，抛出异常
+     * 用于发货
      * @param orderList
      * @return
      */
@@ -138,19 +134,46 @@ public class SkuService {
     }
 
     synchronized public void updateSku(String goodsId, String color, String size,
-                                       long quantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
+                                       long quantity, long lockQuantity, long manaualLockQuantity,
+                                       boolean sendSkuChangeNotify) throws InsufficientStockException {
 
         MySku mySku = skuMapper.select(goodsId, color, size);
-        updateSku(mySku, quantity, sendSkuChangeNotify);
+        updateSku(mySku, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify);
     }
 
-    @SuppressWarnings("unchecked")
-    private void updateSku(MySku mySku, long quantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
+    synchronized public long updateSku(long skuId, long quantity, long lockQuantity,
+                                       long manaualLockQuantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
+
+        MySku mySku = skuMapper.select(skuId);
+        updateSku(mySku, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify);
+        return mySku.getId();
+    }
+
+    /**
+     * 修改sku的quantity, lockQuantity 和 manaualLockQuantity。3个参数可为正数、负数和0
+     * 修改之前需要做如下验证：
+     * quantity, lockQuantity 和 manaualLockQuantity都大于等于 0
+     * 可用库存（quantity - lockQuantity - manaualLockQuantity) 大于等于 0
+     * @param mySku
+     * @param quantity
+     * @param lockQuantity
+     * @param manaualLockQuantity
+     * @param sendSkuChangeNotify
+     * @throws InsufficientStockException
+     */
+    public void updateSku(MySku mySku, long quantity, long lockQuantity,
+                           long manaualLockQuantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
         //update sku
-        if(mySku.getQuantity() + quantity<0) {
+        if(mySku.getQuantity() + quantity < 0 ||
+                mySku.getLock_quantity() + lockQuantity < 0 ||
+                mySku.getManaual_lock_quantity() + manaualLockQuantity < 0 ||
+                mySku.getQuantity() + quantity - mySku.getManaual_lock_quantity() - manaualLockQuantity -
+                mySku.getLock_quantity() - lockQuantity < 0) {
             throw new InsufficientStockException(mySku.getGoods_id() + " " + mySku.getColor() + " " + mySku.getSize());
         }
-        mySku.setQuantity(mySku.getQuantity() + quantity);//
+        mySku.setQuantity(mySku.getQuantity() + quantity);
+        mySku.setLock_quantity(mySku.getLock_quantity() + lockQuantity);
+        mySku.setManaual_lock_quantity(mySku.getManaual_lock_quantity() + manaualLockQuantity);
         skuMapper.update(mySku);
         if (sendSkuChangeNotify) {
             sendSkuChangeNotify(mySku);
@@ -182,18 +205,26 @@ public class SkuService {
         return null;
     }
 
+    /**
+     * 处理进货单、退货单和手工锁定库存单
+     * @param rows
+     * @param action
+     * @throws InsufficientStockException
+     */
     @Transactional(rollbackFor=Exception.class)
     public void execRow(List<Row> rows, String action) throws InsufficientStockException {
         for(Row row : rows) {
-            int count = 0;
+            int quantity=0, lockQuantity=0, manaualLockQuantity=0;
             if(action.equals("buy")) {
-                count = Math.abs(row.getCount());
+                quantity = Math.abs(row.getCount());
             } else if(action.equals("refund")) {
-                count = -Math.abs(row.getCount());
+                quantity = -Math.abs(row.getCount());
+            } else if(action.equals("lock")){
+                manaualLockQuantity = Math.abs(row.getCount());
             } else {
                 throw new IllegalArgumentException("无效参数");
             }
-            updateSku(row.getGoodsId(), row.getColor(), row.getSize(), count, true);
+            updateSku(row.getGoodsId(), row.getColor(), row.getSize(), quantity, lockQuantity, manaualLockQuantity, true);
         }
     }
 }
