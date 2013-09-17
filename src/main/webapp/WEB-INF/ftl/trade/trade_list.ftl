@@ -77,7 +77,13 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 	</div>
 	<br>
 	<#list trade_list as trade>
-		<#assign tColor="#d6dff7">
+		<#assign tColor="#d6dff7"/>
+        <#assign orderList = trade.myOrderList/>
+        <!--准备打印在快递单上的商品信息-->
+        <#assign goodsInfo=""/>
+        <#list orderList as order>
+            <#assign goodsInfo = order.goods_id + " " + order.sku.color + " " + order.sku.size + " " + order.quantity + "\r\n"/>
+        </#list>
 		<table>
 		    <tbody>
 		      <tr class="trade" style="background-color: ${tColor};">
@@ -88,6 +94,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 		        	data-address="${trade.state!''}${trade.city!''}${trade.district!''}${trade.address}"
 		        	data-mobile="${trade.mobile!''}"
 		        	data-state="${trade.state!''}"
+                    data-goods-info="${goodsInfo!''}"
 		        	type="checkbox"/> &nbsp;&nbsp;&nbsp;
 		        	${trade.come_from!}&nbsp;&nbsp;&nbsp;
 		        	<strong>订单编号：</strong></strong>${trade.tid}  &nbsp;&nbsp;&nbsp;
@@ -97,7 +104,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 		        	<span style="float: right; margin-right: 5px;"><strong>${trade.myStatus.desc}<strong></span>
 		        </td>
 		      </tr>
-		      <#assign orderList = trade.myOrderList>
+
 		      <#list orderList as order>
 		      	  <tr class="order_list">
 		      	  		<td  style="width: 80px;">
@@ -224,7 +231,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 										</select>
 					        			<a style="cursor: pointer;" class="modify-delivery">修改</a>
 					        			<a style="cursor: pointer; display: none;" data-tid="${trade.tid}" data-quantity="${trade.goods_count}"
-					        				data-goods="${order.goods_id}" data-province="${trade.state}"
+					        				data-goods="${order.goods_id}" data-province="${trade.state!''}"
 					        				class="modify-delivery-submit">保存</a>
 					        			<a style="cursor: pointer; display: none;" class="modify-delivery-cancel">取消</a>
 					        		</#if>
@@ -614,7 +621,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
     		} else {
     			LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
 				LODOP.PRINT_INIT("");
-				LODOP.SET_PRINT_PAGESIZE(1,2970,2100,"");
+				LODOP.SET_PRINT_PAGESIZE(1,2070,1500,"");
 				LODOP.SET_PRINT_STYLE("FontSize",16);
 				LODOP.SET_PRINT_STYLE("Bold",1);
 				$(checked).each(function(index, item) {
@@ -622,6 +629,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 					var address = $(item).attr("data-address");
 					var mobile = $(item).attr("data-mobile");
 					var state = $(item).attr("data-state");
+                    var goodsInfo = $(item).attr("data-goods-info");
                     var x = $.cookie(delivery + "x");
                     var y = $.cookie(delivery + "y");
                     if(!x) {
@@ -637,25 +645,26 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 					if(delivery=="韵达快运") {
 						CreateYundaPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state);
+											name, name, address, mobile, state, goodsInfo);
 					} else if(delivery=="申通E物流") {
 						CreateShentongPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state);
+											name, name, address, mobile, state, goodsInfo);
 					} else if(delivery=="顺丰速运") {
-						CreateSfPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
+                        CreateSfPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state);
+											name, name, address, mobile, state, goodsInfo);
 					} else if(delivery=="EMS") {
 						CreateEmsPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state);
+											name, name, address, mobile, state, goodsInfo);
 					} else if(delivery=="圆通速递") {
 						CreateYuantongPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state);
+											name, name, address, mobile, state, goodsInfo);
 					} else {
 						alert("暂时不支持这个快递打印" + delivery);
+                        return false;
 					}
 
 	    		})
