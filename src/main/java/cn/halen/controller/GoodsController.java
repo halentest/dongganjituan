@@ -150,7 +150,7 @@ public class GoodsController {
         }
         model.addAttribute("goods_id", goodsId);
         long totalCount = skuMapper.countManaualLock(goodsId);
-        Paging paging = new Paging(intPage, 4, totalCount);
+        Paging paging = new Paging(intPage, 100, totalCount);
         model.addAttribute("paging", paging);
         model.addAttribute("totalCount", totalCount);
         if(0 == totalCount) {
@@ -592,6 +592,8 @@ public class GoodsController {
             file = new File(topConfig.getFileNewGoods() + "//" + name);
         } else if ("refund".equals(action)) {
             file = new File(topConfig.getFileRefundGoods() + "//" + name);
+        } else if("lock".equals(action)) {
+            file = new File(topConfig.getFileLockGoods() + "//" + name);
         }
         if(!file.exists()) {
             log.info("File {} not exists, can not be download!");

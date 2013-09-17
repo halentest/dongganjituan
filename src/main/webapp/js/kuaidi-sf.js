@@ -51,6 +51,6 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		LODOP.ADD_PRINT_TEXTA("text8", 377+y,202+x,111,24,receiver_mobile);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXTA("text9", 100+y,250+x,500,500,goodsInfo);
+		LODOP.ADD_PRINT_TEXTA("text9", 10+y,250+x,500,500,goodsInfo);
         LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
 	};

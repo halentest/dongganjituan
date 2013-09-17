@@ -148,7 +148,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
 				        	</p>
 				        	<p><strong>邮编：</strong>${trade.postcode!''}</p>
 				        	<#if trade.my_status==6 || trade.my_status==4>
-				        		<p><strong>快递：</strong>${order.logistics_company!''} &nbsp;&nbsp;<strong>单号：</strong>${order.invoice_no!''}</p>
+				        		<p><strong>快递：</strong>${trade.delivery!''} &nbsp;&nbsp;<strong>单号：</strong>${trade.delivery_number!''}</p>
 				        	</#if>
 				        	<p>
 				        		<strong>总数：</strong>${trade.goods_count} &nbsp;&nbsp;
@@ -181,12 +181,12 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                                         <#elseif trade.delivery=="顺丰速运">
                                             <#assign prnFunc='prn_sf'/>
 										</#if>
-                                        <a href="${rc.contextPath}/set_print?delivery=${trade.delivery}">打印调整</a> &nbsp;&nbsp;
-					        			<a href="javascript:prn(${prnFunc}, '${trade.delivery}', '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
+                                        <a href="${rc.contextPath}/set_print?delivery=${trade.delivery}">打印调整</a>
+					        			<!--&nbsp;&nbsp;<a href="javascript:prn(${prnFunc}, '${trade.delivery}', '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											'${trade.name}', '${trade.name}', '${trade.state!''}${trade.city!''}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state!''}')">
 											打印快递单
-										</a>
+										</a> -->
 									</p>
 				        			<p><a class="send-goods" data-tid="${trade.tid}" data-delivery="${trade.delivery}"
 				        				data-from="${trade.come_from}" data-sellernick="${trade.seller_nick}" style="cursor: pointer">扫描单号</a></p>
@@ -274,7 +274,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                 <a id="batch-find-goods" style="cursor: pointer;">批量拣货</a>
             </#if>
             <#if status?? && status=6>
-                <a id="batch-find-goods" style="cursor: pointer;">批量发货</a>
+                <a id="batch-out-goods" style="cursor: pointer;">批量发货</a>
             </#if>
             <#if status?? && status=3>
                 <a id="batch-prn-kdd" style="cursor: pointer;">批量打印快递单</a>
@@ -560,6 +560,43 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
     		}
     	})
 
+        $('#batch-out-goods').click(function() {
+            var checked = $('.wait-check:checked');
+            if(checked.length==0) {
+                alert('至少选中一个订单!');
+                return false;
+            }
+            var b = true;
+            var tids = "";
+            $(checked).each(function(index, item) {
+                var status = $(item).attr("data-status");
+                if(status != 6) {
+                    b = false;
+                    return false;
+                }
+                var tid = $(item).attr("data-tid");
+                tids += tid;
+                tids += ";";
+            })
+            if(!b) {
+                alert('不能发货除"已扫描"以外的订单!');
+            } else {
+                $.ajax({
+                    type: "post",//使用get方法访问后台
+                    dataType: "json",//返回json格式的数据
+                    data: "tids=" + tids,
+                    url: "${rc.contextPath}/trade/action/delivery_tracking_number",//要访问的后台地址
+                    success: function(result){//msg为返回的数据，在这里做数据绑定
+                    if(result.errorInfo != "success") {
+                        alert(result.errorInfo);
+                        window.location.reload();
+                    } else {
+                        window.location.reload();
+                    }
+                }});
+            }
+        })
+
     	$('#batch-find-goods').click(function() {
     		var checked = $('.wait-check:checked');
     		if(checked.length==0) {
@@ -621,7 +658,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
     		} else {
     			LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
 				LODOP.PRINT_INIT("");
-				LODOP.SET_PRINT_PAGESIZE(1,2070,1500,"");
+				LODOP.SET_PRINT_PAGESIZE(1,2150,1405,"");
 				LODOP.SET_PRINT_STYLE("FontSize",16);
 				LODOP.SET_PRINT_STYLE("Bold",1);
 				$(checked).each(function(index, item) {
@@ -642,7 +679,7 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                     } else {
                         y = parseInt(y);
                     }
-					if(delivery=="韵达快运") {
+					if(delivery=="韵达快运" || delivery=="韵达") {
 						CreateYundaPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											name, name, address, mobile, state, goodsInfo);

@@ -132,7 +132,7 @@
 	<select id="selectTradeDetail" parameterType="java.util.Map" resultMap="myTradeMap" >
 		select t.id as t_id, t.tid as t_tid, t.name as t_name, t.phone as t_phone, t.mobile as t_mobile, t.area_id as t_area_id, t.state as t_state,
 		       t.city as t_city, t.district as t_district, t.address as t_address, t.postcode as t_postcode, t.delivery as t_delivery,
-			   t.delivery_money as t_delivery_money, t.delivery_number as o_delivery_number, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count,
+			   t.delivery_money as t_delivery_money, t.delivery_number as t_delivery_number, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count,
 			   t.payment as t_payment, t.distributor_id as t_distributor_id, t.status as t_status, t.my_status as t_my_status, t.seller_memo as t_seller_memo, 
 			   t.buyer_message as t_buyer_message, t.seller_nick as t_seller_nick, t.come_from as t_come_from, t.pay_type as t_pay_type, t.return_order as t_return_order,
                t.modified as t_modified, t.created as t_created,

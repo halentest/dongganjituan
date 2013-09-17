@@ -33,9 +33,10 @@
 	};
 	
 	function CreateYundaPage(x, y, sender, from, from_company, from_address, sender_mobile,
-		receiver, to_company, to_address, receiver_mobile, to){
+		receiver, to_company, to_address, receiver_mobile, to, goodsInfo){
 		LODOP.NewPage();
-		
+		LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='/img/kuaidi/yunda.jpg'>");
+        LODOP.SET_SHOW_MODE("BKIMG_IN_PREVIEW",1);
 		LODOP.ADD_PRINT_TEXTA("text1", 82+y,114+x,100,25,sender);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		LODOP.ADD_PRINT_TEXTA("text2", 81+y,258+x,111,26,from);
@@ -56,4 +57,6 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		LODOP.ADD_PRINT_TEXTA("text10", 84+y,472+x,125,26,to);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+		LODOP.ADD_PRINT_TEXTA("text9", 10+y,250+x,500,500,goodsInfo);
+        LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
 	};   

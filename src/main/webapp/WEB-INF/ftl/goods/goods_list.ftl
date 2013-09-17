@@ -13,9 +13,9 @@
 		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品 (${lockQuantity!'0'}/${quantity!'0'})
 		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
 		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
-        &nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/goods/export">导出库存</a>
 		</#if>
-	</div>
+        &nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/goods/export">导出库存</a>
+    </div>
 <#if list?? && list?size gt 0>
 	<div class="pagination">
 	    <a href="#" class="first" data-action="first">&laquo;</a>
@@ -46,10 +46,10 @@
         	  		<th rowspan="${map2?size+1}" style="width: 12%;">
                         <#if goods.url??>
                             <#assign picPath = goods.url/>
-                            <#else>
-                                <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
+                        <#else>
+                            <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
                         </#if>
-        	  		    <img style="width: 80px; height: 80px" src="<#if goods.url??>${picPath}_80x80.jpg</#if>" />
+        	  		    <img style="width: 80px; height: 80px" src="${picPath}_80x80.jpg" />
         	  		</th>
         	  		<th rowspan="${map2?size+1}" style="width: 9%;">${goods.hid}</th>
         	  		<th rowspan="${map2?size+1}" style="width: 15%;">${goods.title!''}</th>

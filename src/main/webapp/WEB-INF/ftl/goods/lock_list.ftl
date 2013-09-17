@@ -78,7 +78,7 @@
                     if(!page) {
                         page = 1;
                     }
-			        window.location.href="/goods/lock_list?page=" + page + "&goods_id=" + goodsId;
+			        window.location.href="/goods/action/lock_list?page=" + page + "&goods_id=" + goodsId;
 			    }
 		   });
 		   
@@ -88,7 +88,7 @@
                 if(!page) {
                     page = 1;
                 }
-		   		window.location.href="/goods/lock_list?page=" + page + "&goods_id=" + goodsId;
+		   		window.location.href="/goods/action/lock_list?page=" + page + "&goods_id=" + goodsId;
 		   });
 	});
 </script>

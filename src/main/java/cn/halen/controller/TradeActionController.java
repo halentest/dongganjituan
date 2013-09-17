@@ -106,7 +106,7 @@ public class TradeActionController {
             String type = file.getContentType();
             if(!"application/vnd.ms-excel".equals(type)) {
                 model.addAttribute("errorInfo", "选择的文件必须是03版本的excel表格!");
-                return "goods/upload";
+                return "trade/upload";
             }
             File dest = null;
             try {
@@ -166,6 +166,7 @@ public class TradeActionController {
         List<String> repeated = new ArrayList<String>();
         List<String> successed = new ArrayList<String>();
         for(MyTrade t : tList) {
+            t.setMy_status(MyStatus.WaitReceive.getStatus());
             int result = tradeService.insertMyTrade(t, true, Constants.QUANTITY);
             if(0==result) {
                 repeated.add(t.getTid());
@@ -502,22 +503,30 @@ public class TradeActionController {
     /**
      * 发放单号
      * @param model
-     * @param tid
+     * @param tids
      * @return
      */
-    @RequestMapping(value="trade/delivery_tracking_number")
-    public @ResponseBody ResultInfo send(Model model, @RequestParam("tid") String tid) {
+    @RequestMapping(value="trade/action/delivery_tracking_number")
+    public @ResponseBody ResultInfo send(Model model, @RequestParam("tids") String tids) {
+
         ResultInfo result = new ResultInfo();
-        try {
-            String errorInfo = tradeService.send(tid);
-            if(null != errorInfo) {
-                result.setErrorInfo(errorInfo);
+        if(StringUtils.isNotEmpty(tids)) {
+            String[] tidArr = tids.split(";");
+            try {
+                for(String tid : tidArr) {
+                    if(StringUtils.isNotEmpty(tid)) {
+                        String errorInfo = tradeService.send(tid);
+                        if(StringUtils.isNotBlank(errorInfo)) {
+                            result.setSuccess(false);
+                            result.setErrorInfo(errorInfo);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("", e);
                 result.setSuccess(false);
+                result.setErrorInfo("系统异常，请重试!");
             }
-        } catch (Exception e) {
-            result.setSuccess(false);
-            result.setErrorInfo("系统异常，请重试!");
-            return result;
         }
         return result;
     }

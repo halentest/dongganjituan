@@ -30,9 +30,10 @@
 	};
 	
 	function CreateEmsPage(x, y, sender, from, from_company, from_address, sender_mobile,
-		receiver, to_company, to_address, receiver_mobile, to){
+		receiver, to_company, to_address, receiver_mobile, to, goodsInfo){
 		LODOP.NewPage();
-		
+		LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='/img/kuaidi/ems_jingji2.jpg'>");
+        LODOP.SET_SHOW_MODE("BKIMG_IN_PREVIEW",1);
 		LODOP.ADD_PRINT_TEXTA("text1", 67,83,74,25,sender);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		LODOP.ADD_PRINT_TEXTA("text2", 84+y,93+x,192,25,from_company);
@@ -49,4 +50,6 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		LODOP.ADD_PRINT_TEXTA("text8", 227+y,90+x,123,26,to);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+		LODOP.ADD_PRINT_TEXTA("text9", 10+y,250+x,500,500,goodsInfo);
+        LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
 	};                     
