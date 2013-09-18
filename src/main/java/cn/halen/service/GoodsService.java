@@ -75,7 +75,8 @@ public class GoodsService {
 				Long skuId = taoSkuMap.get(color + size);
 				if(null != skuId) {
 					MySku mySku = skuMapper.select(item.getOuterId(), color, size);
-                    long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()) * shop.getRate());
+                    long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()
+                            - mySku.getManaual_lock_quantity()) * shop.getRate());
 					boolean b = itemClient.updateSkuQuantity(item.getNumIid(), skuId, onlineQuantity, shop.getToken());
 					if(!b) {
 						logger.error("update online sku ({}, {}, {}, {}) failed", shop.getSellerNick(), item.getOuterId(),
