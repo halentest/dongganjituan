@@ -57,6 +57,6 @@
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 		LODOP.ADD_PRINT_TEXTA("text10", 84+y,472+x,125,26,to);
 		LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-		LODOP.ADD_PRINT_TEXTA("text9", 10+y,250+x,500,500,goodsInfo);
+		LODOP.ADD_PRINT_TEXTA("text11", 10+y,250+x,500,500,goodsInfo);
         LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
 	};   

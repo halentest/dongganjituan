@@ -18,6 +18,7 @@
     <http pattern="/css/**" security="none"/>
     <http pattern="/js/**" security="none"/>
     <http pattern="/img/**" security="none"/>
+    <http pattern="/images/**" security="none"/>
     <http pattern="/login_failed" security="none"/>
     <http access-denied-page="/access_denied" use-expressions="true">
     	<intercept-url pattern="/admin/action/**" access="hasRole('manager_system_action')"/>

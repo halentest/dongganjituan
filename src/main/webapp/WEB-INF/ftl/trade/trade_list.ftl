@@ -1,7 +1,7 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=3 css=["trade_list.css", "jqpagination.css"]
-js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-shentong.js", "kuaidi-yuantong.js", "kuaidi-yunda.js", "kuaidi-ems.js", "kuaidi-sf.js"]>
+<@root.html active=3 css=["trade_list.css", "jqpagination.css", "easyui.css", "icon.css"]
+js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "jquery.easyui.min.js"]>
     <#if CURRENT_USER.type=="WareHouse">
     <script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
 	<object  id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
@@ -181,8 +181,8 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                                         <#elseif trade.delivery=="顺丰速运">
                                             <#assign prnFunc='prn_sf'/>
 										</#if>
-                                        <a href="${rc.contextPath}/set_print?delivery=${trade.delivery}">打印调整</a>
-					        			<!--&nbsp;&nbsp;<a href="javascript:prn(${prnFunc}, '${trade.delivery}', '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
+                                        <!--<a href="${rc.contextPath}/set_print?delivery=${trade.delivery}">打印调整</a>
+					        			&nbsp;&nbsp;<a href="javascript:prn(${prnFunc}, '${trade.delivery}', '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
 					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
 											'${trade.name}', '${trade.name}', '${trade.state!''}${trade.city!''}${trade.district!''}${trade.address}', '${trade.mobile!''}', '${trade.state!''}')">
 											打印快递单
@@ -277,16 +277,41 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
                 <a id="batch-out-goods" style="cursor: pointer;">批量发货</a>
             </#if>
             <#if status?? && status=3>
-                <a id="batch-prn-kdd" style="cursor: pointer;">批量打印快递单</a>
+                <select id="delivery-print" style="width: 8%;">
+                    <option value="">选择快递</option>
+                    <#list logistics as lo>
+                        <option value="${lo.name}">${lo.name}</option>
+                    </#list>
+                </select>
+                <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
+                <a id="print-setup" style="cursor: pointer;">打印调整</a>
+                <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
                 <a href="${rc.contextPath}/trade/export_finding" style="cursor: pointer;">生成拣货单</a>
             </#if>
         </#if>
     </div>
 <#else>
+    <#if CURRENT_USER.type=="WareHouse">
         <div class="alert" style="margin: 5px;">
             <a class="close" data-dismiss="alert">×</a>
             <strong>无内容！</strong>
         </div>
+        <#if status?? && status=3>
+            <select id="delivery-print" style="width: 8%;">
+                <option value="">选择快递</option>
+                <#list logistics as lo>
+                    <option value="${lo.name}">${lo.name}</option>
+                </#list>
+            </select>
+            <a id="print-setup" style="cursor: pointer;">打印调整</a>
+            <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
+        </#if>
+    <#else>
+        <div class="alert" style="margin: 5px;">
+            <a class="close" data-dismiss="alert">×</a>
+            <strong>无内容！</strong>
+        </div>
+    </#if>
 </#if>
 </@root.html>
 
@@ -331,6 +356,25 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
       </div>
   </div>
   <!-- end 提示框 -->
+<div id="w" class="easyui-window" title="纸张设置" data-options="modal:true,collapsible:false,closed:true,
+        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:300px;height:180px;padding:2px;">
+    <form id="ff" method="post">
+        <table>
+            <tr>
+                <td>宽度:</td>
+                <td><input id="paper-width" class="easyui-validatebox" type="text" data-options="required:true,validType:'length[1, 10]',missingMessage:'不能为空,请输入大于0的数字'"></input></td>
+            </tr>
+            <tr>
+                <td>高度:</td>
+                <td><input id="paper-height" class="easyui-validatebox" type="text" data-options="required:true,validType:'length[1, 10]',missingMessage:'不能为空,请输入大于0的数字'"></input></td>
+            </tr>
+        </table>
+        <div style="text-align:center;padding:5px">
+            <a class="easyui-linkbutton" onclick="savePaperChange()">确定</a>
+            <a class="easyui-linkbutton" onclick="cancelPaperChange()">取消</a>
+        </div>
+    </form>
+</div>
 
 <script>
 
@@ -635,95 +679,75 @@ js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "kuaidi-s
     	})
 
     	$('#batch-prn-kdd').click(function() {
+            var delivery = $('#delivery-print').val();
+            if(!delivery || delivery=="") {
+                alert("请选择快递");
+                return false;
+            }
     		var checked = $('.wait-check:checked');
     		if(checked.length==0) {
     			alert('至少选中一个订单!');
     			return false;
     		}
-    		var b = true;
-    		var tids = "";
-    		var delivery;
-    		$(checked).each(function(index, item) {
-    			if(index==0) {
-					delivery = $(item).attr("data-delivery");
-    			} else {
-    				if(delivery != $(item).attr("data-delivery")) {
-    					b = false;
-    					return false;
-    				}
-    			}
-    		})
-    		if(!b) {
-    			alert('所有选中订单的快递必须相同!');
-    		} else {
-    			LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
-				LODOP.PRINT_INIT("");
-				LODOP.SET_PRINT_PAGESIZE(1,2150,1405,"");
-				LODOP.SET_PRINT_STYLE("FontSize",16);
-				LODOP.SET_PRINT_STYLE("Bold",1);
-				$(checked).each(function(index, item) {
-					var name = $(item).attr("data-name");
-					var address = $(item).attr("data-address");
-					var mobile = $(item).attr("data-mobile");
-					var state = $(item).attr("data-state");
-                    var goodsInfo = $(item).attr("data-goods-info");
-                    var x = $.cookie(delivery + "x");
-                    var y = $.cookie(delivery + "y");
-                    if(!x) {
-                        x = 0;
-                    } else {
-                        x = parseInt(x);
-                    }
-                    if(!y) {
-                        y = 0;
-                    } else {
-                        y = parseInt(y);
-                    }
-					if(delivery=="韵达快运" || delivery=="韵达") {
-						CreateYundaPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state, goodsInfo);
-					} else if(delivery=="申通E物流") {
-						CreateShentongPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state, goodsInfo);
-					} else if(delivery=="顺丰速运") {
-                        CreateSfPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state, goodsInfo);
-					} else if(delivery=="EMS") {
-						CreateEmsPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state, goodsInfo);
-					} else if(delivery=="圆通速递") {
-						CreateYuantongPage(x, y, '${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
-					        			     '${sellerInfo.from_address}', '${sellerInfo.mobile}',
-											name, name, address, mobile, state, goodsInfo);
-					} else {
-						alert("暂时不支持这个快递打印" + delivery);
-                        return false;
-					}
 
-	    		})
-				LODOP.SET_PREVIEW_WINDOW(0,0,0,0,0,"");
-				LODOP.PREVIEW();
-                //LODOP.PRINT();
+            if(delivery=="韵达快运" || delivery=="韵达") {
+                bg = "/img/kuaidi/yunda.jpg";
+            } else if(delivery=="申通E物流") {
+                bg = "/img/kuaidi/shentong.jpg";
+            } else if(delivery=="顺丰速运") {
+                bg = "/img/kuaidi/sf.jpg";
+            } else if(delivery=="EMS") {
+                bg = "/img/kuaidi/ems_jingji2.jpg";
+            } else if(delivery=="圆通速递") {
+                bg = "/img/kuaidi/yuantong-new.jpg";
+            }
 
-    		}
-    	})
+            LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
+            LODOP.PRINT_INIT(delivery);
 
-	})
+            var width = $.cookie(delivery + "width");
+            var height = $.cookie(delivery + "height");
+            if(!width) {
+                width = 2300;
+            } else {
+                width = parseInt(width);
+            }
+            if(!height) {
+                height = 1270;
+            } else {
+                height = parseInt(height);
+            }
+            LODOP.SET_PRINT_PAGESIZE(1,width,height,"");
+            LODOP.SET_PRINT_STYLE("FontSize",16);
+            LODOP.SET_PRINT_STYLE("Bold",1);
+            $(checked).each(function(index, item) {
+                var name = $(item).attr("data-name");
+                var address = $(item).attr("data-address");
+                var mobile = $(item).attr("data-mobile");
+                var state = $(item).attr("data-state");
+                var goodsInfo = $(item).attr("data-goods-info");
 
-	function initpage() {
-	      $('#name').val('${name!""}');
-	      $('#tid').val('${tid!""}');
-	      $('#distributor').val('${dId!-1}');
-	      $('#seller_nick').val('${seller_nick!""}');
-	      $('#status').val('${status!""}');
-	      $('#delivery').val('${delivery!""}');
-          $('#start').val('${start!""}');
+                CreatePrintPage('${sellerInfo.sender}', '${sellerInfo.from_state}', '${sellerInfo.from_company}',
+                            '${sellerInfo.from_address}', '${sellerInfo.mobile}',
+                            name, name, address, mobile, state, goodsInfo,bg);
+
+    	    })
+            LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");
+            LODOP.PREVIEW();
+	    })
+    })
+
+    function initpage() {
+        $('#name').val('${name!""}');
+        $('#tid').val('${tid!""}');
+        $('#distributor').val('${dId!-1}');
+        $('#seller_nick').val('${seller_nick!""}');
+        $('#status').val('${status!""}');
+        $('#delivery').val('${delivery!""}');
+        $('#start').val('${start!""}');
+        $('#delivery-print').val('${delivery!""}');
         $('#end').val('${end!""}');
-	}
+    }
 
 	function CreateOneFormPage(){
 		LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));

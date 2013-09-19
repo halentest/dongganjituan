@@ -36,39 +36,6 @@ $(document).ready(function(){
 		    }
 	   });
 	   
-	   $('#search').click(function() {
-	   		var status = $('#status').val();
-	   		var distributor = $('#distributor').val();
-	   		if(!distributor) {
-	    		distributor='';
-	    	}
-	    	var start = $('#start').val();
-	    	var end = $('#end').val();
-	    	if(start.length>0 && end.length>0) {
-	    	     if(!strDateTime(start)) {
-                    alert("请输入正确的开始时间");
-                    return false;
-                 }
-                 if(!strDateTime(end)) {
-                    alert("请输入正确的结束时间");
-                    return false;
-                 }
-	    	} else {
-	    	    start = "";
-	    	    end = "";
-	    	}
-	    	var seller_nick = $('#seller_nick').val();
-	    	var name = $('#name').val();
-	    	var tid = $('#tid').val();
-	    	var page = $('#page').attr('data-current-page');
-	    	var delivery = $('#delivery').val();
-	    	if(!page) {
-                page = 1;
-            }
-	   		window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
-		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor + "&delivery=" + delivery + "&start=" + start
-		        	+ "&end=" + end;
-	   });
 });
 
  function strDateTime(str) {

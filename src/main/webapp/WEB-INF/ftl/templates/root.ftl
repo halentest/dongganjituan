@@ -34,11 +34,9 @@
     <script src="${rc.contextPath}/js/bootstrap-modal.js"></script>
     <script src="${rc.contextPath}/js/bootstrap-transition.js"></script>
     <script src="${rc.contextPath}/js/jquery.flot.js"></script>
-    <!-- Additional files for the Highslide popup effect -->
-
 
     <#list js as entry>
-    <script src="${rc.contextPath}/js/${entry}"></script>
+        <script src="${rc.contextPath}/js/${entry}"></script>
     </#list>
     <script type="text/javascript">
       ${custom_js!''}
