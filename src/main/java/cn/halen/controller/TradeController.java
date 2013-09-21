@@ -52,22 +52,12 @@ public class TradeController {
 	
 	//private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
 	
-	private static final List<MyStatus> SuperAdmin = Arrays.asList(MyStatus.New, MyStatus.Cancel, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.WaitPrint,
-			MyStatus.WaitReceive, MyStatus.NoGoods);
-	private static final List<MyStatus> Admin = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.WaitPrint,
-			MyStatus.WaitReceive, MyStatus.NoGoods);
-	private static final List<MyStatus> Distributor = Arrays.asList(MyStatus.New, MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.WaitPrint,
-			MyStatus.WaitReceive, MyStatus.Cancel, MyStatus.NoGoods);
-	private static final List<MyStatus> WareHouse = Arrays.asList(MyStatus.WaitSend, MyStatus.WaitPrint, MyStatus.WaitReceive);
-	private static final List<MyStatus> DistributorManager = Arrays.asList(MyStatus.WaitCheck, MyStatus.WaitSend, MyStatus.WaitPrint,
-			MyStatus.WaitReceive, MyStatus.NoGoods);
-
     @RequestMapping(value="trade/export_finding")
     public void exportFinding(Model model, HttpServletResponse response) throws IOException {
         response.setCharacterEncoding("gb2312");
         response.setContentType("multipart/form-data");
-        List<Integer> status = Arrays.asList(MyStatus.WaitPrint.getStatus());
-        List<MyTrade> list = tradeMapper.listTrade(null, null, null, null, status, null, null, null, null);
+        List<String> status = Arrays.asList(TradeStatus.WaitFind.getStatus());
+        List<MyTrade> list = tradeMapper.listWaitFind();
 
         Date now = new Date();
         String fileName = "jianhuodan-" + now.getTime() + ".csv";
@@ -112,23 +102,41 @@ public class TradeController {
         }
     }
 
+    @RequestMapping("trade/trade_detail")
+    public String tradeDetail(Model model, @RequestParam String id) {
+        MyTrade trade = tradeMapper.selectTradeMap(id);
+        model.addAttribute("trade", trade);
+        return "trade/trade_detail";
+    }
+
+    @RequestMapping(value="/trade/trade_detail_json")
+    public @ResponseBody MyTrade tradeDetailJson(Model model, @RequestParam String id) {
+        if(null==id) {
+            return null;
+        }
+        MyTrade trade = tradeMapper.selectTradeMap(id);
+        return trade;
+    }
+
 	@RequestMapping(value="trade/trade_list")
 	public String list(Model model, HttpServletResponse resp, @RequestParam(value="seller_nick", required=false) String sellerNick,
 			@RequestParam(value="dId", required=false) Integer dId,
 			@RequestParam(value="name", required=false) String name,
 			@RequestParam(value="tid", required=false) String tid,
-			@RequestParam(value="status", required=false) Integer status,
+			@RequestParam(value="status", required=false) String status,
 			@RequestParam(value="delivery", required=false) String delivery,
             @RequestParam(value="start", required = false) String start,
-            @RequestParam(value = "end", required = false) String end,
-			@RequestParam(value="page", required=false) Integer page) {
+            @RequestParam(value="end", required = false) String end,
+			@RequestParam(value="page", required=false) Integer page,
+            @RequestParam(value="isSubmit", required=false) Integer isSubmit,
+            @RequestParam(value="isRefund", required=false) Integer isRefund,
+            @RequestParam(value="isSend", required=false) Integer isSend,
+            @RequestParam(value="isCancel", required=false) Integer isCancel,
+            @RequestParam(value="isFinish", required=false) Integer isFinish) {
 		int intPage = 1;
 		if(null!=page && page>0) {
 			intPage = page;
 		}
-
-		List<Integer> notstatusList = null;
-		List<Integer> statusList = null;
 
 		User currUser = UserHolder.get();
 		String currType = currUser.getType();
@@ -143,7 +151,7 @@ public class TradeController {
 
         Date startTime = null;
         Date endTime = null;
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         boolean customTime = false;
         //检查日期
         if(StringUtils.isNotEmpty(start) && StringUtils.isNotEmpty(end)) {
@@ -165,10 +173,7 @@ public class TradeController {
             cal.setTime(endTime);
             cal.add(Calendar.MONTH, -3);
             startTime = cal.getTime();
-            start = format.format(startTime);
-            end = format.format(endTime);
         }
-        log.info("start time is {}, end time is {}", format.format(startTime), format.format(endTime));
 
 		List<String> sellerNickList = new ArrayList<String>();
 		if(currType.equals(UserType.ServiceStaff.getValue())) {
@@ -203,42 +208,23 @@ public class TradeController {
 			}
 		}
 
-		if(null != status) {
-			statusList = Arrays.asList(status);
-		} else {
-			if(currType.equals(UserType.Admin.getValue())) {
-				notstatusList = Arrays.asList(MyStatus.New.getStatus(), MyStatus.Cancel.getStatus());
-			} else if(currType.equals(UserType.WareHouse.getValue())) {
-				statusList = Arrays.asList(MyStatus.WaitSend.getStatus(), MyStatus.WaitReceive.getStatus(), MyStatus.WaitPrint.getStatus(), MyStatus.Refunding.getStatus());
-			} else if(currType.equals(UserType.DistributorManager.getValue())) {
-				notstatusList = Arrays.asList(MyStatus.New.getStatus(), MyStatus.Cancel.getStatus());
-			}
-		}
-
-		if(currType.equals(UserType.Admin.getValue())) {
-			model.addAttribute("statusList", Admin);
-		} else if(currType.equals(UserType.SuperAdmin.getValue())) {
-			model.addAttribute("statusList", SuperAdmin);
-		} else if(currType.equals(UserType.Distributor.getValue()) || currType.equals(UserType.ServiceStaff.getValue())) {
-			model.addAttribute("statusList", Distributor);
-		} else if(currType.equals(UserType.DistributorManager.getValue())) {
-			model.addAttribute("statusList", DistributorManager);
-		} else if(currType.equals(UserType.WareHouse.getValue())) {
-			model.addAttribute("statusList", WareHouse);
-		}
-
-		long totalCount = tradeService.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery, start, end);
+		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, StringUtils.isBlank(status)?null:Arrays.asList(status), isSubmit, isRefund, isSend, isCancel, isFinish, delivery, startTime, endTime);
 		model.addAttribute("totalCount", totalCount);
-		Paging paging = new Paging(intPage, 20, totalCount);
+		Paging paging = new Paging(intPage, 4, totalCount);
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
-			list = tradeService.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery, start, end);
+			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, StringUtils.isBlank(status)?null:Arrays.asList(status), isSubmit, isRefund, isSend, isCancel, isFinish, delivery, startTime, endTime);
 		}
 		model.addAttribute("trade_list", list);
 		model.addAttribute("paging", paging);
 		model.addAttribute("name", name);
 		model.addAttribute("tid", tid);
 		model.addAttribute("status", status);
+        model.addAttribute("isSubmit", isSubmit);
+        model.addAttribute("isRefund", isRefund);
+        model.addAttribute("isSend", isSend);
+        model.addAttribute("isCancel", isCancel);
+        model.addAttribute("isFinish", isFinish);
 		model.addAttribute("seller_nick", sellerNick);
 		model.addAttribute("delivery", delivery);
 		model.addAttribute("dId", dId);
@@ -256,7 +242,7 @@ public class TradeController {
 		}
 
 		model.addAttribute("sellerInfo", adminMapper.selectSellerInfo());
-		return "trade/trade_list";
+		return "trade/trade_list2";
 	}
 	
 	@RequestMapping(value="fenxiao/add_trade_form")

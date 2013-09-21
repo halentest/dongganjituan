@@ -43,13 +43,15 @@ public class TradeClient {
 		TradeFullinfoGetRequest req = new TradeFullinfoGetRequest();
 		req.setFields("total_fee,tid,oid,buyer_nick,payment,outer_iid,title,pic_path,post_fee,receiver_state,receiver_address,num,receiver_city,receiver_district," +
 				"receiver_mobile,logistics_company,invoice_no,seller_nick,created,pay_time,modified,order.modified,buyer_message," +
-				"receiver_name,receiver_phone,receiver_mobile,receiver_zip,price,seller_memo,parent_id,type,status,orders");
+				"receiver_name,receiver_phone,receiver_mobile,receiver_zip,price,seller_memo,parent_id,type,status,orders,outer_sku_id");
 		req.setTid(tid);
 		TradeFullinfoGetResponse rsp = topConfig.getRetryClient().execute(req, sessionKey);
 		if (rsp.isSuccess()) {
 			log.info("查询订单详情成功：" + rsp.getBody());
 			return rsp.getTrade();
-		}
+		} else {
+            log.error("查询订单详情失败：" + rsp.getSubMsg());
+        }
 		return null;
 	}
 	

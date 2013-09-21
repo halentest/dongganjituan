@@ -1,9 +1,10 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=3 css=["trade_list.css", "jqpagination.css"] js=["jquery.jqpagination.min.js"]>
+<@root.html active=3 css=["trade_list.css", "jqpagination.css","easyui.css", "icon.css"]
+    js=["jquery.jqpagination.min.js", "jquery.easyui.min.js", "refund_list.js"]>
 	<div style="width: 100%; height: 30px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px;">
 		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
-		<strong>分销商</strong>
+		分销商
 		<select id="distributor" style="width: 8%;">
 			<option value="-1">所有分销商</option>
 			<#list dList as d>
@@ -13,7 +14,7 @@
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		</#if>
 		<#if CURRENT_USER.type!="ServiceStaff">
-		<strong>店铺</strong>
+		店铺
 		<select id="seller_nick" style="width: 8%;">
 			<option value="">所有店铺</option>
 			<#if shopList??>
@@ -25,10 +26,10 @@
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		</#if>
 		<input type="hidden" id="status"/>
-		<strong>订单号</strong>
+		订单号
 		<input id="tid" type="input" value="" style="width: 10%; height: 15px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<strong>收货人</strong>
+		收货人
 		<input id="name" type="input" value="" style="width: 6%; height: 15px;"/>
 		<!-- &nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>开始时间</strong>
@@ -81,15 +82,15 @@
 				        	<p><strong>价格：</strong>${order.payment/100}元</p>
 				        </td>
 				        <td style="width: 25%;">
-				        	<p><strong>地址：</strong>${trade.state}${trade.city}${trade.district}${trade.address}</p>
+				        	<p><strong>地址：</strong>${trade.state!''}${trade.city!''}${trade.district!''}${trade.address!''}</p>
 				        	<p>
 				        		<strong>收货人：</strong>${trade.name} &nbsp;&nbsp;
 				        		<strong>电话：</strong>${trade.phone!''} &nbsp;&nbsp;
 				        		<strong>手机：</strong>${trade.mobile} &nbsp;&nbsp;
 				        	</p>
-				        	<p><strong>邮编：</strong>${trade.postcode}</p>
+				        	<p><strong>邮编：</strong>${trade.postcode!''}</p>
 				        	<#if trade.status=="WAIT_BUYER_CONFIRM_GOODS">
-				        		<p><strong>快递：</strong>${order.logistics_company} &nbsp;&nbsp;<strong>单号：</strong>${order.invoice_no}</p>
+				        		<p><strong>快递：</strong>${trade.delivery} &nbsp;&nbsp;<strong>单号：</strong>${trade.delivery}</p>
 				        	</#if>
 				        	<p>
 				        		<strong>总数：</strong>${trade.goods_count} &nbsp;&nbsp;
@@ -169,36 +170,31 @@
 </@root.html>
 
 <!-- start 提示框 -->
-  <div class="modal hide" id="pop-up">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h4 id="title"></h4>
-      </div>
-      <div class="modal-body">
+  <div id="pop-up" class="easyui-window" title="处理退换货" data-options="modal:true,collapsible:false,closed:true,
+        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:300px;height:150px;padding:2px;">
+      <div style="margin-left:12px;">
 	    <p>
-	    	请输入<span id="action">退货</span>原因 <input type="text" id="reason" style="height: 30px; width: 350px;"/>
+	    	请输入<span id="action">拒绝退货</span>原因
+            <br><input type="text" id="reason"/>
 	    	<input type="hidden" id="curr-tid"/>
 	    	<input type="hidden" id="curr-oid"/>
 	    	<input type="hidden" id="curr-rid"/>
 	    	<input type="hidden" id="curr-action"/>
 	    </p>
 	  </div>
-      <div class="modal-footer">
-         <a href="#" class="btn" data-dismiss="modal">取消</a>
-    	 <a href="#" class="btn btn-primary" id="save">确定</a>
+      <div style="text-align:center;padding:5px">
+          <a class="easyui-linkbutton" onclick="save()">确定</a>
+          <a class="easyui-linkbutton" onclick="cancel()">取消</a>
       </div>
   </div>
   <!-- end 提示框 -->
   
   <!-- start 提示框 -->
-  <div class="modal hide" id="pop-up2">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h4 id="title"></h4>
-      </div>
-      <div class="modal-body">
+  <div id="pop-up2" class="easyui-window" title="处理退换货" data-options="modal:true,collapsible:false,closed:true,
+        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:400px;height:300px;padding:2px;">
+      <div style="margin-left:12px;">
 	    <p>
-	    	请描述鞋子情况 <input type="text" id="refund-status" style="height: 30px; width: 350px;"/><br>
+	    	请描述鞋子情况 <input type="text" id="refund-status"/><br>
 	    	&nbsp;&nbsp;可以再次销售&nbsp;&nbsp; <input type="checkbox" id="is-twice" checked/>
 	    	<input type="hidden" id="curr-tid"/>
 	    	<input type="hidden" id="curr-oid"/>
@@ -206,9 +202,9 @@
 	    	<input type="hidden" id="curr-action"/>
 	    </p>
 	  </div>
-      <div class="modal-footer">
-         <a href="#" class="btn" data-dismiss="modal">取消</a>
-    	 <a href="#" class="btn btn-primary" id="save2">确定</a>
+      <div style="text-align:center;padding:5px">
+          <a class="easyui-linkbutton" onclick="save2()">确定</a>
+          <a class="easyui-linkbutton" onclick="cancel2()">取消</a>
       </div>
   </div>
   <!-- end 提示框 -->
@@ -285,73 +281,5 @@ $(document).ready(function(){
 	            }}); 
 		})
 		
-		$('.reject-refund, .receive-refund, .not-refund-money').click(function() {
-			var action = $(this).attr("class");
-			if(action=="reject-refund") {
-				$('#action').html("拒绝退货");
-			} else if(action=="not-refund-money") {
-				$('#action').html("拒绝退款");
-			}
-			
-			$('#curr-tid').val($(this).attr("data-tid"));
-			$('#curr-oid').val($(this).attr("data-oid"));
-			$('#curr-rid').val($(this).attr("data-rid"));
-			$('#curr-action').val(action);
-			$('#reason').val('');
-			if(action=="receive-refund") {
-				$('#pop-up2').modal({
-	                keyboard: false
-	            })
-			} else {
-				$('#pop-up').modal({
-	                keyboard: false
-	            })
-			}
-            $('#reason').focus();
-		})
-		
-		$('#save').click(function() {
-			var action = $('#curr-action').val();
-			var tid = $('#curr-tid').val();
-			var oid = $('#curr-oid').val();
-			var rid = $('#curr-rid').val();
-			var reason = $('#reason').val();
-			$.ajax({
-	            type: "post",//使用get方法访问后台
-	            dataType: "json",//返回json格式的数据
-	            data: "rid=" + rid + "&tid=" + tid + 
-	            "&oid=" + oid + "&action=" + action + "&comment=" + reason,
-	            url: "${rc.contextPath}/trade/action/change_refund_status",//要访问的后台地址
-	            success: function(result){//msg为返回的数据，在这里做数据绑定
-	                if(result.success == false) {
-	                	alert(result.errorInfo);
-	                } else {
-	                	window.location.reload();
-	                }
-	            }}); 
-		})
-		
-		$('#save2').click(function() {
-			var action = $('#curr-action').val();
-			var tid = $('#curr-tid').val();
-			var oid = $('#curr-oid').val();
-			var rid = $('#curr-rid').val();
-			var status = $('#refund-status').val();
-			var isTwice = $('#is-twice').val();
-			$.ajax({
-	            type: "post",//使用get方法访问后台
-	            dataType: "json",//返回json格式的数据
-	            data: "rid=" + rid + "&tid=" + tid + 
-	            "&oid=" + oid + "&action=" + action + "&comment=" + status + "&isTwice=" + isTwice,
-	            url: "${rc.contextPath}/trade/action/change_refund_status",//要访问的后台地址
-	            success: function(result){//msg为返回的数据，在这里做数据绑定
-	                if(result.success == false) {
-	                	alert(result.errorInfo);
-	                } else {
-	                	window.location.reload();
-	                }
-	            }}); 
-		})
-	   
 });
 </script>

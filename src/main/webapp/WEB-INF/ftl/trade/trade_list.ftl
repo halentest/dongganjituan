@@ -1,6 +1,6 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=3 css=["trade_list.css", "jqpagination.css", "easyui.css", "icon.css"]
+<@root.html active=3 css=["jqpagination.css", "easyui.css", "icon.css"]
 js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "jquery.easyui.min.js"]>
     <#if CURRENT_USER.type=="WareHouse">
     <script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
@@ -10,7 +10,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
     </#if>
 	<div style="width: 98%; height: 60px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px; <#if CURRENT_USER.type=="WareHouse">margin-top: -20px;</#if>">
 		<#if CURRENT_USER.type!="Distributor" && CURRENT_USER.type!="ServiceStaff">
-		<strong>分销商</strong>
+		分销商
 		<select id="distributor" style="width: 8%;">
 			<option value="-1">所有分销商</option>
 			<#list dList as d>
@@ -20,7 +20,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		</#if>
 		<#if CURRENT_USER.type!="ServiceStaff">
-		<strong>店铺</strong>
+		店铺
 		<select id="seller_nick" style="width: 8%;">
 			<option value="">所有店铺</option>
 			<#if shopList??>
@@ -32,7 +32,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		</#if>
 		<input type="hidden" id="status">
-		<strong>快递</strong>
+		快递
 		<select id="delivery" style="width: 8%;">
 			<option value="">所有快递</option>
 			<#list logistics as lo>
@@ -40,10 +40,10 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 			</#list>
 		</select>
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<strong>订单号</strong>
+		订单号
 		<input id="tid" type="input" value="" style="width: 10%; height: 15px;"/>
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<strong>收货人</strong>
+		收货人
 		<input id="name" type="input" value="" style="width: 6%; height: 15px;"/>
 		<!-- &nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>开始时间</strong>
@@ -53,11 +53,11 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 		<input id="name" type="input" value="" style="width: 8%; height: 20px;"/> -->
 		&nbsp;&nbsp;&nbsp;&nbsp;
         <div style="margin-top: 5px;">
-            <strong>开始时间</strong>
-            <input id="start" style="height: 15px;" type="input" placeholder="格式:2013-06-29 12:30:30">
+            开始时间
+                <input id="start" class="easyui-datetimebox" type="input">
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <strong>结束时间</strong>
-            <input id="end" style="height: 15px;" type="input" placeholder="格式:2013-06-29 12:30:30">
+            结束时间
+                <input id="end" class="easyui-datetimebox" type="input">
             <span style="float: right; margin-right:15px;">
                 <button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}条交易
                 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -130,7 +130,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                                 </#if>
                             </#if>
 				        	<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
-				        		<#if trade.my_status==4 && order.status=="WAIT_BUYER_CONFIRM_GOODS">
+				        		<#if trade.my_status==4>
 				        			<p>
 				        			<a style="cursor: pointer;" data-tid="${trade.tid}"
 				        			 data-oid="${order.oid}" class="apply-refund">申请退货</a>
@@ -316,40 +316,38 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 </@root.html>
 
 <!-- start 提示框 -->
-  <div class="modal hide" id="pop-up">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h4 id="title"></h4>
-      </div>
-      <div class="modal-body">
+  <div id="pop-up" class="easyui-window" title="扫描单号" data-options="modal:true,collapsible:false,closed:true,
+        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:300px;height:150px;padding:2px;">
+      <div style="margin-left:12px;">
 	    <p>
-	    	请输入单号 <input type="text" id="tracking-number" style="height: 30px; width: 350px;"/>
+	    	请输入单号 <input type="text" id="tracking-number"/>
 	    	<input type="hidden" id="curr-tid"/>
 	    	<input type="hidden" id="curr-delivery"/>
 	    	<input type="hidden" id="curr-from"/>
 	    	<input type="hidden" id="curr-sellernick"/>
 	    </p>
 	  </div>
-      <div class="modal-footer">
-         <a href="#" class="btn" data-dismiss="modal">取消</a>
-    	 <a href="#" class="btn btn-primary" id="save">确定</a>
+      <div style="text-align:center;padding:5px">
+          <a class="easyui-linkbutton" onclick="saveTrackingNumber()">确定</a>
+          <a class="easyui-linkbutton" onclick="cancelTrackingNumber()">取消</a>
       </div>
   </div>
   <!-- end 提示框 -->
 
   <!-- start 提示框 -->
-  <div class="modal hide" id="pop-up2">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h4 id="title"></h4>
-      </div>
-      <div class="modal-body">
+  <div id="pop-up2" class="easyui-window" title="请输入退货原因" data-options="modal:true,collapsible:false,closed:true,
+        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:300px;height:150px;padding:2px;">
+      <div style="margin-left:12px;">
 	    <p>
-	    	请输入退货原因 <input type="text" id="refund-reason" style="height: 30px; width: 350px;"/>
+	    	请输入退货原因 <input type="text" id="refund-reason"/>
 	    	<input type="hidden" id="refund-curr-tid"/>
 	    	<input type="hidden" id="refund-curr-oid"/>
 	    </p>
 	  </div>
+      <div style="text-align:center;padding:5px">
+          <a class="easyui-linkbutton" onclick="saveApplyRefund()">确定</a>
+          <a class="easyui-linkbutton" onclick="cancelApplyRefund()">取消</a>
+      </div>
       <div class="modal-footer">
          <a href="#" class="btn" data-dismiss="modal">取消</a>
     	 <a href="#" class="btn btn-primary" id="save2">确定</a>
@@ -459,68 +457,6 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 	                });
 	            }});
 		})
-
-		$('.send-goods').click(function() {
-			$('#curr-tid').val($(this).attr("data-tid"));
-			$('#curr-delivery').val($(this).attr("data-delivery"));
-			$('#curr-from').val($(this).attr("data-from"));
-			$('#curr-sellernick').val($(this).attr("data-sellernick"));
-			$('#tracking-number').val('');
-    		$('#pop-up').modal({
-                keyboard: false
-            })
-            $('#tracking-number').focus();
-		})
-
-		$('#save').click(function() {
-			  var trackingNumber = $('#tracking-number').val();
-              if(!trackingNumber || trackingNumber.length==0) {
-                    alert("单号不能为空！");
-                    return false;
-              }
-			  var tid = $('#curr-tid').val();
-			  var delivery = $('#curr-delivery').val();
-			  var from = $('#curr-from').val();
-			  var sellerNick = $('#curr-sellernick').val();
-	          $.ajax({
-	            type: "post",//使用get方法访问后台
-	            dataType: "json",//返回json格式的数据
-	            data: "tid=" + tid + "&delivery=" + delivery + "&trackingNumber=" + trackingNumber,
-	            url: "${rc.contextPath}/trade/add_tracking_number",//要访问的后台地址
-	            success: function(result){//msg为返回的数据，在这里做数据绑定
-	                if(result.errorInfo != "success") {
-	                	alert(result.errorInfo);
-	                } else {
-		                window.location.reload();
-	                }
-	            }});
-    	})
-
-    	$('.apply-refund').click(function() {
-    		$('#refund-curr-tid').val($(this).attr("data-tid"));
-			$('#refund-curr-oid').val($(this).attr("data-oid"));
-    		$('#pop-up2').modal({
-                keyboard: false
-            })
-    	})
-
-    	$('#save2').click(function() {
-			  var tid = $('#refund-curr-tid').val();
-			  var oid = $('#refund-curr-oid').val();
-			  var refundReason = $('#refund-reason').val();
-	          $.ajax({
-	            type: "post",//使用get方法访问后台
-	            dataType: "json",//返回json格式的数据
-	            data: "tid=" + tid + "&oid=" + oid + "&refundReason=" + refundReason,
-	            url: "${rc.contextPath}/trade/apply_refund",//要访问的后台地址
-	            success: function(result){//msg为返回的数据，在这里做数据绑定
-	                if(result.errorInfo != "success") {
-	                	alert(result.errorInfo);
-	                } else {
-		                window.location.reload();
-	                }
-	            }});
-    	})
 
     	$('#check-all').click(function() {
     		$('.wait-check').attr("checked", true);

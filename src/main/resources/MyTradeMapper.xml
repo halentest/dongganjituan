@@ -5,35 +5,33 @@
 <mapper namespace="cn.halen.data.mapper.MyTradeMapper">
 
 	<resultMap id="myTradeMap" type="MyTrade">
-		<id property="id" column="t_id"/>
-		<result property="tao_id" column="g_tao_id"/>
-		<result property="tid" column="t_tid"/>
-		<result property="name" column="t_name"/>
-		<result property="phone" column="t_phone"/>
-		<result property="mobile" column="t_mobile"/>
-		<result property="state" column="t_state"/>
-		<result property="city" column="t_city"/>
-		<result property="district" column="t_district"/>
-		<result property="address" column="t_address"/>
-		<result property="postcode" column="t_postcode"/>
-        <result property="delivery" column="t_delivery"/>
-        <result property="delivery_number" column="t_delivery_number"/>
-        <result property="delivery_money" column="t_delivery_money"/>
-		<result property="template_id" column="t_template_id"/>
-		<result property="total_weight" column="t_total_weight"/>
-		<result property="goods_count" column="t_goods_count"/>
-		<result property="payment" column="t_payment"/>
-		<result property="distributor_id" column="t_distributor_id"/>
-		<result property="status" column="t_status"/>
-		<result property="my_status" column="t_my_status"/>
-		<result property="seller_memo" column="t_seller_memo"/>
-		<result property="buyer_message" column="t_buyer_message"/>
-		<result property="seller_nick" column="t_seller_nick"/>
-		<result property="come_from" column="t_come_from"/>
-        <result property="pay_type" column="t_pay_type"/>
-        <result property="return_order" column="t_return_order"/>
-		<result property="modified" column="t_modified"/>
-		<result property="created" column="t_created"/>
+        <id property="id" column="id"/>
+        <result property="tid" column="tid"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="mobile" column="mobile"/>
+        <result property="state" column="state"/>
+        <result property="city" column="city"/>
+        <result property="district" column="district"/>
+        <result property="address" column="address"/>
+        <result property="postcode" column="postcode"/>
+        <result property="delivery" column="delivery"/>
+        <result property="delivery_number" column="delivery_number"/><result property="delivery_money" column="delivery_money"/>
+
+        <result property="template_id" column="template_id"/>
+        <result property="total_weight" column="total_weight"/>
+        <result property="goods_count" column="goods_count"/>
+        <result property="payment" column="payment"/>
+        <result property="distributor_id" column="distributor_id"/>
+        <result property="is_submit" column="is_submit"/>
+        <result property="is_refund" column="is_refund"/>
+        <result property="is_send" column="is_send"/>
+        <result property="is_cancel" column="is_cancel"/>
+        <result property="is_finish" column="is_finish"/><result property="why_cancel" column="why_cancel"/><result property="nogoods_info" column="nogoods_info"/>
+        <result property="status" column="status"/><result property="seller_memo" column="seller_memo"/><result property="buyer_message" column="buyer_message"/>
+        <result property="seller_nick" column="seller_nick"/><result property="come_from" column="come_from"/><result property="pay_type" column="pay_type"/>
+        <result property="return_order" column="return_order"/><result property="modified" column="modified"/><result property="created" column="created"/>
+
 		<collection property="myOrderList" ofType="MyOrder" >
 	      	<id property="id" column="o_id"/>
 	      	<result property="tid" column="o_tid"/>
@@ -47,8 +45,6 @@
 	      	<result property="discount" column="o_discount"/>
 	      	<result property="weight" column="o_weight"/>
 	      	<result property="payment" column="o_payment"/>
-	      	<result property="delivery" column="o_delivery"/>
-	      	<result property="delivery_number" column="o_delivery_number"/>
 	      	<result property="status" column="o_status"/>
 	      	<result property="modified" column="o_modified"/>
 	      	<result property="created" column="o_created"/>
@@ -60,12 +56,11 @@
 			</association>
 	    </collection>
 	</resultMap>
-	
+
 	<insert id="insert" parameterType="MyTrade">
-		insert into trade(tid, name, phone, mobile, state, city, district, address, postcode, delivery, delivery_money,
-			goods_count, payment, distributor_id, status, my_status, seller_memo, buyer_message, seller_nick, come_from, pay_type, return_order, modified, created) values (
-			#{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery},
-			#{delivery_money}, #{goods_count}, #{payment}, #{distributor_id}, #{status}, #{my_status}, #{seller_memo},
+		insert into trade values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
+			#{delivery_money}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish},
+            #{why_cancel}, #{nogoods_info}, #{status}, #{seller_memo},
 			#{buyer_message}, #{seller_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created})
 	</insert>
 	
@@ -76,17 +71,16 @@
 	</insert>
 	
 	<insert id="insertOrder" parameterType="MyOrder">
-		insert into order1(oid, tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, delivery, delivery_number, status, created)
-		values(#{oid}, #{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment},
-		#{delivery}, #{delivery_number}, #{status}, now())
+		insert into order1(oid, tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, status, created)
+		values(#{oid}, #{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment}, #{status}, now())
 	</insert>
 
     <select id="checkTidExist" parameterType="String" resultType="String">
         select tid from trade where tid = #{tid}
     </select>
 	
-	<select id="selectByTradeId" parameterType="Long" resultType="MyTrade">
-		select * from trade where tid=#{id}
+	<select id="selectById" parameterType="String" resultType="MyTrade">
+		select * from trade where id=#{id}
 	</select>
 	
 	<select id="countTrade" parameterType="java.util.Map" resultType="Long">
@@ -109,99 +103,112 @@
    				<if test="tid != null">
    					and t.tid like CONCAT('%', #{tid}, '%')
    				</if>
-   				<if test="notstatusList != null">
-   					and t.my_status not in (
-   					<foreach collection="notstatusList" item="item" index="index"  
-			            separator=",">  
-			            #{item}
-			        </foreach>
-			        )
-   				</if>
    				<if test="statusList != null">
-   					and t.my_status in (
+   					and t.status in (
    					<foreach collection="statusList" item="item" index="index"  
 			            separator=",">  
 			            #{item}
 			        </foreach>
 			        )
    				</if>
+                <if test="isSubmit != null">
+                    and t.is_submit = #{isSubmit}
+                </if>
+                <if test="isRefund != null">
+                    and t.is_refund = #{isRefund}
+                </if>
+                <if test="isSend != null">
+                    and t.is_send = #{isSend}
+                </if>
+                <if test="isCancel != null">
+                    and t.is_cancel = #{isCancel}
+                </if>
+                <if test="isFinsh != null">
+                    and t.is_finish = #{isFinish}
+                </if>
                 and t.created between '${startTime}' and '${endTime}'
    			</where>
 	</select>
+
+    <select id="selectTrade" parameterType="java.util.Map" resultType="MyTrade">
+        select * from trade t
+        <where>
+            <if test="sellerNickList != null">
+                t.seller_nick in (
+                <foreach collection="sellerNickList" item="item" index="index"
+                         separator=",">
+                    #{item}
+                </foreach>
+                )
+            </if>
+            <if test="name != null">
+                and t.name like CONCAT('%', #{name}, '%')
+            </if>
+            <if test="delivery != null">
+                and t.delivery = #{delivery}
+            </if>
+            <if test="tid != null">
+                and t.tid like CONCAT('%', #{tid}, '%')
+            </if>
+            <if test="statusList != null">
+                and t.status in (
+                <foreach collection="statusList" item="item" index="index"
+                         separator=",">
+                    #{item}
+                </foreach>
+                )
+            </if>
+            <if test="isSubmit != null">
+                and t.is_submit = #{isSubmit}
+            </if>
+            <if test="isRefund != null">
+                and t.is_refund = #{isRefund}
+            </if>
+            <if test="isSend != null">
+                and t.is_send = #{isSend}
+            </if>
+            <if test="isCancel != null">
+                and t.is_cancel = #{isCancel}
+            </if>
+            <if test="isFinsh != null">
+                and t.is_finish = #{isFinish}
+            </if>
+            and t.created between '${startTime}' and '${endTime}' order by t.created desc limit #{start}, #{page_size}
+        </where>
+    </select>
 	
-	<select id="selectTradeDetail" parameterType="java.util.Map" resultMap="myTradeMap" >
-		select t.id as t_id, t.tid as t_tid, t.name as t_name, t.phone as t_phone, t.mobile as t_mobile, t.area_id as t_area_id, t.state as t_state,
-		       t.city as t_city, t.district as t_district, t.address as t_address, t.postcode as t_postcode, t.delivery as t_delivery,
-			   t.delivery_money as t_delivery_money, t.delivery_number as t_delivery_number, t.template_id as t_template_id, t.total_weight as t_total_weight, t.goods_count as t_goods_count,
-			   t.payment as t_payment, t.distributor_id as t_distributor_id, t.status as t_status, t.my_status as t_my_status, t.seller_memo as t_seller_memo, 
-			   t.buyer_message as t_buyer_message, t.seller_nick as t_seller_nick, t.come_from as t_come_from, t.pay_type as t_pay_type, t.return_order as t_return_order,
-               t.modified as t_modified, t.created as t_created,
+	<select id="selectTradeMap" parameterType="Map" resultMap="myTradeMap" >
+		select t.*,
 			   o.id as o_id, o.tid as o_tid, o.oid as o_oid, o.goods_id as o_goods_id, o.title as o_title, o.pic_path as o_pic_path, o.sku_id as o_sku_id, o.quantity as o_quantity, o.price as o_price, 
-			   o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.delivery as o_delivery,
-			   o.delivery_number as o_delivery_number, o.status as o_status, o.modified as o_modified, o.created as o_created,
+			   o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.status as o_status, o.modified as o_modified, o.created as o_created,
 			   s.color_id as s_color_id, s.color as s_color, s.size as s_size, s.id as s_id
 			   from 
-			   <choose>
-			   		<when test="start != null and page_size != null">
-			   			(select * from trade 
-			   			<where>
-			   				<if test="sellerNickList != null">
-			   					trade.seller_nick in (
-			   					<foreach collection="sellerNickList" item="item" index="index"  
-						            separator=",">  
-						            #{item}
-						        </foreach>
-			   					)
-			   				</if>
-			   				<if test="name != null">
-			   					and trade.name like CONCAT('%', #{name}, '%')
-			   				</if>
-			   				<if test="tid != null">
-			   					and trade.tid like CONCAT('%', #{tid}, '%')
-			   				</if>
-			   				<if test="delivery != null">
-			   					and trade.delivery = #{delivery}
-			   				</if>
-			   				<if test="notstatusList != null">
-			   					and trade.my_status not in (
-			   					<foreach collection="notstatusList" item="item" index="index"  
-						            separator=",">  
-						            #{item}
-						        </foreach>
-						        )
-			   				</if>
-			   				<if test="statusList != null">
-			   					and trade.my_status in (
-			   					<foreach collection="statusList" item="item" index="index"  
-						            separator=",">  
-						            #{item}
-						        </foreach>
-						        )
-			   				</if>
-                            and trade.created between '${startTime}' and '${endTime}'
-			   			</where>
-			   			order by trade.created desc limit #{start}, #{page_size}) as t
-			   		</when>
-			   		<otherwise>
-			   			(select * from
-			   			trade
-			   			<if test="tid != null">
-				   			where trade.tid = #{tid} <!--查询某个订单-->
-				   		</if>
-                        <if test="statusList != null"> <!--按状态查询，目前用于生成拣货单-->
-                            where trade.my_status in (
-                            <foreach collection="statusList" item="item" index="index"
-                                     separator=",">
-                                #{item}
-                            </foreach>
-                            )
-                        </if>
-                        ) as t
-			   		</otherwise>
-			   </choose>
+			   trade t
 			   left join order1 o on t.tid = o.tid
-			   left join sku s on o.sku_id = s.id 
-			   order by t.created desc
+			   left join sku s on o.sku_id = s.id
+        <where>
+            <if test="id != null">
+                t.id = #{id}
+            </if>
+            <if test="isSubmit != null">
+                and t.is_submit = #{isSubmit}
+            </if>
+            <if test="isRefund != null">
+                and t.is_refund = #{isRefund}
+            </if>
+            <if test="isSend != null">
+                and t.is_send = #{isSend}
+            </if>
+            <if test="isCancel != null">
+                and t.is_cancel = #{isCancel}
+            </if>
+            <if test="isFinish != null">
+                and t.is_finish = #{isFinish}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
 	</select>
 	
 	<select id="selectOrderByOrderId" parameterType="Long" resultType="MyOrder">
@@ -213,15 +220,16 @@
 	</update>
 	
 	<update id="updateTrade" parameterType="MyTrade">
-		update trade set name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
-			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money}, delivery_number=#{delivery_number},
-			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, status=#{status}, my_status=#{my_status},
+		update trade set tid=#{tid}, name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
+			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money}, delivery_number=#{delivery_number}, template_id=#{template_id},
+			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, is_submit=#{is_submit}, is_refund=#{is_refund},
+             is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, why_cancel=#{why_cancel}, nogoods_info=#{nogoods_info}, status=#{status},
 			 seller_memo=#{seller_memo}, buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, come_from=#{come_from},
-			 modified=#{modified} where tid=#{tid}
+			 modified=#{modified} where id=#{id}
 	</update>
 	
 	<update id="updateTradeStatus" parameterType="Map">
-		update trade set my_status=#{status} where tid=#{tid}
+		update trade set status=#{status} where id=#{tid}
 	</update>
 	
 	<update id="updateOrderStatus" parameterType="Map">

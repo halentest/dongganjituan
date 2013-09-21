@@ -1,3 +1,147 @@
+$('#batch-out-goods').click(function() {
+    var checked = $('#t-list').datagrid("getChecked");
+    if(checked.length==0) {
+        alert('至少选中一个订单!');
+        return false;
+    }
+    var tids = "";
+    $(checked).each(function(index, item) {
+        var tid = item.id.trim();
+        tids += tid;
+        tids += ";";
+    })
+        $.ajax({
+            type: "post",//使用get方法访问后台
+            dataType: "json",//返回json格式的数据
+            data: "tids=" + tids,
+            url: "/trade/action/delivery_tracking_number",//要访问的后台地址
+            success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(result.errorInfo != "success") {
+                alert(result.errorInfo);
+                window.location.reload();
+            } else {
+                window.location.reload();
+            }
+        }});
+})
+
+$('#batch-find-goods').click(function() {
+    var checked = $('#t-list').datagrid("getChecked");
+    if(checked.length==0) {
+        alert('至少选中一个订单!');
+        return false;
+    }
+    var tids = "";
+    $(checked).each(function(index, item) {
+        var tid = item.id.trim();
+        tids += tid;
+        tids += ";";
+    })
+    $.ajax({
+    type: "post",//使用get方法访问后台
+    dataType: "json",//返回json格式的数据
+    data: "tids=" + tids + "&action=find-goods",
+    url: "/trade/action/batch_change_status",//要访问的后台地址
+    success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(result.errorInfo != "success") {
+                alert(result.errorInfo);
+                window.location.reload();
+            } else {
+                window.location.reload();
+            }
+    }});
+})
+
+$('#batch-submit').click(function() {
+    var checked = $('#t-list').datagrid("getChecked");
+    if(checked.length==0) {
+        alert('至少选中一个订单!');
+        return false;
+    }
+    var b = true;
+    var tids = "";
+    $(checked).each(function(index, item) {
+        var tid = item.id.trim();
+        tids += tid;
+        tids += ";";
+    })
+    $.ajax({
+    type: "post",//使用get方法访问后台
+    dataType: "json",//返回json格式的数据
+    data: "tids=" + tids + "&action=submit",
+    url: "/trade/action/batch_change_status",//要访问的后台地址
+    success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(result.errorInfo != "success") {
+                alert(result.errorInfo);
+                window.location.reload();
+            } else {
+                window.location.reload();
+            }
+    }});
+})
+
+$('.apply-refund').click(function() {
+    $('#refund-curr-tid').val($(this).attr("data-tid"));
+    $('#refund-curr-oid').val($(this).attr("data-oid"));
+    $('#pop-up2').window('open');
+})
+
+function saveApplyRefund() {
+    var tid = $('#refund-curr-tid').val();
+    var oid = $('#refund-curr-oid').val();
+    var refundReason = $('#refund-reason').val();
+    $.ajax({
+    type: "post",//使用get方法访问后台
+    dataType: "json",//返回json格式的数据
+    data: "tid=" + tid + "&oid=" + oid + "&refundReason=" + refundReason,
+    url: "/trade/apply_refund",//要访问的后台地址
+    success: function(result){//msg为返回的数据，在这里做数据绑定
+        if(result.errorInfo != "success") {
+            alert(result.errorInfo);
+        } else {
+            window.location.reload();
+        }
+    }});
+}
+
+function cancelApplyRefund() {
+    $('#pop-up2').window('close');
+}
+
+function saveTrackingNumber() {
+    var trackingNumber = $('#tracking-number').val();
+    if(!trackingNumber || trackingNumber.length==0) {
+        alert("单号不能为空！");
+        return false;
+    }
+    var tid = $('#curr-tid').val();
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "tid=" + tid + "&trackingNumber=" + trackingNumber,
+        url: "/trade/add_tracking_number",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(result.errorInfo != "success") {
+                alert(result.errorInfo);
+            } else {
+                window.location.reload();
+            }
+        }
+    });
+}
+
+function cancelTrackingNumber() {
+    $('#pop-up').window('close');
+}
+
+function addTrackingNumber(id) {
+    alert(id);
+    $('#curr-tid').val(id);
+    $('#tracking-number').val('');
+    $('#pop-up').window('open');
+    $('#tracking-number').focus();
+}
+
 $('#paper-setup').click(function() {
     var delivery = $('#delivery-print').val();
     if(!delivery || delivery=="") {
@@ -36,7 +180,7 @@ function savePaperChange() {
 
 $('#delivery-print').change(function() {
     var delivery = $('#delivery-print').val();
-    window.location.href="/trade/trade_list?status=3&delivery=" + delivery;
+    window.location.href="/trade/trade_list?status=WaitFind&isCancel=0&isFinish=0&isSend=0&isSubmit=1&delivery=" + delivery;
 })
 
 function CreatePrintPage(sender, from, from_company, from_address, sender_mobile,
@@ -102,18 +246,9 @@ $('#search').click(function() {
     if(!distributor) {
         distributor='';
     }
-    var start = $('#start').val();
-    var end = $('#end').val();
-    if(start.length>0 && end.length>0) {
-         if(!strDateTime(start)) {
-            alert("请输入正确的开始时间");
-            return false;
-         }
-         if(!strDateTime(end)) {
-            alert("请输入正确的结束时间");
-            return false;
-         }
-    } else {
+    var start = $('#start').datetimebox('getValue');
+    var end = $('#end').datetimebox('getValue');
+    if(start.length==0 || end.length==0) {
         start = "";
         end = "";
     }
@@ -122,10 +257,16 @@ $('#search').click(function() {
     var tid = $('#tid').val();
     var page = $('#page').attr('data-current-page');
     var delivery = $('#delivery').val();
+    var isSubmit = $('#isSubmit').val();
+    var isCancel = $('#isCancel').val();
+    var isFinish = $('#isFinish').val();
+    var isRefund = $('#isRefund').val();
+    var isSend = $('#isSend').val();
     if(!page) {
         page = 1;
     }
     window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
             + "&name=" + name + "&tid=" + tid + "&dId=" + distributor + "&delivery=" + delivery + "&start=" + start
-            + "&end=" + end;
+            + "&end=" + end + "&isSubmit=" + isSubmit + "&isCancel=" + isCancel + "&isFinish=" + isFinish + "&isRefund=" + isRefund
+                                                + "&isSend=" + isSend;;
 });

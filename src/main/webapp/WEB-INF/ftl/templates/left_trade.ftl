@@ -62,40 +62,25 @@
                         <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="Admin" ||
                                 CURRENT_USER.type=="SuperAdmin">
                             <tr>
-                                <td height="20" class="active"><a id='wait-handle'>库存不足订单</a></td>
-                            </tr>
-                        </#if>
-                        <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="Admin" ||
-                                CURRENT_USER.type=="SuperAdmin">
-                            <tr>
-                                <td height="20" class=""><a id="new">新建订单</a></td>
-                            </tr>
-                        </#if>
-                        <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="Admin" ||
-                                CURRENT_USER.type=="SuperAdmin" || CURRENT_USER.type=="DistributorManager">
-                            <tr>
-                                <td height="20" class=""><a id="wait-check">待审核订单</a></td>
+                                <td height="20" class=""><a id="new">未提交订单</a></td>
                             </tr>
                         </#if>
                         <tr>
                             <td height="20" class=""><a id="wait-send">待发货订单</a></td>
                         </tr>
                         <tr>
-                            <td height="20" class=""><a id="finding">待打印订单</a></td>
+                            <td height="20" class=""><a id="finding">待拣货订单</a></td>
                         </tr>
                         <tr>
-                            <td height="20" class=""><a id="have-delivery">已扫描订单</a></td>
+                            <td height="20" class=""><a id="have-delivery">待出库订单</a></td>
                         </tr>
                         <tr>
                             <td height="20" class=""><a id="wait-receive">已发货订单</a></td>
                         </tr>
-                        <tr>
-                            <td height="20" class=""><a id="no-goods">无货订单</a></td>
-                        </tr>
                         <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="Admin" ||
                                 CURRENT_USER.type=="SuperAdmin">
                             <tr>
-                                <td height="20" class=""><a id="cancel">已作废订单</a></td>
+                                <td height="20" class=""><a id="cancel">已取消订单</a></td>
                             </tr>
                         </#if>
                         <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
@@ -131,32 +116,33 @@
             $(this).parent().css("background-color", "white");
         })
 
-        $('#wait-handle').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=-6";
-        });
-
         $('#new').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=0";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0";
         });
 
         $('#wait-check').click(function() {
             parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=1";
         });
 
+
         $('#wait-send').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=2";
+            <#if CURRENT_USER.type=="WareHouse">
+                parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0&status=WaitSend";
+            <#else>
+                parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0";
+            </#if>
         });
 
         $('#finding').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=3";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0&status=WaitFind";
         });
 
         $('#have-delivery').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=6";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0&status=WaitOut";
         });
 
         $('#wait-receive').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=4";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=1";
         });
 
         $('#no-goods').click(function() {

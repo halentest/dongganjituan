@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cn.halen.data.pojo.*;
 import cn.halen.service.excel.TradeRow;
+import cn.halen.service.top.domain.TaoTradeStatus;
 import cn.halen.service.top.util.DateUtils;
 import com.jd.open.api.sdk.domain.order.ItemInfo;
 import com.jd.open.api.sdk.domain.order.OrderSearchInfo;
@@ -23,22 +25,13 @@ import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.mapper.RefundMapper;
-import cn.halen.data.pojo.Distributor;
-import cn.halen.data.pojo.Goods;
-import cn.halen.data.pojo.MyLogisticsCompany;
-import cn.halen.data.pojo.MyOrder;
-import cn.halen.data.pojo.MyRefund;
-import cn.halen.data.pojo.MySku;
-import cn.halen.data.pojo.MyStatus;
-import cn.halen.data.pojo.MyTrade;
-import cn.halen.data.pojo.Shop;
+import cn.halen.data.pojo.TradeStatus;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.InvalidStatusChangeException;
 import cn.halen.service.top.LogisticsCompanyClient;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.TradeClient;
-import cn.halen.service.top.domain.Status;
 import cn.halen.service.top.util.MoneyUtils;
 import cn.halen.util.Constants;
 import cn.halen.util.Paging;
@@ -103,14 +96,12 @@ public class TradeService {
     /**
      * 填写快递单号
      * @param tid 订单号
-     * @param companyName 快递名称
      * @param outSid 快递单号
      */
-    public void addTrackingNumber(String tid, String companyName, String outSid) {
-        MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-        myTrade.setDelivery(companyName);
+    public void addTrackingNumber(String tid, String outSid) {
+        MyTrade myTrade = myTradeMapper.selectById(tid);
         myTrade.setDelivery_number(outSid);
-        myTrade.setMy_status(MyStatus.WaitOut.getStatus());
+        myTrade.setStatus(TradeStatus.WaitOut.getStatus());
         myTradeMapper.updateMyTrade(myTrade);
     }
 	
@@ -121,7 +112,7 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public String send(String tid) {
 		try {
-            MyTrade t = myTradeMapper.selectByTradeId(tid);
+            MyTrade t = myTradeMapper.selectById(tid);
 			String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
 			String errorInfo = null;
 			if("淘宝自动同步".equals(t.getCome_from())) {
@@ -171,35 +162,36 @@ public class TradeService {
      */
 	@Transactional(rollbackFor=Exception.class)
 	public boolean cancel(String tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.New.getStatus() && 
-				myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && 
-				myTrade.getMy_status() != MyStatus.WaitSend.getStatus() &&
-                myTrade.getMy_status() != MyStatus.WaitHandle.getStatus()) {
-			throw new InvalidStatusChangeException(tid);
-		}
-        List<MyOrder> orderList = myTrade.getMyOrderList();
-        if(myTrade.getMy_status() != MyStatus.WaitHandle.getStatus()) {
-            skuService.unlockSku(orderList, true);
-        }
-		if(myTrade.getMy_status() != MyStatus.New.getStatus() &&
-                myTrade.getMy_status() != MyStatus.WaitHandle.getStatus()) {
-			String sellerNick = myTrade.getSeller_nick();
-			Distributor d = adminMapper.selectShopMapBySellerNick(sellerNick).getD();
-			if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
-				adminService.updateDeposit(d.getId(), myTrade.getPayment() + myTrade.getDelivery_money());
-			}
-		}
-		return myTradeMapper.updateTradeStatus(MyStatus.Cancel.getStatus(), tid) > 0;
+//		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+//		if(myTrade.getMy_status() != TradeStatus.New.getStatus() &&
+//				myTrade.getMy_status() != TradeStatus.WaitCheck.getStatus() &&
+//				myTrade.getMy_status() != TradeStatus.WaitSend.getStatus() &&
+//                myTrade.getMy_status() != TradeStatus.WaitHandle.getStatus()) {
+//			throw new InvalidStatusChangeException(tid);
+//		}
+//        List<MyOrder> orderList = myTrade.getMyOrderList();
+//        if(myTrade.getMy_status() != TradeStatus.WaitHandle.getStatus()) {
+//            skuService.unlockSku(orderList, true);
+//        }
+//		if(myTrade.getMy_status() != TradeStatus.New.getStatus() &&
+//                myTrade.getMy_status() != TradeStatus.WaitHandle.getStatus()) {
+//			String sellerNick = myTrade.getSeller_nick();
+//			Distributor d = adminMapper.selectShopMapBySellerNick(sellerNick).getD();
+//			if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+//				adminService.updateDeposit(d.getId(), myTrade.getPayment() + myTrade.getDelivery_money());
+//			}
+//		}
+//		return myTradeMapper.updateTradeStatus(TradeStatus.Cancel.getStatus(), tid) > 0;
+        return false;
 	}
 
     //TODO
 	@Transactional(rollbackFor=Exception.class)
 	public boolean refundSuccess(String tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.Refunding.getStatus()) {
-			throw new InvalidStatusChangeException(tid);
-		}
+//		if(myTrade.getMy_status() != TradeStatus.Refunding.getStatus()) {
+//			throw new InvalidStatusChangeException(tid);
+//		}
 		List<MyOrder> list = myTrade.getMyOrderList();
 		for(MyOrder myOrder : list) {
 			String goodsId = myOrder.getGoods_id();
@@ -212,7 +204,8 @@ public class TradeService {
 			adminService.updateDeposit(d.getId(), 
 					myTrade.getPayment() + myTrade.getDelivery_money());
 		}
-		return myTradeMapper.updateTradeStatus(MyStatus.Refund.getStatus(), tid) > 0;
+//		return myTradeMapper.updateTradeStatus(TradeStatus.Refund.getStatus(), tid) > 0;
+        return false ;
 	}
 
     /**
@@ -229,7 +222,7 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public boolean noGoods(String tid, String oid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus() && myTrade.getMy_status() != MyStatus.WaitPrint.getStatus()) {
+		if(myTrade.getIs_send()==1) {
 			throw new InvalidStatusChangeException(tid);
 		}
 		List<MyOrder> list = myTrade.getMyOrderList();
@@ -239,15 +232,15 @@ public class TradeService {
 		if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
 			adminService.updateDeposit(d.getId(), myTrade.getPayment() + myTrade.getDelivery_money());
 		}
-        if(StringUtils.isNotBlank(oid)) {
-            //不为空说明只有这个商品没货，否则表示所有商品都没有货
-            myTradeMapper.updateOrderStatus(Status.NoGoods.getValue(), tid, oid);
-        } else {
-            for(MyOrder order : list) {
-                myTradeMapper.updateOrderStatus(Status.NoGoods.getValue(), tid, order.getOid());
-            }
-        }
-		return myTradeMapper.updateTradeStatus(MyStatus.NoGoods.getStatus(), tid) > 0;
+//        if(StringUtils.isNotBlank(oid)) {
+//            //不为空说明只有这个商品没货，否则表示所有商品都没有货
+//            myTradeMapper.updateOrderStatus(TaoTradeStatus.NoGoods.getValue(), tid, oid);
+//        } else {
+//            for(MyOrder order : list) {
+//                myTradeMapper.updateOrderStatus(TaoTradeStatus.NoGoods.getValue(), tid, order.getOid());
+//            }
+//        }
+		return myTradeMapper.updateTradeStatus(TradeStatus.NoGoods.getStatus(), tid) > 0;
 	}
 
     /**
@@ -259,10 +252,10 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public boolean approve1(String tid) throws InvalidStatusChangeException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus()) {
-			throw new InvalidStatusChangeException(tid);
-		}
-		return myTradeMapper.updateTradeStatus(MyStatus.WaitSend.getStatus(), tid) > 0;
+//		if(myTrade.getMy_status() != TradeStatus.WaitCheck.getStatus()) {
+//			throw new InvalidStatusChangeException(tid);
+//		}
+		return myTradeMapper.updateTradeStatus(TradeStatus.WaitSend.getStatus(), tid) > 0;
 	}
 
     /**
@@ -279,8 +272,7 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)  
 	public boolean changeDelivery(String tid, String delivery, int deliveryMoney) throws InvalidStatusChangeException, InsufficientBalanceException {
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && myTrade.getMy_status() != MyStatus.New.getStatus() &&
-				myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
+		if(myTrade.getStatus() != TradeStatus.WaitSend.getStatus()) {
 			throw new InvalidStatusChangeException(tid);
 		}
 		int change = myTrade.getDelivery_money() - deliveryMoney;
@@ -288,7 +280,7 @@ public class TradeService {
         if(deliveryMoney > 0) {
             myTrade.setDelivery_money(deliveryMoney);
             Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
-            if(myTrade.getMy_status() != MyStatus.New.getStatus() && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+            if(myTrade.getIs_submit()==1 && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
                 adminService.updateDeposit(d.getId(), change);
             }
         }
@@ -298,38 +290,35 @@ public class TradeService {
     /**
      * 提交trade，即改变trade的状态为待审核或者待发货（如果此分销商的trade无需审核）
      * 对于非自营的分销商，完成扣款操作
-     * @param tid
+     * @param id
      * @return
      * @throws InvalidStatusChangeException
      * @throws InsufficientBalanceException
      */
 	@Transactional(rollbackFor=Exception.class)
-	public boolean submit(String tid) throws InvalidStatusChangeException, InsufficientBalanceException {
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.New.getStatus()) {
-			throw new InvalidStatusChangeException(tid);
+	public boolean submit(String id) throws InvalidStatusChangeException, InsufficientBalanceException {
+		MyTrade myTrade = myTradeMapper.selectTradeMap(id);
+		if(!myTrade.getStatus().equals(TradeStatus.UnSubmit.getStatus())) {
+			throw new InvalidStatusChangeException(id);
 		}
+        boolean enough = skuService.reduceSku(myTrade.getMyOrderList(), true, Constants.LOCK_QUANTITY);
+        if(!enough) {
+            return false;
+        }
 		//update deposit
 		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
 		if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
 			adminService.updateDeposit(d.getId(), -myTrade.getPayment()-myTrade.getDelivery_money());
 		}
-		int count = 0;
-		if(d.getNoCheck() == 1) {
-			count = myTradeMapper.updateTradeStatus(MyStatus.WaitSend.getStatus(), tid);
-		} else {
-			count = myTradeMapper.updateTradeStatus(MyStatus.WaitCheck.getStatus(), tid);
-		}
+        myTrade.setStatus(TradeStatus.WaitSend.getStatus());
+        myTrade.setIs_submit(1);
+		int count = myTradeMapper.updateMyTrade(myTrade);
 		return count > 0;
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean findGoods(String tid) throws InvalidStatusChangeException {
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
-			throw new InvalidStatusChangeException(tid);
-		}
-		return myTradeMapper.updateTradeStatus(MyStatus.WaitPrint.getStatus(), tid) > 0;
+	public boolean findGoods(String id) throws InvalidStatusChangeException {
+		return myTradeMapper.updateTradeStatus(TradeStatus.WaitFind.getStatus(), id) > 0;
 	}
 
     /**
@@ -342,17 +331,13 @@ public class TradeService {
      * @param outSid
      */
 	private void doSend(String tid, String companyName, String outSid, boolean updateSku) throws InsufficientStockException {
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		myTrade.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
-		myTrade.setMy_status(MyStatus.WaitReceive.getStatus());
+		MyTrade myTrade = myTradeMapper.selectTradeMap(tid);
+		myTrade.setStatus(TradeStatus.WaitReceive.getStatus());
+        myTrade.setIs_send(1);
 		myTradeMapper.updateMyTrade(myTrade);
 		
 		List<MyOrder> list = myTrade.getMyOrderList();
 		for(MyOrder myOrder : list) {
-			myOrder.setStatus(Status.WAIT_BUYER_CONFIRM_GOODS.getValue());
-			myOrder.setDelivery(companyName);
-			myOrder.setDelivery_number(outSid);
-			myTradeMapper.updateMyOrder(myOrder);
             if(updateSku) {
                 //2
                 skuService.updateSku(myOrder.getSku_id(), -myOrder.getQuantity(), 0, 0, false);
@@ -387,7 +372,6 @@ public class TradeService {
             return 0;
         }
         List<MyOrder> orderList = myTrade.getMyOrderList();
-        boolean enough = skuService.reduceSku(orderList, true, type);
         int payment = 0;
         int quantity = 0;
 		for(MyOrder order : orderList) {
@@ -398,9 +382,6 @@ public class TradeService {
         if(checkExist) {
             myTrade.setPayment(payment);
             myTrade.setGoods_count(quantity);
-        }
-        if(!enough) {
-            myTrade.setMy_status(MyStatus.WaitHandle.getStatus());
         }
         int count = myTradeMapper.insert(myTrade);
 //        if("淘宝自动同步".equals(myTrade.getCome_from())) {
@@ -417,12 +398,8 @@ public class TradeService {
 		return myTradeMapper.selectOrderByOrderId(oid);
 	}
 	
-	public MyTrade selectTradeDetail(String tid) {
-		return myTradeMapper.selectTradeDetail(tid);
-	}
-	
 	public MyTrade selectByTradeId(String id) {
-		return myTradeMapper.selectByTradeId(id);
+		return myTradeMapper.selectById(id);
 	}
 	
 	public int updateTradeMemo(String memo, String tradeId, Date modified) {
@@ -449,8 +426,9 @@ public class TradeService {
 			String zip, String name, Date modified, String tradeId) throws InsufficientBalanceException {
 		
 		MyTrade myTrade = myTradeMapper.selectTradeDetail(tradeId);
-		if(myTrade.getMy_status() != MyStatus.WaitCheck.getStatus() && myTrade.getMy_status() != MyStatus.New.getStatus() &&
-				myTrade.getMy_status() != MyStatus.WaitSend.getStatus()) {
+
+        //如果已经发货，则不能再修改地址了
+		if(myTrade.getIs_send()==1) {
 			return 0;
 		}
 		int deliveryMoney = utilService.calDeliveryMoney(myTrade.getMyOrderList().get(0).getGoods_id(), Integer.valueOf(String.valueOf(myTrade.getGoods_count())),
@@ -468,7 +446,8 @@ public class TradeService {
 		myTrade.setName(name);
 		myTrade.setModified(modified);
 		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
-		if(myTrade.getMy_status() != MyStatus.New.getStatus() && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+        //如果已经提交了，那么要修改存款，因为修改地址快递费会改变
+		if(myTrade.getIs_submit()==1 && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
 			adminService.updateDeposit(d.getId(), change);
 		}
 		int count = myTradeMapper.updateMyTrade(myTrade);
@@ -556,7 +535,7 @@ public class TradeService {
                 myTrade.setModified(new Date());
                 myTrade.setCreated(new Date());
                 myTrade.setAddress(row.getAddress());
-                myTrade.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
+                myTrade.setStatus(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue());
                 MyLogisticsCompany mc = logisticsMapper.select(1);
                 myTrade.setDelivery(mc.getName());
 
@@ -569,7 +548,7 @@ public class TradeService {
                 myOrder.setGoods_id(row.getGoodsId());
                 myOrder.setTitle(row.getTitle());
                 myOrder.setQuantity(row.getNum());
-                myOrder.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
+                myOrder.setStatus(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue());
                 myTrade.addOrder(myOrder);
                 result.add(myTrade);
 
@@ -585,7 +564,7 @@ public class TradeService {
                 myOrder.setTitle(row.getTitle());
                 myOrder.setQuantity(row.getNum());
                 myOrder.setPayment(row.getPrice());
-                myOrder.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
+                myOrder.setStatus(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue());
                 lastTrade.addOrder(myOrder);
             }
         }
@@ -621,11 +600,23 @@ public class TradeService {
 //                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
 				continue;
 			}
-			String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
-			String[] properties = skuStr.split(";");
-			String color = properties[0].split(":")[1];
-			String size = properties[1].split(":")[1];
-			MySku sku = mySkuMapper.select(order.getOuterIid(), color, size);
+
+            //先同outer id查询sku，如果查不到， 再通过颜色和尺码
+            String color = null;
+            String size = null;
+            MySku sku = mySkuMapper.selectByHid("11112240");
+            //MySku sku = mySkuMapper.selectByHid(order.getOuterSkuId());
+            if(null != sku) {
+                color = sku.getColor();
+                size = sku.getSize();
+            } else {
+                String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
+                String[] properties = skuStr.split(";");
+                color = properties[0].split(":")[1];
+                size = properties[1].split(":")[1];
+                sku = mySkuMapper.select(order.getOuterIid(), color, size);
+            }
+
 			if(null == sku) {  //检查sku是否存在
 				log.info("This sku {} {} {} not exist!", order.getOuterIid(), color, size);
 //                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -647,7 +638,7 @@ public class TradeService {
 			myOrder.setTitle(order.getTitle());
 			myOrder.setPic_path(order.getPicPath());
 			myOrder.setQuantity(order.getNum());
-			if(!isSelf && trade.getStatus().equals(Status.WAIT_SELLER_SEND_GOODS.getValue())) {
+			if(!isSelf && trade.getStatus().equals(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue())) {
 				myOrder.setPrice(goods.getPrice());
 				int payment = MoneyUtils.cal(goods.getPrice(), discount, order.getNum());
 				myOrder.setPayment(payment);
@@ -684,7 +675,6 @@ public class TradeService {
 		myTrade.setCreated(trade.getPayTime());
 		myTrade.setMyOrderList(myOrderList);
 		myTrade.setGoods_count(goodsCount);
-		myTrade.setStatus(trade.getStatus());
         myTrade.setPay_type(Constants.PAY_TYPE_ONLINE); //目前只支持淘宝的在线支付订单
 		MyLogisticsCompany mc = logisticsMapper.select(1);
 		myTrade.setDelivery(mc.getName());
@@ -699,16 +689,6 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public long countTrade(List<String> sellerNickList, String name, String tid, List<Integer> statusList, List<Integer> notstatusList, String delivery,
-                           String startTime, String endTime) {
-		return myTradeMapper.countTrade(sellerNickList, name, tid, statusList, notstatusList, delivery, startTime, endTime);
-	}
-	
-	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<Integer> statusList, List<Integer> notstatusList, String delivery,
-                                   String startTime, String endTime) {
-		return myTradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, notstatusList, delivery, startTime, endTime);
-	}
-	
 	public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ParseException, ApiException, InsufficientStockException, InsufficientBalanceException {
 		int totalCount = 0;
 		
@@ -717,33 +697,34 @@ public class TradeService {
 			//check trade if exists
 			MyTrade dbMyTrade = selectByTradeId(String.valueOf(trade.getTid()));
 			Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
+            if(null == tradeDetail) {
+                continue;
+            }
 			MyTrade myTrade = toMyTrade(tradeDetail);
 			if(null == myTrade)
 				continue;
 			if(null == dbMyTrade) {
-				myTrade.setMy_status(MyStatus.New.getStatus());
+				myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
 				int count = insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY);
 				totalCount += count;
-			} else {
-				handleExisting(myTrade);
 			}
 		}
 		return totalCount;
 	}
 	
 	private void handleExisting(MyTrade myTrade) throws ApiException {
-		MyTrade dbMyTrade = selectTradeDetail(myTrade.getTid());
-		if(!myTrade.toString().equals(dbMyTrade.toString()) && myTrade.getModified().getTime() > dbMyTrade.getModified().getTime()) {
-			dbMyTrade.setName(myTrade.getName());
-			dbMyTrade.setPhone(myTrade.getPhone());
-			dbMyTrade.setMobile(myTrade.getMobile());
-			dbMyTrade.setState(myTrade.getState());
-			dbMyTrade.setCity(myTrade.getCity());
-			dbMyTrade.setDistrict(myTrade.getDistrict());
-			dbMyTrade.setAddress(myTrade.getAddress());
-			dbMyTrade.setSeller_memo(myTrade.getSeller_memo());
-			dbMyTrade.setModified(myTrade.getModified());
-		}
-		updateTrade(dbMyTrade);
+//		MyTrade dbMyTrade = selectTradeDetail(myTrade.getTid());
+//		if(!myTrade.toString().equals(dbMyTrade.toString()) && myTrade.getModified().getTime() > dbMyTrade.getModified().getTime()) {
+//			dbMyTrade.setName(myTrade.getName());
+//			dbMyTrade.setPhone(myTrade.getPhone());
+//			dbMyTrade.setMobile(myTrade.getMobile());
+//			dbMyTrade.setState(myTrade.getState());
+//			dbMyTrade.setCity(myTrade.getCity());
+//			dbMyTrade.setDistrict(myTrade.getDistrict());
+//			dbMyTrade.setAddress(myTrade.getAddress());
+//			dbMyTrade.setSeller_memo(myTrade.getSeller_memo());
+//			dbMyTrade.setModified(myTrade.getModified());
+//		}
+//		updateTrade(dbMyTrade);
 	}
 }

@@ -1,0 +1,15 @@
+.tab {
+    float: left;
+    width: 100%;
+    border: solid 2px gray;
+    padding: 10px;
+    font: white;
+}
+
+.left {
+    padding: 10px;
+}
+
+.right {
+    padding: 10px;
+}

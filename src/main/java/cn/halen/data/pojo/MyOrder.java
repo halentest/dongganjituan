@@ -2,7 +2,7 @@ package cn.halen.data.pojo;
 
 import java.util.Date;
 
-import cn.halen.service.top.domain.Status;
+import cn.halen.service.top.domain.TaoTradeStatus;
 
 public class MyOrder {
 	private long id; 
@@ -26,7 +26,7 @@ public class MyOrder {
 	private Date created;
 	private Date modified;
 	
-	private Status oStatus;
+	private TaoTradeStatus oStatus;
 	private MySku sku; 
 	public long getId() {
 		return id;
@@ -47,7 +47,7 @@ public class MyOrder {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public Status getoStatus() {
+	public TaoTradeStatus getoStatus() {
 		return oStatus;
 	}
 	public String getTid() {
@@ -123,7 +123,7 @@ public class MyOrder {
 	}
 	public void setStatus(String status) {
 		this.status = status;
-		this.oStatus = Status.valueOf(status);
+		this.oStatus = TaoTradeStatus.valueOf(status);
 	}
 	public MySku getSku() {
 		return sku;

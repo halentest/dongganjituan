@@ -19,10 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 import cn.halen.data.mapper.*;
 import cn.halen.data.pojo.*;
 import cn.halen.service.SkuService;
-import cn.halen.service.excel.ExcelReader;
-import cn.halen.service.excel.Row;
 import cn.halen.service.excel.TradeExcelReader;
 import cn.halen.service.excel.TradeRow;
+import cn.halen.service.top.domain.TaoTradeStatus;
 import cn.halen.util.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -45,7 +44,6 @@ import cn.halen.service.ResultInfo;
 import cn.halen.service.TradeService;
 import cn.halen.service.UtilService;
 import cn.halen.service.top.TopConfig;
-import cn.halen.service.top.domain.Status;
 import cn.halen.service.top.util.MoneyUtils;
 
 import com.taobao.api.ApiException;
@@ -166,7 +164,7 @@ public class TradeActionController {
         List<String> repeated = new ArrayList<String>();
         List<String> successed = new ArrayList<String>();
         for(MyTrade t : tList) {
-            t.setMy_status(MyStatus.WaitReceive.getStatus());
+            t.setStatus(TradeStatus.WaitReceive.getStatus());
             int result = tradeService.insertMyTrade(t, true, Constants.QUANTITY);
             if(0==result) {
                 repeated.add(t.getTid());
@@ -281,8 +279,7 @@ public class TradeActionController {
 		trade.setName(receiver);
 		trade.setPhone(phone);
 		trade.setMobile(mobile);
-		trade.setMy_status(MyStatus.New.getStatus());
-		trade.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
+		trade.setStatus(TradeStatus.UnSubmit.getStatus());
 		trade.setCome_from(Constants.MANAUAL);
         trade.setPay_type(Constants.PAY_TYPE_ONLINE);
 		
@@ -332,7 +329,7 @@ public class TradeActionController {
 			myOrder.setPayment(singlePayment);
 			myOrder.setTitle(goods.getTitle());
 			myOrder.setPic_path(goods.getUrl());
-			myOrder.setStatus(Status.WAIT_SELLER_SEND_GOODS.getValue());
+			myOrder.setStatus(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue());
 			myOrder.setTid(tradeId);
 			myOrder.setOid(this.generateTradeId());
 			orderList.add(myOrder);
@@ -372,6 +369,7 @@ public class TradeActionController {
 	@RequestMapping(value="trade/action/batch_change_status")
 	public @ResponseBody ResultInfo batchChangeStatus(Model model, @RequestParam("tids") String tids, @RequestParam("action") String action) {
 		ResultInfo result = new ResultInfo();
+        boolean allSuccess = true;
 		if(StringUtils.isNotEmpty(tids)) {
 			String[] tidArr = tids.split(";");
 			try {
@@ -384,7 +382,10 @@ public class TradeActionController {
 				} else if(action.equals("submit")) {
 					for(String tid : tidArr) {
 						if(StringUtils.isNotEmpty(tid)) {
-							tradeService.submit(tid);
+							boolean b = tradeService.submit(tid);
+                            if(!b) {
+                                allSuccess = false;
+                            }
 						}
 					}
 				} else if(action.equals("find-goods")) {
@@ -407,6 +408,10 @@ public class TradeActionController {
 				result.setErrorInfo("系统异常，请重试!");
 			}
 		}
+        if(!allSuccess) {
+            result.setSuccess(false);
+            result.setErrorInfo("部分订单请求失败!");
+        }
 		return result;
 	}
 	
@@ -482,16 +487,15 @@ public class TradeActionController {
      * 扫描单号
      * @param model
      * @param tid
-     * @param delivery
      * @param trackingNumber 快递单号
      * @return
      */
 	@RequestMapping(value="trade/add_tracking_number")
-	public @ResponseBody ResultInfo addTrackingNumber(Model model, @RequestParam("tid") String tid, @RequestParam("delivery") String delivery,
+	public @ResponseBody ResultInfo addTrackingNumber(Model model, @RequestParam("tid") String tid,
 			@RequestParam("trackingNumber") String trackingNumber) {
 		ResultInfo result = new ResultInfo();
 		try {
-			tradeService.addTrackingNumber(tid, delivery, trackingNumber);
+			tradeService.addTrackingNumber(tid, trackingNumber);
 		} catch (Exception e) {
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，请重试!");
@@ -580,7 +584,7 @@ public class TradeActionController {
 	public @ResponseBody ResultInfo syncTrade(@RequestParam("sellerNick") String sellerNick,
 			@RequestParam("start") String start, @RequestParam("end") String end) throws IOException, ServletException, JSONException, ParseException, InsufficientStockException, InsufficientBalanceException {
 		ResultInfo result = new ResultInfo();
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		Date startDate = null;
 		Date endDate = null;
 		try {

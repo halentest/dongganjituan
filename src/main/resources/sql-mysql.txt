@@ -95,12 +95,11 @@ create table refund (
 
 drop table if exists trade;
 create table trade (
-	id bigint primary key auto_increment,
-	tid varchar(50) unique not null,
+	id varchar(25) primary key,
+	tid varchar(50), #网店单号
 	name varchar(50) not null, 
 	phone varchar(20), 
 	mobile varchar(20) not null,
-	area_id bigint,
 	state varchar(20),
 	city varchar(20),
 	district varchar(20),
@@ -114,13 +113,18 @@ create table trade (
 	goods_count bigint unsigned,
 	payment int unsigned, 
 	distributor_id int unsigned,
-	status varchar(50),
-	my_status tinyint,
+	is_submit tinyint default 0, #是否提交
+	is_refund tinyint default 0, #是否退换货
+	is_send tinyint default 0, #是否已发货
+	is_cancel tinyint default 0, #是否取消
+	is_finish tinyint default 0, #是否结束
+	why_cancel varchar(255), #取消原因
+	nogoods_info varchar(255), #无货留言
+	status varchar(25) default 'UnSubmit',   #订单状态
 	seller_memo varchar(255),
 	buyer_message varchar(255),
 	seller_nick varchar(50),
 	come_from varchar(25),
-	operator varchar(50), #最后的操作人，TODO
 	pay_type tinyint, #支付方式（1，货到付款  4，在线支付）
     return_order tinyint default 0, #是否换货订单（1，是  0， 否）
 	modified timestamp default current_timestamp,
@@ -142,8 +146,6 @@ create table order1
 	discount decimal(3,2), 
 	weight int unsigned default 0,
 	payment int unsigned,
-	delivery varchar(50),
-	delivery_number varchar(50),
 	status varchar(50),
 	modified timestamp,
 	created timestamp

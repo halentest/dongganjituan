@@ -1,14 +1,12 @@
 package cn.halen.data.pojo;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import cn.halen.data.OrderStatus;
-import cn.halen.service.top.domain.Status;
-
 public class MyTrade {
-	private long id; //
+	private String id; //
 	private String tid;
 	private String name; 
 	private String phone; 
@@ -30,8 +28,15 @@ public class MyTrade {
 	private long goods_count;
 	private int payment; 
 	private int distributor_id;
+    private int is_submit;
+    private int is_refund;
+    private int is_send;
+    private int is_cancel;
+
+    private int is_finish;
+    private String why_cancel;
+    private String nogoods_info;
 	private String status;
-	private int my_status;
 	private String seller_memo;
 	private String buyer_message;
 	private String seller_nick;
@@ -42,11 +47,9 @@ public class MyTrade {
 	private Date created;
 	private Date modified;
 	
-	private Status oStatus;
-	private Template template; 
+	private Template template;
 	private Distributor distributor;
-	private MyStatus myStatus;
-	private OrderStatus orderStatus; 
+	private TradeStatus tradeStatus; //got from status
 	private List<MyOrder> myOrderList;
 	
 	public void addWeight(int weight) {
@@ -62,6 +65,53 @@ public class MyTrade {
 				+ ", buyer_message=" + buyer_message + "]";
 	}
 
+    public int getIs_cancel() {
+        return is_cancel;
+    }
+
+    public int getIs_finish() {
+        return is_finish;
+    }
+
+    public TradeStatus getTradeStatus() {
+        return tradeStatus;
+    }
+
+    public void setTradeStatus(TradeStatus tradeStatus) {
+        this.tradeStatus = tradeStatus;
+    }
+
+    public void setIs_finish(int is_finish) {
+        this.is_finish = is_finish;
+    }
+    public void setIs_cancel(int is_cancel) {
+        this.is_cancel = is_cancel;
+    }
+
+    public int getIs_submit() {
+        return is_submit;
+    }
+
+    public void setIs_submit(int is_submit) {
+        this.is_submit = is_submit;
+    }
+
+    public int getIs_refund() {
+        return is_refund;
+    }
+
+    public void setIs_refund(int is_refund) {
+        this.is_refund = is_refund;
+    }
+
+    public int getIs_send() {
+        return is_send;
+    }
+
+    public void setIs_send(int is_send) {
+        this.is_send = is_send;
+    }
+
     public void addOrder(MyOrder order) {
         if(null == myOrderList) {
             myOrderList = new ArrayList<MyOrder>();
@@ -69,7 +119,23 @@ public class MyTrade {
         myOrderList.add(order);
     }
 
-	public String getTid() {
+    public String getWhy_cancel() {
+        return why_cancel;
+    }
+
+    public void setWhy_cancel(String why_cancel) {
+        this.why_cancel = why_cancel;
+    }
+
+    public String getNogoods_info() {
+        return nogoods_info;
+    }
+
+    public void setNogoods_info(String nogoods_info) {
+        this.nogoods_info = nogoods_info;
+    }
+
+    public String getTid() {
 		return tid;
 	}
 
@@ -93,10 +159,6 @@ public class MyTrade {
 		this.seller_nick = seller_nick;
 	}
 
-	public MyStatus getMyStatus() {
-		return myStatus;
-	}
-
 	public String getCome_from() {
 		return come_from;
 	}
@@ -109,10 +171,6 @@ public class MyTrade {
         this.pay_type = pay_type;
     }
 
-    public Status getoStatus() {
-		return oStatus;
-	}
-
 	public void setCome_from(String come_from) {
 		this.come_from = come_from;
 	}
@@ -121,19 +179,11 @@ public class MyTrade {
 		total_weight -= weight;
 	}
 	
-	public int getMy_status() {
-		return my_status;
+	public void setStatus(String status) {
+		this.status = status;
+		this.tradeStatus = TradeStatus.valueOf(status);
 	}
 
-	public void setMy_status(int my_status) {
-		this.my_status = my_status;
-		this.myStatus = MyStatus.valueOf(my_status);
-	}
-
-	public long getId() {
-		return id;
-	}
-	
 	public List<MyOrder> getMyOrderList() {
 		return myOrderList;
 	}
@@ -197,10 +247,15 @@ public class MyTrade {
 		this.buyer_message = buyer_message;
 	}
 
-	public void setId(long id) {
-		this.id = id;
-	}
-	public String getName() {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
 		return name;
 	}
 	public void setName(String name) {
@@ -313,19 +368,6 @@ public class MyTrade {
 
 	public String getStatus() {
 		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-		this.oStatus = Status.valueOf(status);
-	}
-
-	public OrderStatus getOrderStatus() {
-		return orderStatus;
-	}
-
-	public void setOrderStatus(OrderStatus orderStatus) {
-		this.orderStatus = orderStatus;
 	}
 
 }

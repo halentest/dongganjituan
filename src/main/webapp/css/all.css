@@ -1,0 +1,7 @@
+body {
+    font: 10pt 宋体
+}
+
+a, button {
+    cursor: pointer;
+}

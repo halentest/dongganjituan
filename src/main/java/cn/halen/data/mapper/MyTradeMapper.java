@@ -1,10 +1,12 @@
 package cn.halen.data.mapper;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.halen.data.pojo.TradeStatus;
 import org.apache.commons.lang.StringUtils;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
@@ -15,7 +17,17 @@ import cn.halen.util.Paging;
 
 public class MyTradeMapper extends SqlSessionDaoSupport {
 
+    private synchronized String generateId() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssssss");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        return format.format(new Date());
+    }
+
 	public int insert(MyTrade myTrade) {
+        myTrade.setId(generateId());
 		int count = getSqlSession().insert("cn.halen.data.mapper.MyTradeMapper.insert", myTrade);
 		return count;
 	}
@@ -30,14 +42,14 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public MyTrade selectByTradeId(String id) {
-		return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectByTradeId", id);
+	public MyTrade selectById(String id) {
+		return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectById", id);
 	}
 	
 	public MyTrade selectTradeDetail(String id) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("tid", id);
-		MyTrade myTrade = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", param);
+		MyTrade myTrade = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", param);
 		return myTrade;
 	}
 	
@@ -65,7 +77,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public int updateTradeStatus(int status, String tid) {
+	public int updateTradeStatus(String status, String tid) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("status", status);
 		param.put("tid", tid);
@@ -94,8 +106,8 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public long countTrade(List<String> sellerNickList, String name, String tid, List<Integer> statusList, List<Integer> notstatusList,
-			String delivery, String startTime, String endTime) {
+	public long countTrade(List<String> sellerNickList, String name, String tid, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, Integer isCancel, Integer isFinish,
+			String delivery, Date startTime, Date endTime) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
@@ -109,21 +121,45 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		if(null != statusList) {
 			param.put("statusList", statusList);
 		}
-		if(null != notstatusList) {
-			param.put("notstatusList", notstatusList);
+		if(null != isSubmit) {
+			param.put("isSubmit", isSubmit);
 		}
+
+        if(null != isRefund) {
+            param.put("isRefund", isRefund);
+        }
+
+        if(null != isSend) {
+            param.put("isSend", isSend);
+        }
+
+        if(null != isCancel) {
+            param.put("isCancel", isCancel);
+        }
+
+        if(null != isFinish) {
+            param.put("isFinish", isFinish);
+        }
+
 		if(StringUtils.isNotEmpty(delivery)) {
 			param.put("delivery", delivery);
 		}
-        param.put("startTime", startTime);
-        param.put("endTime", endTime);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        param.put("startTime", format.format(startTime));
+        param.put("endTime", format.format(endTime));
 		
 		Long count = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.countTrade", param);
 		return count;
 	}
+
+    public MyTrade selectTradeMap(String id) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("id", id);
+        return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", param);
+    }
 	
-	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<Integer> statusList, List<Integer> notstatusList,
-			String delivery, String startTime, String endTime) {
+	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, Integer isCancel, Integer isFinish,
+			String delivery, Date startTime, Date endTime) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
@@ -141,17 +177,46 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		if(null != statusList) {
 			param.put("statusList", statusList);
 		}
-		if(null != notstatusList) {
-			param.put("notstatusList", notstatusList);
-		}
+        if(null != isSubmit) {
+            param.put("isSubmit", isSubmit);
+        }
+
+        if(null != isRefund) {
+            param.put("isRefund", isRefund);
+        }
+
+        if(null != isSend) {
+            param.put("isSend", isSend);
+        }
+
+        if(null != isCancel) {
+            param.put("isCancel", isCancel);
+        }
+
+        if(null != isFinish) {
+            param.put("isFinish", isFinish);
+        }
 		if(StringUtils.isNotEmpty(delivery)) {
 			param.put("delivery", delivery);
 		}
-        param.put("startTime", startTime);
-        param.put("endTime", endTime);
-		List<MyTrade> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTradeDetail", param);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        param.put("startTime", format.format(startTime));
+        param.put("endTime", format.format(endTime));
+		List<MyTrade> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTrade", param);
 		return list;
 	}
+
+    public List<MyTrade> listWaitFind() {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("isSubmit", 1);
+        param.put("isRefund", 0);
+        param.put("isSend", 0);
+        param.put("isCancel", 0);
+        param.put("isFinish", 0);
+        param.put("status", TradeStatus.WaitFind.getStatus());
+        List<MyTrade> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", param);
+        return list;
+    }
 	
 	public int updateOrderStatus(String status, String tid, String oid) {
 		Map<String, Object> param = new HashMap<String, Object>();

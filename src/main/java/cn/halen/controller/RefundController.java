@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.halen.service.top.domain.TaoTradeStatus;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +30,11 @@ import cn.halen.data.pojo.MyRefund;
 import cn.halen.data.pojo.Shop;
 import cn.halen.data.pojo.User;
 import cn.halen.data.pojo.UserType;
-import cn.halen.exception.InsufficientBalanceException;
-import cn.halen.exception.InsufficientStockException;
-import cn.halen.exception.InvalidStatusChangeException;
 import cn.halen.filter.UserHolder;
 import cn.halen.service.RefundService;
 import cn.halen.service.ResultInfo;
 import cn.halen.service.TradeService;
 import cn.halen.service.UtilService;
-import cn.halen.service.top.domain.Status;
 import cn.halen.util.Paging;
 
 @Controller
@@ -150,8 +147,8 @@ public class RefundController {
 		if(StringUtils.isNotEmpty(status)) {
 			statusList = Arrays.asList(status);
 		} else if(currType.equals(UserType.WareHouse.getValue())) {
-			statusList = Arrays.asList(Status.ReceiveRefund.getValue(), Status.Refund.getValue(),
-					Status.Refunding.getValue(), Status.RefundSuccess.getValue());
+//			statusList = Arrays.asList(TaoTradeStatus.ReceiveRefund.getValue(), TaoTradeStatus.Refund.getValue(),
+//					TaoTradeStatus.Refunding.getValue(), TaoTradeStatus.RefundSuccess.getValue());
 		}
 		
 		long totalCount = refundMapper.countRefund(sellerNickList, tid, name, statusList);
@@ -170,13 +167,13 @@ public class RefundController {
 		model.addAttribute("dId", dId);
 		model.addAttribute("dList", adminMapper.listDistributor());
 		
-		if(currType.equals(UserType.WareHouse.getValue())) {
-			model.addAttribute("statusList", Arrays.asList(Status.ReceiveRefund, Status.Refund,
-					Status.Refunding, Status.RefundSuccess));
-		} else {
-			model.addAttribute("statusList", Arrays.asList(Status.ApplyRefund, Status.ReceiveRefund, Status.Refund,
-					Status.Refunding, Status.RefundSuccess, Status.RejectRefund, Status.CancelRefund));
-		}
+//		if(currType.equals(UserType.WareHouse.getValue())) {
+//			model.addAttribute("statusList", Arrays.asList(TaoTradeStatus.ReceiveRefund, TaoTradeStatus.Refund,
+//					TaoTradeStatus.Refunding, TaoTradeStatus.RefundSuccess));
+//		} else {
+//			model.addAttribute("statusList", Arrays.asList(TaoTradeStatus.ApplyRefund, TaoTradeStatus.ReceiveRefund, TaoTradeStatus.Refund,
+//					TaoTradeStatus.Refunding, TaoTradeStatus.RefundSuccess, TaoTradeStatus.RejectRefund, TaoTradeStatus.CancelRefund));
+//		}
 		
 		if(null != dId && -1 != dId) {
 			model.addAttribute("shopList", adminMapper.selectDistributorMapById(dId).getShopList());

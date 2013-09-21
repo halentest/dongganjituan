@@ -8,18 +8,9 @@ $(document).ready(function(){
 		    	if(!distributor) {
 		    		distributor='';
 		    	}
-		    	var start = $('#start').val();
-                var end = $('#end').val();
-                if(start.length>0 && end.length>0) {
-                     if(!strDateTime(start)) {
-                        alert("请输入正确的开始时间");
-                        return false;
-                     }
-                     if(!strDateTime(end)) {
-                        alert("请输入正确的结束时间");
-                        return false;
-                     }
-                } else {
+		    	var start = $('#start').datetimebox('getValue');
+                var end = $('#end').datetimebox('getValue');
+                if(start.length==0 || end.length==0) {
                     start = "";
                     end = "";
                 }
@@ -27,12 +18,18 @@ $(document).ready(function(){
 		    	var name = $('#name').val();
 		    	var tid = $('#tid').val();
 		    	var delivery = $('#delivery').val();
+		    	var isSubmit = $('#isSubmit').val();
+		    	var isCancel = $('#isCancel').val();
+		    	var isFinish = $('#isFinish').val();
+		    	var isRefund = $('#isRefund').val();
+		    	var isSend = $('#isSend').val();
 		    	if(!page) {
 		    	    page = 1;
 		    	}
 		        window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
 		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor + "&delivery=" + delivery + "&start=" + start
-                    + "&end=" + end;;
+                    + "&end=" + end + "&isSubmit=" + isSubmit + "&isCancel=" + isCancel + "&isFinish=" + isFinish + "&isRefund=" + isRefund
+                    + "&isSend=" + isSend;
 		    }
 	   });
 	   

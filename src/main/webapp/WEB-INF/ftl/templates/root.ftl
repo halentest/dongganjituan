@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
-    <link href="${rc.contextPath}/css/bootstrap.css" rel="stylesheet">
+    <!--<link href="${rc.contextPath}/css/bootstrap.css" rel="stylesheet">
     <link href="${rc.contextPath}/css/bootstrap-responsive.css" rel="stylesheet">
-    <link href="${rc.contextPath}/css/ea.css" rel="stylesheet">
-    <link href="${rc.contextPath}/css/theme.bootstrap.css" rel="stylesheet">
+    <link href="${rc.contextPath}/css/theme.bootstrap.css" rel="stylesheet">-->
+    <link href="${rc.contextPath}/css/all.css" rel="stylesheet">
     <#list css as entry>
       <link href="${rc.contextPath}/css/${entry}" rel="stylesheet">
     </#list>
@@ -30,10 +30,10 @@
 
 
     <script src="${rc.contextPath}/js/jquery-min.js"></script>
-    <script src="${rc.contextPath}/js/bootstrap-dropdown.js"></script>
+    <!--<script src="${rc.contextPath}/js/bootstrap-dropdown.js"></script>
     <script src="${rc.contextPath}/js/bootstrap-modal.js"></script>
     <script src="${rc.contextPath}/js/bootstrap-transition.js"></script>
-    <script src="${rc.contextPath}/js/jquery.flot.js"></script>
+    <script src="${rc.contextPath}/js/jquery.flot.js"></script>-->
 
     <#list js as entry>
         <script src="${rc.contextPath}/js/${entry}"></script>

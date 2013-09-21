@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cn.halen.service.top.domain.TaoTradeStatus;
 import org.apache.commons.lang.StringUtils;
-
-import cn.halen.service.top.domain.Status;
 
 public class MyRefund {
 	private long id;
@@ -49,7 +48,7 @@ public class MyRefund {
 
 	private String status;
 	
-	private Status oStatus;
+	private TaoTradeStatus oStatus;
 	
 	private Date created;
 	
@@ -110,14 +109,14 @@ public class MyRefund {
 
 	public void setStatus(String status) {
 		this.status = status;
-		this.oStatus = Status.valueOf(status);
+		this.oStatus = TaoTradeStatus.valueOf(status);
 	}
 
-	public Status getoStatus() {
+	public TaoTradeStatus getoStatus() {
 		return oStatus;
 	}
 
-	public void setoStatus(Status status) {
+	public void setoStatus(TaoTradeStatus status) {
 		this.oStatus = status;
 	}
 

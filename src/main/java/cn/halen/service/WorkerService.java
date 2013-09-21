@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import cn.halen.data.mapper.MyTradeMapper;
+import cn.halen.data.pojo.TradeStatus;
 import cn.halen.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.mapper.MySkuMapper;
-import cn.halen.data.pojo.MyStatus;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.service.top.TopConfig;
@@ -52,6 +53,9 @@ public class WorkerService {
 	
 	@Autowired
 	private TradeService tradeService;
+
+    @Autowired
+    private MyTradeMapper tradeMapper;
 	
 	@Autowired
 	private MyLogisticsCompanyMapper logisticsMapper;
@@ -81,7 +85,7 @@ public class WorkerService {
 											map.put(order.getOid(), order);
 										}
 										
-										MyTrade dbMyTrade = tradeService.selectTradeDetail(String.valueOf(nt.getTid()));
+										MyTrade dbMyTrade = tradeMapper.selectTradeMap(String.valueOf(nt.getTid()));
 										
 										String status = nt.getStatus();
 										log.debug("Got a top nitify which status is {}", status);
@@ -89,7 +93,7 @@ public class WorkerService {
 											log.debug("Receive 'TradeBuyerPay' notify, tid = {}, oid = {}",  nt.getTid(), nt.getOid());
 											MyTrade myTrade = tradeService.toMyTrade(trade);
 											if(null != myTrade) {
-												myTrade.setMy_status(MyStatus.New.getStatus());
+												myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
 												try{
 													tradeService.insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY);
 												} catch(Exception e) {
