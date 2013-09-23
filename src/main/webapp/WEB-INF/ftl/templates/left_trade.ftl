@@ -62,20 +62,25 @@
                         <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="Admin" ||
                                 CURRENT_USER.type=="SuperAdmin">
                             <tr>
-                                <td height="20" class=""><a id="new">未提交订单</a></td>
+                                <td height="20" class=""><a id="UnSubmit">未提交订单</a></td>
                             </tr>
                         </#if>
                         <tr>
                             <td height="20" class=""><a id="wait-send">待发货订单</a></td>
                         </tr>
+                        <#if CURRENT_USER.type=="WareHouse">
                         <tr>
                             <td height="20" class=""><a id="finding">待拣货订单</a></td>
                         </tr>
                         <tr>
                             <td height="20" class=""><a id="have-delivery">待出库订单</a></td>
                         </tr>
+                        </#if>
                         <tr>
                             <td height="20" class=""><a id="wait-receive">已发货订单</a></td>
+                        </tr>
+                        <tr>
+                            <td height="20" class=""><a id="refund">退换货订单</a></td>
                         </tr>
                         <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="Admin" ||
                                 CURRENT_USER.type=="SuperAdmin">
@@ -83,6 +88,9 @@
                                 <td height="20" class=""><a id="cancel">已取消订单</a></td>
                             </tr>
                         </#if>
+                        <tr>
+                            <td height="20" class=""><a id="finish">已结束订单</a></td>
+                        </tr>
                         <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
                         <TR>
                             <TD height=20><a href="${rc.contextPath}/trade/manual_sync_trade_form" target="mainFrame">手工同步订单</a></TD>
@@ -116,7 +124,7 @@
             $(this).parent().css("background-color", "white");
         })
 
-        $('#new').click(function() {
+        $('#UnSubmit').click(function() {
             parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0";
         });
 
@@ -141,6 +149,14 @@
             parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0&status=WaitOut";
         });
 
+        $('#refund').click(function() {
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=1&isRefund=1&isFinish=0";
+        });
+
+        $('#finish').click(function() {
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=1&isFinish=1";
+        });
+
         $('#wait-receive').click(function() {
             parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=1";
         });
@@ -150,7 +166,7 @@
         });
 
         $('#cancel').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?status=-1";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=1&isSubmit=&isSend=&isRefund=&isFinish=";
         });
 
         $('a').first().click();

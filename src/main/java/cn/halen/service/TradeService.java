@@ -188,7 +188,7 @@ public class TradeService {
     //TODO
 	@Transactional(rollbackFor=Exception.class)
 	public boolean refundSuccess(String tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		MyTrade myTrade = myTradeMapper.selectTradeMap(tid);
 //		if(myTrade.getMy_status() != TradeStatus.Refunding.getStatus()) {
 //			throw new InvalidStatusChangeException(tid);
 //		}
@@ -221,7 +221,7 @@ public class TradeService {
      */
 	@Transactional(rollbackFor=Exception.class)
 	public boolean noGoods(String tid, String oid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		MyTrade myTrade = myTradeMapper.selectTradeMap(tid);
 		if(myTrade.getIs_send()==1) {
 			throw new InvalidStatusChangeException(tid);
 		}
@@ -251,7 +251,7 @@ public class TradeService {
      */
 	@Transactional(rollbackFor=Exception.class)
 	public boolean approve1(String tid) throws InvalidStatusChangeException {
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		MyTrade myTrade = myTradeMapper.selectTradeMap(tid);
 //		if(myTrade.getMy_status() != TradeStatus.WaitCheck.getStatus()) {
 //			throw new InvalidStatusChangeException(tid);
 //		}
@@ -261,7 +261,6 @@ public class TradeService {
     /**
      * 修改快递并修改快递金额
      * 如果是已提交订单并且分销商非自营，那么需要修改存款
-     * @param tid
      * @param delivery
      * @param deliveryMoney
      * @return                                log.debug("Lock sku({},{},{},{}) failed for salable quantity {} not enough", order.getGoods_id(), order.getColor(), order.getSize(),
@@ -270,11 +269,8 @@ public class TradeService {
      * @throws InsufficientBalanceException
      */
 	@Transactional(rollbackFor=Exception.class)  
-	public boolean changeDelivery(String tid, String delivery, int deliveryMoney) throws InvalidStatusChangeException, InsufficientBalanceException {
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-		if(myTrade.getStatus() != TradeStatus.WaitSend.getStatus()) {
-			throw new InvalidStatusChangeException(tid);
-		}
+	public boolean changeDelivery(String id, String delivery, int deliveryMoney) throws InvalidStatusChangeException, InsufficientBalanceException {
+		MyTrade myTrade = myTradeMapper.selectTradeMap(id);
 		int change = myTrade.getDelivery_money() - deliveryMoney;
 		myTrade.setDelivery(delivery);
         if(deliveryMoney > 0) {
@@ -425,7 +421,7 @@ public class TradeService {
 	public int updateLogisticsAddress(String state, String city, String district, String address, String mobile, String phone,
 			String zip, String name, Date modified, String tradeId) throws InsufficientBalanceException {
 		
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tradeId);
+		MyTrade myTrade = myTradeMapper.selectTradeMap(tradeId);
 
         //如果已经发货，则不能再修改地址了
 		if(myTrade.getIs_send()==1) {
@@ -634,6 +630,7 @@ public class TradeService {
 			myOrder.setOid(String.valueOf(order.getOid()));
 			myOrder.setColor(color);
 			myOrder.setSize(size);
+            myOrder.setSku_id(sku.getId());
 			myOrder.setGoods_id(order.getOuterIid());
 			myOrder.setTitle(order.getTitle());
 			myOrder.setPic_path(order.getPicPath());

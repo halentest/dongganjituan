@@ -1,40 +1,46 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=2 css=["jdpicker.css", "trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js", "highcharts.js", "exporting.js"]>
-<i class="icon-pencil"></i>修改收货地址
-<br>  <br><br>
-<form action="${rc.contextPath}/trade/action/modify_receiver_info" method="">
-<p>选择地址：
-	<select id="province" name="province">
-		<option value="-1">选择省</option>
-	</select>
-	<select id="city" name="city">
-		<option value="-1">选择市</option>
-	</select>
-	<select id="district" name="district">
-		<option value="-1">选择区</option>
-	</select>
-	邮编：
-	<input name="postcode" class="my-input" type="text"/>
-</p>
-<p>
-详细地址：
-	<input name="address" class="my-input" style="width: 50%;" type="text"/>
-</p>
-    <input type="hidden" name="tid" value="${tid}"/>
-<p>
-收&nbsp;&nbsp;货&nbsp;&nbsp;人：
-	<input name="receiver" class="my-input" type="text"/>
-手机：
-	<input name="mobile" class="my-input" type="text"/>
-电话:
-	<input name="phone" class="my-input" type="text"/>
-</p>
-<div class="form-actions" >
-    <input type="submit" class="btn btn-primary" value="保存更改" style="margin-left: 60%;">
-    <input onclick="history.go(-1)" style="margin-left: 10px;" type="reset" class="btn btn-inverse" value="取消"/>
-</div>
-</form>
+<@root.html active=2 css=["trade_detail.css"] js=[]>
+    <#include "/trade/_t_detail_tab.ftl">
+        <div style="border:1px solid gray; width: 100%; height: auto;">
+            <div class="right">
+                <strong>修改收货地址</strong>
+                <form action="${rc.contextPath}/trade/action/modify_receiver_info" method="">
+                    <p>选择地址：
+                        <select id="province" name="province">
+                            <option value="-1">选择省</option>
+                        </select>
+                        <select id="city" name="city">
+                            <option value="-1">选择市</option>
+                        </select>
+                        <select id="district" name="district">
+                            <option value="-1">选择区</option>
+                        </select>
+                        邮编：
+                        <input name="postcode" class="my-input" type="text"/>
+                    </p>
+                    <p>
+                        详细地址：
+                        <input name="address" class="my-input" style="width: 50%;" type="text"/>
+                    </p>
+                    <input type="hidden" name="id" value="${trade.id}"/>
+                    <p>
+                        收&nbsp;&nbsp;货&nbsp;&nbsp;人：
+                        <input name="receiver" class="my-input" type="text"/>
+                        手机：
+                        <input name="mobile" class="my-input" type="text"/>
+                        电话:
+                        <input name="phone" class="my-input" type="text"/>
+                    </p>
+                    <div class="form-actions" >
+                        <input type="submit" class="btn btn-primary" value="保存更改" >
+                        <input onclick="history.go(-1)" type="reset"  value="取消"/>
+                    </div>
+                </form>
+            </div>
+            <#include "/trade/_buyer_info.ftl">
+                <div style="clear: both;"></div>
+        </div>
 </@root.html>
 
 <script type="text/javascript">

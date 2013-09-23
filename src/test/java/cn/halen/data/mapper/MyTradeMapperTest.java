@@ -22,7 +22,7 @@ public class MyTradeMapperTest {
 	@Test
 	public void test_selectTradeDetail() {
 		String tid = "353498440620229";
-		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
+		MyTrade myTrade = myTradeMapper.selectTradeMap(tid);
 		System.out.println(myTrade);
 	}
 	

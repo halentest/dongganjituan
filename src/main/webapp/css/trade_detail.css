@@ -1,15 +1,19 @@
 .tab {
     float: left;
     width: 100%;
-    border: solid 2px gray;
+    border: solid 1px gray;
     padding: 10px;
     font: white;
 }
 
 .left {
-    padding: 10px;
+    width: 18%;
+    float: left;
+    padding: 16px 10px;
 }
 
 .right {
+    width: 75%;
     padding: 10px;
+    float: right;
 }

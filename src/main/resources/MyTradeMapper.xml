@@ -123,7 +123,7 @@
                 <if test="isCancel != null">
                     and t.is_cancel = #{isCancel}
                 </if>
-                <if test="isFinsh != null">
+                <if test="isFinish != null">
                     and t.is_finish = #{isFinish}
                 </if>
                 and t.created between '${startTime}' and '${endTime}'
@@ -244,6 +244,6 @@
 	
 	<update id="updateLogisticsAddress" parameterType="java.util.HashMap">
 		update trade set state=#{state}, city=#{city}, district=#{district}, address=#{address}, mobile=#{mobile}, phone=#{phone},
-			postcode=#{zip}, name=#{name}, modified=#{modified} where tid=#{tradeId}
+			postcode=#{zip}, name=#{name}, modified=#{modified} where id=#{tradeId}
 	</update>
 </mapper>

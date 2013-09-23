@@ -106,6 +106,7 @@ public class TradeController {
     public String tradeDetail(Model model, @RequestParam String id) {
         MyTrade trade = tradeMapper.selectTradeMap(id);
         model.addAttribute("trade", trade);
+        model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         return "trade/trade_detail";
     }
 
@@ -227,8 +228,8 @@ public class TradeController {
         model.addAttribute("isFinish", isFinish);
 		model.addAttribute("seller_nick", sellerNick);
 		model.addAttribute("delivery", delivery);
+        model.addAttribute("logistics", myLogisticsCompanyMapper.list());
 		model.addAttribute("dId", dId);
-		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
 		model.addAttribute("dList", adminMapper.listDistributor());
         if(customTime) {
             model.addAttribute("start", start);

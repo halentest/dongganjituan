@@ -1,10 +1,51 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=2 css=["trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js"]>
+<@root.html active=2 css=["jqpagination.css", "easyui.css", "icon.css"] js=["goods_list.js", "jquery.cookie.js", "jquery.jqpagination.min.js", "jquery.easyui.min.js"]>
 	<style>
 		td.can-click {
 			cursor: pointer;
 		}
+        body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        }
+
+        table {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 12px;
+        border-collapse:collapse;
+        width: 100%;
+        margin-top: 5px;
+        }
+
+        table, th, td {
+        border: 1px solid #CCCCCC;
+        }
+
+        tr.trade td {
+        height: 20px;
+        text-align: left;
+        padding-left: 10px;
+        }
+
+        tr.order_list td {
+            vertical-align: top;
+            height: 30px;
+            text-align: left;
+            padding-left: 10px;
+            padding-top: 10px;
+        }
+
+        tr.trade {
+            background-color: #CCCCCC;
+            border: 0px;
+        }
+
+        .action-bar {
+            height: 30px;
+            padding-left: 10px;
+            margin-top: 10px;
+        }
 	</style>
 	<div style="width: 98%; height: 30px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px;">
 		<strong>商品编号</strong>
@@ -114,11 +155,8 @@
 </@root.html>
 
 <!-- start 提示框 -->
-  <div class="modal hide" id="pop-up">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h4 id="title"></h4>
-      </div>
+  <div id="pop-up" class="easyui-window" title="选择模板" data-options="modal:true,collapsible:false,closed:true,
+        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:300px;height:150px;padding:2px;">
       <div class="modal-body">
 	    <p>
 	    	请选择模板 
@@ -132,9 +170,9 @@
 	    	<input type="hidden" id="hids"/>
 	    </p>
 	  </div>
-      <div class="modal-footer">
-         <a href="#" class="btn" data-dismiss="modal">取消</a>
-    	 <a href="#" class="btn btn-primary" id="save">确定</a>
+      <div style="text-align:center;padding:5px">
+          <a class="easyui-linkbutton" onclick="saveTemplate()">确定</a>
+          <a class="easyui-linkbutton" onclick="cancelTemplate()">取消</a>
       </div>
   </div>
   <!-- end 提示框 -->
@@ -282,40 +320,6 @@
 	            }}); 
 	    	})
 	    	
-	    	$('#change-template').click(function() {
-	    		var checked = $('.wait-check:checked');
-	    		if(checked.length==0) {
-	    			alert('至少选中一个商品!');
-	    			return false;
-	    		}
-	    		var hids = "";
-	    		$(checked).each(function(index, item) {
-	    			var hid = $(item).attr("data-hid");
-	    			hids += hid;
-	    			hids += ";";
-	    		})
-	    		$('#hids').val(hids);
-	    		$('#pop-up').modal({
-	                keyboard: false
-	            })
-	    	})
-	    	
-	    	$('#save').click(function() {
-			  var template = $('#template').val();
-			  var hids = $('#hids').val();
-	          $.ajax({
-	            type: "post",//使用get方法访问后台
-	            dataType: "json",//返回json格式的数据
-	            data: "hids=" + hids + "&template=" + template + '&action=change-template',
-	            url: "${rc.contextPath}/goods/action/batch_change",//要访问的后台地址
-	            success: function(result){//msg为返回的数据，在这里做数据绑定
-	                if(result.errorInfo != "success") {
-	                	alert(result.errorInfo);
-	                } else {
-		                window.location.reload();
-	                }
-	            }}); 
-    	})
         //暂时隐藏这个功能
         $('.can-change-invalid').dblclick(function() {
             var v = $(this).attr('data-value');

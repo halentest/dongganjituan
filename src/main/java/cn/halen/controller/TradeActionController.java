@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import cn.halen.data.mapper.*;
 import cn.halen.data.pojo.*;
@@ -96,6 +97,27 @@ public class TradeActionController {
     @RequestMapping(value="trade/action/upload")
     public String upload(Model model) {
         return "trade/upload";
+    }
+
+    @RequestMapping(value="trade/action/cancel_trade_form")
+    public String cancelTradeForm(Model model, @RequestParam String id) {
+        MyTrade trade = tradeMapper.selectById(id);
+        model.addAttribute("trade", trade);
+        model.addAttribute("logistics", myLogisticsCompanyMapper.list());
+        return "trade/cancel_trade_form";
+    }
+
+    @RequestMapping(value="trade/action/cancel_trade")
+    public void cancelTradeForm(Model model, @RequestParam String id, @RequestParam("why-cancel") String whyCancel,
+                                HttpServletResponse resp) {
+        MyTrade trade = tradeMapper.selectById(id);
+        trade.setIs_cancel(1);
+        trade.setWhy_cancel(whyCancel);
+        tradeMapper.updateMyTrade(trade);
+        try {
+            resp.sendRedirect("/trade/trade_detail?id=" + id);
+        } catch (IOException e) {
+        }
     }
 
     @RequestMapping(value="trade/action/do_upload")
@@ -323,6 +345,8 @@ public class TradeActionController {
 			myOrder.setGoods_id(goodsId);
 			myOrder.setColor(color);
 			myOrder.setSize(size);
+            MySku sku = skuMapper.select(goodsId, color, size);
+            myOrder.setSku_id(sku.getId());
 			myOrder.setQuantity(quantity);
 			int singlePayment = MoneyUtils.cal(goods.getPrice(), discount, quantity);
 			payment += singlePayment;
@@ -453,8 +477,7 @@ public class TradeActionController {
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="trade/action/change_delivery")
-	public @ResponseBody ResultInfo changeDelivery(Model model, @RequestParam("tid") String tid, @RequestParam("delivery") String delivery,
-			@RequestParam("quantity") int quantity, @RequestParam("province") String province, @RequestParam("goods") String goods) {
+	public @ResponseBody ResultInfo changeDelivery(Model model, @RequestParam("id") String id, @RequestParam("delivery") String delivery) {
 		ResultInfo result = new ResultInfo();
 		try {
 			String logisticsCompany = (String) redisTemplate.opsForValue().get(REDIS_LOGISTICS_CODE + ":" + delivery);
@@ -463,12 +486,18 @@ public class TradeActionController {
 				redisTemplate.opsForValue().set(REDIS_LOGISTICS_CODE + ":" + delivery, logisticsCompany);
 			}
 			result.setErrorInfo(logisticsCompany);
+            MyTrade trade = tradeMapper.selectTradeMap(id);
 			int deliveryMoney = 0;
-            if(StringUtils.isNotBlank(province)) {
-                deliveryMoney = utilService.calDeliveryMoney(goods, quantity, delivery, province);
+            int quantity = 0;
+            for(MyOrder order : trade.getMyOrderList()) {
+                quantity += order.getQuantity();
+            }
+            String goodsId = trade.getMyOrderList().get(0).getGoods_id();
+            if(StringUtils.isNotBlank(trade.getState())) {
+                deliveryMoney = utilService.calDeliveryMoney(goodsId, quantity, delivery, trade.getState());
             }
 
-			tradeService.changeDelivery(tid, logisticsCompany, deliveryMoney);
+			tradeService.changeDelivery(id, logisticsCompany, deliveryMoney);
 		} catch (InvalidStatusChangeException isce) {
 			result.setSuccess(false);
 			result.setErrorInfo("这个订单不能进行此操作!");
@@ -617,15 +646,16 @@ public class TradeActionController {
 	}
 
     @RequestMapping(value="trade/action/modify_receiver_info_form")
-    public String modifyReceiverInfoForm(Model model, @RequestParam("tid") String tid) {
+    public String modifyReceiverInfoForm(Model model, @RequestParam("id") String id) {
 
+        MyTrade trade = tradeMapper.selectTradeMap(id);
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
-        model.addAttribute("tid", tid);
+        model.addAttribute("trade", trade);
         return "trade/modify_receiver_info_form";
     }
 
     @RequestMapping(value="trade/action/modify_receiver_info")
-    public String modifyReceiverInfo(Model model, HttpServletRequest req) {
+    public String modifyReceiverInfo(Model model, HttpServletRequest req, HttpServletResponse resp) {
 
         String province = req.getParameter("province");
         String city = req.getParameter("city");
@@ -634,7 +664,7 @@ public class TradeActionController {
         String receiver = req.getParameter("receiver");
         String phone = req.getParameter("phone");
         String mobile = req.getParameter("mobile");
-        String tid = req.getParameter("tid");
+        String id = req.getParameter("id");
         String errorInfo = validateAddress(model, province, city, district, address, receiver, mobile);
         if(null != errorInfo) {
             model.addAttribute("errorInfo", errorInfo);
@@ -660,9 +690,13 @@ public class TradeActionController {
             redisTemplate.opsForValue().set(REDIS_AREA + ":" + district, districtName);
         }
         int count = tradeMapper.updateLogisticsAddress(provinceName, cityName, districtName, address, mobile, phone,
-                postcode, receiver, new Date(), tid);
+                postcode, receiver, new Date(), id);
         if(count > 0) {
-            model.addAttribute("info", "修改收货地址成功!");
+            try {
+                resp.sendRedirect("/trade/trade_detail?id=" + id);
+                return null;
+            } catch (IOException e) {
+            }
         } else {
             model.addAttribute("info", "修改收货地址失败!");
         }

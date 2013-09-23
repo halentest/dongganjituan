@@ -1,10 +1,8 @@
 <#import "/templates/root.ftl" as root >
 
 <@root.html active=3 css=["easyui.css", "icon.css", "trade_detail.css"]
-js=["jquery.cookie.js", "jquery.easyui.min.js"]>
-       <div class="tab">
-           订单详情
-       </div>
+js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
+       <#include "/trade/_t_detail_tab.ftl">
        <div style="border:1px solid gray; width: 100%; height: auto;">
            <div class="right">
                <strong>商品列表</strong>
@@ -40,19 +38,7 @@ js=["jquery.cookie.js", "jquery.easyui.min.js"]>
                    </tbody>
                </table>
            </div>
-           <div class="left">
-               <strong>客户信息</strong>
-               <ul>
-                   <li>客户姓名：${trade.name!''}</li>
-                   <li>手机：${trade.mobile!''}</li>
-                   <li>电话：${trade.phone!''}</li>
-                   <li>地址：${trade.state!''} ${trade.city!''} ${trade.district!''} ${trade.address!''}</li>
-                   <li>邮编: ${trade.postcode!''}</li>
-                   <li>快递: ${trade.delivery!''}</li>
-                   <li>运费: ${trade.delivery_money/100!''}</li>
-                   <li>快递单号: ${trade.delivery_number!''}</li>
-                   <li>网店：${trade.seller_nick!''}</li>
-               </ul>
-           </div>
+           <#include "/trade/_buyer_info.ftl">
+           <div style="clear: both;"></div>
        </div>
 </@root.html>

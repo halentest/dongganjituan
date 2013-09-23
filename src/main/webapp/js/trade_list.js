@@ -135,7 +135,6 @@ function cancelTrackingNumber() {
 }
 
 function addTrackingNumber(id) {
-    alert(id);
     $('#curr-tid').val(id);
     $('#tracking-number').val('');
     $('#pop-up').window('open');

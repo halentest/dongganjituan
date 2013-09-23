@@ -46,13 +46,6 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectById", id);
 	}
 	
-	public MyTrade selectTradeDetail(String id) {
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("tid", id);
-		MyTrade myTrade = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", param);
-		return myTrade;
-	}
-	
 	public MyOrder selectOrderByOrderId(String oid) {
 		MyOrder myOrder = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectOrderByOrderId", oid);
 		return myOrder;

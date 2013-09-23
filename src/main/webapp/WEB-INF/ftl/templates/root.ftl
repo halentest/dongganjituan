@@ -14,9 +14,10 @@
     </#list>
     <style type="text/css">
         ${custom_css!''}
-        .container2 {
+        .container {
             margin-left:5px;
             margin-right:5px;
+            width: 100%;
         }
     </style>
     <link rel="icon" href="img/favicon.ico" type="image/x-icon" />
@@ -24,7 +25,7 @@
       
   </head>
   <body>
-    <div class="container2" style="padding-bottom: 30px; padding-top: 5px;">
+    <div class="container" style="padding-bottom: 30px; padding-top: 5px;">
         <#nested>
     </div>
 
