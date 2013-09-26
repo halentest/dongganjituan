@@ -90,9 +90,14 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 <tr>
                     <td style="width:50%"></td>
                     <td>${trade.id}</td>
-                    <td>${trade.tid}</td>
+                    <td>${trade.tid!''}</td>
                     <td>${trade.name}</td>
-                    <td>${trade.tradeStatus.desc}</td>
+                    <td>
+                    ${trade.tradeStatus.desc}<br>
+                    <#if trade.is_cancel==-1>
+                        <font color="red">已申请取消</font>
+                    </#if>
+                    </td>
                     <td>${trade.created?string('yyyy-MM-dd HH:mm:ss')}</td>
                     <td>
                         <p><a href="${rc.contextPath}/trade/trade_detail?id=${trade.id}">订单详情</a></p>

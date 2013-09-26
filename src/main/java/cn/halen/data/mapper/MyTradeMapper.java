@@ -17,7 +17,7 @@ import cn.halen.util.Paging;
 
 public class MyTradeMapper extends SqlSessionDaoSupport {
 
-    private synchronized String generateId() {
+    public synchronized String generateId() {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssssss");
         try {
             Thread.sleep(1000);
@@ -27,7 +27,9 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
     }
 
 	public int insert(MyTrade myTrade) {
-        myTrade.setId(generateId());
+        if(myTrade.getId()==null) { //外部没有指定id，则指定
+            myTrade.setId(generateId());
+        }
 		int count = getSqlSession().insert("cn.halen.data.mapper.MyTradeMapper.insert", myTrade);
 		return count;
 	}
@@ -69,11 +71,15 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		int count = getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateTrade", trade);
 		return count;
 	}
+
+    public void delOrder(long id) {
+        getSqlSession().delete("cn.halen.data.mapper.MyTradeMapper.delOrder", id);
+    }
 	
 	public int updateTradeStatus(String status, String tid) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("status", status);
-		param.put("tid", tid);
+		param.put("id", tid);
 		return getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateTradeStatus", param);
 	}
 	
@@ -99,7 +105,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public long countTrade(List<String> sellerNickList, String name, String tid, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, Integer isCancel, Integer isFinish,
+	public long countTrade(List<String> sellerNickList, String name, String tid, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
 			String delivery, Date startTime, Date endTime) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
@@ -126,7 +132,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
             param.put("isSend", isSend);
         }
 
-        if(null != isCancel) {
+        if(null!=isCancel && isCancel.size()>0) {
             param.put("isCancel", isCancel);
         }
 
@@ -151,7 +157,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
         return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", param);
     }
 	
-	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, Integer isCancel, Integer isFinish,
+	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
 			String delivery, Date startTime, Date endTime) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
@@ -182,7 +188,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
             param.put("isSend", isSend);
         }
 
-        if(null != isCancel) {
+        if(null!=isCancel && isCancel.size()>0) {
             param.put("isCancel", isCancel);
         }
 

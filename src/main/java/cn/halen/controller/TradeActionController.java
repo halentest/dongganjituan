@@ -100,19 +100,26 @@ public class TradeActionController {
     }
 
     @RequestMapping(value="trade/action/cancel_trade_form")
-    public String cancelTradeForm(Model model, @RequestParam String id) {
+    public String cancelTradeForm(Model model, @RequestParam String id, @RequestParam(value="isApply", required=false) String isApply) {
         MyTrade trade = tradeMapper.selectById(id);
         model.addAttribute("trade", trade);
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
+        model.addAttribute("isApply", isApply);
         return "trade/cancel_trade_form";
     }
 
     @RequestMapping(value="trade/action/cancel_trade")
-    public void cancelTradeForm(Model model, @RequestParam String id, @RequestParam("why-cancel") String whyCancel,
+    public void cancelTrade(Model model, @RequestParam String id, @RequestParam(value="why-cancel", required = false) String whyCancel, @RequestParam(value="isApply", required=false) String isApply,
                                 HttpServletResponse resp) {
         MyTrade trade = tradeMapper.selectById(id);
-        trade.setIs_cancel(1);
-        trade.setWhy_cancel(whyCancel);
+        if("true".equals(isApply)) {
+            trade.setIs_cancel(-1);
+        } else {
+            trade.setIs_cancel(1);
+        }
+        if(StringUtils.isNotBlank(whyCancel)) {
+            trade.setWhy_cancel(whyCancel.trim());
+        }
         tradeMapper.updateMyTrade(trade);
         try {
             resp.sendRedirect("/trade/trade_detail?id=" + id);
@@ -203,7 +210,9 @@ public class TradeActionController {
 
 	@RequestMapping(value="trade/action/buy_goods_form")
 	public String buyGoodsForm(Model model, @RequestParam(value="orders", required=false) String orders, 
-			@RequestParam(value="fromcart", required=false) String fromCart) {
+			@RequestParam(value="fromcart", required=false) String fromCart,
+            @RequestParam(value="tid", required=false) String tid,
+            @RequestParam(value="addGoods", required=false) String addGoods) {
 		User user = UserHolder.get();
 		String token = user.getUsername() + System.currentTimeMillis();
 		tokens.put(token, "ture");
@@ -235,15 +244,21 @@ public class TradeActionController {
 			clientOrder.setCount(Integer.parseInt(items[5]));
 			orderList.add(clientOrder);
 		}
+        if(null != addGoods && "true".equals(addGoods)) {
+            model.addAttribute("addGoods", true);
+        } else {
+            model.addAttribute("addGoods", false);
+        }
 		model.addAttribute("orderList", orderList);
 		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
-		
+        model.addAttribute("tid", tid);
+
 		return "trade/buy_goods_form";
 	}
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="trade/action/buy_goods")
-	public String buyGoods(Model model, HttpServletRequest req) {
+	public String buyGoods(Model model, HttpServletRequest req, HttpServletResponse resp) {
 		String token = req.getParameter("token");
 		if(tokens.get(token) == null) {
 			model.addAttribute("errorInfo", "请不要重复提交表单！");
@@ -267,6 +282,8 @@ public class TradeActionController {
 		String sellerMemo = req.getParameter("seller_memo");
 	
 		MyTrade trade = new MyTrade();
+        String id = tradeMapper.generateId();
+        trade.setId(id);
 		
 		String logisticsCompany = (String) redisTemplate.opsForValue().get(REDIS_LOGISTICS_CODE + ":" + logistics);
 		if(null == logisticsCompany) {
@@ -313,9 +330,7 @@ public class TradeActionController {
 		User currentUser = UserHolder.get();
 		float discount = currentUser.getShop().getD().getDiscount();
 		trade.setSeller_nick(currentUser.getShop().getSellerNick());
-		String tradeId = this.generateTradeId();
-		trade.setTid(tradeId);
-		
+
 		int count = 0;
 		String goodsId = null;
 		while(hasNext) {
@@ -354,8 +369,7 @@ public class TradeActionController {
 			myOrder.setTitle(goods.getTitle());
 			myOrder.setPic_path(goods.getUrl());
 			myOrder.setStatus(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue());
-			myOrder.setTid(tradeId);
-			myOrder.setOid(this.generateTradeId());
+			myOrder.setTid(id);
 			orderList.add(myOrder);
 			count++;
 		}
@@ -375,8 +389,91 @@ public class TradeActionController {
 			return "error_page";
 		}
 		tokens.remove(token);
-		return "trade/buy_goods_result";
+        try {
+            resp.sendRedirect("/trade/trade_detail?id=" + id);
+            return null;
+        } catch (IOException e) {
+        }
+        return null;
 	}
+
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value="trade/action/add_goods")
+    public String addGoods(Model model, HttpServletRequest req, HttpServletResponse resp) {
+        String token = req.getParameter("token");
+        if(tokens.get(token) == null) {
+            model.addAttribute("errorInfo", "请不要重复提交表单！");
+            return "error_page";
+        }
+
+        String tid = req.getParameter("tid");
+        boolean hasNext = true;
+
+        List<MyOrder> orderList = new ArrayList<MyOrder>();
+        int count = 0;
+        String goodsId = null;
+        while(hasNext) {
+            String currGoodsId = req.getParameter("goods" + count);
+            if(null == currGoodsId) {
+                hasNext = false;
+                break;
+            }
+            goodsId = currGoodsId;
+            int quantity = 0;
+            try {
+                quantity = Integer.parseInt(req.getParameter("count" + count));
+            } catch(Exception e) {
+                model.addAttribute("errorInfo", "商品数量必须填写数字！");
+                return "error_page";
+            }
+            if(quantity <= 0) {
+                model.addAttribute("errorInfo", "商品数量不能小于0！");
+                return "error_page";
+            }
+
+            Goods goods = goodsMapper.getByHid(goodsId);
+            String color = req.getParameter("color" + count);
+            String size = req.getParameter("size" + count);
+
+            MyOrder myOrder = new MyOrder();
+            myOrder.setGoods_id(goodsId);
+            myOrder.setColor(color);
+            myOrder.setSize(size);
+            MySku sku = skuMapper.select(goodsId, color, size);
+            myOrder.setSku_id(sku.getId());
+            myOrder.setQuantity(quantity);
+            myOrder.setTitle(goods.getTitle());
+            myOrder.setPic_path(goods.getUrl());
+            myOrder.setTid(tid);
+            orderList.add(myOrder);
+            count++;
+        }
+        try{
+            for(MyOrder order : orderList) {
+                tradeMapper.insertMyOrder(order);
+            }
+        } catch(Exception e) {
+            log.error("", e);
+            model.addAttribute("errorInfo", "系统异常，请重试！");
+            return "error_page";
+        }
+        tokens.remove(token);
+        try {
+            resp.sendRedirect("/trade/trade_detail?id=" + tid);
+            return null;
+        } catch (IOException e) {
+        }
+        return null;
+    }
+
+    @RequestMapping(value="trade/action/del_goods")
+    public void delGoods(Model model, HttpServletResponse resp, @RequestParam long oid, @RequestParam String tid) {
+        tradeMapper.delOrder(oid);
+        try {
+            resp.sendRedirect("/trade/trade_detail?id=" + tid);
+        } catch (IOException e) {
+        }
+    }
 	
 	@RequestMapping(value="trade/action/shopcart")
 	public String shopCart(Model model, HttpServletRequest req) {

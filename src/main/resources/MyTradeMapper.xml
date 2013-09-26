@@ -35,7 +35,6 @@
 		<collection property="myOrderList" ofType="MyOrder" >
 	      	<id property="id" column="o_id"/>
 	      	<result property="tid" column="o_tid"/>
-	      	<result property="oid" column="o_oid"/>
 	      	<result property="goods_id" column="o_goods_id"/>
 	      	<result property="title" column="o_title"/>
 	      	<result property="pic_path" column="o_pic_path"/>
@@ -71,8 +70,8 @@
 	</insert>
 	
 	<insert id="insertOrder" parameterType="MyOrder">
-		insert into order1(oid, tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, status, created)
-		values(#{oid}, #{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment}, #{status}, now())
+		insert into order1(tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, status, created)
+		values(#{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment}, #{status}, now())
 	</insert>
 
     <select id="checkTidExist" parameterType="String" resultType="String">
@@ -121,7 +120,12 @@
                     and t.is_send = #{isSend}
                 </if>
                 <if test="isCancel != null">
-                    and t.is_cancel = #{isCancel}
+                    and t.is_cancel in (
+                    <foreach collection="isCancel" item="item" index="index"
+                             separator=",">
+                        #{item}
+                    </foreach>
+                    )
                 </if>
                 <if test="isFinish != null">
                     and t.is_finish = #{isFinish}
@@ -168,7 +172,12 @@
                 and t.is_send = #{isSend}
             </if>
             <if test="isCancel != null">
-                and t.is_cancel = #{isCancel}
+                and t.is_cancel in (
+                <foreach collection="isCancel" item="item" index="index"
+                         separator=",">
+                    #{item}
+                </foreach>
+                )
             </if>
             <if test="isFinsh != null">
                 and t.is_finish = #{isFinish}
@@ -179,12 +188,12 @@
 	
 	<select id="selectTradeMap" parameterType="Map" resultMap="myTradeMap" >
 		select t.*,
-			   o.id as o_id, o.tid as o_tid, o.oid as o_oid, o.goods_id as o_goods_id, o.title as o_title, o.pic_path as o_pic_path, o.sku_id as o_sku_id, o.quantity as o_quantity, o.price as o_price, 
+			   o.id as o_id, o.tid as o_tid, o.goods_id as o_goods_id, o.title as o_title, o.pic_path as o_pic_path, o.sku_id as o_sku_id, o.quantity as o_quantity, o.price as o_price,
 			   o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.status as o_status, o.modified as o_modified, o.created as o_created,
 			   s.color_id as s_color_id, s.color as s_color, s.size as s_size, s.id as s_id
 			   from 
 			   trade t
-			   left join order1 o on t.tid = o.tid
+			   left join order1 o on t.id = o.tid
 			   left join sku s on o.sku_id = s.id
         <where>
             <if test="id != null">
@@ -212,11 +221,11 @@
 	</select>
 	
 	<select id="selectOrderByOrderId" parameterType="Long" resultType="MyOrder">
-		select * from order1 where oid = #{oid}
+		select * from order1 where id = #{id}
 	</select>
 	
 	<update id="updateTradeMemo" parameterType="java.util.HashMap">
-		update trade set seller_memo=#{memo}, modified=#{modified} where tid=#{tradeId}
+		update trade set seller_memo=#{memo}, modified=#{modified} where id=#{tradeId}
 	</update>
 	
 	<update id="updateTrade" parameterType="MyTrade">
@@ -229,17 +238,21 @@
 	</update>
 	
 	<update id="updateTradeStatus" parameterType="Map">
-		update trade set status=#{status} where id=#{tid}
+		update trade set status=#{status} where id=#{id}
 	</update>
 	
 	<update id="updateOrderStatus" parameterType="Map">
-		update order1 set status=#{status} where tid=#{tid} and oid=#{oid}
+		update order1 set status=#{status} where tid=#{tid} and id=#{id}
 	</update>
+
+    <delete id="delOrder" parameterType="long">
+        delete from order1 where id=#{id}
+    </delete>
 	
 	<update id="updateOrder" parameterType="MyOrder">
-		update order1 set oid=#{oid}, tid=#{tid}, goods_id=#{goods_id}, sku_id=#{sku_id}, quantity=#{quantity}, 
+		update order1 set tid=#{tid}, goods_id=#{goods_id}, sku_id=#{sku_id}, quantity=#{quantity},
 			price=#{price}, discount=#{discount}, weight=#{weight}, payment=#{payment}, delivery=#{delivery},
-            delivery_number=#{delivery_number}, status=#{status} where oid=#{oid}
+            delivery_number=#{delivery_number}, status=#{status} where id=#{id}
 	</update>
 	
 	<update id="updateLogisticsAddress" parameterType="java.util.HashMap">

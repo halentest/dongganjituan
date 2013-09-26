@@ -330,19 +330,20 @@ public class TradeService {
 		MyTrade myTrade = myTradeMapper.selectTradeMap(tid);
 		myTrade.setStatus(TradeStatus.WaitReceive.getStatus());
         myTrade.setIs_send(1);
+        myTrade.setIs_cancel(0);
 		myTradeMapper.updateMyTrade(myTrade);
-		
+
 		List<MyOrder> list = myTrade.getMyOrderList();
+        if(updateSku) {
+            //3
+            skuService.unlockSku(list, false);
+        }
 		for(MyOrder myOrder : list) {
             if(updateSku) {
                 //2
                 skuService.updateSku(myOrder.getSku_id(), -myOrder.getQuantity(), 0, 0, false);
             }
 		}
-        if(updateSku) {
-            //3
-            skuService.unlockSku(list, false);
-        }
 	}
 	
 	public void updateOrder(MyOrder myOrder) {
@@ -390,8 +391,8 @@ public class TradeService {
         return count;
     }
 	
-	public MyOrder selectOrderByOrderId(String oid) {
-		return myTradeMapper.selectOrderByOrderId(oid);
+	public MyOrder selectOrderByOrderId(String id) {
+		return myTradeMapper.selectOrderByOrderId(id);
 	}
 	
 	public MyTrade selectByTradeId(String id) {
@@ -459,6 +460,8 @@ public class TradeService {
         List<MyTrade> result = new ArrayList<MyTrade>();
         for(OrderSearchInfo orderInfo : list) {
             MyTrade t = new MyTrade();
+            String id = myTradeMapper.generateId();
+            t.setId(id);
             t.setTid(orderInfo.getOrderId());
             t.setSeller_nick(orderInfo.getVenderId());
             String payType = orderInfo.getPayType();
@@ -499,9 +502,8 @@ public class TradeService {
                 int num = Integer.parseInt(item.getItemTotal()); //商品数量
                 MyOrder order = new MyOrder();
                 order.setSku_id(sku.getId());
-                order.setTid(orderInfo.getOrderId());
+                order.setTid(id);
                 order.setQuantity(num);
-                order.setOid(orderInfo.getOrderId() + n);
                 n++;
                 t.addOrder(order);
             }
@@ -515,11 +517,11 @@ public class TradeService {
     public List<MyTrade> toMyTrade(List<TradeRow> list, String sellerNick) {
         List<MyTrade> result = new ArrayList<MyTrade>();
         MyTrade lastTrade = null;
-        int c = 1;
         for(TradeRow row : list) {
             if(StringUtils.isNotBlank(row.getShopName())) {
-                c = 1;
                 MyTrade myTrade = new MyTrade();
+                String id = myTradeMapper.generateId();
+                myTrade.setId(id);
                 myTrade.setTid(row.getTradeId());
                 myTrade.setName(row.getName());
                 myTrade.setPhone(row.getPhone());
@@ -536,8 +538,7 @@ public class TradeService {
                 myTrade.setDelivery(mc.getName());
 
                 MyOrder myOrder = new MyOrder();
-                myOrder.setTid(row.getTradeId());
-                myOrder.setOid(row.getTradeId() + c);
+                myOrder.setTid(id);
                 myOrder.setColor(row.getColor());
                 myOrder.setSize(row.getSize());
                 myOrder.setPayment(row.getPrice());
@@ -550,10 +551,8 @@ public class TradeService {
 
                 lastTrade = myTrade;
             } else {
-                c ++;
                 MyOrder myOrder = new MyOrder();
-                myOrder.setTid(lastTrade.getTid());
-                myOrder.setOid(lastTrade.getTid() + c);
+                myOrder.setTid(lastTrade.getId());
                 myOrder.setColor(row.getColor());
                 myOrder.setSize(row.getSize());
                 myOrder.setGoods_id(row.getGoodsId());
@@ -574,7 +573,10 @@ public class TradeService {
      * @throws ApiException
      */
 	public MyTrade toMyTrade(Trade trade) throws ApiException {
-		
+
+        MyTrade myTrade = new MyTrade();
+        String id = myTradeMapper.generateId();
+        myTrade.setId(id);
 		List<Order> orderList = trade.getOrders();
 		int goodsCount = 0;
 		List<MyOrder> myOrderList = new ArrayList<MyOrder>();
@@ -626,8 +628,7 @@ public class TradeService {
 			
 			goodsCount += order.getNum();
 			MyOrder myOrder = new MyOrder();
-			myOrder.setTid(String.valueOf(trade.getTid()));
-			myOrder.setOid(String.valueOf(order.getOid()));
+			myOrder.setTid(id);
 			myOrder.setColor(color);
 			myOrder.setSize(size);
             myOrder.setSku_id(sku.getId());
@@ -653,7 +654,6 @@ public class TradeService {
 			return null;
 		}
 		
-		MyTrade myTrade = new MyTrade();
 		myTrade.setTid(String.valueOf(trade.getTid()));
 		myTrade.setName(trade.getReceiverName());
 		myTrade.setPhone(trade.getReceiverPhone());

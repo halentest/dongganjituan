@@ -7,7 +7,6 @@ import cn.halen.service.top.domain.TaoTradeStatus;
 public class MyOrder {
 	private long id; 
 	private String tid;
-	private String oid;
 	private String goods_id;
 	private String title;
 	private String pic_path;
@@ -56,13 +55,6 @@ public class MyOrder {
 	public void setTid(String tid) {
 		this.tid = tid;
 	}
-	public String getOid() {
-		return oid;
-	}
-	public void setOid(String oid) {
-		this.oid = oid;
-	}
-	
 	public String getColor() {
 		return color;
 	}
@@ -167,7 +159,6 @@ public class MyOrder {
         return "MyOrder{" +
                 "id=" + id +
                 ", tid='" + tid + '\'' +
-                ", oid='" + oid + '\'' +
                 ", goods_id='" + goods_id + '\'' +
                 ", title='" + title + '\'' +
                 ", pic_path='" + pic_path + '\'' +

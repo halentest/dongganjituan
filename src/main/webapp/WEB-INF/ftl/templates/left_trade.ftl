@@ -135,18 +135,18 @@
 
         $('#wait-send').click(function() {
             <#if CURRENT_USER.type=="WareHouse">
-                parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0&status=WaitSend";
+                parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitSend";
             <#else>
-                parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0";
+                parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0";
             </#if>
         });
 
         $('#finding').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0&status=WaitFind";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitFind";
         });
 
         $('#have-delivery').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=0&isFinish=0&status=WaitOut";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitOut";
         });
 
         $('#refund').click(function() {

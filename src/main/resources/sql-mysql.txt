@@ -136,7 +136,6 @@ create table order1
 (
 	id bigint primary key auto_increment, 
 	tid varchar(50) not null, 
-	oid varchar(50),
 	goods_id varchar(100),
 	title varchar(255),
 	pic_path varchar(255),

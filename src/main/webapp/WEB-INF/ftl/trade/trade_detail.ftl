@@ -6,7 +6,11 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
        <div style="border:1px solid gray; width: 100%; height: auto;">
            <div class="right">
                <strong>商品列表</strong>
-               <button>添加商品</button>
+               <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
+                   <#if (trade.status=="UnSubmit" || trade.status=="WaitSend") && trade.is_cancel==0>
+                    <a href="${rc.contextPath}/goods/goods_list?tid=${trade.id?string}">添加商品</a>
+                   </#if>
+               </#if>
                <table class="easyui-datagrid" style="height:auto;" data-options="scrollbarSize:'0', fitColumns:'true'">
                    <thead>
                    <tr>
@@ -14,6 +18,7 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
                        <th data-options="field:'productid',align:'center',width:$(this).width() * 0.3">单价</th>
                        <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">数量</th>
                        <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">颜色规格</th>
+                       <th data-options="field:'action',align:'center',width:$(this).width() * 0.3">操作</th>
                    </tr>
                    </thead>
                    <tbody>
@@ -33,6 +38,13 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
                            <td>${order.price/1000}</td>
                            <td>${order.quantity}</td>
                            <td>颜色：${order.sku.color}, 规格：${order.sku.size}</td>
+                           <td>
+                               <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
+                                   <#if (trade.status=="UnSubmit" || trade.status=="WaitSend") && trade.is_cancel==0>
+                                    <a href="${rc.contextPath}/trade/action/del_goods?tid=${trade.id?string}&oid=${order.id}">删除</a>
+                                   </#if>
+                               </#if>
+                           </td>
                        </tr>
                    </#list>
                    </tbody>

@@ -1,5 +1,5 @@
 <#import "/templates/root.ftl" as root >
-<@root.html active=3 css=["jdpicker.css", "trade_list.css"] js=["highcharts.js", "exporting.js", "jquery.cookie.js"]>
+<@root.html active=3 css=["jdpicker.css", "table.css"] js=["highcharts.js", "exporting.js", "jquery.cookie.js"]>
 
     <i class="icon-shopping-cart"></i>我的购物车
     <div id="cart-container">

@@ -188,7 +188,7 @@ public class GoodsController {
 
 	@RequestMapping(value="goods/goods_list")
 	public String list(Model model, @RequestParam(value="page", required=false) Integer page,
-			@RequestParam(value="goods_id", required=false) String goodsId) {
+			@RequestParam(value="goods_id", required=false) String goodsId, @RequestParam(value="tid", required=false) String tid) {
 
         model.addAttribute("quantity", skuMapper.sumQuantity());
         model.addAttribute("lockQuantity", skuMapper.sumLockQuantity());
@@ -216,6 +216,8 @@ public class GoodsController {
         f(list, model);
 		model.addAttribute("list", list);
 		model.addAttribute("templateList", adminMapper.selectTemplateNameAll());
+
+        model.addAttribute("tid", tid);
 
 		return "goods/goods_list";
 	}
@@ -626,34 +628,24 @@ public class GoodsController {
     }
 
     @RequestMapping(value="goods/action/change_goods")
-    public @ResponseBody ResultInfo changeGoods(Model model, @RequestParam("hid") String hid, @RequestParam("type") String type,
-                                                @RequestParam("value") String value, @RequestParam("oldValue") String oldValue) {
+    public @ResponseBody ResultInfo changeGoods(Model model, @RequestParam("hid") String hid, @RequestParam("color") String color, @RequestParam("size") String size,
+                                                @RequestParam("newValue") String newValue, @RequestParam("oldValue") String oldValue) {
         ResultInfo result = new ResultInfo();
         try {
-            if("color".equals(type)) {
-                List<MySku> list = skuMapper.selectByGoodsIdColor(hid, value);
-                if(list.size()>0) {
-                    result.setSuccess(false);
-                    result.setErrorInfo("更新失败，颜色" + value + "已经存在!");
-                } else {
-                    skuMapper.updateColorByGoodsIdColor(hid, oldValue, value);
-                }
-            } else if("size".equals(type)) {
-                List<MySku> list = skuMapper.selectByGoodsIdSize(hid, value);
-                if(list.size()>0) {
-                    result.setSuccess(false);
-                    result.setErrorInfo("更新失败，尺寸" + value + "已经存在!");
-                } else {
-                    skuMapper.updateSizeByGoodsIdSize(hid, oldValue, value);
-                }
-            } else {
-                result.setErrorInfo("参数错误!");
+            MySku sku = skuMapper.select(hid, color, size);
+            if(null == sku) {
+                result.setErrorInfo("更新失败, 请刷新后重试!");
                 result.setSuccess(false);
             }
+            long old = Long.parseLong(oldValue);
+            long new1 = Long.parseLong(newValue);
+            long dValue = new1 - old;
+            skuService.updateSku(sku.getId(), dValue, 0, 0, true);
+
         } catch (Exception e) {
-            result.setErrorInfo("系统异常，请重试!");
+            result.setErrorInfo("更新失败, 请刷新后重试!");
             result.setSuccess(false);
-            log.error("更新商品属性失败,", e);
+            log.error("更新商品库存失败,", e);
         }
         return result;
     }

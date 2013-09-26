@@ -34,3 +34,21 @@ function saveTemplate() {
 function cancelTemplate() {
     $('#pop-up').window('close');
 }
+
+function addGoods(tid, goods) {
+    var selected = $("[data-goods='" + goods + "'][is-selected='true']");
+    if(selected.size()==0) {
+        alert("请选择要购买的商品！");
+        return;
+    }
+    var orders = ''
+    selected.each(function(index, element) {
+        orders += goods + ',' + $(this).attr("data-url") + ',' + $(this).attr("data-title")
+             + ',' + $(this).attr("data-color") + ',' +
+            $(this).attr("data-size") + ',1';
+        if(index != selected.size()-1) {
+            orders += ':::';
+        }
+    })
+    window.location.href = "/trade/action/buy_goods_form?addGoods=true&orders=" + orders + "&tid=" + tid;
+}

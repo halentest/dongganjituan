@@ -10,6 +10,7 @@
                 </textarea>
                 <br>
                 <input type="hidden" name="id" value="${trade.id}"/>
+                <input type="hidden" name="isApply" value="${isApply!''}"/>
                 <input type="submit" value="取消订单"/>
             </form>
         </div>

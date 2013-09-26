@@ -1,52 +1,7 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=2 css=["jqpagination.css", "easyui.css", "icon.css"] js=["goods_list.js", "jquery.cookie.js", "jquery.jqpagination.min.js", "jquery.easyui.min.js"]>
-	<style>
-		td.can-click {
-			cursor: pointer;
-		}
-        body {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        font-size: 14px;
-        }
+<@root.html active=2 css=["jqpagination.css", "easyui.css", "icon.css", "table.css"] js=["goods_list.js", "jquery.cookie.js", "jquery.jqpagination.min.js", "jquery.easyui.min.js"]>
 
-        table {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        font-size: 12px;
-        border-collapse:collapse;
-        width: 100%;
-        margin-top: 5px;
-        }
-
-        table, th, td {
-        border: 1px solid #CCCCCC;
-        }
-
-        tr.trade td {
-        height: 20px;
-        text-align: left;
-        padding-left: 10px;
-        }
-
-        tr.order_list td {
-            vertical-align: top;
-            height: 30px;
-            text-align: left;
-            padding-left: 10px;
-            padding-top: 10px;
-        }
-
-        tr.trade {
-            background-color: #CCCCCC;
-            border: 0px;
-        }
-
-        .action-bar {
-            height: 30px;
-            padding-left: 10px;
-            margin-top: 10px;
-        }
-	</style>
 	<div style="width: 98%; height: 30px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px;">
 		<strong>商品编号</strong>
 		<input id="goods-id" type="input" value="" style="width: 6%; height: 15px;"/>
@@ -106,9 +61,10 @@
         	  		</#list>
         	  		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
         	  		<td rowspan="${map2?size+1}" style="width: 12%;">
-        	  			<p><a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">点击购买</a></p>
-        	  			<p><a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a></p>
-        	  			<p><a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a></p>
+        	  			<a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">点击购买</a>
+        	  			<a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a>
+        	  			<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
+                        <#if tid??><a onclick="addGoods(${tid}, ${goods.hid})">添加</a></#if>
         	  		</td>
         	  		</#if>
         	  </tr>
@@ -125,7 +81,12 @@
                             <#if savedQ &gt; 0>
                                 class="can-click"
                             </#if>
-                        </#if>>
+                        </#if>
+                        <#if CURRENT_USER.type=="GoodsManager">
+                                class="can-change-store"
+                            data-saved="${savedQ}" data-origin="${map2[key2][key3]}"
+                        </#if>
+                        >
                         <#if savedQ != actualQ>
                             <font color='red'>${map2[key2][key3]}</font>
                         <#else>
@@ -192,7 +153,7 @@
                     if(!page) {
                         page = 1;
                     }
-			        window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId;
+			        window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId + "&tid=${tid!''}";
 			    }
 		   });
 		   
@@ -202,7 +163,7 @@
                 if(!page) {
                     page = 1;
                 }
-		   		window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId;
+		   		window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId + "&tid=${tid!''}";
 		   });
 
 		   $('td.can-click').click(function() {
@@ -320,9 +281,9 @@
 	            }}); 
 	    	})
 	    	
-        //暂时隐藏这个功能
-        $('.can-change-invalid').dblclick(function() {
-            var v = $(this).attr('data-value');
+        //修改库存
+        $('.can-change-store').dblclick(function() {
+            var v = $(this).attr('data-saved');
             $(this).html('<input id="tempInput" style="width: 50px; height: 12px;" type="text" onblur="changeGoods(this)" value=' + v + '>');
             $('#tempInput').focus();
         });
@@ -331,28 +292,31 @@
 
     function changeGoods(param) {
         var isTrue = confirm("确定修改它吗？");
-        var value = $(param).parent().attr('data-value');
+        var value = $(param).parent().attr('data-origin');
         if(!isTrue) {
             $(param).parent().html(value);
             return false;
         }
-        var type = $(param).parent().attr('data-type');
+        var color = $(param).parent().attr('data-color');
         var hid = $(param).parent().attr('data-goods');
+        var size = $(param).parent().attr('data-size');
         var newValue = $(param).val();
-        if(value==newValue) {
-            $(param).parent().html(newValue);
+        var oldValue = $(param).parent().attr('data-saved');
+        if(oldValue==newValue) {
+            $(param).parent().html(value);
             return;
         }
         $.ajax({
             type: "post",//使用get方法访问后台
             dataType: "json",//返回json格式的数据
-            data: "hid=" + hid + "&type=" + type + '&value=' + newValue + "&oldValue=" + value,
+            data: "hid=" + hid + "&color=" + color + "&size=" + size + '&newValue=' + newValue + "&oldValue=" + oldValue,
             url: "${rc.contextPath}/goods/action/change_goods",//要访问的后台地址
             success: function(result){//msg为返回的数据，在这里做数据绑定
             if(result.errorInfo != "success") {
                 alert(result.errorInfo);
             } else {
-                $(param).parent().html(newValue);
+                alert("修改成功");
+                window.location.reload();
             }
         }});
 

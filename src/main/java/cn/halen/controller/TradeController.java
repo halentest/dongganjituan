@@ -132,7 +132,7 @@ public class TradeController {
             @RequestParam(value="isSubmit", required=false) Integer isSubmit,
             @RequestParam(value="isRefund", required=false) Integer isRefund,
             @RequestParam(value="isSend", required=false) Integer isSend,
-            @RequestParam(value="isCancel", required=false) Integer isCancel,
+            @RequestParam(value="isCancel", required=false) String isCancel,
             @RequestParam(value="isFinish", required=false) Integer isFinish) {
 		int intPage = 1;
 		if(null!=page && page>0) {
@@ -209,12 +209,33 @@ public class TradeController {
 			}
 		}
 
-		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, StringUtils.isBlank(status)?null:Arrays.asList(status), isSubmit, isRefund, isSend, isCancel, isFinish, delivery, startTime, endTime);
+        List<String> statusList = null;
+        if(StringUtils.isNotBlank(status)) {
+            statusList = new ArrayList<String>();
+            String[] strs = status.split("\\|");
+            for(String str : strs) {
+                if(StringUtils.isNotBlank(str)) {
+                    statusList.add(str);
+                }
+            }
+        }
+
+        List<Integer> cancelList = null;
+        if(StringUtils.isNotBlank(isCancel)) {
+            cancelList = new ArrayList<Integer>();
+            String[] strs = isCancel.split("\\|");
+            for(String str : strs) {
+                if(StringUtils.isNotBlank(str)) {
+                    cancelList.add(Integer.parseInt(str));
+                }
+            }
+        }
+		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime);
 		model.addAttribute("totalCount", totalCount);
 		Paging paging = new Paging(intPage, 4, totalCount);
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
-			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, StringUtils.isBlank(status)?null:Arrays.asList(status), isSubmit, isRefund, isSend, isCancel, isFinish, delivery, startTime, endTime);
+			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime);
 		}
 		model.addAttribute("trade_list", list);
 		model.addAttribute("paging", paging);

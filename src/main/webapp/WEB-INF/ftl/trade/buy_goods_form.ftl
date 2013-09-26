@@ -1,19 +1,38 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=2 css=["jdpicker.css", "trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js", "highcharts.js", "exporting.js"]>
-<i class="icon-pencil"></i>创建订单
-<form action="${rc.contextPath}/trade/action/buy_goods" method="">
+<@root.html active=2 css=["jdpicker.css", "table.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js", "highcharts.js", "exporting.js"]>
+    <#if addGoods==false>
+        创建订单
+    <#else>
+        添加商品
+    </#if>
+<form
+    <#if addGoods==false>
+        action="${rc.contextPath}/trade/action/buy_goods" method="post"
+    <#else>
+        action="${rc.contextPath}/trade/action/add_goods" method="post"
+    </#if>
+        >
+
 <#if fromcart??>
 	111
 <#else>
 <table>
+    <input type="hidden" name="tid" value="${tid!''?string}"/>
 	<#list orderList as order>
 	<input type="hidden" name="goods${order_index}" value="${order.goodsId}"/>
 	<input type="hidden" name="color${order_index}" value="${order.color}"/>
 	<input type="hidden" name="size${order_index}" value="${order.size}"/>
 	<input type="hidden" name="token" value="${token}"/>
 	<tr>
-		<td><img src="${order.url}_80x80.jpg"/></td>
+		<td>
+            <#if order.url??>
+                <#assign picPath = order.url/>
+            <#else>
+                <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
+            </#if>
+            <img style="width: 80px; height: 80px" src="${picPath}_80x80.jpg" />
+        </td>
 		<td>${order.goodsId}</td>
 		<td>${order.title}</td>
 		<td>
@@ -27,6 +46,7 @@
 	</#list>
 </table>
 </#if>
+<#if addGoods==false>
 <br>
 <p>选择快递：
 	<select id="logistics" name="logistics" style="">
@@ -64,8 +84,13 @@
 电话:
 	<input name="phone" class="my-input" type="text"/>
 </p>
+</#if>
 <div class="form-actions" >
-    <input type="submit" class="btn btn-primary" value="确定购买" style="margin-left: 60%;">
+    <#if addGoods==false>
+        <input type="submit" class="btn btn-primary" value="确定购买">
+    <#else>
+        <input type="submit" class="btn btn-primary" value="添加商品">
+    </#if>
 </div>
 </form>
 </@root.html>
@@ -116,32 +141,6 @@
                 }}); 
           }) 
 
-          $('#submit1').click(function() {
-              data = '{"orderId": "' + $('#orderId').val() + '", "name": "' + $('#name').val() + '", "cityId" : "' + $('#cityId').val() +'", "deliveryId": "' + $('#deliveryId').val() +
-                          '", "phone": "' + $('#phone').val() + '", "address": "' + $('#address').val() + '", "postcode": "' + $('#postcode').val() + '"}';
-              $.ajax({
-                type: "post",
-                contentType:"application/json; charset=utf-8",
-                dataType: "json",//返回json格式的数据
-                processData: false,
-                data: data,
-                url: "${rc.contextPath}/fenxiao/add_order",//要访问的后台地址
-                success: function(result){//msg为返回的数据，在这里做数据绑定
-                    if(result.success==true) {
-                        window.location.href = "${rc.contextPath}/fenxiao/order_detail"
-                    } else {
-                        $('#error-body').html("<p>" + result.errorInfo + "</p>");
-                        $('#error-info').modal({
-                            keyboard: false
-                        })
-                    } 
-              }}); 
-          })
-          
-          // add goods to order
-          $('#add-goods').click(function() {
-              window.location.href = "${rc.contextPath}/goods/goods_list?order_id=" + $('#order-id').val();
-          })
     })
 </script>
 
