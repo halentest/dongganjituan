@@ -223,6 +223,7 @@ public class TradeActionController {
         List<String> successed = new ArrayList<String>();
         for(MyTrade t : tList) {
             t.setStatus(TradeStatus.WaitReceive.getStatus());
+            t.setIs_finish(1);
             int result = tradeService.insertMyTrade(t, true, Constants.QUANTITY);
             if(0==result) {
                 repeated.add(t.getTid());

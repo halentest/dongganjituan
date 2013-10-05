@@ -4,11 +4,18 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.halen.data.mapper.MigrationMapper;
+import cn.halen.data.pojo.TradeStatus;
+import cn.halen.data.pojo.migration.Order1;
+import cn.halen.data.pojo.migration.Order2;
+import cn.halen.data.pojo.migration.Trade1;
+import cn.halen.data.pojo.migration.Trade2;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +56,88 @@ public class RedirectController {
 	
 	@Autowired
 	private TopConfig topConfig;
+
+    @Autowired
+    private MigrationMapper migrationMapper;
+
+    @RequestMapping(value="/migration")
+    public String migration() {
+        List<Trade1> t1List = migrationMapper.selectTrade1();
+        for(Trade1 t1 : t1List) {
+            Trade2 t2 = new Trade2();
+            if(t1.getCome_from().equals("批量倒入")) {
+                t2.setIs_finish(1);
+                t2.setStatus(TradeStatus.WaitReceive.getStatus());
+            } else if(t1.getStatus().equals("WAIT_SELLER_SEND_GOODS") && t1.getMy_status()==0) {
+                t2.setStatus(TradeStatus.UnSubmit.getStatus());
+            } else if(t1.getStatus().equals("WAIT_SELLER_SEND_GOODS") && t1.getMy_status()==2) {
+                t2.setIs_submit(1);
+                t2.setStatus(TradeStatus.WaitSend.getStatus());
+            } else if(t1.getStatus().equals("WAIT_SELLER_SEND_GOODS") && t1.getMy_status()==3) {
+                t2.setIs_submit(1);
+                t2.setStatus(TradeStatus.WaitFind.getStatus());
+            } else if(t1.getStatus().equals("WAIT_SELLER_SEND_GOODS") && t1.getMy_status()==6) {
+                t2.setIs_submit(1);
+                t2.setStatus(TradeStatus.WaitOut.getStatus());
+            } else if(t1.getMy_status()==4) {
+                t2.setIs_submit(1);
+                t2.setIs_send(1);
+                t2.setStatus(TradeStatus.WaitReceive.getStatus());
+            } else if(t1.getMy_status()==-5 || t1.getMy_status()==-6) {
+                t2.setIs_cancel(1);
+            } else if(t1.getMy_status()==-1) {
+                t2.setIs_cancel(1);
+            }
+            t2.setAddress(t1.getAddress());
+            t2.setArea_id(t1.getArea_id());
+            t2.setBuyer_message(t1.getBuyer_message());
+            t2.setCity(t1.getCity());
+            t2.setCome_from(t1.getCome_from());
+            t2.setCreated(t1.getCreated());
+            t2.setDelivery(t1.getDelivery());
+            t2.setDelivery_money(t1.getDelivery_money());
+            t2.setDelivery_number(t1.getDelivery_number());
+            t2.setDistributor_id(t1.getDistributor_id());
+            t2.setDistrict(t1.getDistrict());
+            t2.setCity(t1.getCity());
+            t2.setGoods_count(t1.getGoods_count());
+            t2.setId(t1.getTid());
+            t2.setMobile(t1.getMobile());
+            t2.setModified(t1.getModified());
+            t2.setName(t1.getName());
+            t2.setPay_type(t1.getPay_type());
+            t2.setPayment(t1.getPayment());
+            t2.setPhone(t1.getPhone());
+            t2.setPostcode(t1.getPostcode());
+            t2.setReturn_order(t1.getReturn_order());
+            t2.setSeller_memo(t1.getSeller_memo());
+            t2.setMobile(t1.getMobile());
+            t2.setSeller_nick(t1.getSeller_nick());
+            t2.setState(t1.getState());
+            t2.setTemplate_id(t1.getTemplate_id());
+            t2.setTid(t1.getTid());
+            t2.setTotal_weight(t1.getTotal_weight());
+            migrationMapper.insertTrade2(t2);
+            List<Order1> o1List = migrationMapper.selectOrder1(t1.getTid());
+            for(Order1 o1 : o1List) {
+                Order2 o2 = new Order2();
+                o2.setTid(t2.getId());
+                o2.setColor(o1.getColor());
+                o2.setGoods_id(o1.getGoods_id());
+                o2.setModified(o1.getModified());
+                o2.setPayment(o1.getPayment());
+                o2.setPic_path(o1.getPic_path());
+                o2.setPrice(o1.getPrice());
+                o2.setQuantity(o1.getQuantity());
+                o2.setTitle(o1.getTitle());
+                o2.setSize(o1.getSize());
+                o2.setPrice(o1.getPrice());
+                o2.setSku_id(o1.getSku_id());
+                migrationMapper.insertOrder2(o2);
+            }
+        }
+        return "migration";
+    }
 	
 	@RequestMapping(value="/login")
 	public String login(Model model) {

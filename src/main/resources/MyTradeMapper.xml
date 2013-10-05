@@ -63,7 +63,7 @@
 	</resultMap>
 
 	<insert id="insert" parameterType="MyTrade">
-		insert into trade values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
+		insert into trade2 values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
 			#{delivery_money}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish},
             #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
 			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created})
@@ -76,24 +76,24 @@
 	</insert>
 	
 	<insert id="insertOrder" parameterType="MyOrder">
-		insert into order1(tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, status, created)
+		insert into order2(tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, status, created)
 		values(#{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment}, #{status}, now())
 	</insert>
 
     <select id="checkTidExist" parameterType="String" resultType="String">
-        select tid from trade where tid = #{tid}
+        select tid from trade2 where tid = #{tid}
     </select>
 	
 	<select id="selectById" parameterType="String" resultType="MyTrade">
-		select * from trade where id=#{id}
+		select * from trade2 where id=#{id}
 	</select>
 
     <select id="selectByTid" parameterType="String" resultType="MyTrade">
-        select * from trade where tid=#{tid}
+        select * from trade2 where tid=#{tid}
     </select>
 	
 	<select id="countTrade" parameterType="java.util.Map" resultType="Long">
-		select count(*) from trade t
+		select count(*) from trade2 t
    			<where>
    				<if test="sellerNickList != null">
    					t.seller_nick in (
@@ -145,7 +145,7 @@
 	</select>
 
     <select id="selectTrade" parameterType="java.util.Map" resultType="MyTrade">
-        select * from trade t
+        select * from trade2 t
         <where>
             <if test="sellerNickList != null">
                 t.seller_nick in (
@@ -202,8 +202,8 @@
 			   o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.status as o_status, o.modified as o_modified, o.created as o_created,
 			   s.color_id as s_color_id, s.color as s_color, s.size as s_size, s.id as s_id
 			   from 
-			   trade t
-			   left join order1 o on t.id = o.tid
+			   trade2 t
+			   left join order2 o on t.id = o.tid
 			   left join sku s on o.sku_id = s.id
         <where>
             <if test="id != null">
@@ -231,15 +231,15 @@
 	</select>
 	
 	<select id="selectOrderByOrderId" parameterType="Long" resultType="MyOrder">
-		select * from order1 where id = #{id}
+		select * from order2 where id = #{id}
 	</select>
 	
 	<update id="updateTradeMemo" parameterType="java.util.HashMap">
-		update trade set seller_memo=#{memo}, modified=#{modified} where id=#{tradeId}
+		update trade2 set seller_memo=#{memo}, modified=#{modified} where id=#{tradeId}
 	</update>
 	
 	<update id="updateTrade" parameterType="MyTrade">
-		update trade set tid=#{tid}, name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
+		update trade2 set tid=#{tid}, name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
 			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money}, delivery_number=#{delivery_number}, template_id=#{template_id},
 			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, is_submit=#{is_submit}, is_refund=#{is_refund},
              is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, why_cancel=#{why_cancel}, status=#{status},
@@ -249,25 +249,25 @@
 	</update>
 	
 	<update id="updateTradeStatus" parameterType="Map">
-		update trade set status=#{status} where id=#{id}
+		update trade2 set status=#{status} where id=#{id}
 	</update>
 	
 	<update id="updateOrderStatus" parameterType="Map">
-		update order1 set status=#{status} where tid=#{tid} and id=#{id}
+		update order2 set status=#{status} where tid=#{tid} and id=#{id}
 	</update>
 
     <delete id="delOrder" parameterType="long">
-        delete from order1 where id=#{id}
+        delete from order2 where id=#{id}
     </delete>
 	
 	<update id="updateOrder" parameterType="MyOrder">
-		update order1 set tid=#{tid}, goods_id=#{goods_id}, sku_id=#{sku_id}, quantity=#{quantity},
+		update order2 set tid=#{tid}, goods_id=#{goods_id}, sku_id=#{sku_id}, quantity=#{quantity},
 			price=#{price}, discount=#{discount}, weight=#{weight}, payment=#{payment}, delivery=#{delivery},
             delivery_number=#{delivery_number}, status=#{status} where id=#{id}
 	</update>
 	
 	<update id="updateLogisticsAddress" parameterType="java.util.HashMap">
-		update trade set state=#{state}, city=#{city}, district=#{district}, address=#{address}, mobile=#{mobile}, phone=#{phone},
+		update trade2 set state=#{state}, city=#{city}, district=#{district}, address=#{address}, mobile=#{mobile}, phone=#{phone},
 			postcode=#{zip}, name=#{name}, modified=#{modified} where id=#{tradeId}
 	</update>
 </mapper>

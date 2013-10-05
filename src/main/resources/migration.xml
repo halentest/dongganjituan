@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.halen.data.mapper.migration">
+
+	<insert id="insert" parameterType="Trade2">
+		insert into trade2 values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
+			#{delivery_money}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish},
+            #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
+			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created})
+	</insert>
+	
+	<insert id="insertOrder" parameterType="Order2">
+		insert into order2(tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, status, created)
+		values(#{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment}, #{status}, #{modified}, #{created})
+	</insert>
+
+    <select id="selectTrade1" resultType="Trade1">
+        select * from trade
+    </select>
+	
+	<select id="selectOrder1" parameterType="String" resultType="Order1">
+		select * from order1 where tid=#{tid}
+	</select>
+</mapper>

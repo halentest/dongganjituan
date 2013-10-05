@@ -111,4 +111,8 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
 
+    <bean id="migrationMapper" class="cn.halen.data.mapper.MigrationMapper">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
 </beans>
