@@ -25,10 +25,12 @@ public class Order1 {
 	private String status;
 	private Date created;
 	private Date modified;
-	
-	private TaoTradeStatus oStatus;
-	private MySku sku;
-	public long getId() {
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public long getId() {
 		return id;
 	}
 	public void setId(long id) {
@@ -46,9 +48,6 @@ public class Order1 {
 	}
 	public void setTitle(String title) {
 		this.title = title;
-	}
-	public TaoTradeStatus getoStatus() {
-		return oStatus;
 	}
 	public String getTid() {
 		return tid;
@@ -114,16 +113,6 @@ public class Order1 {
 	public String getStatus() {
 		return status;
 	}
-	public void setStatus(String status) {
-		this.status = status;
-		this.oStatus = TaoTradeStatus.valueOf(status);
-	}
-	public MySku getSku() {
-		return sku;
-	}
-	public void setSku(MySku sku) {
-		this.sku = sku;
-	}
 	public long getQuantity() {
 		return quantity;
 	}
@@ -154,28 +143,4 @@ public class Order1 {
 	public void setPayment(int payment) {
 		this.payment = payment;
 	}
-
-    @Override
-    public String toString() {
-        return "MyOrder{" +
-                "id=" + id +
-                ", tid='" + tid + '\'' +
-                ", goods_id='" + goods_id + '\'' +
-                ", title='" + title + '\'' +
-                ", pic_path='" + pic_path + '\'' +
-                ", sku_id=" + sku_id +
-                ", color='" + color + '\'' +
-                ", size='" + size + '\'' +
-                ", quantity=" + quantity +
-                ", price=" + price +
-                ", discount=" + discount +
-                ", weight=" + weight +
-                ", payment=" + payment +
-                ", delivery='" + delivery + '\'' +
-                ", delivery_number='" + delivery_number + '\'' +
-                ", status='" + status + '\'' +
-                ", created=" + created +
-                ", modified=" + modified +
-                '}';
-    }
 }
