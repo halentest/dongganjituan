@@ -12,7 +12,7 @@
 	</insert>
 	
 	<insert id="insertOrder" parameterType="Order2">
-		insert into order2(tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, status, created)
+		insert into order2(tid, goods_id, title, pic_path, sku_id, quantity, price, discount, weight, payment, status, modified, created)
 		values(#{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment}, #{status}, #{modified}, #{created})
 	</insert>
 
