@@ -15,6 +15,8 @@ import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.InvalidStatusChangeException;
 import cn.halen.util.Constants;
 
+import java.util.List;
+
 @Service
 public class RefundService {
 
@@ -34,33 +36,16 @@ public class RefundService {
 	private AdminMapper adminMapper;
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean applyRefund(String tid, String oid, String refundReason) throws InvalidStatusChangeException {
-		MyTrade myTrade = tradeMapper.selectById(tid);
-		MyOrder myOrder = tradeMapper.selectOrderByOrderId(oid);
-//		if(myTrade.getMy_status() != TradeStatus.WaitReceive.getStatus()) {
-//			throw new InvalidStatusChangeException(tid);
-//		}
-		if(null == myTrade || null == myOrder) {
-			return false;
-		}
-		
-		MyRefund dbMyRefund = refundMapper.selectByTidOid(tid, oid);
-		MyRefund refund = new MyRefund();
-		refund.setTid(tid);
-		refund.setOid(oid);
-		refund.setRefund_reason(refundReason);
-		refund.setSeller_nick(myTrade.getSeller_nick());
-		refund.setName(myTrade.getName());
-//		refund.setStatus(TaoTradeStatus.ApplyRefund.getValue());
-		if(null == dbMyRefund) {
-			refundMapper.insert(refund);
-		} else {
-			refundMapper.updateRefund(refund);
-		}
-		
-//		myOrder.setStatus(TaoTradeStatus.ApplyRefund.getValue());
-		tradeMapper.updateMyOrder(myOrder);
-		return true;
+	public boolean applyRefund(MyRefund refund, MyTrade trade) {
+		List<RefundOrder> list = refund.getRefundOrderList();
+        for(RefundOrder order : list) {
+            refundMapper.insertRefundOrder(order);
+        }
+        refundMapper.insert(refund);
+        trade.setStatus(TradeStatus.WaitWareHouseReceive.getStatus());
+        trade.setIs_refund(1);
+        tradeMapper.updateMyTrade(trade);
+        return true;
 	}
 	
 	@Transactional(rollbackFor=Exception.class)

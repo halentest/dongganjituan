@@ -1,6 +1,6 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=2 css=["trade_list.css", "jqpagination.css"] js=["jquery.cookie.js", "jquery.jqpagination.min.js"]>
+<@root.html active=2 css=["all.css", "table.css", "jqpagination.css"] js=["jquery.jqpagination.min.js"]>
 	<i class="icon-list-alt"></i>
     <#if action=="buy">
         进仓单列表

@@ -62,8 +62,15 @@ public class TopConfig {
     @Value("${is.sandbox}")
     private boolean isSandbox;
 
-	@Autowired
+    @Value("${file.refund.pic}")
+    private String fileRefundPic;
+
+    @Autowired
 	private AdminMapper adminMapper;
+
+    public String getFileRefundPic() {
+        return fileRefundPic;
+    }
 
     public String getFileExport() {
         return fileExport;
@@ -72,6 +79,8 @@ public class TopConfig {
     public String getFileLockGoods() {
         return fileLockGoods;
     }
+
+
 
     public String getJianhuodan() {
         return jianhuodan;
@@ -108,6 +117,7 @@ public class TopConfig {
     public String getFileRefundGoods() {
         return fileRefundGoods;
     }
+
 
     public String getFileBatchTrade() {
         return fileBatchTrade;

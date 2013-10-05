@@ -1,3 +1,57 @@
+function autoScan(s) {
+    var v = $(s).prev().val();
+    var ix = $(s).prev().attr('data-index');
+    var l = $(document).find('input.scan-input');
+    console.log(l.size());
+    $(l).each(function(index, item) {
+        if($(item).attr('data-index') > ix) {
+            v++;
+            $(item).val(v);
+        }
+    })
+}
+
+$('#save-scan').click(function() {
+    var delivery = $('#delivery-print').val();
+    if(!delivery || delivery=="") {
+        alert("请选择快递");
+        return false;
+    }
+    var l = $(document).find('input.scan-input');
+    var size = l.size()/2;
+    var param = "";
+    $(l).each(function(index, item) {
+        if(index < size) {
+            param += ",";
+            param += $(item).attr('data-id') + ":" + $(item).val();
+        }
+    })
+
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "param=" + param,
+        url: "/trade/batch_add_tracking_number",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+        if(result.errorInfo != "success") {
+            alert(result.errorInfo);
+            window.location.reload();
+        } else {
+            window.location.reload();
+        }
+    }});
+
+})
+
+$('#scan-delivery').click(function() {
+    var delivery = $('#delivery-print').val();
+    if(!delivery || delivery=="") {
+        alert("请选择快递");
+        return false;
+    }
+    window.location.href="/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitFind&scan=true&delivery=" + delivery;
+})
+
 $('#batch-out-goods').click(function() {
     var checked = $('#t-list').datagrid("getChecked");
     if(checked.length==0) {

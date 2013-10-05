@@ -99,6 +99,35 @@ public class TradeActionController {
         return "trade/upload";
     }
 
+    @RequestMapping(value="trade/action/add_comment_form")
+    public String addCommentForm(Model model, @RequestParam String id, @RequestParam String type) {
+        MyTrade trade = tradeMapper.selectById(id);
+        model.addAttribute("trade", trade);
+        model.addAttribute("logistics", myLogisticsCompanyMapper.list());
+        model.addAttribute("type", type);
+        return "trade/add_comment_form";
+    }
+
+    @RequestMapping(value="trade/action/add_comment")
+    public void addComment(Model model, @RequestParam String id, @RequestParam String comment, @RequestParam String type,
+                            HttpServletResponse resp) {
+        MyTrade trade = tradeMapper.selectById(id);
+        if("kefu_memo".equals(type)) {
+            trade.setKefu_memo(comment.trim());
+        } else if("cangku_memo".equals(type)) {
+            trade.setCangku_memo(comment.trim());
+        } else if("kefu_msg".equals(type)) {
+            trade.setKefu_msg(comment.trim());
+        } else if("cangku_msg".equals(type)) {
+            trade.setCangku_msg(comment.trim());
+        }
+        tradeMapper.updateMyTrade(trade);
+        try {
+            resp.sendRedirect("/trade/trade_detail?id=" + id);
+        } catch (IOException e) {
+        }
+    }
+
     @RequestMapping(value="trade/action/cancel_trade_form")
     public String cancelTradeForm(Model model, @RequestParam String id, @RequestParam(value="isApply", required=false) String isApply) {
         MyTrade trade = tradeMapper.selectById(id);
@@ -612,16 +641,30 @@ public class TradeActionController {
     /**
      * 扫描单号
      * @param model
-     * @param tid
-     * @param trackingNumber 快递单号
      * @return
      */
-	@RequestMapping(value="trade/add_tracking_number")
-	public @ResponseBody ResultInfo addTrackingNumber(Model model, @RequestParam("tid") String tid,
-			@RequestParam("trackingNumber") String trackingNumber) {
+	@RequestMapping(value="trade/batch_add_tracking_number")
+	public @ResponseBody ResultInfo batchAddTrackingNumber(Model model, @RequestParam() String param) {
 		ResultInfo result = new ResultInfo();
 		try {
-			tradeService.addTrackingNumber(tid, trackingNumber);
+            if(StringUtils.isBlank(param)) {
+                return result;
+            }
+            String[] trades = param.split(",");
+            for(String trade : trades) {
+                if(StringUtils.isBlank(trade)) {
+                    continue;
+                }
+                String[] items = trade.split(":");
+                if(items.length != 2) {
+                    continue;
+                }
+                if(StringUtils.isBlank(items[0]) || StringUtils.isBlank(items[1])) {
+                    continue;
+                }
+
+                tradeService.addTrackingNumber(items[0], items[1]);
+            }
 		} catch (Exception e) {
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，请重试!");
@@ -629,6 +672,20 @@ public class TradeActionController {
 		}
 		return result;
 	}
+
+    @RequestMapping(value="trade/add_tracking_number")
+    public @ResponseBody ResultInfo addTrackingNumber(Model model, @RequestParam("tid") String tid,
+                                                      @RequestParam("trackingNumber") String trackingNumber) {
+        ResultInfo result = new ResultInfo();
+        try {
+            tradeService.addTrackingNumber(tid, trackingNumber);
+        } catch (Exception e) {
+            result.setSuccess(false);
+            result.setErrorInfo("系统异常，请重试!");
+            return result;
+        }
+        return result;
+    }
 
     /**
      * 发放单号
@@ -731,7 +788,7 @@ public class TradeActionController {
 		int count = 0;
 		try {
 			count = tradeService.initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
-		} catch (ApiException e) {
+		} catch (Exception e) {
 			log.error("Error while sync trade", e);
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，同步失败");

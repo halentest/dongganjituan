@@ -73,7 +73,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 	</div>
 <#if trade_list?size gt 0>
     <div style="width:99%; margin-top:3px;">
-        <table id="t-list" class="easyui-datagrid" style="height:auto;" data-options="scrollbarSize:'0', fitColumns:'true'">
+        <table id="t-list" class="easyui-datagrid" style="height:auto;" data-options="scrollbarSize:'0', fitColumns:'true',checkOnSelect:false">
             <thead>
                 <tr>
                     <th data-options="field:'ck',checkbox:true"></th>
@@ -82,7 +82,11 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">顾客姓名</th>
                     <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">订单状态</th>
                     <th data-options="field:'attr2',align:'center',width:$(this).width() * 0.3">成交时间</th>
-                    <th data-options="field:'attr3',align:'center',width:$(this).width() * 0.4">操作</th>
+                    <#if scan=="true">
+                        <th data-options="field:'attr4',align:'center',width:$(this).width() * 0.4">填写单号</th>
+                    <#else>
+                        <th data-options="field:'attr3',align:'center',width:$(this).width() * 0.4">操作</th>
+                    </#if>
                 </tr>
             </thead>
             <tbody>
@@ -95,16 +99,27 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <td>
                     ${trade.tradeStatus.desc}<br>
                     <#if trade.is_cancel==-1>
-                        <font color="red">已申请取消</font>
+                        <font color="red">(已申请取消)</font>
+                    </#if>
+                    <#if trade.is_refund==1>
+                        <font color="red">(退换货)</font>
                     </#if>
                     </td>
                     <td>${trade.created?string('yyyy-MM-dd HH:mm:ss')}</td>
+                    <#if scan=="true">
+                        <td>
+                            <input class="scan-input" data-index="${trade_index}" data-id="${trade.id}" type="text"/>
+                            <a onclick="autoScan(this)">连号</a>
+                        </td>
+                    <#else>
                     <td>
-                        <p><a href="${rc.contextPath}/trade/trade_detail?id=${trade.id}">订单详情</a></p>
+                        <a href="${rc.contextPath}/trade/trade_detail?id=${trade.id}">订单详情</a> &nbsp;
                         <#if CURRENT_USER.type=="WareHouse" && trade.status=="WaitFind">
-                        <p><a onclick="addTrackingNumber('${trade.id}')">扫描单号</a></p>
+                            <a onclick="addTrackingNumber('${trade.id}')">扫描单号</a>
                         </#if>
                     </td>
+                    </#if>
+
                 </tr>
                 </#list>
             </tbody>
@@ -139,6 +154,11 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     </#list>
                 </select>
                 <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
+                <#if scan=="false">
+                    <a id="scan-delivery">扫描单号</a>
+                <#else>
+                    <a id="save-scan">保存单号</a>
+                </#if>
                 <a id="print-setup" style="cursor: pointer;">打印调整</a>
                 <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
             </#if>

@@ -10,189 +10,143 @@ import org.apache.commons.lang.StringUtils;
 public class MyRefund {
 	private long id;
 	
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
 	private String tid;
 	
-	private String oid;
+	private String responsible_party;
 	
-	private String refund_reason;
+	private String delivery;
 	
-	private String comment1;
+	private String delivery_number;
 	
-	private String comment2;
+	private String why_refund;
 	
-	private String comment3;
+	private String pic1;
 	
-	private String comment4;
+	private String pic2;
 	
-	private String pic_url;
+	private String pic3;
 	
-	private String seller_nick;
-	
-	private String name;
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	private String status;
-	
-	private TaoTradeStatus oStatus;
+
+    private String comment;
 	
 	private Date created;
-	
-	private Date modified;
-	
-	private List<String> picUrlList;
-	
-	private MyTrade trade;
-	
-	private MyOrder order;
-	
-	public String getRefund_reason() {
-		return refund_reason;
-	}
 
-	public void setRefund_reason(String refund_reason) {
-		this.refund_reason = refund_reason;
-	}
+    private Date modified;
 
-	public String getPic_url() {
-		return pic_url;
-	}
+    private List<RefundOrder> refundOrderList;
 
-	public void setPic_url(String pic_url) {
-		this.pic_url = pic_url;
-		if(StringUtils.isNotEmpty(pic_url)) {
-			String[] items = pic_url.split(";");
-			picUrlList = new ArrayList<String>();
-			for(String item : items) {
-				picUrlList.add(item);
-			}
-		}
-	}
+    public List<RefundOrder> getRefundOrderList() {
+        return refundOrderList;
+    }
 
-	public String getSeller_nick() {
-		return seller_nick;
-	}
+    public void setRefundOrderList(List<RefundOrder> refundOrderList) {
+        this.refundOrderList = refundOrderList;
+    }
 
-	public void setSeller_nick(String seller_nick) {
-		this.seller_nick = seller_nick;
-	}
+    public String getComment() {
+        return comment;
+    }
 
-	public String getTid() {
-		return tid;
-	}
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-	public void setTid(String tid) {
-		this.tid = tid;
-	}
+    public Date getModified() {
+        return modified;
+    }
 
-	public String getOid() {
-		return oid;
-	}
+    public void setModified(Date modified) {
+        this.modified = modified;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public Date getCreated() {
+        return created;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-		this.oStatus = TaoTradeStatus.valueOf(status);
-	}
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 
-	public TaoTradeStatus getoStatus() {
-		return oStatus;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public void setoStatus(TaoTradeStatus status) {
-		this.oStatus = status;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public void setOid(String oid) {
-		this.oid = oid;
-	}
+    public String getPic3() {
+        return pic3;
+    }
 
-	public String getComment1() {
-		return comment1;
-	}
+    public void setPic3(String pic3) {
+        this.pic3 = pic3;
+    }
 
-	public void setComment1(String comment1) {
-		this.comment1 = comment1;
-	}
+    public String getPic2() {
+        return pic2;
+    }
 
-	public String getComment2() {
-		return comment2;
-	}
+    public void setPic2(String pic2) {
+        this.pic2 = pic2;
+    }
 
-	public void setComment2(String comment2) {
-		this.comment2 = comment2;
-	}
+    public String getPic1() {
+        return pic1;
+    }
 
-	public String getComment3() {
-		return comment3;
-	}
+    public void setPic1(String pic1) {
+        this.pic1 = pic1;
+    }
 
-	public void setComment3(String comment3) {
-		this.comment3 = comment3;
-	}
+    public String getWhy_refund() {
+        return why_refund;
+    }
 
-	public String getComment4() {
-		return comment4;
-	}
+    public void setWhy_refund(String why_refund) {
+        this.why_refund = why_refund;
+    }
 
-	public void setComment4(String comment4) {
-		this.comment4 = comment4;
-	}
+    public String getDelivery_number() {
+        return delivery_number;
+    }
 
-	public List<String> getPicUrlList() {
-		return picUrlList;
-	}
+    public void setDelivery_number(String delivery_number) {
+        this.delivery_number = delivery_number;
+    }
 
-	public void setPicUrlList(List<String> picUrlList) {
-		this.picUrlList = picUrlList;
-	}
+    public String getDelivery() {
+        return delivery;
+    }
 
-	public Date getCreated() {
-		return created;
-	}
+    public void setDelivery(String delivery) {
+        this.delivery = delivery;
+    }
 
-	public void setCreated(Date created) {
-		this.created = created;
-	}
+    public String getResponsible_party() {
+        return responsible_party;
+    }
 
-	public Date getModified() {
-		return modified;
-	}
+    public void setResponsible_party(String responsible_party) {
+        this.responsible_party = responsible_party;
+    }
 
-	public void setModified(Date modified) {
-		this.modified = modified;
-	}
+    public String getTid() {
+        return tid;
+    }
 
-	public MyTrade getTrade() {
-		return trade;
-	}
+    public void setTid(String tid) {
+        this.tid = tid;
+    }
 
-	public void setTrade(MyTrade trade) {
-		this.trade = trade;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public MyOrder getOrder() {
-		return order;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setOrder(MyOrder order) {
-		this.order = order;
-	}
+
 }

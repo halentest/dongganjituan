@@ -284,6 +284,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     </#list>
                 </select>
                 <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
+                <a id="scan-delivery">扫描单号</a>
                 <a id="print-setup" style="cursor: pointer;">打印调整</a>
                 <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
                 <a href="${rc.contextPath}/trade/export_finding" style="cursor: pointer;">生成拣货单</a>

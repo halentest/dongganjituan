@@ -170,7 +170,7 @@ public class RedirectController {
 			cal.add(Calendar.DAY_OF_MONTH, -15);
 			Date startDate = cal.getTime();
 			count = tradeService.initTrades(topConfig.listToken(), startDate, endDate);
-		} catch (ApiException e) {
+		} catch (Exception e) {
 			log.error("Error while sync trade", e);
 			result.setSuccess(false);
 			result.setErrorInfo("系统异常，更新失败");

@@ -78,19 +78,34 @@ drop table if exists refund;
 create table refund (
 	id bigint primary key auto_increment,
 	tid varchar(50),
-	oid varchar(50),
-	refund_reason varchar(255),
-	comment1 varchar(255),
-	comment2 varchar(255),
-	comment3 varchar(255),
-	comment4 varchar(255),
-	pic_url varchar(500),
-	status varchar(25),
-	seller_nick varchar(50),
-	name varchar(50),
+    responsible_party varchar(25), #责任方，顾客或者仓库
+    delivery varchar(50), #退货快递
+	delivery_number varchar(100), #退货快递单号
+	why_refund varchar(1000), #退换货原因
+    pic1 varchar(100),
+    pic2 varchar(100),
+    pic3 varchar(100),
+    status varchar(25),
+    comment varchar(255), #仓库收到退货后的反馈
 	modified timestamp,
-	created timestamp,
-	unique key(tid, oid)
+	created timestamp
+) DEFAULT CHARACTER SET utf8;
+
+drop table if exists refund_order;
+create table refund_order
+(
+	id bigint primary key auto_increment,
+	tid varchar(50) not null,
+	goods_id varchar(100),
+	title varchar(255),
+	pic_path varchar(255),
+	sku_id bigint unsigned not null,
+	quantity bigint unsigned, #购买的数量
+	tui_quantity bigint unsigned,
+	huan_quantity bigint unsigned,
+	bad_quantity bigint unsigned, #收到退货的残次品数量
+	modified timestamp,
+	created timestamp
 ) DEFAULT CHARACTER SET utf8;
 
 drop table if exists trade;
@@ -119,11 +134,15 @@ create table trade (
 	is_cancel tinyint default 0, #是否取消
 	is_finish tinyint default 0, #是否结束
 	why_cancel varchar(255), #取消原因
-	nogoods_info varchar(255), #无货留言
 	status varchar(25) default 'UnSubmit',   #订单状态
-	seller_memo varchar(255),
+	seller_memo varchar(255),  #店铺备注
+	kefu_memo varchar(1000), #客服备注
+	cangku_memo varchar(1000), #仓库备注
+	kefu_msg varchar(1000), #审单留言
+	cangku_msg varchar(1000), #仓库留言
 	buyer_message varchar(255),
 	seller_nick varchar(50),
+	buyer_nick varchar(50),
 	come_from varchar(25),
 	pay_type tinyint, #支付方式（1，货到付款  4，在线支付）
     return_order tinyint default 0, #是否换货订单（1，是  0， 否）

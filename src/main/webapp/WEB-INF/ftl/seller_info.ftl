@@ -1,5 +1,5 @@
 <#import "/templates/root.ftl" as root >
-<@root.html css=["trade_list.css"] js=[] >
+<@root.html css=["table.css"] js=[] >
     <table>
         <tr>
             <th>发件人姓名</th>

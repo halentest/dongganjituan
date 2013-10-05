@@ -133,7 +133,8 @@ public class TradeController {
             @RequestParam(value="isRefund", required=false) Integer isRefund,
             @RequestParam(value="isSend", required=false) Integer isSend,
             @RequestParam(value="isCancel", required=false) String isCancel,
-            @RequestParam(value="isFinish", required=false) Integer isFinish) {
+            @RequestParam(value="isFinish", required=false) Integer isFinish,
+            @RequestParam(required = false, defaultValue = "false") String scan) {
 		int intPage = 1;
 		if(null!=page && page>0) {
 			intPage = page;
@@ -232,7 +233,7 @@ public class TradeController {
         }
 		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime);
 		model.addAttribute("totalCount", totalCount);
-		Paging paging = new Paging(intPage, 4, totalCount);
+		Paging paging = new Paging(intPage, 100, totalCount);
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
 			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime);
@@ -252,6 +253,7 @@ public class TradeController {
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
 		model.addAttribute("dId", dId);
 		model.addAttribute("dList", adminMapper.listDistributor());
+        model.addAttribute("scan", scan);
         if(customTime) {
             model.addAttribute("start", start);
             model.addAttribute("end", end);

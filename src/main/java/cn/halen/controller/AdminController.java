@@ -59,8 +59,8 @@ public class AdminController {
     @Autowired
     private TopConfig topConfig;
 
-    @Autowired
-    private TopListenerStarter starter;
+    //@Autowired
+    //private TopListenerStarter starter;
 	
 	@RequestMapping(value="admin/action/account_list")
 	public String list(Model model) {
@@ -567,7 +567,7 @@ public class AdminController {
                 return "error_page";
             }
             //重新permit
-            starter.permitUser(accessToken);
+            //starter.permitUser(accessToken);
 
         } catch (IOException e) {
             log.error("获取access token失败，", e);
@@ -577,11 +577,12 @@ public class AdminController {
             log.error("获取access token失败, ", e);
             model.addAttribute("errorInfo", "获取access token失败，请重试!");
             return "error_page";
-        } catch (ApiException e) {
-            log.error("Permit user 失败, ", e);
-            model.addAttribute("errorInfo", "Permit user 失败，请重试!");
-            return "error_page";
         }
+//        catch (ApiException e) {
+//            log.error("Permit user 失败, ", e);
+//            model.addAttribute("errorInfo", "Permit user 失败，请重试!");
+//            return "error_page";
+//        }
 
         return "callback";
 	}

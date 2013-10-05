@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.halen.data.pojo.RefundOrder;
 import org.apache.commons.lang.StringUtils;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
@@ -16,6 +17,15 @@ public class RefundMapper extends SqlSessionDaoSupport {
 		int count = getSqlSession().insert("cn.halen.data.mapper.MyRefundMapper.insert", myRefund);
 		return count;
 	}
+
+    public int insertRefundOrder(RefundOrder o) {
+        int count = getSqlSession().insert("cn.halen.data.mapper.MyRefundMapper.insertRefundOrder", o);
+        return count;
+    }
+
+    public MyRefund selectRefundMapByTid(String tid) {
+        return getSqlSession().selectOne("cn.halen.data.mapper.MyRefundMapper.selectRefundMap", tid);
+    }
 	
 	public int updateStatus(long id, String status) {
 		Map<String, Object> param = new HashMap<String, Object>();
@@ -27,6 +37,10 @@ public class RefundMapper extends SqlSessionDaoSupport {
 	public int updateRefund(MyRefund refund) {
 		return getSqlSession().update("cn.halen.data.mapper.MyRefundMapper.updateRefund", refund);
 	}
+
+    public int updateRefundOrder(RefundOrder refundOrder) {
+        return getSqlSession().update("cn.halen.data.mapper.MyRefundMapper.updateRefundOrder", refundOrder);
+    }
  	
 	public long countRefund(List<String> sellerNickList, String tid, String name, List<String> statusList) {
 		Map<String, Object> param = new HashMap<String, Object>();

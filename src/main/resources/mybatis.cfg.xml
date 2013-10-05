@@ -39,6 +39,7 @@
         <typeAlias alias="MylogisticsCompany" type="cn.halen.data.pojo.MyLogisticsCompany" />
         <typeAlias alias="Shop" type="cn.halen.data.pojo.Shop" />
         <typeAlias alias="MyRefund" type="cn.halen.data.pojo.MyRefund" />
+        <typeAlias alias="RefundOrder" type="cn.halen.data.pojo.RefundOrder" />
         <typeAlias alias="SellerInfo" type="cn.halen.data.pojo.SellerInfo" />
         <typeAlias alias="Warehouse" type="cn.halen.data.pojo.WareHouse" />
     </typeAliases>  

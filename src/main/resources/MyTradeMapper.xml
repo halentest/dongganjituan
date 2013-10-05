@@ -27,9 +27,15 @@
         <result property="is_refund" column="is_refund"/>
         <result property="is_send" column="is_send"/>
         <result property="is_cancel" column="is_cancel"/>
-        <result property="is_finish" column="is_finish"/><result property="why_cancel" column="why_cancel"/><result property="nogoods_info" column="nogoods_info"/>
-        <result property="status" column="status"/><result property="seller_memo" column="seller_memo"/><result property="buyer_message" column="buyer_message"/>
-        <result property="seller_nick" column="seller_nick"/><result property="come_from" column="come_from"/><result property="pay_type" column="pay_type"/>
+        <result property="is_finish" column="is_finish"/><result property="why_cancel" column="why_cancel"/>
+        <result property="status" column="status"/><result property="seller_memo" column="seller_memo"/>
+        <result property="kefu_memo" column="kefu_memo"/>
+        <result property="cangku_memo" column="cangku_memo"/>
+        <result property="kefu_msg" column="kefu_msg"/>
+        <result property="cangku_msg" column="cangku_msg"/>
+        <result property="buyer_message" column="buyer_message"/>
+        <result property="seller_nick" column="seller_nick"/><result property="buyer_nick" column="buyer_nick"/>
+        <result property="come_from" column="come_from"/><result property="pay_type" column="pay_type"/>
         <result property="return_order" column="return_order"/><result property="modified" column="modified"/><result property="created" column="created"/>
 
 		<collection property="myOrderList" ofType="MyOrder" >
@@ -59,8 +65,8 @@
 	<insert id="insert" parameterType="MyTrade">
 		insert into trade values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
 			#{delivery_money}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish},
-            #{why_cancel}, #{nogoods_info}, #{status}, #{seller_memo},
-			#{buyer_message}, #{seller_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created})
+            #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
+			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created})
 	</insert>
 	
 	<insert id="insertRefund" parameterType="MyRefund">
@@ -81,6 +87,10 @@
 	<select id="selectById" parameterType="String" resultType="MyTrade">
 		select * from trade where id=#{id}
 	</select>
+
+    <select id="selectByTid" parameterType="String" resultType="MyTrade">
+        select * from trade where tid=#{tid}
+    </select>
 	
 	<select id="countTrade" parameterType="java.util.Map" resultType="Long">
 		select count(*) from trade t
@@ -179,7 +189,7 @@
                 </foreach>
                 )
             </if>
-            <if test="isFinsh != null">
+            <if test="isFinish != null">
                 and t.is_finish = #{isFinish}
             </if>
             and t.created between '${startTime}' and '${endTime}' order by t.created desc limit #{start}, #{page_size}
@@ -232,8 +242,9 @@
 		update trade set tid=#{tid}, name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
 			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money}, delivery_number=#{delivery_number}, template_id=#{template_id},
 			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, is_submit=#{is_submit}, is_refund=#{is_refund},
-             is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, why_cancel=#{why_cancel}, nogoods_info=#{nogoods_info}, status=#{status},
-			 seller_memo=#{seller_memo}, buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, come_from=#{come_from},
+             is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, why_cancel=#{why_cancel}, status=#{status},
+			 seller_memo=#{seller_memo}, kefu_memo=#{kefu_memo}, cangku_memo=#{cangku_memo}, kefu_msg=#{kefu_msg}, cangku_msg=#{cangku_msg},
+             buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, buyer_nick=#{buyer_nick}, come_from=#{come_from},
 			 modified=#{modified} where id=#{id}
 	</update>
 	

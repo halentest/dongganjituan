@@ -1,7 +1,9 @@
 <div class="left">
     <strong>客户信息</strong>
     <br>
+    <br>
         客户姓名：${trade.name!''}  <br>
+        买家ID：${trade.buyer_nick!''} <br>
         手机：${trade.mobile!''}  <br>
         电话：${trade.phone!''}  <br>
         地址：${trade.state!''} ${trade.city!''} ${trade.district!''} ${trade.address!''}
@@ -29,12 +31,49 @@
                 <a style="display: none;" class="modify-delivery-cancel">取消</a>
             </#if>   <br>
 
-        运费: ${trade.delivery_money/100!''}   <br>
+        <div>运费: ${trade.delivery_money/100!''}</div>
         快递单号: ${trade.delivery_number!''}    <br>
         网店：${trade.seller_nick!''}        <br>
         买家留言: ${trade.buyer_message!''}   <br>
         店铺备注: ${trade.seller_memo!''}  <br>
+
         <#if trade.is_cancel==-1 || trade.is_cancel==1>
             取消原因：${trade.why_cancel!''}
+        </#if>
+        <br>
+        <br>
+        审单留言：${trade.kefu_msg!''}
+        <#if trade.is_submit==0 && (CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor")>
+            <#if trade.kefu_msg??>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg">修改</a>
+            <#else>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg">添加</a>
+            </#if>
+        </#if>
+        <br>
+        仓库留言：${trade.cangku_msg!''}
+        <#if trade.is_submit==1 && (CURRENT_USER.type=="WareHouse")>
+            <#if trade.cangku_msg??>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg">修改</a>
+            <#else>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_msg">添加</a>
+            </#if>
+        </#if>
+        <br>
+        备注(只有您自己可以看到)：
+        <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
+            ${trade.kefu_memo!''}
+            <#if trade.kefu_memo??>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_memo">修改</a>
+            <#else>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_memo">添加</a>
+            </#if>
+        <#elseif CURRENT_USER.type=="WareHouse">
+            ${trade.cangku_memo!''}
+            <#if trade.cangku_memo??>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_memo">修改</a>
+            <#else>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_memo">添加</a>
+            </#if>
         </#if>
 </div>

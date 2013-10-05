@@ -82,7 +82,7 @@ public class GoodsController {
 
     @RequestMapping(value="goods/export")
     public void export(Model model, HttpServletResponse response) throws IOException {
-        response.setCharacterEncoding("utf-8");
+        response.setCharacterEncoding("gb2312");
         response.setContentType("multipart/form-data");
 
         List<Goods> list = goodsMapper.listAllGoodsDetail();
@@ -92,7 +92,7 @@ public class GoodsController {
         Date now = new Date();
         String fileName = "store-" + now.getTime() + ".csv";
         File f = new File(topConfig.getFileExport() + File.separator + fileName);
-        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "gb2312"));
         String title = "货号,颜色";
         for(String size : sizeList) {
             title += "," + size;

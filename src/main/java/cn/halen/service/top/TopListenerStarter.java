@@ -28,7 +28,7 @@ import com.taobao.api.internal.stream.TopCometStream;
 import com.taobao.api.internal.stream.TopCometStreamFactory;
 import com.taobao.api.request.IncrementCustomerPermitRequest;
 
-@Service
+//@Service
 public class TopListenerStarter implements InitializingBean {
 	private Logger log = LoggerFactory.getLogger(TopListenerStarter.class);
 	

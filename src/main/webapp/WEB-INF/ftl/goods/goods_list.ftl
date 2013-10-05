@@ -61,10 +61,9 @@
         	  		</#list>
         	  		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
         	  		<td rowspan="${map2?size+1}" style="width: 12%;">
-        	  			<a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">点击购买</a>
+        	  			<a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">购买</a>
         	  			<a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a>
-        	  			<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
-                        <#if tid??><a onclick="addGoods(${tid}, ${goods.hid})">添加</a></#if>
+                        <#if tid??><a onclick="addGoods('${tid}', ${goods.hid})">添加</a></#if>
         	  		</td>
         	  		</#if>
         	  </tr>
@@ -315,7 +314,6 @@
             if(result.errorInfo != "success") {
                 alert(result.errorInfo);
             } else {
-                alert("修改成功");
                 window.location.reload();
             }
         }});

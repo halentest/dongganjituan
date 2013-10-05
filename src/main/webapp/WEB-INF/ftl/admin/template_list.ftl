@@ -1,5 +1,5 @@
 <#import "/templates/root.ftl" as root >
-<@root.html css=["jdpicker.css", "trade_list.css"] js=["highcharts.js", "exporting.js"] >
+<@root.html css=["table.css"] js=[] >
 	<style  type="text/css">
 		td {
 			text-align: center;

@@ -20,6 +20,10 @@
         <#elseif (trade.status=="WaitFind" || trade.status=="WaitOut") && trade.is_cancel==0>
             <a href="${rc.contextPath}/trade/action/cancel_trade_form?id=${trade.id}&isApply=true">申请取消</a>
         </#if>
+
+    </#if>
+    <#if trade.is_send==1>
+        <a href="${rc.contextPath}/trade/action/apply_refund_form?id=${trade.id}">申请退换货</a>
     </#if>
     <#if CURRENT_USER.type=="WareHouse" && trade.is_cancel==-1>
         <a href="${rc.contextPath}/trade/action/cancel_trade?id=${trade.id}">同意取消</a>

@@ -28,9 +28,6 @@
                 <button id="b1" class="active">订单管理</button>
             </li>
             <li>
-                <button id="b5">退货管理</button>
-            </li>
-            <li>
                 <button id="b2">库存管理</button>
             </li>
             <li>

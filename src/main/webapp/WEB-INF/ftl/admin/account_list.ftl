@@ -1,5 +1,5 @@
 <#import "/templates/root.ftl" as root >
-<@root.html css=["jdpicker.css", "trade_list.css"] js=["highcharts.js", "exporting.js"] >
+<@root.html css=["table.css"] js=[] >
 <i class="icon-list-alt"></i>账户列表<br><br>
 	<strong>系统管理员</strong>
 	<table>

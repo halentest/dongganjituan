@@ -37,7 +37,7 @@
 	
 	
 	<div class="easyui-window" title="正在同步订单" data-options="modal:true,collapsible:false,closed:true,
-        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:300px;height:180px;padding:2px;" id="loading">
+        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:600px;height:280px;padding:2px;" id="loading">
 	    <img style="margin-left: 200px;" src="${rc.contextPath}/img/loading.gif" />
 	 </div>
 	 <div id="status" style="margin-top: 50px;">

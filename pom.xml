@@ -63,6 +63,12 @@
                 <env>product</env>
             </properties>
         </profile>
+        <profile>
+            <id>apple</id>
+            <properties>
+                <env>apple</env>
+            </properties>
+        </profile>
     </profiles>
 
 	<dependencies>

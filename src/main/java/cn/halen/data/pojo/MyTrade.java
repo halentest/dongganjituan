@@ -35,11 +35,15 @@ public class MyTrade {
 
     private int is_finish;
     private String why_cancel;
-    private String nogoods_info;
 	private String status;
 	private String seller_memo;
+    private String kefu_memo;
+    private String cangku_memo;
+    private String kefu_msg;
+    private String cangku_msg;
 	private String buyer_message;
 	private String seller_nick;
+    private String buyer_nick;
 	private String come_from;
 
     private int pay_type;
@@ -73,6 +77,38 @@ public class MyTrade {
         return is_finish;
     }
 
+    public String getKefu_memo() {
+        return kefu_memo;
+    }
+
+    public void setKefu_memo(String kefu_memo) {
+        this.kefu_memo = kefu_memo;
+    }
+
+    public String getCangku_memo() {
+        return cangku_memo;
+    }
+
+    public void setCangku_memo(String cangku_memo) {
+        this.cangku_memo = cangku_memo;
+    }
+
+    public String getKefu_msg() {
+        return kefu_msg;
+    }
+
+    public void setKefu_msg(String kefu_msg) {
+        this.kefu_msg = kefu_msg;
+    }
+
+    public String getCangku_msg() {
+        return cangku_msg;
+    }
+
+    public void setCangku_msg(String cangku_msg) {
+        this.cangku_msg = cangku_msg;
+    }
+
     public TradeStatus getTradeStatus() {
         return tradeStatus;
     }
@@ -94,6 +130,14 @@ public class MyTrade {
 
     public void setIs_submit(int is_submit) {
         this.is_submit = is_submit;
+    }
+
+    public String getBuyer_nick() {
+        return buyer_nick;
+    }
+
+    public void setBuyer_nick(String buyer_nick) {
+        this.buyer_nick = buyer_nick;
     }
 
     public int getIs_refund() {
@@ -125,14 +169,6 @@ public class MyTrade {
 
     public void setWhy_cancel(String why_cancel) {
         this.why_cancel = why_cancel;
-    }
-
-    public String getNogoods_info() {
-        return nogoods_info;
-    }
-
-    public void setNogoods_info(String nogoods_info) {
-        this.nogoods_info = nogoods_info;
     }
 
     public String getTid() {

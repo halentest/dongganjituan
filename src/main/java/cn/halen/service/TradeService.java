@@ -1,6 +1,7 @@
 package cn.halen.service;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -381,13 +382,13 @@ public class TradeService {
             myTrade.setGoods_count(quantity);
         }
         int count = myTradeMapper.insert(myTrade);
-//        if("淘宝自动同步".equals(myTrade.getCome_from())) {
-//            //update memo
-//            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            Date now = new Date();
-//            String memo = (StringUtils.isEmpty(myTrade.getSeller_memo())?"":myTrade.getSeller_memo()) + "已同步";
-//            tradeClient.updateMemo(Long.parseLong(myTrade.getTid()), myTrade.getSeller_nick(), memo);
-//        }
+        if("淘宝自动同步".equals(myTrade.getCome_from())) {
+            //update memo
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date now = new Date();
+            String memo = (StringUtils.isEmpty(myTrade.getSeller_memo())?"":myTrade.getSeller_memo()) + "[已同步:" + format.format(now) + "]";
+            tradeClient.updateMemo(Long.parseLong(myTrade.getTid()), myTrade.getSeller_nick(), memo);
+        }
         return count;
     }
 	
@@ -667,6 +668,7 @@ public class TradeService {
 		myTrade.setSeller_memo(trade.getSellerMemo());
 		myTrade.setBuyer_message(trade.getBuyerMessage());
 		myTrade.setSeller_nick(trade.getSellerNick());
+        myTrade.setBuyer_nick(trade.getBuyerNick());
 		myTrade.setCome_from(Constants.TOP);
 		myTrade.setModified(trade.getModified());
 		myTrade.setCreated(trade.getPayTime());
@@ -692,7 +694,7 @@ public class TradeService {
 		List<Trade> tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
 		for(Trade trade : tradeList) {
 			//check trade if exists
-			MyTrade dbMyTrade = selectByTradeId(String.valueOf(trade.getTid()));
+			MyTrade dbMyTrade = myTradeMapper.selectByTid(String.valueOf(trade.getTid()));
 			Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
             if(null == tradeDetail) {
                 continue;

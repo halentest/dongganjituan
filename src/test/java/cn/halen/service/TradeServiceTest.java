@@ -36,7 +36,6 @@ public class TradeServiceTest {
 	@Test
 	public void test_updateSkuAndInsertRefund() {
 		MyRefund myRefund = new MyRefund();
-		myRefund.setOid("11111");
 		myRefund.setTid("111111");
 		MySku mySku = mySkuMapper.select(1);
 		mySku.setPrice(1000);
