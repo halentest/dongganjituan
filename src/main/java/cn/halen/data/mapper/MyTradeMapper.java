@@ -162,6 +162,8 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
     }
 
     public MyTrade selectTradeMapByTid(String tid) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("tid", tid);
         return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", tid);
     }
 	
