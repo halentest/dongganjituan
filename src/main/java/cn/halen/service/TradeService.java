@@ -113,7 +113,7 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public String send(String tid) {
 		try {
-            MyTrade t = myTradeMapper.selectById(tid);
+            MyTrade t = myTradeMapper.selectByTid(tid);
 			String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
 			String errorInfo = null;
 			if("淘宝自动同步".equals(t.getCome_from())) {
@@ -328,7 +328,7 @@ public class TradeService {
      * @param outSid
      */
 	private void doSend(String tid, String companyName, String outSid, boolean updateSku) throws InsufficientStockException {
-		MyTrade myTrade = myTradeMapper.selectTradeMap(tid);
+		MyTrade myTrade = myTradeMapper.selectTradeMapByTid(tid);
 		myTrade.setStatus(TradeStatus.WaitReceive.getStatus());
         myTrade.setIs_send(1);
         myTrade.setIs_cancel(0);

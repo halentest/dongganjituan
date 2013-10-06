@@ -209,6 +209,9 @@
             <if test="id != null">
                 t.id = #{id}
             </if>
+            <if test="tid != null">
+                t.tid = #{tid}
+            </if>
             <if test="isSubmit != null">
                 and t.is_submit = #{isSubmit}
             </if>

@@ -60,7 +60,7 @@ $('#batch-out-goods').click(function() {
     }
     var tids = "";
     $(checked).each(function(index, item) {
-        var tid = item.id.trim();
+        var tid = item.tid.trim();
         tids += tid;
         tids += ";";
     })

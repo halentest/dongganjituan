@@ -78,7 +78,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 <tr>
                     <th data-options="field:'ck',checkbox:true"></th>
                     <th data-options="field:'id',align:'center',width:$(this).width() * 0.3">订单号</th>
-                    <th data-options="field:'productid',align:'center',width:$(this).width() * 0.3">网店单号</th>
+                    <th data-options="field:'tid',align:'center',width:$(this).width() * 0.3">网店单号</th>
                     <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">顾客姓名</th>
                     <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">订单状态</th>
                     <th data-options="field:'attr2',align:'center',width:$(this).width() * 0.3">成交时间</th>
