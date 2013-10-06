@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.halen.service.top.domain.TaoTradeStatus;
+import com.taobao.api.domain.Trade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class LogisticsCompanyClient {
 	
 	@Autowired
 	private TopConfig topConfig;
+
+    @Autowired
+    private TradeClient tradeClient;
 	
 	@Autowired
 	private MyLogisticsCompanyMapper myLogisticsCompanyMapper;
@@ -96,6 +101,10 @@ public class LogisticsCompanyClient {
 		req.setTid(Long.valueOf(tid));
 		req.setOutSid(outSid);
 		req.setCompanyCode(companyCode);
+        Trade t = tradeClient.getTradeFullInfo(Long.parseLong(tid), topConfig.getToken(sellerNick));
+        if(t.getStatus().equals(TaoTradeStatus.WAIT_BUYER_CONFIRM_GOODS)) {
+            return null;
+        }
 		LogisticsOfflineSendResponse response = client.execute(req , topConfig.getToken(sellerNick));
 		String errorInfo = null;
 		if(!response.isSuccess()) {
