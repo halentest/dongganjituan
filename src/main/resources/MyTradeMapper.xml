@@ -144,6 +144,12 @@
    			</where>
 	</select>
 
+    <select id="selectTradeByAddress" parameterType="Map" resultType="MyTrade">
+        select * from trade2 where name=#{name} and mobile=#{mobile} and state=#{state} and city=#{city}
+            and district=#{district} and address=#{address} and is_cancel=0 and is_finish=0 and is_send=0
+            and status in ('WaitSend', 'UnSubmit')
+    </select>
+
     <select id="selectTrade" parameterType="java.util.Map" resultType="MyTrade">
         select * from trade2 t
         <where>

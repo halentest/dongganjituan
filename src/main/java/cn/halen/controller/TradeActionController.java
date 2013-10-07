@@ -6,11 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletException;
@@ -139,8 +135,8 @@ public class TradeActionController {
 
     @RequestMapping(value="trade/action/cancel_trade")
     public void cancelTrade(Model model, @RequestParam String id, @RequestParam(value="why-cancel", required = false) String whyCancel, @RequestParam(value="isApply", required=false) String isApply,
-                                HttpServletResponse resp) {
-        MyTrade trade = tradeMapper.selectById(id);
+                                HttpServletResponse resp) throws InsufficientStockException {
+        MyTrade trade = tradeMapper.selectTradeMap(id);
         if("true".equals(isApply)) {
             trade.setIs_cancel(-1);
         } else {
@@ -149,7 +145,7 @@ public class TradeActionController {
         if(StringUtils.isNotBlank(whyCancel)) {
             trade.setWhy_cancel(whyCancel.trim());
         }
-        tradeMapper.updateMyTrade(trade);
+        tradeService.cancel(trade);
         try {
             resp.sendRedirect("/trade/trade_detail?id=" + id);
         } catch (IOException e) {
@@ -224,7 +220,7 @@ public class TradeActionController {
         for(MyTrade t : tList) {
             t.setStatus(TradeStatus.WaitReceive.getStatus());
             t.setIs_finish(1);
-            int result = tradeService.insertMyTrade(t, true, Constants.QUANTITY);
+            int result = tradeService.insertMyTrade(t, true, Constants.QUANTITY, null);
             if(0==result) {
                 repeated.add(t.getTid());
             } else {
@@ -410,9 +406,10 @@ public class TradeActionController {
 		trade.setGoods_count(totalGoods);
 		
 		trade.setDelivery_money(utilService.calDeliveryMoney(goodsId, totalGoods, logistics, province));
-		
+
+        Map<String, String> idHolder  = new HashMap<String, String>();
 		try{
-			tradeService.insertMyTrade(trade, false, Constants.LOCK_QUANTITY);
+			tradeService.insertMyTrade(trade, false, Constants.LOCK_QUANTITY, idHolder);
 		} catch(Exception e) {
 			log.error("", e);
 			model.addAttribute("errorInfo", "系统异常，请重试！");
@@ -420,7 +417,7 @@ public class TradeActionController {
 		}
 		tokens.remove(token);
         try {
-            resp.sendRedirect("/trade/trade_detail?id=" + id);
+            resp.sendRedirect("/trade/trade_detail?id=" + idHolder.get("id"));
             return null;
         } catch (IOException e) {
         }
@@ -571,9 +568,7 @@ public class TradeActionController {
                                                  @RequestParam("oid") String oid, @RequestParam("action") String action) {
 		ResultInfo result = new ResultInfo();
 		try {
-			if(action.equals("cancel")) {
-				tradeService.cancel(tid);
-			} else if(action.equals("approve1")) {
+			if(action.equals("approve1")) {
 				tradeService.approve1(tid);
 			} else if(action.equals("submit")) {
 				tradeService.submit(tid);
@@ -691,19 +686,18 @@ public class TradeActionController {
     /**
      * 发放单号
      * @param model
-     * @param tids
      * @return
      */
     @RequestMapping(value="trade/action/delivery_tracking_number")
-    public @ResponseBody ResultInfo send(Model model, @RequestParam("tids") String tids) {
+    public @ResponseBody ResultInfo send(Model model, @RequestParam String ids) {
 
         ResultInfo result = new ResultInfo();
-        if(StringUtils.isNotEmpty(tids)) {
-            String[] tidArr = tids.split(";");
+        if(StringUtils.isNotEmpty(ids)) {
+            String[] idArr = ids.split(";");
             try {
-                for(String tid : tidArr) {
-                    if(StringUtils.isNotEmpty(tid)) {
-                        String errorInfo = tradeService.send(tid);
+                for(String id : idArr) {
+                    if(StringUtils.isNotEmpty(id)) {
+                        String errorInfo = tradeService.send(id);
                         if(StringUtils.isNotBlank(errorInfo)) {
                             result.setSuccess(false);
                             result.setErrorInfo(errorInfo);

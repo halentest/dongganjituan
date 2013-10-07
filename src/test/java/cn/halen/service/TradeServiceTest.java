@@ -51,7 +51,7 @@ public class TradeServiceTest {
         List<MyTrade> tradeList = tradeService.toMyTrade(orderList);
         int count = 0;
         for(MyTrade t : tradeList) {
-            count += tradeService.insertMyTrade(t, true, Constants.LOCK_QUANTITY);
+            count += tradeService.insertMyTrade(t, true, Constants.LOCK_QUANTITY, null);
         }
         System.out.println(count);
     }

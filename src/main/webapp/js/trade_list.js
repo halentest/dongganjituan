@@ -58,16 +58,16 @@ $('#batch-out-goods').click(function() {
         alert('至少选中一个订单!');
         return false;
     }
-    var tids = "";
+    var ids = "";
     $(checked).each(function(index, item) {
-        var tid = item.tid.trim();
-        tids += tid;
-        tids += ";";
+        var id = item.id.trim();
+        ids += id;
+        ids += ";";
     })
         $.ajax({
             type: "post",//使用get方法访问后台
             dataType: "json",//返回json格式的数据
-            data: "tids=" + tids,
+            data: "ids=" + ids,
             url: "/trade/action/delivery_tracking_number",//要访问的后台地址
             success: function(result){//msg为返回的数据，在这里做数据绑定
             if(result.errorInfo != "success") {

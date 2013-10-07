@@ -166,6 +166,18 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
         param.put("tid", tid);
         return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", param);
     }
+
+    public MyTrade selectTradeByAddress(String name, String mobile, String state, String city, String district,
+                                        String address) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("name", name);
+        param.put("mobile", mobile);
+        param.put("state", state);
+        param.put("city", city);
+        param.put("district", district);
+        param.put("address", address);
+        return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeByAddress", param);
+    }
 	
 	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
 			String delivery, Date startTime, Date endTime) {

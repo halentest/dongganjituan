@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import cn.halen.data.pojo.*;
 import cn.halen.service.excel.TradeRow;
@@ -111,16 +112,16 @@ public class TradeService {
      * 1，如果是淘宝自动同步的订单，需要调用淘宝的接口完成店铺发货
 	 */
 	@Transactional(rollbackFor=Exception.class)
-	public String send(String tid) {
+	public String send(String id) {
 		try {
-            MyTrade t = myTradeMapper.selectByTid(tid);
+            MyTrade t = myTradeMapper.selectById(id);
 			String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
 			String errorInfo = null;
 			if("淘宝自动同步".equals(t.getCome_from())) {
-				errorInfo = logisticsClient.send(tid, t.getDelivery_number(), companyCode, t.getSeller_nick());
+				errorInfo = logisticsClient.send(t.getTid(), t.getDelivery_number(), companyCode, t.getSeller_nick());
 			}
 			if(null == errorInfo) {
-				doSend(tid, t.getDelivery(), t.getDelivery_number(), true);
+				doSend(id, t.getDelivery(), t.getDelivery_number(), true);
 			}
 			return errorInfo;
 		} catch(Exception e) {
@@ -152,38 +153,16 @@ public class TradeService {
 	}
 
     /**
-     * 分销商在发货拣货之前取消trade
-     * 1，非待处理--》unlock sku
-     * 2，非新建、非待处理，且非自营分销商--》回款
-     * @param tid
+     * 取消订单，如果是已经提交的订单需要unlock库存
      * @return
      * @throws InsufficientStockException
-     * @throws InsufficientBalanceException
-     * @throws InvalidStatusChangeException
      */
 	@Transactional(rollbackFor=Exception.class)
-	public boolean cancel(String tid) throws InsufficientStockException, InsufficientBalanceException, InvalidStatusChangeException {
-//		MyTrade myTrade = myTradeMapper.selectTradeDetail(tid);
-//		if(myTrade.getMy_status() != TradeStatus.New.getStatus() &&
-//				myTrade.getMy_status() != TradeStatus.WaitCheck.getStatus() &&
-//				myTrade.getMy_status() != TradeStatus.WaitSend.getStatus() &&
-//                myTrade.getMy_status() != TradeStatus.WaitHandle.getStatus()) {
-//			throw new InvalidStatusChangeException(tid);
-//		}
-//        List<MyOrder> orderList = myTrade.getMyOrderList();
-//        if(myTrade.getMy_status() != TradeStatus.WaitHandle.getStatus()) {
-//            skuService.unlockSku(orderList, true);
-//        }
-//		if(myTrade.getMy_status() != TradeStatus.New.getStatus() &&
-//                myTrade.getMy_status() != TradeStatus.WaitHandle.getStatus()) {
-//			String sellerNick = myTrade.getSeller_nick();
-//			Distributor d = adminMapper.selectShopMapBySellerNick(sellerNick).getD();
-//			if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
-//				adminService.updateDeposit(d.getId(), myTrade.getPayment() + myTrade.getDelivery_money());
-//			}
-//		}
-//		return myTradeMapper.updateTradeStatus(TradeStatus.Cancel.getStatus(), tid) > 0;
-        return false;
+	public void cancel(MyTrade trade) throws InsufficientStockException {
+		if(trade.getIs_cancel()==1 && trade.getIs_submit()==1) {
+            skuService.unlockSku(trade.getMyOrderList(), true);
+        }
+        myTradeMapper.updateMyTrade(trade);
 	}
 
     //TODO
@@ -323,12 +302,11 @@ public class TradeService {
      * 1，修改trade和order的状态为待买家收货
      * 2，减实际库存
      * 3，unlock锁定库存
-     * @param tid
      * @param companyName
      * @param outSid
      */
-	private void doSend(String tid, String companyName, String outSid, boolean updateSku) throws InsufficientStockException {
-		MyTrade myTrade = myTradeMapper.selectTradeMapByTid(tid);
+	private void doSend(String id, String companyName, String outSid, boolean updateSku) throws InsufficientStockException {
+		MyTrade myTrade = myTradeMapper.selectTradeMap(id);
 		myTrade.setStatus(TradeStatus.WaitReceive.getStatus());
         myTrade.setIs_send(1);
         myTrade.setIs_cancel(0);
@@ -361,18 +339,26 @@ public class TradeService {
      * @param checkExist
      * @param type 1:quantity（实际库存）  2:lock_quantity（锁定库存）  3:manaual_lock_quantity（手动锁定库存）
      *             可用库存 = 实际库存 - 锁定库存 - 手动锁定库存
+     * @param idHolder 用于返回真正的trade表的id
      * @return
      * @throws ApiException
      */
 	@Transactional(rollbackFor=Exception.class)
-	public int insertMyTrade(MyTrade myTrade, boolean checkExist, int type) throws ApiException {
+	public int insertMyTrade(MyTrade myTrade, boolean checkExist, int type, Map<String, String> idHolder) throws ApiException {
         if(checkExist && myTradeMapper.isTidExist(myTrade.getTid())) {
             return 0;
         }
         List<MyOrder> orderList = myTrade.getMyOrderList();
         int payment = 0;
         int quantity = 0;
+        //合并相同地址相同收货人并且未发货的订单
+        MyTrade commonTrade = myTradeMapper.selectTradeByAddress(myTrade.getName(), myTrade.getMobile(), myTrade.getState(),
+                myTrade.getCity(), myTrade.getDistrict(), myTrade.getAddress());
+
 		for(MyOrder order : orderList) {
+            if(null != commonTrade) {
+                order.setTid(commonTrade.getId());
+            }
 			myTradeMapper.insertMyOrder(order);
             quantity += order.getQuantity();
             payment += order.getPayment() * order.getQuantity();
@@ -381,7 +367,18 @@ public class TradeService {
             myTrade.setPayment(payment);
             myTrade.setGoods_count(quantity);
         }
-        int count = myTradeMapper.insert(myTrade);
+        int count = 0;
+        if(null == commonTrade) {
+            count = myTradeMapper.insert(myTrade);
+            if(null != idHolder) {
+                idHolder.put("id", myTrade.getId());
+            }
+        } else {
+            count = 1;
+            if(null != idHolder) {
+                idHolder.put("id", commonTrade.getId());
+            }
+        }
         if("淘宝自动同步".equals(myTrade.getCome_from())) {
             //update memo
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -704,7 +701,7 @@ public class TradeService {
 				continue;
 			if(null == dbMyTrade) {
 				myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
-				int count = insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY);
+				int count = insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY, null);
 				totalCount += count;
 			}
 		}
