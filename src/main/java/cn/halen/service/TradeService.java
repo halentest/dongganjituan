@@ -374,6 +374,16 @@ public class TradeService {
                 idHolder.put("id", myTrade.getId());
             }
         } else {
+            //更新tid
+            if(StringUtils.isNotBlank(myTrade.getTid())) {
+                String newTid = myTrade.getTid();
+                String commonTid = commonTrade.getTid();
+                if(StringUtils.isNotBlank(commonTid)) {
+                    newTid = commonTid + "," + newTid;
+                }
+                commonTrade.setTid(newTid);
+                myTradeMapper.updateMyTrade(commonTrade);
+            }
             count = 1;
             if(null != idHolder) {
                 idHolder.put("id", commonTrade.getId());

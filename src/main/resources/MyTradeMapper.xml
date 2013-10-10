@@ -89,7 +89,7 @@
 	</select>
 
     <select id="selectByTid" parameterType="String" resultType="MyTrade">
-        select * from trade2 where tid=#{tid}
+        select * from trade2 where tid like CONCAT('%', #{tid}, '%')
     </select>
 	
 	<select id="countTrade" parameterType="java.util.Map" resultType="Long">
@@ -146,8 +146,8 @@
 
     <select id="selectTradeByAddress" parameterType="Map" resultType="MyTrade">
         select * from trade2 where name=#{name} and mobile=#{mobile} and state=#{state} and city=#{city}
-            and district=#{district} and address=#{address} and is_cancel=0 and is_finish=0 and is_send=0
-            and status in ('WaitSend', 'UnSubmit')
+            and district=#{district} and address=#{address} and is_submit=0 and is_cancel=0 and is_finish=0 and is_send=0
+            and status='UnSubmit'
     </select>
 
     <select id="selectTrade" parameterType="java.util.Map" resultType="MyTrade">
