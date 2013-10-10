@@ -66,7 +66,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
             <span style="float: right; margin-right:15px;">
                 <button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}条交易
                 &nbsp;&nbsp;&nbsp;&nbsp;
-                <button id="search">查看报表</button>
+                <a href="${rc.contextPath}/trade/report">下载今天的已发货订单</a>
             </span>
         </div>
 

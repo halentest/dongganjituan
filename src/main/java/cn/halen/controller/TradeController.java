@@ -51,6 +51,129 @@ public class TradeController {
     private Logger log = LoggerFactory.getLogger(TradeController.class);
 	
 	//private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
+
+    @RequestMapping(value="trade/report")
+    public void sendReport(Model model, HttpServletResponse response) throws IOException {
+        response.setCharacterEncoding("gb2312");
+        response.setContentType("multipart/form-data");
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date start = cal.getTime();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        Date end = cal.getTime();
+
+        List<MyTrade> list = tradeMapper.listSendTrade(start, end);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String fileName = "send-report-" + format.format(start) + ".csv";
+        File f = new File(topConfig.getFileReport() + File.separator + fileName);
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "gb2312"));
+        String title = "序号,网店名称,订单号,网店单号,类别,年份,商品名称,货号,颜色,规格,数量,分销价,市场价,网店销售价,实收运费,实收金额,买家ID,收件人,手机,电话,地址,快递单号,快递费,邮编,快递公司,发货时间,审核时间,备注,货到付款订单,货到付款手续费,货到付款代收总额,订单状态";
+        w.write(title);
+        w.write("\r\n");
+        StringBuilder builder = new StringBuilder();
+        int count = 1;
+        for(MyTrade trade : list) {
+            boolean isFirst = true;
+            for(MyOrder order : trade.getMyOrderList()) {
+                builder.delete(0, builder.length());//清空builder
+                if(isFirst) {
+                    builder.append(count).append(",")
+                            .append(trade.getSeller_nick()).append(",")
+                            .append("'" + trade.getId()).append(",")
+                            .append("'" + trade.getTid()).append(",")
+                            .append(",")
+                            .append(",")
+                            .append(order.getTitle()).append(",")
+                            .append(order.getGoods_id()).append(",")
+                            .append(order.getSku().getColor()).append(",")
+                            .append(order.getSku().getSize()).append(",")
+                            .append(order.getQuantity()).append(",")
+                            .append(0).append(",")
+                            .append(0).append(",")
+                            .append(0).append(",")
+                            .append(0).append(",")
+                            .append(0).append(",")
+                            .append(trade.getBuyer_nick()).append(",")
+                            .append(trade.getName()).append(",")
+                            .append(trade.getMobile()).append(",")
+                            .append(trade.getPhone()).append(",")
+                            .append(trade.getState() + " " + trade.getCity() + " " + trade.getDistrict() + " " + trade.getAddress()).append(",")
+                            .append(trade.getDelivery_number()).append(",")
+                            .append(trade.getDelivery_money()).append(",")
+                            .append(trade.getPostcode()).append(",")
+                            .append(trade.getDelivery()).append(",")
+                            .append(format2.format(trade.getSend_time())).append(",")
+                            .append(format2.format(trade.getSubmit_time())).append(",")
+                            .append(StringUtils.isBlank(trade.getBuyer_message())?"":trade.getBuyer_message().replaceAll(",", " ")).append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(trade.getTradeStatus().getDesc());
+                } else {
+                    builder.append("").append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(order.getTitle()).append(",")
+                            .append(order.getGoods_id()).append(",")
+                            .append(order.getSku().getColor()).append(",")
+                            .append(order.getSku().getSize()).append(",")
+                            .append(order.getQuantity()).append(",")
+                            .append(0).append(",")
+                            .append(0).append(",")
+                            .append(0).append(",")
+                            .append(0).append(",")
+                            .append(0).append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append(",")
+                            .append("");
+                }
+                w.write(builder.toString());
+                w.write("\r\n");
+                isFirst = false;
+            }
+            count++;
+        }
+        w.flush();
+        w.close();
+
+        response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
+        response.flushBuffer();
+
+        OutputStream os=response.getOutputStream();
+        InputStream in = new FileInputStream(f);
+        try {
+            byte[] b=new byte[1024];
+            int length;
+            while((length=in.read(b))>0){
+                os.write(b,0,length);
+            }
+        }catch (IOException e) {
+            log.error("export store failed.", e);
+        }finally {
+            os.close();
+        }
+    }
 	
     @RequestMapping(value="trade/export_finding")
     public void exportFinding(Model model, HttpServletResponse response) throws IOException {

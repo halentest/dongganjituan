@@ -178,6 +178,15 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
         param.put("address", address);
         return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeByAddress", param);
     }
+
+    public List<MyTrade> listSendTrade(Date startTime, Date endTime) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("start_send_time", format.format(startTime));
+        param.put("end_send_time", format.format(endTime));
+        param.put("isSend", 1);
+        return getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTradeMapList", param);
+    }
 	
 	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
 			String delivery, Date startTime, Date endTime) {

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import cn.halen.service.top.domain.TaoTradeStatus;
 import com.taobao.api.domain.Trade;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,23 +96,31 @@ public class LogisticsCompanyClient {
 	 * 发货
 	 * @throws ApiException 
 	 */
-	public String send(String tid, String outSid, String companyCode, String sellerNick) throws ApiException {
+	public String send(String tids, String outSid, String companyCode, String sellerNick) throws ApiException {
 		TaobaoClient client = topConfig.getRetryClient();
 		LogisticsOfflineSendRequest req = new LogisticsOfflineSendRequest();
-		req.setTid(Long.valueOf(tid));
-		req.setOutSid(outSid);
-		req.setCompanyCode(companyCode);
-        Trade t = tradeClient.getTradeFullInfo(Long.parseLong(tid), topConfig.getToken(sellerNick));
-        if(t.getStatus().equals(TaoTradeStatus.WAIT_BUYER_CONFIRM_GOODS.getValue())) {
-            return null;
+        String []tidArr = tids.split(",");
+        String errorInfo = null;
+        for(String tid : tidArr) {
+            if(StringUtils.isBlank(tid)) {
+                continue;
+            }
+            req.setTid(Long.valueOf(tid));
+            req.setOutSid(outSid);
+            req.setCompanyCode(companyCode);
+            Trade t = tradeClient.getTradeFullInfo(Long.parseLong(tid), topConfig.getToken(sellerNick));
+            if(t.getStatus().equals(TaoTradeStatus.WAIT_BUYER_CONFIRM_GOODS.getValue())) {
+                continue;
+            }
+            LogisticsOfflineSendResponse response = client.execute(req , topConfig.getToken(sellerNick));
+
+            if(!response.isSuccess()) {
+                String errorCode = response.getErrorCode();
+                log.error("Send failed, errorCode {}", errorCode);
+                errorInfo = response.getSubMsg();
+            }
         }
-		LogisticsOfflineSendResponse response = client.execute(req , topConfig.getToken(sellerNick));
-		String errorInfo = null;
-		if(!response.isSuccess()) {
-			String errorCode = response.getErrorCode();
-			log.error("Send failed, errorCode {}", errorCode);
-			errorInfo = response.getSubMsg();
-		}
+
 		return errorInfo;
 	}
 	

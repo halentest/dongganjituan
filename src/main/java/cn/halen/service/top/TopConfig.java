@@ -65,11 +65,18 @@ public class TopConfig {
     @Value("${file.refund.pic}")
     private String fileRefundPic;
 
+    @Value("${file.report}")
+    private String fileReport;
+
     @Autowired
 	private AdminMapper adminMapper;
 
     public String getFileRefundPic() {
         return fileRefundPic;
+    }
+
+    public String getFileReport() {
+        return fileReport;
     }
 
     public String getFileExport() {

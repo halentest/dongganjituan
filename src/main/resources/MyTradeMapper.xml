@@ -37,6 +37,11 @@
         <result property="seller_nick" column="seller_nick"/><result property="buyer_nick" column="buyer_nick"/>
         <result property="come_from" column="come_from"/><result property="pay_type" column="pay_type"/>
         <result property="return_order" column="return_order"/><result property="modified" column="modified"/><result property="created" column="created"/>
+        <result property="submit_time" column="submit_time"/>
+        <result property="cancel_time" column="cancel_time"/>
+        <result property="find_time" column="find_time"/>
+        <result property="scan_time" column="scan_time"/>
+        <result property="send_time" column="send_time"/>
 
 		<collection property="myOrderList" ofType="MyOrder" >
 	      	<id property="id" column="o_id"/>
@@ -66,7 +71,7 @@
 		insert into trade2 values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
 			#{delivery_money}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish},
             #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
-			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created})
+			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created}, #{submit_time}, #{cancel_time}, #{find_time}, #{scan_time}, #{send_time})
 	</insert>
 	
 	<insert id="insertRefund" parameterType="MyRefund">
@@ -201,6 +206,45 @@
             and t.created between '${startTime}' and '${endTime}' order by t.created desc limit #{start}, #{page_size}
         </where>
     </select>
+
+    <select id="selectTradeMapList" parameterType="Map" resultMap="myTradeMap" >
+        select t.*,
+        o.id as o_id, o.tid as o_tid, o.goods_id as o_goods_id, o.title as o_title, o.pic_path as o_pic_path, o.sku_id as o_sku_id, o.quantity as o_quantity, o.price as o_price,
+        o.discount as o_discount, o.weight as o_weight, o.payment as o_payment, o.status as o_status, o.modified as o_modified, o.created as o_created,
+        s.color_id as s_color_id, s.color as s_color, s.size as s_size, s.id as s_id
+        from
+        (select * from trade2
+        <where>
+            <if test="start_send_time != null and end_send_time != null">
+                send_time between '${start_send_time}' and '${end_send_time}'
+            </if>
+            <if test="tid != null">
+                tid = #{tid}
+            </if>
+            <if test="isSubmit != null">
+                and is_submit = #{isSubmit}
+            </if>
+            <if test="isRefund != null">
+                and is_refund = #{isRefund}
+            </if>
+            <if test="isSend != null">
+                and is_send = #{isSend}
+            </if>
+            <if test="isCancel != null">
+                and is_cancel = #{isCancel}
+            </if>
+            <if test="isFinish != null">
+                and is_finish = #{isFinish}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        )
+        t
+        left join order2 o on t.id = o.tid
+        left join sku s on o.sku_id = s.id
+    </select>
 	
 	<select id="selectTradeMap" parameterType="Map" resultMap="myTradeMap" >
 		select t.*,
@@ -254,7 +298,23 @@
              is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, why_cancel=#{why_cancel}, status=#{status},
 			 seller_memo=#{seller_memo}, kefu_memo=#{kefu_memo}, cangku_memo=#{cangku_memo}, kefu_msg=#{kefu_msg}, cangku_msg=#{cangku_msg},
              buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, buyer_nick=#{buyer_nick}, come_from=#{come_from},
-			 modified=#{modified} where id=#{id}
+			 modified=now()
+            <if test="submit_time != null">
+                , submit_time=#{submit_time}
+            </if>
+            <if test="cancel_time != null">
+                , cancel_time=#{cancel_time}
+            </if>
+            <if test="find_time != null">
+                , find_time=#{find_time}
+            </if>
+            <if test="scan_time != null">
+                , scan_time=#{scan_time}
+            </if>
+            <if test="send_time != null">
+                , send_time=#{send_time}
+            </if>
+            where id=#{id}
 	</update>
 	
 	<update id="updateTradeStatus" parameterType="Map">

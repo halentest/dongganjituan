@@ -50,6 +50,11 @@ public class MyTrade {
     private int return_order;
 	private Date created;
 	private Date modified;
+    private Date submit_time;
+    private Date cancel_time;
+    private Date find_time;
+    private Date scan_time;
+    private Date send_time;
 	
 	private Template template;
 	private Distributor distributor;
@@ -68,6 +73,46 @@ public class MyTrade {
 				+ ", postcode=" + postcode + ", seller_memo=" + seller_memo
 				+ ", buyer_message=" + buyer_message + "]";
 	}
+
+    public Date getSubmit_time() {
+        return submit_time;
+    }
+
+    public void setSubmit_time(Date submit_time) {
+        this.submit_time = submit_time;
+    }
+
+    public Date getCancel_time() {
+        return cancel_time;
+    }
+
+    public void setCancel_time(Date cancel_time) {
+        this.cancel_time = cancel_time;
+    }
+
+    public Date getFind_time() {
+        return find_time;
+    }
+
+    public void setFind_time(Date find_time) {
+        this.find_time = find_time;
+    }
+
+    public Date getScan_time() {
+        return scan_time;
+    }
+
+    public void setScan_time(Date scan_time) {
+        this.scan_time = scan_time;
+    }
+
+    public Date getSend_time() {
+        return send_time;
+    }
+
+    public void setSend_time(Date send_time) {
+        this.send_time = send_time;
+    }
 
     public int getIs_cancel() {
         return is_cancel;

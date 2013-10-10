@@ -104,6 +104,7 @@ public class TradeService {
         MyTrade myTrade = myTradeMapper.selectById(tid);
         myTrade.setDelivery_number(outSid);
         myTrade.setStatus(TradeStatus.WaitOut.getStatus());
+        myTrade.setScan_time(new Date());
         myTradeMapper.updateMyTrade(myTrade);
     }
 	
@@ -288,6 +289,7 @@ public class TradeService {
 		}
         myTrade.setStatus(TradeStatus.WaitSend.getStatus());
         myTrade.setIs_submit(1);
+        myTrade.setSubmit_time(new Date());
 		int count = myTradeMapper.updateMyTrade(myTrade);
 		return count > 0;
 	}
@@ -310,6 +312,7 @@ public class TradeService {
 		myTrade.setStatus(TradeStatus.WaitReceive.getStatus());
         myTrade.setIs_send(1);
         myTrade.setIs_cancel(0);
+        myTrade.setSend_time(new Date());
 		myTradeMapper.updateMyTrade(myTrade);
 
 		List<MyOrder> list = myTrade.getMyOrderList();

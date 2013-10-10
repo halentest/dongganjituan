@@ -147,7 +147,12 @@ create table trade2 (
 	pay_type tinyint, #支付方式（1，货到付款  4，在线支付）
     return_order tinyint default 0, #是否换货订单（1，是  0， 否）
 	modified timestamp default current_timestamp,
-	created timestamp
+	created timestamp,
+	submit_time timestamp default '1970-01-01 01:00:01', #提交时间
+	cancel_time timestamp default '1970-01-01 01:00:01', #取消时间
+	find_time timestamp default '1970-01-01 01:00:01', #拣货时间
+	scan_time timestamp default '1970-01-01 01:00:01', #扫描单号时间
+	send_time timestamp default '1970-01-01 01:00:01' #出库时间
 ) DEFAULT CHARACTER SET utf8;
 
 drop table if exists order2;
