@@ -62,12 +62,18 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 <input id="start" class="easyui-datetimebox" type="input">
             &nbsp;&nbsp;&nbsp;&nbsp;
             结束时间
-                <input id="end" class="easyui-datetimebox" type="input">
             <span style="float: right; margin-right:15px;">
                 <button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}条交易
                 &nbsp;&nbsp;&nbsp;&nbsp;
-                <a href="${rc.contextPath}/trade/report">下载今天的已发货订单</a>
+
+                <#if CURRENT_USER.type=="WareHouse">
+                    <form action="${rc.contextPath}/trade/report" method="get" style="display: inline;">
+                        <input name="date" class="easyui-datebox" type="input" style="width:100px;">
+                        <input type="submit" value="下载已发货订单"/>
+                    </form>
+                </#if>
             </span>
+            <input id="end" class="easyui-datetimebox" type="input">
         </div>
 
 	</div>

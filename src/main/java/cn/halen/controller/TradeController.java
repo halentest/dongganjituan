@@ -1,6 +1,7 @@
 package cn.halen.controller;
 
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -53,11 +54,19 @@ public class TradeController {
 	//private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
 
     @RequestMapping(value="trade/report")
-    public void sendReport(Model model, HttpServletResponse response) throws IOException {
+    public void sendReport(Model model, HttpServletResponse response, @RequestParam(required = false) String date) throws IOException {
         response.setCharacterEncoding("gb2312");
         response.setContentType("multipart/form-data");
 
         Calendar cal = Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format1 = new SimpleDateFormat("MM/dd/yyyy");
+        if(StringUtils.isNotBlank(date)) {
+            try {
+                cal.setTime(format1.parse(date));
+            } catch (ParseException e) {
+            }
+        }
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
@@ -67,7 +76,7 @@ public class TradeController {
         Date end = cal.getTime();
 
         List<MyTrade> list = tradeMapper.listSendTrade(start, end);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
         SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String fileName = "send-report-" + format.format(start) + ".csv";
         File f = new File(topConfig.getFileReport() + File.separator + fileName);
