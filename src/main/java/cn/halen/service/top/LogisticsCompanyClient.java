@@ -109,7 +109,7 @@ public class LogisticsCompanyClient {
             req.setOutSid(outSid);
             req.setCompanyCode(companyCode);
             Trade t = tradeClient.getTradeFullInfo(Long.parseLong(tid), topConfig.getToken(sellerNick));
-            if(t.getStatus().equals(TaoTradeStatus.WAIT_BUYER_CONFIRM_GOODS.getValue())) {
+            if(!t.getStatus().equals(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue())) {
                 continue;
             }
             LogisticsOfflineSendResponse response = client.execute(req , topConfig.getToken(sellerNick));
