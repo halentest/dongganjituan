@@ -613,8 +613,8 @@ public class TradeService {
             //先同outer id查询sku，如果查不到， 再通过颜色和尺码
             String color = null;
             String size = null;
-            MySku sku = mySkuMapper.selectByHid("11112240");
-            //MySku sku = mySkuMapper.selectByHid(order.getOuterSkuId());
+            //MySku sku = mySkuMapper.selectByHid("11112240");
+            MySku sku = mySkuMapper.selectByHid(order.getOuterSkuId());
             if(null != sku) {
                 color = sku.getColor();
                 size = sku.getSize();
