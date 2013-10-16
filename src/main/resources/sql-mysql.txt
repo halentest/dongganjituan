@@ -226,10 +226,10 @@ create table shop (
 	modified timestamp,
 	created timestamp,
 	last_refresh timestamp,
-	auto_sync tinyint,
+	auto_sync tinyint,  #是否能同步淘宝店铺的订单
 	type varchar(20),
 	distributor_id int,
-	auto_sync_store tinyint,
+	auto_sync_store tinyint,  #当库存修改时是否同步淘宝店铺的库存
 	rate decimal(3, 2) default 1.00
 ) DEFAULT CHARACTER SET utf8;
 

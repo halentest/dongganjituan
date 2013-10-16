@@ -1,6 +1,6 @@
 <#import "/templates/root.ftl" as root >
 
-<@root.html active=2 css=["jqpagination.css", "easyui.css", "icon.css", "table.css"] js=["goods_list.js", "jquery.cookie.js", "jquery.jqpagination.min.js", "jquery.easyui.min.js"]>
+<@root.html active=2 css=["jqpagination.css", "easyui.css", "icon.css", "table.css", "all.css"] js=["goods_list.js", "jquery.cookie.js", "jquery.jqpagination.min.js", "jquery.easyui.min.js"]>
 
 	<div style="width: 98%; height: 30px; background-color: #d6dff7; padding-top: 5px; padding-left: 20px;">
 		<strong>商品编号</strong>
@@ -20,25 +20,26 @@
 	    <a href="#" class="next" data-action="next">&rsaquo;</a>
 	    <a href="#" class="last" data-action="last">&raquo;</a>
 	</div>
-	<#if CURRENT_USER.type=="GoodsManager">
-	<br><br>
+
+	<br><br><br>
 	<div>
-		<a id="check-all" style="cursor: pointer;">全选</a>&nbsp;&nbsp;&nbsp;&nbsp;
-		<a id="not-check-all" style="cursor: pointer;">全不选</a>&nbsp;&nbsp;&nbsp;&nbsp;
-		<a class="btn btn-primary" id="sync-store">同步库存</a>
-		<a class="btn btn-primary" id="change-template">修改运费模板</a>
-		<a class="btn btn-primary" id="sync-pic">同步商品图片</a>
+		<a id="check-all" style="cursor: pointer;">全选</a>
+		<a id="not-check-all" style="cursor: pointer;">全不选</a>
+        <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
+		    <a class="btn btn-primary" id="sync-store">同步库存</a>
+        </#if>
+        <#if CURRENT_USER.type=="GoodsManager">
+            <a class="btn btn-primary" id="change-template">修改运费模板</a>
+            <a class="btn btn-primary" id="sync-pic">同步商品图片</a>
+        </#if>
 	</div>
-	</#if>
 	<#if list??>
 	<#list list as goods>
 	<#assign map2 = map[goods.hid]>
 	<table>
         <tbody>
         	  <tr>
-        	  		<#if CURRENT_USER.type=="GoodsManager">
         	  		<th rowspan="${map2?size+1}" style="width: 2%;"><input class="wait-check" data-hid=${goods.hid} type="checkbox"/></th>
-        	  		</#if>
         	  		<th rowspan="${map2?size+1}" style="width: 12%;">
                         <#if goods.url??>
                             <#assign picPath = goods.url/>
@@ -137,6 +138,26 @@
   </div>
   <!-- end 提示框 -->
 
+<!-- start 提示框 -->
+<div id="pop-up-sync-store" class="easyui-window" title="选择店铺" data-options="modal:true,collapsible:false,closed:true,
+        resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:300px;height:150px;padding:10px;">
+        <#if shopList?size==0>
+            您目前没有店铺可以同步库存
+            <#else>
+                选择店铺
+                <select id="seller-nick">
+                    <#list shopList as shop>
+                        <option value="${shop.sellerNick}">${shop.sellerNick}</option>
+                    </#list>
+                </select>
+                <div style="text-align:center;padding:5px;margin-top:15px;">
+                    <a class="easyui-linkbutton" onclick="saveSyncStore()">确定</a>
+                    <a class="easyui-linkbutton" onclick="cancelSyncStore()">取消</a>
+                </div>
+            </#if>
+</div>
+<!-- end 提示框 -->
+
 <script>
 	function initpage() {
 	      $('#goods-id').val('${goods_id!""}');
@@ -227,32 +248,6 @@
 	    		$('.wait-check').attr("checked", false);
 	    	})
 	    	
-	    	$('#sync-store').click(function() {
-	    		var checked = $('.wait-check:checked');
-	    		if(checked.length==0) {
-	    			alert('至少选中一个商品!');
-	    			return false;
-	    		}
-	    		var hids = "";
-	    		$(checked).each(function(index, item) {
-	    			var hid = $(item).attr("data-hid");
-	    			hids += hid;
-	    			hids += ";";
-	    		})
-    			$.ajax({
-	            type: "post",//使用get方法访问后台
-	            dataType: "json",//返回json格式的数据
-	            data: "hids=" + hids + "&action=sync-store",
-	            url: "${rc.contextPath}/goods/action/batch_change",//要访问的后台地址
-	            success: function(result){//msg为返回的数据，在这里做数据绑定
-		                if(result.errorInfo != "success") {
-		                	alert(result.errorInfo);
-		                }  else {
-		                	alert("同步库存成功!");
-		                }
-	            }}); 
-	    	})
-	    	
 	    	$('#sync-pic').click(function() {
 	    		var checked = $('.wait-check:checked');
 	    		if(checked.length==0) {
@@ -269,7 +264,7 @@
 	            type: "post",//使用get方法访问后台
 	            dataType: "json",//返回json格式的数据
 	            data: "hids=" + hids + "&action=sync-pic",
-	            url: "${rc.contextPath}/goods/action/batch_change",//要访问的后台地址
+	            url: "${rc.contextPath}/goods/batch_change",//要访问的后台地址
 	            success: function(result){//msg为返回的数据，在这里做数据绑定
 		                if(result.errorInfo != "success") {
 		                	alert(result.errorInfo);

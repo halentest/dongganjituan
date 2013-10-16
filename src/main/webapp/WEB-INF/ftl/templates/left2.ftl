@@ -77,6 +77,9 @@
                             <TD height=20><a id="lock" target="mainFrame">锁定(excel批量导入)</a></TD>
                         </TR>
                         <TR>
+                            <TD height=20><a id="unlock" target="mainFrame">解锁(excel批量导入)</a></TD>
+                        </TR>
+                        <TR>
                             <TD height=20><a id="new" target="mainFrame">新建商品(批量导入)</a></TD>
                         </TR>
                         <TR>
@@ -87,6 +90,9 @@
                         </TR>
                         <TR>
                             <TD height=20><a id="lock-invoice-list" target="mainFrame">锁定单列表</a></TD>
+                        </TR>
+                        <TR>
+                            <TD height=20><a id="unlock-invoice-list" target="mainFrame">解锁单列表</a></TD>
                         </TR>
                         <TR>
                             <TD height=20><a id="new-list" target="mainFrame">新建商品单列表</a></TD>
@@ -131,6 +137,10 @@
         parent.frames[2].location.href="${rc.contextPath}/goods/action/upload?action=lock";
     });
 
+    $('#unlock').click(function() {
+        parent.frames[2].location.href="${rc.contextPath}/goods/action/upload?action=unlock";
+    });
+
     $('#new').click(function() {
     parent.frames[2].location.href="${rc.contextPath}/goods/action/upload?action=new";
     });
@@ -145,6 +155,10 @@
 
     $('#lock-invoice-list').click(function() {
         parent.frames[2].location.href="${rc.contextPath}/goods/upload_list?action=lock";
+    });
+
+    $('#unlock-invoice-list').click(function() {
+        parent.frames[2].location.href="${rc.contextPath}/goods/upload_list?action=unlock";
     });
 
     $('#new-list').click(function() {

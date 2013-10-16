@@ -363,6 +363,14 @@ public class TradeService {
                 order.setTid(commonTrade.getId());
             }
 			myTradeMapper.insertMyOrder(order);
+            if(Constants.QUANTITY == type) {
+                //批量导入的订单，需要减去库存
+                try {
+                    skuService.updateSku(order.getSku_id(), -order.getQuantity(), 0, 0, true);
+                } catch (InsufficientStockException e) {
+                    log.error("batch insert trade error", e);
+                }
+            }
             quantity += order.getQuantity();
             payment += order.getPayment() * order.getQuantity();
 		}
@@ -544,7 +552,11 @@ public class TradeService {
                 myTrade.setModified(new Date());
                 myTrade.setCreated(new Date());
                 myTrade.setAddress(row.getAddress());
-                myTrade.setStatus(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue());
+                myTrade.setStatus(TradeStatus.WaitReceive.getStatus());
+                myTrade.setIs_send(1);
+                myTrade.setIs_submit(1);
+                myTrade.setIs_finish(1);
+                myTrade.setSend_time(new Date());
                 MyLogisticsCompany mc = logisticsMapper.select(1);
                 myTrade.setDelivery(mc.getName());
 
@@ -556,7 +568,6 @@ public class TradeService {
                 myOrder.setGoods_id(row.getGoodsId());
                 myOrder.setTitle(row.getTitle());
                 myOrder.setQuantity(row.getNum());
-                myOrder.setStatus(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue());
                 myTrade.addOrder(myOrder);
                 result.add(myTrade);
 
@@ -570,7 +581,6 @@ public class TradeService {
                 myOrder.setTitle(row.getTitle());
                 myOrder.setQuantity(row.getNum());
                 myOrder.setPayment(row.getPrice());
-                myOrder.setStatus(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue());
                 lastTrade.addOrder(myOrder);
             }
         }

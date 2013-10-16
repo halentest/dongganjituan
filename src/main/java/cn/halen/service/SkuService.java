@@ -40,9 +40,12 @@ public class SkuService {
             Iterator<MyOrder> it2 = t.getMyOrderList().iterator();
             while(it2.hasNext()) {
                 MyOrder o = it2.next();
-                if(null == skuMapper.select(o.getGoods_id(), o.getColor(), o.getSize())) {
+                MySku sku = skuMapper.select(o.getGoods_id(), o.getColor(), o.getSize());
+                if(null == sku) {
                     result.add(excelRow);
                     it2.remove();
+                } else {
+                    o.setSku_id(sku.getId());
                 }
                 excelRow ++;
             }
@@ -221,6 +224,8 @@ public class SkuService {
                 quantity = -Math.abs(row.getCount());
             } else if(action.equals("lock")){
                 manaualLockQuantity = Math.abs(row.getCount());
+            } else if(action.equals("unlock")) {
+                manaualLockQuantity = -Math.abs(row.getCount());
             } else {
                 throw new IllegalArgumentException("无效参数");
             }

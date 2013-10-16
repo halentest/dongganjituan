@@ -5,6 +5,7 @@ import java.util.*;
 
 import cn.halen.data.mapper.MySkuMapper;
 import cn.halen.exception.InsufficientStockException;
+import cn.halen.service.AdminService;
 import cn.halen.service.SkuService;
 import cn.halen.service.excel.ExcelReader;
 import cn.halen.service.excel.GoodsExcelReader;
@@ -57,6 +58,9 @@ public class GoodsController {
 
     @Autowired
     private SkuService skuService;
+
+    @Autowired
+    private AdminService adminService;
 
     @Autowired
     private MySkuMapper skuMapper;
@@ -219,6 +223,8 @@ public class GoodsController {
 
         model.addAttribute("tid", tid);
 
+        model.addAttribute("shopList", adminService.getSyncShopList());
+
 		return "goods/goods_list";
 	}
 
@@ -355,9 +361,9 @@ public class GoodsController {
     }
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value="goods/action/batch_change")
+	@RequestMapping(value="goods/batch_change")
 	public @ResponseBody ResultInfo syncStore(Model model, @RequestParam("hids") String hids, @RequestParam("action") String action,
-			@RequestParam(value="template", required=false) String template) {
+			@RequestParam(value="template", required=false) String template, @RequestParam(required = false) String shops) {
 		ResultInfo result = new ResultInfo();
 		if(StringUtils.isEmpty(hids.trim())) {
 			result.setSuccess(false);
@@ -373,6 +379,10 @@ public class GoodsController {
 		}
 		try {
 			if("sync-store".equals(action)) {
+                if(StringUtils.isBlank(shops)) {
+                    result.setSuccess(false);
+                    result.setErrorInfo("请选择店铺");
+                }
 				List<Goods> goodsList =	goodsMapper.selectById(hidList);
 				for(Goods goods : goodsList) {
 					List<MySku> skuList = goods.getSkuList();
@@ -382,7 +392,7 @@ public class GoodsController {
 					}
 				}
 				//notify listener to handler
-				redisTemplate.convertAndSend(Constants.REDIS_SKU_GOODS_CHANNEL, "1");
+				redisTemplate.convertAndSend(Constants.REDIS_SKU_GOODS_CHANNEL, "-" + shops.trim() + "-");
 			} else if("sync-pic".equals(action)) {
 				itemClient.updatePic(hidList);
 			} else if("change-template".equals(action)) {
@@ -428,6 +438,9 @@ public class GoodsController {
                 } else if("lock".equals(action)) {
                     dest = new File(topConfig.getFileLockGoods() + "/" + fileName);
                     actionName = "手动锁定库存单";
+                } else if("unlock".equals(action)) {
+                    dest = new File(topConfig.getFileUnlockGoods() + "/" + fileName);
+                    actionName = "手动解锁库存单";
                 } else {
                     model.addAttribute("errorInfo", "无效参数!");
                     return "goods/upload";
@@ -552,6 +565,8 @@ public class GoodsController {
             filePath = new File(topConfig.getFileNewGoods());
         } else if("lock".equals(action)) {
             filePath = new File(topConfig.getFileLockGoods());
+        } else if("unlock".equals(action)) {
+            filePath = new File(topConfig.getFileUnlockGoods());
         } else {
             model.addAttribute("errorInfo", "参数错误!");
             return "error_page";
@@ -596,6 +611,8 @@ public class GoodsController {
             file = new File(topConfig.getFileRefundGoods() + "//" + name);
         } else if("lock".equals(action)) {
             file = new File(topConfig.getFileLockGoods() + "//" + name);
+        } else if("unlock".equals(action)) {
+            file = new File(topConfig.getFileUnlockGoods() + "//" + name);
         }
         if(!file.exists()) {
             log.info("File {} not exists, can not be download!");

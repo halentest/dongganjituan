@@ -7,13 +7,11 @@
         .file{ position:absolute; top:0; right:80px; height:24px; filter:alpha(opacity:0);opacity: 0;width:260px }
         .btn{margin-top: -10px;}
     </style>
-	<#if action="buy"><i class="icon-ok"></i>进仓
-    <#else>
-            <#if action="new"><i class="icon-pencil"></i>新建商品
-            <#elseif action="refund"><i class="icon-remove"></i>退仓
-            <#else>
-                <i class="icon-lock"></i>手动锁定
-            </#if>
+	<#if action="buy">进仓
+    <#elseif action="new">新建商品
+    <#elseif action="refund">退仓
+    <#elseif action="lock">手动锁定
+    <#else>手动解锁
     </#if>
     <br><br><br>
     <div class="file-box">

@@ -31,7 +31,7 @@
             </div>
           </div>
     </form>
-          <div style="padding-left: 350px;" class="form-actions" >
+          <div style="padding-left: 150px;" class="form-actions" >
             <button id="submit" class="btn btn-primary">确定</button>
           </div>
 	

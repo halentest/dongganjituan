@@ -59,6 +59,10 @@ public class TopConfig {
     @Value("${file.lockgoods}")
     private String fileLockGoods;
 
+    @Value("${file.unlockgoods}")
+    private String fileUnlockGoods;
+
+
     @Value("${is.sandbox}")
     private boolean isSandbox;
 
@@ -73,6 +77,10 @@ public class TopConfig {
 
     public String getFileRefundPic() {
         return fileRefundPic;
+    }
+
+    public String getFileUnlockGoods() {
+        return fileUnlockGoods;
     }
 
     public String getFileReport() {

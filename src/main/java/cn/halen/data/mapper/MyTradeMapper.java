@@ -17,13 +17,17 @@ import cn.halen.util.Paging;
 
 public class MyTradeMapper extends SqlSessionDaoSupport {
 
+    private String lastId = null;
+
     public synchronized String generateId() {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssssss");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
+        String id = format.format(new Date());
+        if(id.equals(lastId)) {
+            long lid = Long.parseLong(id);
+            lid ++;
+            id = String.valueOf(lid);
         }
-        return format.format(new Date());
+        return id;
     }
 
 	public int insert(MyTrade myTrade) {

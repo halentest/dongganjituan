@@ -1,8 +1,10 @@
 package cn.halen.data.redis;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +44,22 @@ public class SkuChangeListener extends MessageListenerAdapter {
 			obj = redisTemplate.opsForSet().pop(Constants.REDIS_SKU_GOODS_SET);
 		}
 		log.info("keyList size is {}", keyList.size());
-		
-		List<Shop> shopList = adminMapper.selectShop(1, null, 1);
-        log.info("auto sync store shop size is {}", shopList.size());
+
+        List<Shop> shopList = null;
+        if(StringUtils.isNotBlank(message) && message.indexOf("-")>0) {
+            String sellerNick = message.substring(message.indexOf("-")+1, message.lastIndexOf("-"));
+            if(StringUtils.isNotBlank(sellerNick)) {
+                Shop shop = adminMapper.selectShopBySellerNick(sellerNick);
+                if(null != shop) {
+                    shopList = new ArrayList<Shop>(1);
+                    shopList.add(shop);
+                }
+            }
+        }
+        if(shopList==null || shopList.size()==0) {
+            shopList = adminMapper.selectShop(1, null, 1);
+        }
+        log.info("sync store shop size is {}", shopList.size());
 
 		if(!Util.isEmpty(shopList) && !Util.isEmpty(keyList)) {
 			for(Shop shop : shopList) {

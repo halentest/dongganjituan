@@ -34,7 +34,7 @@ public class TradeExcelReader {
         for(int i=1; i<rows; i++) {
             Cell[] cells = sheet.getRow(i);
             String shopName = cells[1].getContents();
-            String tradeId = cells[3].getContents();
+            String tradeId = cells[4].getContents();
             String goodsId = cells[8].getContents();
             String color = cells[9].getContents();
             String size = cells[10].getContents();

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.halen.data.mapper.*;
 import cn.halen.data.pojo.*;
-import cn.halen.service.SkuService;
+import cn.halen.service.*;
 import cn.halen.service.excel.TradeExcelReader;
 import cn.halen.service.excel.TradeRow;
 import cn.halen.service.top.domain.TaoTradeStatus;
@@ -37,9 +37,6 @@ import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.InvalidStatusChangeException;
 import cn.halen.filter.UserHolder;
-import cn.halen.service.ResultInfo;
-import cn.halen.service.TradeService;
-import cn.halen.service.UtilService;
 import cn.halen.service.top.TopConfig;
 import cn.halen.service.top.util.MoneyUtils;
 
@@ -79,6 +76,9 @@ public class TradeActionController {
 
     @Autowired
     private SkuService skuService;
+
+    @Autowired
+    private AdminService adminService;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -734,27 +734,8 @@ public class TradeActionController {
 
     @RequestMapping(value="trade/manual_sync_trade_form")
     public String manaualSyncTradeForm(Model model) {
-        List<Shop> allSyncShop = adminMapper.selectShop(1, null, null);
-        List<String> allSyncSellerNick = new ArrayList<String>();
-        for(Shop shop : allSyncShop) {
-            allSyncSellerNick.add(shop.getSellerNick());
-        }
-        List<Shop> validShopList = new ArrayList<Shop>();
-        User user = UserHolder.get();
-        if(user.getUserType()==UserType.Distributor) {
-            List<Shop> currShopList = adminMapper.selectDistributorMapById(user.getShop().getD().getId()).getShopList();
-            for(Shop shop : currShopList) {
-                if(allSyncSellerNick.contains(shop.getSellerNick())) {
-                    validShopList.add(shop);
-                }
-            }
-        } else if(user.getUserType()==UserType.ServiceStaff) {
-            Shop shop = user.getShop();
-            if(allSyncSellerNick.contains(shop.getSellerNick())) {
-                validShopList.add(shop);
-            }
-        }
-        model.addAttribute("shopList", validShopList);
+
+        model.addAttribute("shopList", adminService.getSyncShopList());
         return "trade/manual_sync_trade_form";
     }
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import cn.halen.data.mapper.MyLogisticsCompanyMapper;
 import cn.halen.data.pojo.*;
+import cn.halen.filter.UserHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,34 @@ public class AdminService {
 
     @Autowired
     private MyLogisticsCompanyMapper logisticsCompanyMapper;
+
+    /**
+     * 获取当前用户的所有可以同步的店铺列表
+     * @return
+     */
+    public List<Shop> getSyncShopList() {
+        List<Shop> allSyncShop = adminMapper.selectShop(1, null, null);
+        List<String> allSyncSellerNick = new ArrayList<String>();
+        for(Shop shop : allSyncShop) {
+            allSyncSellerNick.add(shop.getSellerNick());
+        }
+        List<Shop> validShopList = new ArrayList<Shop>();
+        User user = UserHolder.get();
+        if(user.getUserType()==UserType.Distributor) {
+            List<Shop> currShopList = adminMapper.selectDistributorMapById(user.getShop().getD().getId()).getShopList();
+            for(Shop shop : currShopList) {
+                if(allSyncSellerNick.contains(shop.getSellerNick())) {
+                    validShopList.add(shop);
+                }
+            }
+        } else if(user.getUserType()==UserType.ServiceStaff) {
+            Shop shop = user.getShop();
+            if(allSyncSellerNick.contains(shop.getSellerNick())) {
+                validShopList.add(shop);
+            }
+        }
+        return validShopList;
+    }
 	
 	@Transactional(rollbackFor=Exception.class)
 	public int insertNewTemplate(List<Template> list, String templateName) {
