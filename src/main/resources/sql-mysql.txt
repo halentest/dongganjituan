@@ -111,7 +111,7 @@ create table refund_order
 drop table if exists trade2;
 create table trade2 (
 	id varchar(50) primary key,
-	tid varchar(50), #网店单号
+	tid varchar(1500), #网店单号
 	name varchar(50) not null, 
 	phone varchar(20), 
 	mobile varchar(20) not null,

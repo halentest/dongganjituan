@@ -386,11 +386,17 @@ public class GoodsController {
 				List<Goods> goodsList =	goodsMapper.selectById(hidList);
 				for(Goods goods : goodsList) {
 					List<MySku> skuList = goods.getSkuList();
+                    StringBuilder skuIdList = new StringBuilder();
+                    boolean first = true;
 					for(MySku sku : skuList) {
-						String key = goods.getHid() + ";;;" + sku.getColor() + ";;;" + sku.getSize(); 
-						redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, key);
+                        if(!first) {
+                            skuIdList.append(",");
+                        }
+                        skuIdList.append(sku.getId());
+                        first = false;
 					}
-				}
+                    redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, skuIdList.toString());
+                }
 				//notify listener to handler
 				redisTemplate.convertAndSend(Constants.REDIS_SKU_GOODS_CHANNEL, "-" + shops.trim() + "-");
 			} else if("sync-pic".equals(action)) {

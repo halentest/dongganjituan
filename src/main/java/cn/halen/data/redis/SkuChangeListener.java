@@ -37,13 +37,24 @@ public class SkuChangeListener extends MessageListenerAdapter {
 	public void handleMessage(String message) {
 		
 		log.info("================== Receiver sku change notify ==================");
-		List<String> keyList = new ArrayList<String>();
+		List<Long> skuIdList = new ArrayList<Long>();
 		Object obj = redisTemplate.opsForSet().pop(Constants.REDIS_SKU_GOODS_SET);
 		while(null != obj) {
-			keyList.add((String)obj);
+            if(obj instanceof Long) {
+                skuIdList.add((Long)obj);
+                obj = redisTemplate.opsForSet().pop(Constants.REDIS_SKU_GOODS_SET);
+                continue;
+            }
+			String str = (String) obj;
+            String[] arr = str.split(",");
+            for(String s : arr) {
+                if(StringUtils.isNotBlank(s)) {
+                    skuIdList.add(Long.parseLong(s));
+                }
+            }
 			obj = redisTemplate.opsForSet().pop(Constants.REDIS_SKU_GOODS_SET);
 		}
-		log.info("keyList size is {}", keyList.size());
+		log.info("skuIdList size is {}", skuIdList.size());
 
         List<Shop> shopList = null;
         if(StringUtils.isNotBlank(message) && message.indexOf("-")>0) {
@@ -61,10 +72,10 @@ public class SkuChangeListener extends MessageListenerAdapter {
         }
         log.info("sync store shop size is {}", shopList.size());
 
-		if(!Util.isEmpty(shopList) && !Util.isEmpty(keyList)) {
+		if(!Util.isEmpty(shopList) && !Util.isEmpty(skuIdList)) {
 			for(Shop shop : shopList) {
 				try {
-					goodsService.updateSkuQuantity(keyList, shop);
+					goodsService.updateSkuQuantity(skuIdList, shop);
 				} catch (ApiException e) {
 					log.error("", e);
 				}

@@ -184,9 +184,8 @@ public class SkuService {
     }
 
     private void sendSkuChangeNotify(MySku mySku) {
-        String key = mySku.getGoods_id() + ";;;" + mySku.getColor() + ";;;" + mySku.getSize();
         //add this to redis
-        redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, key);
+        redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, mySku.getId());
         //notify listener to handler
         redisTemplate.convertAndSend(Constants.REDIS_SKU_GOODS_CHANNEL, "1");
     }

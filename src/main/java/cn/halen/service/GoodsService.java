@@ -10,6 +10,11 @@ import java.util.Set;
 import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.Shop;
 import cn.halen.service.excel.GoodsRow;
+import cn.halen.service.top.TopConfig;
+import com.taobao.api.TaobaoClient;
+import com.taobao.api.domain.Sku;
+import com.taobao.api.request.SkusCustomGetRequest;
+import com.taobao.api.response.SkusCustomGetResponse;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,57 +42,38 @@ public class GoodsService {
 	
 	@Autowired
 	private ItemClient itemClient;
+
+    @Autowired
+    private TopConfig topConfig;
 	
 	/**
 	 * @throws ApiException
 	 */
-	public void updateSkuQuantity(List<String> keyList, Shop shop) throws ApiException {
-		Set<String> hidSet = new HashSet<String>();
-		Map<String, Set<String>> map = new HashMap<String, Set<String>>();
-		for(String key : keyList) {
-			String[] items = key.split(";;;");
-			if(items.length == 3) {
-				String hid = items[0];
-				String color = items[1];
-				String size = items[2];
-				hidSet.add(hid);
-				Set<String> set = map.get(hid);
-				if(null == set) {
-					set = new HashSet<String>();
-					map.put(hid, set);
-				}
-				set.add(color + ";;;" +size);
-			}
-		}
-		List<String> hidList = new ArrayList<String>();
-		for(String hid : hidSet) {
-			hidList.add(hid);
-		}
-		List<Item> itemList = itemClient.getItemList(hidList, shop.getToken());
-		
-		for(Item item : itemList) {
-			Map<String, Long> taoSkuMap = getTaoSku(item); //color+size -> sku_id
-			Set<String> colorsizeSet = map.get(item.getOuterId());
-			for(String colorsize : colorsizeSet) {
-				String[] colorsizeArray = colorsize.split(";;;");
-				String color = colorsizeArray[0];
-				String size = colorsizeArray[1];
-				Long skuId = taoSkuMap.get(color + size);
-				if(null != skuId) {
-					MySku mySku = skuMapper.select(item.getOuterId(), color, size);
-                    long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()
-                            - mySku.getManaual_lock_quantity()) * shop.getRate());
-					boolean b = itemClient.updateSkuQuantity(item.getNumIid(), skuId, onlineQuantity, shop.getToken());
-					if(!b) {
-						logger.error("update online sku ({}, {}, {}, {}) failed", shop.getSellerNick(), item.getOuterId(),
-                                color, size);
-					} else {
-                        logger.debug("update online sku ({}, {}, {}, {}) successed", shop.getSellerNick(), item.getOuterId(),
-                                color, size);
-                    }
-				}
-			}
-		}
+	public void updateSkuQuantity(List<Long> skuIdList, Shop shop) throws ApiException {
+
+        for(long skuId : skuIdList) {
+            MySku mySku = skuMapper.select(skuId);
+            if(null == mySku) {
+                continue;
+            }
+            String outerSkuId = mySku.getGoods_id() + mySku.getColor_id() + mySku.getSize();
+            TaobaoClient client = topConfig.getRetryClient();
+            SkusCustomGetRequest req = new SkusCustomGetRequest();
+            req.setOuterId(outerSkuId);
+            req.setFields("sku_id, num_iid");
+            SkusCustomGetResponse response = client.execute(req , shop.getToken());
+            if(!response.isSuccess()) {
+                continue;
+            }
+            List<Sku> skuList = response.getSkus();
+            if(skuList != null && skuList.size() > 0) {
+                long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()
+                        - mySku.getManaual_lock_quantity()) * shop.getRate());
+                for(Sku sku : skuList) {
+                    itemClient.updateSkuQuantity(sku.getNumIid(), sku.getSkuId(), onlineQuantity, shop.getToken());
+                }
+            }
+        }
 	}
 	
 	/**
