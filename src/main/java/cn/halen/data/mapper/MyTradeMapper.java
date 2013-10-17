@@ -19,13 +19,19 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 
     private String lastId = null;
 
+    private int seq = 1;
+
     public synchronized String generateId() {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssssss");
         String id = format.format(new Date());
         if(id.equals(lastId)) {
             long lid = Long.parseLong(id);
-            lid ++;
+            lid += seq;
             id = String.valueOf(lid);
+            seq ++;
+        } else {
+            lastId = id;
+            seq = 1;
         }
         return id;
     }
