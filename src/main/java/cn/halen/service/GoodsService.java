@@ -66,6 +66,7 @@ public class GoodsService {
                 continue;
             }
             List<Sku> skuList = response.getSkus();
+            logger.info("skuList from top size is {}", skuList.size());
             if(skuList != null && skuList.size() > 0) {
                 long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()
                         - mySku.getManaual_lock_quantity()) * shop.getRate());
