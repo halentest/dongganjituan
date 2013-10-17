@@ -11,11 +11,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.halen.data.mapper.MigrationMapper;
+import cn.halen.data.mapper.MyTradeMapper;
+import cn.halen.data.pojo.MyOrder;
+import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.TradeStatus;
 import cn.halen.data.pojo.migration.Order1;
 import cn.halen.data.pojo.migration.Order2;
 import cn.halen.data.pojo.migration.Trade1;
 import cn.halen.data.pojo.migration.Trade2;
+import cn.halen.service.top.*;
+import cn.halen.util.Constants;
+import com.taobao.api.domain.Trade;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +36,6 @@ import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.service.ResultInfo;
 import cn.halen.service.TradeService;
-import cn.halen.service.top.AreaClient;
-import cn.halen.service.top.ItemClient;
-import cn.halen.service.top.LogisticsCompanyClient;
-import cn.halen.service.top.TopConfig;
 
 import com.taobao.api.ApiException;
 
@@ -50,15 +52,36 @@ public class RedirectController {
 	
 	@Autowired
 	private AreaClient areaClient;
-	
-	@Autowired
-	private TradeService tradeService;
+
+    @Autowired
+    private TradeClient tradeClient;
 	
 	@Autowired
 	private TopConfig topConfig;
 
     @Autowired
+    private MyTradeMapper tradeMapper;
+
+    @Autowired
     private MigrationMapper migrationMapper;
+
+    @Autowired
+    private TradeService tradeService;
+
+    @RequestMapping(value = "/test")
+    public void test() throws ApiException {
+        MyTrade t = new MyTrade();
+        String id = "201310171155000035";
+        t.setName("name");
+        t.setMobile("13344");
+        t.setAddress("address");
+        t.setId(id);
+        MyOrder o = new MyOrder();
+        o.setTid(id);
+        o.setSku_id(2);
+        t.addOrder(o);
+        tradeService.insertMyTrade(t, false, 0, null);
+    }
 
     @RequestMapping(value="/migration")
     public String migration() {
@@ -258,7 +281,7 @@ public class RedirectController {
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.DAY_OF_MONTH, -15);
 			Date startDate = cal.getTime();
-			count = tradeService.initTrades(topConfig.listToken(), startDate, endDate);
+			count = initTrades(topConfig.listToken(), startDate, endDate);
 		} catch (Exception e) {
 			log.error("Error while sync trade", e);
 			result.setSuccess(false);
@@ -269,6 +292,29 @@ public class RedirectController {
 		result.setErrorInfo("成功导入" + count + "条交易信息");
 		return result;
 	}
+
+    public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ApiException, ParseException {
+        int totalCount = 0;
+
+        List<Trade> tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
+        for(Trade trade : tradeList) {
+            //check trade if exists
+            MyTrade dbMyTrade = tradeMapper.selectByTid(String.valueOf(trade.getTid()));
+            Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
+            if(null == tradeDetail) {
+                continue;
+            }
+            MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
+            if(null == myTrade)
+                continue;
+            if(null == dbMyTrade) {
+                myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
+                int count = tradeService.insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY, null);
+                totalCount += count;
+            }
+        }
+        return totalCount;
+    }
 	
 	@RequestMapping(value="/admin/sync_area")
 	public @ResponseBody ResultInfo syncArea() throws IOException, ServletException, JSONException, ParseException {

@@ -1,10 +1,7 @@
 package cn.halen.data.mapper;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import cn.halen.data.pojo.TradeStatus;
 import org.apache.commons.lang.StringUtils;
@@ -19,20 +16,22 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 
     private String lastId = null;
 
-    private int seq = 1;
+    private Set<Integer> rands = new HashSet<Integer>();
 
     public synchronized String generateId() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssssss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         String id = format.format(new Date());
-        if(id.equals(lastId)) {
-            long lid = Long.parseLong(id);
-            lid += seq;
-            id = String.valueOf(lid);
-            seq ++;
-        } else {
+        if(!id.equals(lastId)) {
             lastId = id;
-            seq = 1;
+            rands.clear();
         }
+        int rand = (int) (Math.random() * 9000 + 1000);
+        while(rands.contains(rand)) {
+            rand = (int) (Math.random() * 9000 + 1000);
+        }
+        id = id + rand;
+        rands.add(rand);
+
         return id;
     }
 

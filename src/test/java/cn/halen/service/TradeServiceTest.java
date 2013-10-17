@@ -1,5 +1,6 @@
 package cn.halen.service;
 
+import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.service.jd.JdTradeClient;
 import cn.halen.util.Constants;
@@ -32,7 +33,22 @@ public class TradeServiceTest {
 	
 	@Autowired
 	private MySkuMapper mySkuMapper;
-	
+
+    @Test
+    public void test_insertTrade() throws ApiException {
+        MyTrade t = new MyTrade();
+        String id = "12345";
+        t.setName("name");
+        t.setMobile("13344");
+        t.setAddress("address");
+        t.setId(id);
+        MyOrder o = new MyOrder();
+        o.setTid(id);
+        o.setSku_id(2);
+        t.addOrder(o);
+        tradeService.insertMyTrade(t, false, 0, null);
+    }
+
 	@Test
 	public void test_updateSkuAndInsertRefund() {
 		MyRefund myRefund = new MyRefund();

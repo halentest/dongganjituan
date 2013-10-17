@@ -18,8 +18,10 @@ import cn.halen.data.pojo.*;
 import cn.halen.service.*;
 import cn.halen.service.excel.TradeExcelReader;
 import cn.halen.service.excel.TradeRow;
+import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.domain.TaoTradeStatus;
 import cn.halen.util.Constants;
+import com.taobao.api.domain.Trade;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -61,6 +63,9 @@ public class TradeActionController {
 	
 	@Autowired
 	private AreaMapper areaMapper;
+
+    @Autowired
+    private TradeClient tradeClient;
 	
 	@Autowired
 	private MyLogisticsCompanyMapper myLogisticsCompanyMapper;
@@ -763,17 +768,40 @@ public class TradeActionController {
 		
 		int count = 0;
 		try {
-			count = tradeService.initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
+			count = initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
 		} catch (Exception e) {
 			log.error("Error while sync trade", e);
 			result.setSuccess(false);
-			result.setErrorInfo("系统异常，同步失败");
+			result.setErrorInfo("系统异常，部分订单同步失败");
 			return result;
 		}
 		log.info("Success sync trade {}", count);
 		result.setErrorInfo("成功导入" + count + "条交易信息");
 		return result;
 	}
+
+    public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ApiException, ParseException {
+        int totalCount = 0;
+
+        List<Trade> tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
+        for(Trade trade : tradeList) {
+            //check trade if exists
+            MyTrade dbMyTrade = tradeMapper.selectByTid(String.valueOf(trade.getTid()));
+            Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
+            if(null == tradeDetail) {
+                continue;
+            }
+            MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
+            if(null == myTrade)
+                continue;
+            if(null == dbMyTrade) {
+                myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
+                int count = tradeService.insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY, null);
+                totalCount += count;
+            }
+        }
+        return totalCount;
+    }
 
     @RequestMapping(value="trade/action/modify_receiver_info_form")
     public String modifyReceiverInfoForm(Model model, @RequestParam("id") String id) {

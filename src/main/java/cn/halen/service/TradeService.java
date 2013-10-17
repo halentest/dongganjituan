@@ -708,29 +708,6 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ParseException, ApiException, InsufficientStockException, InsufficientBalanceException {
-		int totalCount = 0;
-		
-		List<Trade> tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
-		for(Trade trade : tradeList) {
-			//check trade if exists
-			MyTrade dbMyTrade = myTradeMapper.selectByTid(String.valueOf(trade.getTid()));
-			Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
-            if(null == tradeDetail) {
-                continue;
-            }
-			MyTrade myTrade = toMyTrade(tradeDetail);
-			if(null == myTrade)
-				continue;
-			if(null == dbMyTrade) {
-				myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
-				int count = insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY, null);
-				totalCount += count;
-			}
-		}
-		return totalCount;
-	}
-	
 	private void handleExisting(MyTrade myTrade) throws ApiException {
 //		MyTrade dbMyTrade = selectTradeDetail(myTrade.getTid());
 //		if(!myTrade.toString().equals(dbMyTrade.toString()) && myTrade.getModified().getTime() > dbMyTrade.getModified().getTime()) {
