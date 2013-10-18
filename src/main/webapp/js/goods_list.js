@@ -72,7 +72,7 @@ function cancelTemplate() {
     $('#pop-up').window('close');
 }
 
-function addGoods(tid, goods) {
+function addGoods(tid, goods, from) {
     var selected = $("[data-goods='" + goods + "'][is-selected='true']");
     if(selected.size()==0) {
         alert("请选择要购买的商品！");
@@ -87,5 +87,5 @@ function addGoods(tid, goods) {
             orders += ':::';
         }
     })
-    window.location.href = "/trade/action/buy_goods_form?addGoods=true&orders=" + orders + "&tid=" + tid;
+    window.location.href = "/trade/action/buy_goods_form?addGoods=true&orders=" + orders + "&tid=" + tid + "&from=" + from;
 }

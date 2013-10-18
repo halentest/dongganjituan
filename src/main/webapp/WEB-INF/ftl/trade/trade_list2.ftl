@@ -142,6 +142,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
         <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
             <#if isSubmit?? && isSubmit==0>
                 <a id="batch-submit" style="cursor: pointer;">批量提交</a>
+                <a href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true">详情列表</a>
             </#if>
         </#if>
         <#if CURRENT_USER.type=="WareHouse">

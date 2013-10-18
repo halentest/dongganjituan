@@ -191,7 +191,7 @@ public class GoodsController {
     }
 
 	@RequestMapping(value="goods/goods_list")
-	public String list(Model model, @RequestParam(value="page", required=false) Integer page,
+	public String list(Model model, @RequestParam(value="page", required=false) Integer page, @RequestParam(required = false) String from,
 			@RequestParam(value="goods_id", required=false) String goodsId, @RequestParam(value="tid", required=false) String tid) {
 
         model.addAttribute("quantity", skuMapper.sumQuantity());
@@ -222,6 +222,7 @@ public class GoodsController {
 		model.addAttribute("templateList", adminMapper.selectTemplateNameAll());
 
         model.addAttribute("tid", tid);
+        model.addAttribute("from", from);
 
         model.addAttribute("shopList", adminService.getSyncShopList());
 

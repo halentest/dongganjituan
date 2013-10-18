@@ -106,6 +106,46 @@ $('#batch-find-goods').click(function() {
     }});
 })
 
+function submit(id) {
+    var tids = id;
+    $.ajax({
+            type: "post",//使用get方法访问后台
+            dataType: "json",//返回json格式的数据
+            data: "tids=" + tids + "&action=submit",
+            url: "/trade/action/batch_change_status",//要访问的后台地址
+            success: function(result){//msg为返回的数据，在这里做数据绑定
+                    if(result.errorInfo != "success") {
+                        alert(result.errorInfo);
+                        window.location.reload();
+                    } else {
+                        window.location.reload();
+                    }
+                }
+        });
+}
+
+function batchSubmit(idList) {
+    var r = confirm("确定提交本页所有订单吗?");
+    if(r==false) {
+        return false;
+    }
+    var tids = idList;
+    $.ajax({
+            type: "post",//使用get方法访问后台
+            dataType: "json",//返回json格式的数据
+            data: "tids=" + tids + "&action=submit",
+            url: "/trade/action/batch_change_status",//要访问的后台地址
+            success: function(result){//msg为返回的数据，在这里做数据绑定
+                    if(result.errorInfo != "success") {
+                        alert(result.errorInfo);
+                        window.location.reload();
+                    } else {
+                        window.location.reload();
+                    }
+                }
+        });
+}
+
 $('#batch-submit').click(function() {
     var checked = $('#t-list').datagrid("getChecked");
     if(checked.length==0) {
@@ -120,18 +160,19 @@ $('#batch-submit').click(function() {
         tids += ";";
     })
     $.ajax({
-    type: "post",//使用get方法访问后台
-    dataType: "json",//返回json格式的数据
-    data: "tids=" + tids + "&action=submit",
-    url: "/trade/action/batch_change_status",//要访问的后台地址
-    success: function(result){//msg为返回的数据，在这里做数据绑定
-            if(result.errorInfo != "success") {
-                alert(result.errorInfo);
-                window.location.reload();
-            } else {
-                window.location.reload();
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "tids=" + tids + "&action=submit",
+        url: "/trade/action/batch_change_status",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+                if(result.errorInfo != "success") {
+                    alert(result.errorInfo);
+                    window.location.reload();
+                } else {
+                    window.location.reload();
+                }
             }
-    }});
+    });
 })
 
 $('.apply-refund').click(function() {

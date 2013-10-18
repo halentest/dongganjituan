@@ -1,3 +1,4 @@
+<#macro buyer_info trade from="">
 <div class="left">
     <strong>客户信息</strong>
     <br>
@@ -9,7 +10,7 @@
         地址：${trade.state!''} ${trade.city!''} ${trade.district!''} ${trade.address!''}
         <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
             <#if (trade.status=="UnSubmit" || trade.status=="WaitSend") && trade.is_cancel==0>
-            <a href="${rc.contextPath}/trade/action/modify_receiver_info_form?id=${trade.id}">修改</a>
+            <a href="${rc.contextPath}/trade/action/modify_receiver_info_form?id=${trade.id}&from=${from}">修改</a>
             </#if>
         </#if>
         <br>
@@ -45,18 +46,18 @@
         审单留言：${trade.kefu_msg!''}
         <#if trade.is_submit==0 && (CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor")>
             <#if trade.kefu_msg??>
-                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg">修改</a>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg&from=${from}">修改</a>
             <#else>
-                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg">添加</a>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg&from=${from}">添加</a>
             </#if>
         </#if>
         <br>
         仓库留言：${trade.cangku_msg!''}
         <#if trade.is_submit==1 && (CURRENT_USER.type=="WareHouse")>
             <#if trade.cangku_msg??>
-                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg">修改</a>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_msg&from=${from}">修改</a>
             <#else>
-                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_msg">添加</a>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_msg&from=${from}">添加</a>
             </#if>
         </#if>
         <br>
@@ -64,16 +65,17 @@
         <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
             ${trade.kefu_memo!''}
             <#if trade.kefu_memo??>
-                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_memo">修改</a>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_memo&from=${from}">修改</a>
             <#else>
-                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_memo">添加</a>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=kefu_memo&from=${from}">添加</a>
             </#if>
         <#elseif CURRENT_USER.type=="WareHouse">
             ${trade.cangku_memo!''}
             <#if trade.cangku_memo??>
-                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_memo">修改</a>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_memo&from=${from}">修改</a>
             <#else>
-                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_memo">添加</a>
+                <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_memo&from=${from}">添加</a>
             </#if>
         </#if>
 </div>
+</#macro>

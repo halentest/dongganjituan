@@ -23,13 +23,14 @@ $(document).ready(function(){
 		    	var isFinish = $('#isFinish').val();
 		    	var isRefund = $('#isRefund').val();
 		    	var isSend = $('#isSend').val();
+		    	var map = $('#map').val();
 		    	if(!page) {
 		    	    page = 1;
 		    	}
 		        window.location.href="/trade/trade_list?page=" + page + "&status=" + status + "&seller_nick=" + seller_nick
 		        	+ "&name=" + name + "&tid=" + tid + "&dId=" + distributor + "&delivery=" + delivery + "&start=" + start
                     + "&end=" + end + "&isSubmit=" + isSubmit + "&isCancel=" + isCancel + "&isFinish=" + isFinish + "&isRefund=" + isRefund
-                    + "&isSend=" + isSend;
+                    + "&isSend=" + isSend + "&map=" + map;
 		    }
 	   });
 	   

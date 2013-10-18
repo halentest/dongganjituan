@@ -19,10 +19,12 @@
 <#else>
 <table>
     <input type="hidden" name="tid" value="${tid!''?string}"/>
+    <input type="hidden" name="from" value="${from!''}"/>
 	<#list orderList as order>
 	<input type="hidden" name="goods${order_index}" value="${order.goodsId}"/>
 	<input type="hidden" name="color${order_index}" value="${order.color}"/>
 	<input type="hidden" name="size${order_index}" value="${order.size}"/>
+
 	<input type="hidden" name="token" value="${token}"/>
 	<tr>
 		<td>

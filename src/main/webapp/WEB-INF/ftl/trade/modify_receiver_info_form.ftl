@@ -1,4 +1,5 @@
 <#import "/templates/root.ftl" as root >
+    <#import "/trade/_buyer_info.ftl" as buyer_info >
 
 <@root.html active=2 css=["trade_detail.css"] js=[]>
     <#include "/trade/_t_detail_tab.ftl">
@@ -24,6 +25,7 @@
                         <input name="address" class="my-input" style="width: 50%;" type="text"/>
                     </p>
                     <input type="hidden" name="id" value="${trade.id}"/>
+                    <input type="hidden" name="from" value="${from!''}"/>
                     <p>
                         收&nbsp;&nbsp;货&nbsp;&nbsp;人：
                         <input name="receiver" class="my-input" type="text"/>
@@ -38,7 +40,7 @@
                     </div>
                 </form>
             </div>
-            <#include "/trade/_buyer_info.ftl">
+            <@buyer_info.buyer_info trade=trade from=from!''/>
                 <div style="clear: both;"></div>
         </div>
 </@root.html>

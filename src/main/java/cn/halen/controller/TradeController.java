@@ -266,7 +266,8 @@ public class TradeController {
             @RequestParam(value="isSend", required=false) Integer isSend,
             @RequestParam(value="isCancel", required=false) String isCancel,
             @RequestParam(value="isFinish", required=false) Integer isFinish,
-            @RequestParam(required = false, defaultValue = "false") String scan) {
+            @RequestParam(required = false, defaultValue = "false") String scan,
+            @RequestParam(required = false, defaultValue = "false") String map) {
 		int intPage = 1;
 		if(null!=page && page>0) {
 			intPage = page;
@@ -365,12 +366,31 @@ public class TradeController {
         }
 		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime);
 		model.addAttribute("totalCount", totalCount);
-		Paging paging = new Paging(intPage, 100, totalCount);
+        int pageSize = 100;
+        if("true".equals(map)) {
+            pageSize = 10;
+        }
+		Paging paging = new Paging(intPage, pageSize, totalCount);
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
-			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime);
+            boolean bMap = false;
+            if("true".equals(map)) {
+                bMap = true;
+            }
+			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, isSubmit, isRefund, isSend,
+                    cancelList, isFinish, delivery, startTime, endTime, bMap);
 		}
 		model.addAttribute("trade_list", list);
+        StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        for(MyTrade trade : list) {
+            if(!first) {
+                builder.append(";");
+            }
+            builder.append(trade.getId());
+            first = false;
+        }
+        model.addAttribute("idList", builder.toString());
 		model.addAttribute("paging", paging);
 		model.addAttribute("name", name);
 		model.addAttribute("tid", tid);
@@ -386,6 +406,7 @@ public class TradeController {
 		model.addAttribute("dId", dId);
 		model.addAttribute("dList", adminMapper.listDistributor());
         model.addAttribute("scan", scan);
+        model.addAttribute("map", map);
         if(customTime) {
             model.addAttribute("start", start);
             model.addAttribute("end", end);
@@ -398,7 +419,11 @@ public class TradeController {
 		}
 
 		model.addAttribute("sellerInfo", adminMapper.selectSellerInfo());
-		return "trade/trade_list2";
+        if("true".equals(map)) {
+            return "trade/trade_map_list";
+        } else {
+            return "trade/trade_list2";
+        }
 	}
 	
 	@RequestMapping(value="fenxiao/add_trade_form")

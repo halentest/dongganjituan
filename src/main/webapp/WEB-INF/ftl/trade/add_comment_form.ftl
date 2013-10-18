@@ -1,4 +1,5 @@
 <#import "/templates/root.ftl" as root >
+<#import "/trade/_buyer_info.ftl" as buyer_info >
 <@root.html active=3 css=["trade_detail.css"] js=["jquery.cookie.js"]>
     <#include "/trade/_t_detail_tab.ftl">
     <div style="border:1px solid gray; width: 100%; height: auto;">
@@ -26,10 +27,11 @@
                 <br>
                 <input type="hidden" name="id" value="${trade.id}"/>
                 <input type="hidden" name="type" value="${type}"/>
+                <input type="hidden" name="from" value="${from!''}"/>
                 <input type="submit" value="确定"/>
             </form>
         </div>
-        <#include "/trade/_buyer_info.ftl">
+        <@buyer_info.buyer_info trade=trade from=from!''/>
         <div style="clear: both;"></div>
     </div>
 

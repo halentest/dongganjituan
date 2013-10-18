@@ -1,4 +1,5 @@
 <#import "/templates/root.ftl" as root >
+    <#import "/trade/_buyer_info.ftl" as buyer_info >
 
 <@root.html active=3 css=["easyui.css", "icon.css", "trade_detail.css"]
 js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
@@ -78,7 +79,7 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
                </p>
                </#if>
            </div>
-           <#include "/trade/_buyer_info.ftl">
+           <@buyer_info.buyer_info trade=trade/>
            <div style="clear: both;"></div>
        </div>
 </@root.html>

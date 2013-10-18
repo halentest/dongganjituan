@@ -101,16 +101,17 @@ public class TradeActionController {
     }
 
     @RequestMapping(value="trade/action/add_comment_form")
-    public String addCommentForm(Model model, @RequestParam String id, @RequestParam String type) {
+    public String addCommentForm(Model model, @RequestParam String id, @RequestParam String type, @RequestParam(required = false) String from) {
         MyTrade trade = tradeMapper.selectById(id);
         model.addAttribute("trade", trade);
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         model.addAttribute("type", type);
+        model.addAttribute("from", from);
         return "trade/add_comment_form";
     }
 
     @RequestMapping(value="trade/action/add_comment")
-    public void addComment(Model model, @RequestParam String id, @RequestParam String comment, @RequestParam String type,
+    public void addComment(Model model, @RequestParam String id, @RequestParam String comment, @RequestParam String type, @RequestParam(required = false) String from,
                             HttpServletResponse resp) {
         MyTrade trade = tradeMapper.selectById(id);
         if("kefu_memo".equals(type)) {
@@ -124,7 +125,11 @@ public class TradeActionController {
         }
         tradeMapper.updateMyTrade(trade);
         try {
-            resp.sendRedirect("/trade/trade_detail?id=" + id);
+            if("list".equals(from)) {
+                resp.sendRedirect("/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true");
+            } else {
+                resp.sendRedirect("/trade/trade_detail?id=" + id);
+            }
         } catch (IOException e) {
         }
     }
@@ -243,7 +248,8 @@ public class TradeActionController {
 	public String buyGoodsForm(Model model, @RequestParam(value="orders", required=false) String orders, 
 			@RequestParam(value="fromcart", required=false) String fromCart,
             @RequestParam(value="tid", required=false) String tid,
-            @RequestParam(value="addGoods", required=false) String addGoods) {
+            @RequestParam(value="addGoods", required=false) String addGoods,
+            @RequestParam(required = false) String from) {
 		User user = UserHolder.get();
 		String token = user.getUsername() + System.currentTimeMillis();
 		tokens.put(token, "ture");
@@ -283,6 +289,7 @@ public class TradeActionController {
 		model.addAttribute("orderList", orderList);
 		model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         model.addAttribute("tid", tid);
+        model.addAttribute("from", from);
 
 		return "trade/buy_goods_form";
 	}
@@ -431,7 +438,7 @@ public class TradeActionController {
 
     @SuppressWarnings("unchecked")
     @RequestMapping(value="trade/action/add_goods")
-    public String addGoods(Model model, HttpServletRequest req, HttpServletResponse resp) {
+    public String addGoods(Model model, HttpServletRequest req, HttpServletResponse resp, @RequestParam(required = false) String from) {
         String token = req.getParameter("token");
         if(tokens.get(token) == null) {
             model.addAttribute("errorInfo", "请不要重复提交表单！");
@@ -491,7 +498,11 @@ public class TradeActionController {
         }
         tokens.remove(token);
         try {
-            resp.sendRedirect("/trade/trade_detail?id=" + tid);
+            if("list".equals(from)) {
+                resp.sendRedirect("/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true");
+            } else {
+                resp.sendRedirect("/trade/trade_detail?id=" + tid);
+            }
             return null;
         } catch (IOException e) {
         }
@@ -499,10 +510,14 @@ public class TradeActionController {
     }
 
     @RequestMapping(value="trade/action/del_goods")
-    public void delGoods(Model model, HttpServletResponse resp, @RequestParam long oid, @RequestParam String tid) {
+    public void delGoods(Model model, HttpServletResponse resp, @RequestParam long oid, @RequestParam String tid, @RequestParam(required = false) String from) {
         tradeMapper.delOrder(oid);
         try {
-            resp.sendRedirect("/trade/trade_detail?id=" + tid);
+            if("list".equals(from)) {
+                resp.sendRedirect("/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true");
+            } else {
+                resp.sendRedirect("/trade/trade_detail?id=" + tid);
+            }
         } catch (IOException e) {
         }
     }
@@ -804,11 +819,12 @@ public class TradeActionController {
     }
 
     @RequestMapping(value="trade/action/modify_receiver_info_form")
-    public String modifyReceiverInfoForm(Model model, @RequestParam("id") String id) {
+    public String modifyReceiverInfoForm(Model model, @RequestParam("id") String id, @RequestParam(required = false) String from) {
 
         MyTrade trade = tradeMapper.selectTradeMap(id);
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         model.addAttribute("trade", trade);
+        model.addAttribute("from", from);
         return "trade/modify_receiver_info_form";
     }
 
@@ -823,6 +839,7 @@ public class TradeActionController {
         String phone = req.getParameter("phone");
         String mobile = req.getParameter("mobile");
         String id = req.getParameter("id");
+        String from = req.getParameter("from");
         String errorInfo = validateAddress(model, province, city, district, address, receiver, mobile);
         if(null != errorInfo) {
             model.addAttribute("errorInfo", errorInfo);
@@ -851,7 +868,11 @@ public class TradeActionController {
                 postcode, receiver, new Date(), id);
         if(count > 0) {
             try {
-                resp.sendRedirect("/trade/trade_detail?id=" + id);
+                if("list".equals(from)) {
+                    resp.sendRedirect("/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true");
+                } else {
+                    resp.sendRedirect("/trade/trade_detail?id=" + id);
+                }
                 return null;
             } catch (IOException e) {
             }

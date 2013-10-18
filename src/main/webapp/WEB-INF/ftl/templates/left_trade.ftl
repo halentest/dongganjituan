@@ -125,7 +125,7 @@
         })
 
         $('#UnSubmit').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true";
         });
 
         $('#wait-check').click(function() {
