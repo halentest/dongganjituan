@@ -111,7 +111,7 @@
                             <td>颜色：${order.sku.color}, 规格：${order.sku.size}</td>
                             <td>
                                 <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
-                                    <#if (trade.status=="UnSubmit" || trade.status=="WaitSend") && trade.is_cancel==0>
+                                    <#if trade.status=="UnSubmit" && trade.is_cancel==0>
                                         <a href="${rc.contextPath}/trade/action/del_goods?tid=${trade.id?string}&oid=${order.id}&from=list">删除</a>
                                     </#if>
                                 </#if>
@@ -122,7 +122,7 @@
                     </tbody>
                 </table>
                 <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
-                    <#if (trade.status=="UnSubmit" || trade.status=="WaitSend") && trade.is_cancel==0>
+                    <#if trade.status=="UnSubmit" && trade.is_cancel==0>
                         <a href="${rc.contextPath}/goods/goods_list?tid=${trade.id?string}&from=list">添加商品</a>
                     </#if>
                 </#if>
