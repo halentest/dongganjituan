@@ -27,13 +27,24 @@
                     <#if (trade.status=="UnSubmit" || trade.status=="WaitSend") && trade.is_cancel==0>
                     <a class="modify-delivery">修改</a>
                     </#if>
+                <#elseif CURRENT_USER.type=="WareHouse">
+                    <a class="modify-delivery">修改</a>
                 </#if>
                 <a style="display: none;" data-id="${trade.id}" class="modify-delivery-submit">保存</a>
                 <a style="display: none;" class="modify-delivery-cancel">取消</a>
             </#if>   <br>
 
         <div>运费: ${trade.delivery_money/100!''}</div>
-        快递单号: ${trade.delivery_number!''}    <br>
+        单号: <span>${trade.delivery_number!''}</span>
+        <#if trade.is_send==0 && trade.is_cancel==0 && trade.is_finish==0>
+            <input type="text" style="display: none; width: 80px;"/>
+            <#if CURRENT_USER.type=="WareHouse" && trade.status=="WaitOut">
+                <a class="modify-delivery-number">修改</a>
+            </#if>
+            <a style="display: none;" data-id="${trade.id}" class="modify-delivery-number-submit">保存</a>
+            <a style="display: none;" class="modify-delivery-number-cancel">取消</a>
+        </#if>
+        <br>
         网店：${trade.seller_nick!''}        <br>
         买家留言: ${trade.buyer_message!''}   <br>
         店铺备注: ${trade.seller_memo!''}  <br>

@@ -154,6 +154,7 @@ create table trade2 (
 	scan_time timestamp default '1970-01-01 01:00:01', #扫描单号时间
 	send_time timestamp default '1970-01-01 01:00:01' #出库时间
 ) DEFAULT CHARACTER SET utf8;
+create index address_index on trade2 (name, mobile, state, city, district, address);
 
 drop table if exists order2;
 create table order2

@@ -654,6 +654,16 @@ public class TradeActionController {
 		return result;
 	}
 
+    @RequestMapping(value="trade/action/change_delivery_number")
+    public @ResponseBody ResultInfo changeDeliveryNumber(Model model, @RequestParam("id") String id, @RequestParam() String deliveryNumber) {
+        ResultInfo result = new ResultInfo();
+        MyTrade trade = tradeMapper.selectById(id);
+        trade.setDelivery_number(deliveryNumber);
+        tradeMapper.updateMyTrade(trade);
+        result.setErrorInfo(deliveryNumber);
+        return result;
+    }
+
     /**
      * 扫描单号
      * @param model
