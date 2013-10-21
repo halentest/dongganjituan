@@ -112,7 +112,7 @@
                             <td>
                                 <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
                                     <#if trade.status=="UnSubmit" && trade.is_cancel==0>
-                                        <a href="${rc.contextPath}/trade/action/del_goods?tid=${trade.id?string}&oid=${order.id}&from=list">删除</a>
+                                        <a href="${rc.contextPath}/trade/action/del_goods?tid=${trade.id?string}&oid=${order.id?string}&from=list">删除</a>
                                     </#if>
                                 </#if>
                             </td>
