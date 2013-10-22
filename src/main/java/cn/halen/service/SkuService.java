@@ -164,7 +164,7 @@ public class SkuService {
      * @param sendSkuChangeNotify
      * @throws InsufficientStockException
      */
-    public void updateSku(MySku mySku, long quantity, long lockQuantity,
+    synchronized public void updateSku(MySku mySku, long quantity, long lockQuantity,
                            long manaualLockQuantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
         //update sku
         if(mySku.getQuantity() + quantity < 0 ||
