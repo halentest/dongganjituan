@@ -113,8 +113,7 @@ public class TradeService {
      * 1，如果是淘宝自动同步的订单，需要调用淘宝的接口完成店铺发货
 	 */
 	@Transactional(rollbackFor=Exception.class)
-	public String send(String id) {
-		try {
+	public String send(String id) throws InsufficientStockException, ApiException {
             MyTrade t = myTradeMapper.selectById(id);
 			String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
 			String errorInfo = null;
@@ -125,10 +124,6 @@ public class TradeService {
 				doSend(id, t.getDelivery(), t.getDelivery_number(), true);
 			}
 			return errorInfo;
-		} catch(Exception e) {
-			log.error("", e);
-			throw new RuntimeException(e);
-		}
 	}
 
     /**

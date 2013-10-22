@@ -727,7 +727,12 @@ public class TradeActionController {
             try {
                 for(String id : idArr) {
                     if(StringUtils.isNotEmpty(id)) {
-                        String errorInfo = tradeService.send(id);
+                        String errorInfo = null;
+                        try {
+                            errorInfo = tradeService.send(id);
+                        } catch (Exception e) {
+                            log.error("send error, ", e);
+                        }
                         if(StringUtils.isNotBlank(errorInfo)) {
                             result.setSuccess(false);
                             result.setErrorInfo(errorInfo);
