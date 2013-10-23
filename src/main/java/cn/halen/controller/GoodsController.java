@@ -176,9 +176,9 @@ public class GoodsController {
         try {
             if(null != sku) {
                 if("unlock".equals(action)) {
-                    skuService.updateSku(sku, 0, 0, -Math.abs(sku.getManaual_lock_quantity()), true);
+                    skuService.updateSku(id, 0, 0, -Math.abs(sku.getManaual_lock_quantity()), true);
                 } else if("refund".equals(action)) {
-                    skuService.updateSku(sku, -Math.abs(sku.getManaual_lock_quantity()), 0, -Math.abs(sku.getManaual_lock_quantity()), true);
+                    skuService.updateSku(id, -Math.abs(sku.getManaual_lock_quantity()), 0, -Math.abs(sku.getManaual_lock_quantity()), true);
                 }
             }
         } catch (InsufficientStockException e) {

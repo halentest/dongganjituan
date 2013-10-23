@@ -254,32 +254,6 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 <script>
 
 	$(document).ready(function() {
-		$('.cancel, .approve1, .submit, .no-goods, .find-goods').click(function() {
-			var action = $(this).attr("class");
-			if(action=="cancel") {
-				var isTrue = confirm("确定作废这个订单吗？");
-				if(!isTrue) {
-					return false;
-				}
-			} else if(action=="no-goods") {
-				var isTrue = confirm("确定没有货吗？");
-				if(!isTrue) {
-					return false;
-				}
-			}
-			$.ajax({
-	            type: "post",//使用get方法访问后台
-	            dataType: "json",//返回json格式的数据
-	            data: "tid=" + $(this).attr("data-tid") + "&action=" + action + "&oid=" + $(this).attr("data-oid"),
-	            url: "${rc.contextPath}/trade/action/change_status",//要访问的后台地址
-	            success: function(result){//msg为返回的数据，在这里做数据绑定
-	                if(result.success == false) {
-	                	alert(result.errorInfo);
-	                } else {
-	                	window.location.reload();
-	                }
-	            }});
-		})
 
 		$('#distributor').change(function() {
 			$('#seller_nick').empty();
@@ -302,43 +276,6 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 
     	$('#not-check-all').click(function() {
     		$('.wait-check').attr("checked", false);
-    	})
-
-    	$('#batch-approve1').click(function() {
-    		var checked = $('.wait-check:checked');
-    		if(checked.length==0) {
-    			alert('至少选中一个订单!');
-    			return false;
-    		}
-    		var b = true;
-    		var tids = "";
-    		$(checked).each(function(index, item) {
-    			var status = $(item).attr("data-status");
-    			if(status != 1) {
-    				b = false;
-    				return false;
-    			}
-    			var tid = $(item).attr("data-tid");
-    			tids += tid;
-    			tids += ";";
-    		})
-    		if(!b) {
-    			alert('不能审核除"待审核"以外的订单!');
-    		} else {
-    			$.ajax({
-	            type: "post",//使用get方法访问后台
-	            dataType: "json",//返回json格式的数据
-	            data: "tids=" + tids + "&action=approve1",
-	            url: "${rc.contextPath}/trade/action/batch_change_status",//要访问的后台地址
-	            success: function(result){//msg为返回的数据，在这里做数据绑定
-		                if(result.errorInfo != "success") {
-		                	alert(result.errorInfo);
-		                	window.location.reload();
-		                } else {
-			                window.location.reload();
-		                }
-	            }});
-    		}
     	})
 
     	$('#batch-prn-kdd').click(function() {

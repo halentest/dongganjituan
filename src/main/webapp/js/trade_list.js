@@ -67,8 +67,8 @@ $('#batch-out-goods').click(function() {
         $.ajax({
             type: "post",//使用get方法访问后台
             dataType: "json",//返回json格式的数据
-            data: "ids=" + ids,
-            url: "/trade/action/delivery_tracking_number",//要访问的后台地址
+            data: "ids=" + ids + "&action=send",
+            url: "/trade/action/batch_change_status",//要访问的后台地址
             success: function(result){//msg为返回的数据，在这里做数据绑定
             if(result.errorInfo != "success") {
                 alert(result.errorInfo);
@@ -94,7 +94,7 @@ $('#batch-find-goods').click(function() {
     $.ajax({
     type: "post",//使用get方法访问后台
     dataType: "json",//返回json格式的数据
-    data: "tids=" + tids + "&action=find-goods",
+    data: "ids=" + tids + "&action=find-goods",
     url: "/trade/action/batch_change_status",//要访问的后台地址
     success: function(result){//msg为返回的数据，在这里做数据绑定
             if(result.errorInfo != "success") {
@@ -111,7 +111,7 @@ function submit(id) {
     $.ajax({
             type: "post",//使用get方法访问后台
             dataType: "json",//返回json格式的数据
-            data: "tids=" + tids + "&action=submit",
+            data: "ids=" + tids + "&action=submit",
             url: "/trade/action/batch_change_status",//要访问的后台地址
             success: function(result){//msg为返回的数据，在这里做数据绑定
                     if(result.errorInfo != "success") {
@@ -133,7 +133,7 @@ function batchSubmit(idList) {
     $.ajax({
             type: "post",//使用get方法访问后台
             dataType: "json",//返回json格式的数据
-            data: "tids=" + tids + "&action=submit",
+            data: "ids=" + tids + "&action=submit",
             url: "/trade/action/batch_change_status",//要访问的后台地址
             success: function(result){//msg为返回的数据，在这里做数据绑定
                     if(result.errorInfo != "success") {
@@ -162,7 +162,7 @@ $('#batch-submit').click(function() {
     $.ajax({
         type: "post",//使用get方法访问后台
         dataType: "json",//返回json格式的数据
-        data: "tids=" + tids + "&action=submit",
+        data: "ids=" + tids + "&action=submit",
         url: "/trade/action/batch_change_status",//要访问的后台地址
         success: function(result){//msg为返回的数据，在这里做数据绑定
                 if(result.errorInfo != "success") {

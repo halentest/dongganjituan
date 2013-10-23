@@ -345,7 +345,7 @@
             <if test="send_time != null">
                 , send_time=#{send_time}
             </if>
-            where id=#{id}
+            where id=#{id} and modified=#{modified_string}
 	</update>
 	
 	<update id="updateTradeStatus" parameterType="Map">

@@ -60,8 +60,13 @@ public class MyTrade {
 	private Distributor distributor;
 	private TradeStatus tradeStatus; //got from status
 	private List<MyOrder> myOrderList;
-	
-	public void addWeight(int weight) {
+    private String modified_string;
+
+    public String getModified_string() {
+        return modified_string;
+    }
+
+    public void addWeight(int weight) {
 		total_weight += weight;
 	}
 
@@ -388,8 +393,15 @@ public class MyTrade {
 	public Date getModified() {
 		return modified;
 	}
+
 	public void setModified(Date modified) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		this.modified = modified;
+        try {
+            this.modified_string = format.format(modified);
+        } catch (Exception e) {
+
+        }
 	}
 	
 	public String getMobile() {

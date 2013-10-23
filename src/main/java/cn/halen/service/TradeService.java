@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import cn.halen.data.pojo.*;
+import cn.halen.exception.MyException;
 import cn.halen.service.excel.TradeRow;
 import cn.halen.service.top.domain.TaoTradeStatus;
 import cn.halen.service.top.util.DateUtils;
+import cn.halen.util.ErrorInfoHolder;
 import com.jd.open.api.sdk.domain.order.ItemInfo;
 import com.jd.open.api.sdk.domain.order.OrderSearchInfo;
 import com.jd.open.api.sdk.domain.order.UserInfo;
@@ -113,17 +115,23 @@ public class TradeService {
      * 1，如果是淘宝自动同步的订单，需要调用淘宝的接口完成店铺发货
 	 */
 	@Transactional(rollbackFor=Exception.class)
-	public String send(String id) throws InsufficientStockException, ApiException {
-            MyTrade t = myTradeMapper.selectById(id);
-			String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
+	public void send(String id, ErrorInfoHolder eh) throws InsufficientStockException, ApiException, MyException {
+            MyTrade t = myTradeMapper.selectTradeMap(id);
 			String errorInfo = null;
+
+            int result = doSend(t, t.getDelivery(), t.getDelivery_number(), true);
+            if(0==result) {
+                errorInfo = "订单不存在或者已经发货";
+                eh.setErrorInfo(errorInfo);
+                return;
+            }
 			if("淘宝自动同步".equals(t.getCome_from())) {
+                String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
 				errorInfo = logisticsClient.send(t.getTid(), t.getDelivery_number(), companyCode, t.getSeller_nick());
+                if(null != errorInfo) {
+                    throw new MyException(errorInfo);
+                }
 			}
-			if(null == errorInfo) {
-				doSend(id, t.getDelivery(), t.getDelivery_number(), true);
-			}
-			return errorInfo;
 	}
 
     /**
@@ -139,7 +147,7 @@ public class TradeService {
 		try {
 			String errorInfo = logisticsClient.reSend(tid, outSid, companyCode);
 			if(null == errorInfo) {
-				doSend(tid, companyName, outSid, false);
+				//doSend(tid, companyName, outSid, false);
 			}
 			return errorInfo;
 		} catch(Exception e) {
@@ -156,7 +164,7 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public void cancel(MyTrade trade) throws InsufficientStockException {
 		if(trade.getIs_cancel()==1 && trade.getIs_submit()==1) {
-            skuService.unlockSku(trade.getMyOrderList(), true);
+            unlockSku(trade.getMyOrderList());
         }
         myTradeMapper.updateMyTrade(trade);
 	}
@@ -202,7 +210,7 @@ public class TradeService {
 			throw new InvalidStatusChangeException(tid);
 		}
 		List<MyOrder> list = myTrade.getMyOrderList();
-		skuService.unlockSku(list, false);
+//		skuService.unlockSku(list, false);
 
 		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
 		if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
@@ -268,60 +276,78 @@ public class TradeService {
      * @throws InsufficientBalanceException
      */
 	@Transactional(rollbackFor=Exception.class)
-	public boolean submit(String id) throws InvalidStatusChangeException, InsufficientBalanceException {
-		MyTrade myTrade = myTradeMapper.selectTradeMap(id);
-		if(!myTrade.getStatus().equals(TradeStatus.UnSubmit.getStatus())) {
-			throw new InvalidStatusChangeException(id);
-		}
-        boolean enough = skuService.reduceSku(myTrade.getMyOrderList(), true, Constants.LOCK_QUANTITY);
-        if(!enough) {
-            return false;
+	public void submit(String id, ErrorInfoHolder holder) throws InsufficientBalanceException, InsufficientStockException {
+        MyTrade myTrade = myTradeMapper.selectTradeMap(id);
+        if(!myTrade.getStatus().equals(TradeStatus.UnSubmit.getStatus())) {
+            holder.setErrorInfo("当前状态不能提交");
+            return;
         }
+
+        myTrade.setStatus(TradeStatus.WaitSend.getStatus());
+        myTrade.setIs_submit(1);
+        myTrade.setSubmit_time(new Date());
+        int count = myTradeMapper.updateMyTrade(myTrade);
+        if(0==count) {
+            holder.setErrorInfo("订单不存在或者已提交");
+            return;
+        }
+
+        for(MyOrder order : myTrade.getMyOrderList()) {
+            skuService.updateSku(order.getSku_id(), 0, order.getQuantity(), 0, true);
+        }
+
 		//update deposit
 		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
 		if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
 			adminService.updateDeposit(d.getId(), -myTrade.getPayment()-myTrade.getDelivery_money());
 		}
-        myTrade.setStatus(TradeStatus.WaitSend.getStatus());
-        myTrade.setIs_submit(1);
-        myTrade.setSubmit_time(new Date());
-		int count = myTradeMapper.updateMyTrade(myTrade);
-		return count > 0;
 	}
 	
 	@Transactional(rollbackFor=Exception.class)
-	public boolean findGoods(String id) throws InvalidStatusChangeException {
-		return myTradeMapper.updateTradeStatus(TradeStatus.WaitFind.getStatus(), id) > 0;
+	public boolean findGoods(String id, ErrorInfoHolder holder) {
+        MyTrade t = myTradeMapper.selectById(id);
+        if(!t.getStatus().equals(TradeStatus.WaitSend.getStatus())) {
+            holder.setErrorInfo("当前状态不能拣货");
+            return false;
+        }
+        t.setStatus(TradeStatus.WaitFind.getStatus());
+		return myTradeMapper.updateMyTrade(t) > 0;
 	}
 
     /**
      * 发货
      * 1，修改trade和order的状态为待买家收货
      * 2，减实际库存
-     * 3，unlock锁定库存
+     * 3，减锁定库存
      * @param companyName
      * @param outSid
      */
-	private void doSend(String id, String companyName, String outSid, boolean updateSku) throws InsufficientStockException {
-		MyTrade myTrade = myTradeMapper.selectTradeMap(id);
+	private int doSend(MyTrade myTrade, String companyName, String outSid, boolean updateSku) throws InsufficientStockException {
+        if(!myTrade.getStatus().equals(TradeStatus.WaitOut.getStatus())) {
+            return 0;
+        }
+
 		myTrade.setStatus(TradeStatus.WaitReceive.getStatus());
         myTrade.setIs_send(1);
         myTrade.setIs_cancel(0);
         myTrade.setSend_time(new Date());
-		myTradeMapper.updateMyTrade(myTrade);
-
-		List<MyOrder> list = myTrade.getMyOrderList();
-        if(updateSku) {
-            //3
-            skuService.unlockSku(list, false);
+		int result = myTradeMapper.updateMyTrade(myTrade);
+        if(0 == result) {
+            return 0;
         }
-		for(MyOrder myOrder : list) {
-            if(updateSku) {
-                //2
-                skuService.updateSku(myOrder.getSku_id(), -myOrder.getQuantity(), 0, 0, false);
-            }
-		}
+
+        if(updateSku) {
+            List<MyOrder> list = myTrade.getMyOrderList();
+            unlockSku(list);
+        }
+        return result;
 	}
+
+    private void unlockSku(List<MyOrder> list) throws InsufficientStockException {
+        for(MyOrder myOrder : list) {
+            skuService.updateSku(myOrder.getSku_id(), -myOrder.getQuantity(), -myOrder.getQuantity(), 0, true);
+        }
+    }
 	
 	public void updateOrder(MyOrder myOrder) {
 		myTradeMapper.updateMyOrder(myOrder);

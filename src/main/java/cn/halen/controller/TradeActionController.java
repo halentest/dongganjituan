@@ -15,12 +15,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.halen.data.mapper.*;
 import cn.halen.data.pojo.*;
+import cn.halen.exception.MyException;
 import cn.halen.service.*;
 import cn.halen.service.excel.TradeExcelReader;
 import cn.halen.service.excel.TradeRow;
 import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.domain.TaoTradeStatus;
 import cn.halen.util.Constants;
+import cn.halen.util.ErrorInfoHolder;
 import com.taobao.api.domain.Trade;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -533,90 +535,56 @@ public class TradeActionController {
         String temp = str.substring(0, 8) + str.substring(9, 13) + str.substring(14, 18) + str.substring(19, 23) + str.substring(24);  
         return temp; 
 	}
-	
-	@RequestMapping(value="trade/action/batch_change_status")
-	public @ResponseBody ResultInfo batchChangeStatus(Model model, @RequestParam("tids") String tids, @RequestParam("action") String action) {
-		ResultInfo result = new ResultInfo();
-        boolean allSuccess = true;
-		if(StringUtils.isNotEmpty(tids)) {
-			String[] tidArr = tids.split(";");
-			try {
-				if(action.equals("approve1")) {
-					for(String tid : tidArr) {
-						if(StringUtils.isNotEmpty(tid)) {
-							tradeService.approve1(tid);
-						}
-					}
-				} else if(action.equals("submit")) {
-					for(String tid : tidArr) {
-						if(StringUtils.isNotEmpty(tid)) {
-							boolean b = tradeService.submit(tid);
-                            if(!b) {
-                                allSuccess = false;
-                            }
-						}
-					}
-				} else if(action.equals("find-goods")) {
-					for(String tid : tidArr) {
-						if(StringUtils.isNotEmpty(tid)) {
-							tradeService.findGoods(tid);
-						}
-					}
-				} 
-			} catch (InvalidStatusChangeException isce) {
-				result.setSuccess(false);
-				result.setErrorInfo("这个订单" + isce.getTid() + "不能进行此操作!");
-			} catch(InsufficientBalanceException ibe) {
-				log.error("", ibe);
-				result.setSuccess(false);
-				result.setErrorInfo("余额不足，请打款！");
-			} catch (Exception e) {
-				log.error("", e);
-				result.setSuccess(false);
-				result.setErrorInfo("系统异常，请重试!");
-			}
-		}
-        if(!allSuccess) {
-            result.setSuccess(false);
-            result.setErrorInfo("部分订单请求失败!");
+
+    /**
+     * 发放单号
+     * @param model
+     * @return
+     */
+    @RequestMapping(value="trade/action/batch_change_status")
+    public @ResponseBody ResultInfo batchChangeStatus(Model model, @RequestParam String ids, @RequestParam("action") String action) {
+
+        ResultInfo result = new ResultInfo();
+        StringBuilder errorInfoBuilder = new StringBuilder();
+        if(StringUtils.isNotEmpty(ids)) {
+            String[] idArr = ids.split(";");
+            for(String id : idArr) {
+                if(StringUtils.isNotEmpty(id)) {
+                    try {
+                        ErrorInfoHolder eh = new ErrorInfoHolder();
+                        if("send".equals(action)) {
+                            tradeService.send(id, eh);
+                        } else if("submit".equals(action)) {
+                            tradeService.submit(id, eh);
+                        } else if("find-goods".equals(action)) {
+                            tradeService.findGoods(id, eh);
+                        }
+                        if(StringUtils.isNotBlank(eh.getErrorInfo())) {
+                            errorInfoBuilder.append(id).append(":").append(eh.getErrorInfo()).append("\r\n");
+                        }
+                    } catch (InsufficientBalanceException e) {
+                        log.error("batch change status error for id " + id, e);
+                        errorInfoBuilder.append(id).append(":").append("余额不足").append("\r\n");
+                    } catch (ApiException e) {
+                        log.error("batch change status error for id " + id, e);
+                        errorInfoBuilder.append(id).append(":").append("Api异常").append("\r\n");
+                    } catch (InsufficientStockException e) {
+                        log.error("batch change status error for id " + id, e);
+                        errorInfoBuilder.append(id).append(":").append("库存不足").append("\r\n");
+                    } catch(MyException e) {
+                        log.error("batch change status error for id " + id, e);
+                        errorInfoBuilder.append(id).append(":").append(e.getErrorInfo()).append("\r\n");
+                    }
+                }
+            }
+            if(StringUtils.isNotBlank(errorInfoBuilder.toString())) {
+                result.setSuccess(false);
+                result.setErrorInfo(errorInfoBuilder.toString());
+            }
         }
-		return result;
-	}
-	
-	@RequestMapping(value="trade/action/change_status")
-	public @ResponseBody ResultInfo changeStatus(Model model, @RequestParam("tid") String tid,
-                                                 @RequestParam("oid") String oid, @RequestParam("action") String action) {
-		ResultInfo result = new ResultInfo();
-		try {
-			if(action.equals("approve1")) {
-				tradeService.approve1(tid);
-			} else if(action.equals("submit")) {
-				tradeService.submit(tid);
-			} else if(action.equals("find-goods")) {
-				tradeService.findGoods(tid);
-			} else if(action.equals("no-goods")) {
-				tradeService.noGoods(tid, oid);
-			} else if(action.equals("refund-success")) {
-				tradeService.refundSuccess(tid);
-			}
-		} catch (InvalidStatusChangeException isce) {
-			result.setSuccess(false);
-			result.setErrorInfo("这个订单不能进行此操作!");
-		} catch(InsufficientStockException ise) {
-			result.setSuccess(false);
-			result.setErrorInfo("库存不足，不能购买！");
-		} catch(InsufficientBalanceException ibe) {
-			log.error("", ibe);
-			result.setSuccess(false);
-			result.setErrorInfo("余额不足，请打款！");
-		} catch (Exception e) {
-			log.error("", e);
-			result.setSuccess(false);
-			result.setErrorInfo("系统异常，请重试!");
-		}
-		return result;
-	}
-	
+        return result;
+    }
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="trade/action/change_delivery")
 	public @ResponseBody ResultInfo changeDelivery(Model model, @RequestParam("id") String id, @RequestParam("delivery") String delivery) {
@@ -713,41 +681,6 @@ public class TradeActionController {
         return result;
     }
 
-    /**
-     * 发放单号
-     * @param model
-     * @return
-     */
-    @RequestMapping(value="trade/action/delivery_tracking_number")
-    public @ResponseBody ResultInfo send(Model model, @RequestParam String ids) {
-
-        ResultInfo result = new ResultInfo();
-        if(StringUtils.isNotEmpty(ids)) {
-            String[] idArr = ids.split(";");
-            try {
-                for(String id : idArr) {
-                    if(StringUtils.isNotEmpty(id)) {
-                        String errorInfo = null;
-                        try {
-                            errorInfo = tradeService.send(id);
-                        } catch (Exception e) {
-                            log.error("send error, ", e);
-                        }
-                        if(StringUtils.isNotBlank(errorInfo)) {
-                            result.setSuccess(false);
-                            result.setErrorInfo(errorInfo);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("", e);
-                result.setSuccess(false);
-                result.setErrorInfo("系统异常，请重试!");
-            }
-        }
-        return result;
-    }
-	
 	private String validateAddress(Model model, String province, String city, String district, String address
 			, String receiver, String mobile) {
 		String errorInfo = null;
