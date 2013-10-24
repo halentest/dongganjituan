@@ -1,9 +1,6 @@
 package cn.halen.controller;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -830,4 +827,22 @@ public class TradeActionController {
         return "success_page";
     }
 
+    @RequestMapping(value="trade/action/pause")
+    public @ResponseBody ResultInfo pause(@RequestParam("id") String id, @RequestParam String action) throws IOException {
+        ResultInfo resultInfo = new ResultInfo();
+        MyTrade trade = tradeMapper.selectById(id);
+        if(!trade.getStatus().equals(TradeStatus.UnSubmit.getStatus()) && !trade.getStatus().equals(TradeStatus.WaitOut.getStatus())) {
+            resultInfo.setErrorInfo("此订单不能暂停或者取消暂停");
+            resultInfo.setSuccess(false);
+            return resultInfo;
+        }
+        if("pause".equals(action)) {
+            trade.setIs_pause(1);
+            tradeMapper.updateMyTrade(trade);
+        } else {
+            trade.setIs_pause(0);
+            tradeMapper.updateMyTrade(trade);
+        }
+        return resultInfo;
+    }
 }

@@ -88,5 +88,14 @@
                 <a href="${rc.contextPath}/trade/action/add_comment_form?id=${trade.id}&type=cangku_memo&from=${from}">添加</a>
             </#if>
         </#if>
+        <br>
+        <button onclick="submit('${trade.id}')">提交</button>
+        <#if (CURRENT_USER.type=="WareHouse" && trade.status=="WaitOut") || ((CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor") && trade.status=="UnSubmit")>
+            <#if trade.is_pause==1>
+                <a onclick="pause('${trade.id?string}', 'cancel_pause')" title="取消暂停以后此订单将可以提交或者出库">取消暂停</a>
+                <#else>
+                    <a onclick="pause('${trade.id?string}', 'pause')" title="暂停以后此订单将暂时无法提交或者出库">暂停</a>
+            </#if>
+        </#if>
 </div>
 </#macro>

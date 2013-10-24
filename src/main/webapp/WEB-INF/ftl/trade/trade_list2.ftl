@@ -110,6 +110,9 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <#if trade.is_refund==1>
                         <font color="red">(退换货)</font>
                     </#if>
+                    <#if trade.is_pause==1>
+                        <font color="red">(已暂停)</font>
+                    </#if>
                     </td>
                     <td>${trade.created?string('yyyy-MM-dd HH:mm:ss')}</td>
                     <#if scan=="true">
@@ -122,6 +125,13 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                         <a href="${rc.contextPath}/trade/trade_detail?id=${trade.id}">订单详情</a> &nbsp;
                         <#if CURRENT_USER.type=="WareHouse" && trade.status=="WaitFind">
                             <a onclick="addTrackingNumber('${trade.id}')">扫描单号</a>
+                        </#if>
+                        <#if (CURRENT_USER.type=="WareHouse" && trade.status=="WaitOut") || ((CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor") && trade.status=="UnSubmit")>
+                            <#if trade.is_pause==1>
+                                <a onclick="pause('${trade.id?string}', 'cancel_pause')" title="取消暂停以后此订单将可以提交或者出库">取消暂停</a>
+                                <#else>
+                                    <a onclick="pause('${trade.id?string}', 'pause')" title="暂停以后此订单将暂时无法提交或者出库">暂停</a>
+                            </#if>
                         </#if>
                     </td>
                     </#if>
@@ -138,16 +148,16 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
         <a href="#" class="next" data-action="next">&rsaquo;</a>
         <a href="#" class="last" data-action="last">&raquo;</a>
     </div>
-    <div class="action-bar1">
+    <div class="action-bar">
         <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
             <#if isSubmit?? && isSubmit==0>
-                <a id="batch-submit" style="cursor: pointer;">批量提交</a>
+                <button id="batch-submit" style="cursor: pointer;">批量提交</button>
                 <a href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true">详情列表</a>
             </#if>
         </#if>
         <#if CURRENT_USER.type=="WareHouse">
             <#if isSubmit==1 && isSend==0 && status=='WaitSend'>
-                <a id="batch-find-goods" style="cursor: pointer;">批量导入待拣货</a>
+                <button id="batch-find-goods" style="cursor: pointer;">批量导入待拣货</button>
             </#if>
             <#if isSubmit==1 && isSend==0 && status=='WaitOut'>
                 <button id="batch-out-goods" style="cursor: pointer;">批量出库</button>
@@ -303,7 +313,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
             }
 
             LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
-            LODOP.PRINT_INIT(delivery);
+            LODOP.PRINT_INIT(delivery); //名称是主键
 
             var width = $.cookie(delivery + "width");
             var height = $.cookie(delivery + "height");
@@ -338,6 +348,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                         address = trade.state + " " + trade.city + " " + trade.district + " " + trade.address;
                         mobile = trade.mobile;
                         state = trade.state;
+                        city = trade.city;
                         $.each(trade.myOrderList, function(index, order) {
                                 goodsInfo = goodsInfo + order.goods_id + " " + order.sku.color + " " + order.sku.size + " " + order.quantity + "\r\n"
                         });
@@ -345,7 +356,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 
                 CreatePrintPage('${sellerInfo.sender}', '${sellerInfo.from_state!''}', '${sellerInfo.from_company!''}',
                             '${sellerInfo.from_address!''}', '${sellerInfo.mobile!''}',
-                            name, name, address, mobile, state, goodsInfo,bg);
+                            name, name, address, mobile, state + " " + city, goodsInfo, new Date().toLocaleString(),bg);
 
     	    })
             LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");

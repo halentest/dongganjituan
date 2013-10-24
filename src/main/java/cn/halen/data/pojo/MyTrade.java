@@ -34,6 +34,7 @@ public class MyTrade {
     private int is_cancel;
 
     private int is_finish;
+    private int is_pause;
     private String why_cancel;
 	private String status;
 	private String seller_memo;
@@ -81,6 +82,14 @@ public class MyTrade {
 
     public Date getSubmit_time() {
         return submit_time;
+    }
+
+    public int getIs_pause() {
+        return is_pause;
+    }
+
+    public void setIs_pause(int is_pause) {
+        this.is_pause = is_pause;
     }
 
     public void setSubmit_time(Date submit_time) {

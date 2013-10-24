@@ -109,24 +109,6 @@ $('#batch-find-goods').click(function() {
     }});
 })
 
-function submit(id) {
-    var tids = id;
-    $.ajax({
-            type: "post",//使用get方法访问后台
-            dataType: "json",//返回json格式的数据
-            data: "ids=" + tids + "&action=submit",
-            url: "/trade/action/batch_change_status",//要访问的后台地址
-            success: function(result){//msg为返回的数据，在这里做数据绑定
-                    if(result.errorInfo != "success") {
-                        alert(result.errorInfo);
-                        window.location.reload();
-                    } else {
-                        window.location.reload();
-                    }
-                }
-        });
-}
-
 function batchSubmit(idList) {
     var r = confirm("确定提交本页所有订单吗?");
     if(r==false) {
@@ -284,7 +266,7 @@ $('#delivery-print').change(function() {
 })
 
 function CreatePrintPage(sender, from, from_company, from_address, sender_mobile,
-		receiver, to_company, to_address, receiver_mobile, to, goodsInfo, bg){
+		receiver, to_company, to_address, receiver_mobile, to, goodsInfo, print_time, bg){
     LODOP.NewPage();
     LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='" + bg + "'>");
     LODOP.SET_SHOW_MODE("BKIMG_IN_PREVIEW",1);
@@ -309,6 +291,8 @@ function CreatePrintPage(sender, from, from_company, from_address, sender_mobile
     LODOP.ADD_PRINT_TEXTA("text10", 84,472,125,26,to);
     LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
     LODOP.ADD_PRINT_TEXTA("text11", 10,250,500,200,goodsInfo);
+    LODOP.SET_PRINT_STYLEA(0,"FontSize",25);
+    LODOP.ADD_PRINT_TEXTA("text12", 10,350,500,200,print_time);
     LODOP.SET_PRINT_STYLEA(0,"FontSize",25);
 };
 
@@ -335,7 +319,7 @@ $('#print-setup').click(function() {
     LODOP.SET_PRINT_PAGESIZE(1,2300,1270,"");
     LODOP.SET_PRINT_STYLE("FontSize",16);
     LODOP.SET_PRINT_STYLE("Bold",1);
-    CreatePrintPage("发件人","始发地","发件公司","发件地址","发件电话","收件人","收件公司","收件地址","收件电话","目的地","商品信息",bg);
+    CreatePrintPage("发件人","始发地","发件公司","发件地址","发件电话","收件人","收件公司","收件地址","收件电话","目的地","商品信息", "打印时间",bg);
     LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");
     LODOP.PRINT_SETUP();
 })
@@ -370,3 +354,19 @@ $('#search').click(function() {
             + "&end=" + end + "&isSubmit=" + isSubmit + "&isCancel=" + isCancel + "&isFinish=" + isFinish + "&isRefund=" + isRefund
                                                 + "&isSend=" + isSend;;
 });
+
+function pause(id, action) {
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "id=" + id + "&action=" + action,
+        url: "/trade/action/pause",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(result.errorInfo != "success") {
+                alert(result.errorInfo);
+            } else {
+                window.location.reload();
+            }
+        }
+    });
+}

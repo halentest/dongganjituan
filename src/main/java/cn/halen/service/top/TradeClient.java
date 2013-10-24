@@ -47,7 +47,7 @@ public class TradeClient {
 		req.setTid(tid);
 		TradeFullinfoGetResponse rsp = topConfig.getRetryClient().execute(req, sessionKey);
 		if (rsp.isSuccess()) {
-			log.info("查询订单详情成功：" + rsp.getBody());
+			log.debug("查询订单详情成功：" + rsp.getBody());
 			return rsp.getTrade();
 		} else {
             log.error("查询订单详情失败：" + rsp.getSubMsg());

@@ -118,7 +118,11 @@ public class TradeService {
 	public void send(String id, ErrorInfoHolder eh) throws InsufficientStockException, ApiException, MyException {
             MyTrade t = myTradeMapper.selectTradeMap(id);
 			String errorInfo = null;
-
+            if(t.getIs_pause()==1) {
+                errorInfo = "已暂停，不能出库";
+                eh.setErrorInfo(errorInfo);
+                return;
+            }
             int result = doSend(t, t.getDelivery(), t.getDelivery_number(), true);
             if(0==result) {
                 errorInfo = "订单不存在或者已经发货";
@@ -164,7 +168,10 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public void cancel(MyTrade trade) throws InsufficientStockException {
 		if(trade.getIs_cancel()==1 && trade.getIs_submit()==1) {
-            unlockSku(trade.getMyOrderList());
+            for(MyOrder myOrder : trade.getMyOrderList()) {
+                skuService.updateSku(myOrder.getSku_id(), 0, -myOrder.getQuantity(), 0, true);
+                log.info("update sku for cancel {}, {}, {}, {}, {}", myOrder.getId(), myOrder.getSku_id(), -myOrder.getQuantity(), -myOrder.getQuantity(), 0);
+            }
         }
         myTradeMapper.updateMyTrade(trade);
 	}
@@ -278,6 +285,11 @@ public class TradeService {
 	@Transactional(rollbackFor=Exception.class)
 	public void submit(String id, ErrorInfoHolder holder) throws InsufficientBalanceException, InsufficientStockException {
         MyTrade myTrade = myTradeMapper.selectTradeMap(id);
+        if(myTrade.getIs_pause()==1) {
+            holder.setErrorInfo("已暂停，不能提交");
+            return;
+        }
+
         if(!myTrade.getStatus().equals(TradeStatus.UnSubmit.getStatus())) {
             holder.setErrorInfo("当前状态不能提交");
             return;
@@ -294,6 +306,7 @@ public class TradeService {
 
         for(MyOrder order : myTrade.getMyOrderList()) {
             skuService.updateSku(order.getSku_id(), 0, order.getQuantity(), 0, true);
+            log.info("update sku for submit {}, {}, {}, {}, {}", order.getId(), order.getSku_id(), 0, order.getQuantity(), 0);
         }
 
 		//update deposit
@@ -346,6 +359,7 @@ public class TradeService {
     private void unlockSku(List<MyOrder> list) throws InsufficientStockException {
         for(MyOrder myOrder : list) {
             skuService.updateSku(myOrder.getSku_id(), -myOrder.getQuantity(), -myOrder.getQuantity(), 0, true);
+            log.info("update sku for send {}, {}, {}, {}, {}", myOrder.getId(), myOrder.getSku_id(), -myOrder.getQuantity(), -myOrder.getQuantity(), 0);
         }
     }
 	

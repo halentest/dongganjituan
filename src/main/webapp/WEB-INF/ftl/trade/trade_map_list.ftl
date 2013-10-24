@@ -128,7 +128,6 @@
                 </#if>
                 <div style="background-color: #FFFFCC; padding: 10px;">
                     <@buyer_info.buyer_info trade=trade from="list" />
-                    <button onclick="submit('${trade.id}')">提交</button>
                 </div>
                 <hr>
             </#list>

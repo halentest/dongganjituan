@@ -73,3 +73,37 @@ $('.modify-delivery-number-submit').click(function() {
             }
         }});
 })
+
+function pause(id, action) {
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "id=" + id + "&action=" + action,
+        url: "/trade/action/pause",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(result.errorInfo != "success") {
+                alert(result.errorInfo);
+            } else {
+                window.location.reload();
+            }
+        }
+    });
+}
+
+function submit(id) {
+    var tids = id;
+    $.ajax({
+            type: "post",//使用get方法访问后台
+            dataType: "json",//返回json格式的数据
+            data: "ids=" + tids + "&action=submit",
+            url: "/trade/action/batch_change_status",//要访问的后台地址
+            success: function(result){//msg为返回的数据，在这里做数据绑定
+                    if(result.errorInfo != "success") {
+                        alert(result.errorInfo);
+                        window.location.reload();
+                    } else {
+                        window.location.reload();
+                    }
+                }
+        });
+}

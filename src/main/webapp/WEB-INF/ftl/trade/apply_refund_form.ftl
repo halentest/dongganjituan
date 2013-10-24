@@ -1,9 +1,9 @@
 <#import "/templates/root.ftl" as root >
-    <#import "/trade/_buyer_info.ftl" as buyer_info >
-
+<#import "/trade/_buyer_info.ftl" as buyer_info >
+<#import "/trade/_t_detail_tab.ftl" as detail_tab >
 <@root.html active=3 css=["easyui.css", "icon.css", "trade_detail.css"]
 js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
-       <#include "/trade/_t_detail_tab.ftl">
+        <@detail_tab.detail_tab current_tab="apply_refund" />
        <div style="border:1px solid gray; width: 100%; height: auto;">
            <div class="right">
                <strong>请选择退换货的商品</strong>
@@ -41,8 +41,8 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
                            <td>${order.quantity}</td>
                            <td>颜色：${order.sku.color}, 规格：${order.sku.size}</td>
                            <td>
-                               退货：<input type="text" name="tui${order.id}" style="width: 30px;"/><br>
-                               换货：<input type="text" name="huan${order.id}" style="width: 30px;"/>
+                               退货：<input type="text" name="tui${order.id?c}" style="width: 30px;"/><br>
+                               换货：<input type="text" name="huan${order.id?c}" style="width: 30px;"/>
                            </td>
                        </tr>
                    </#list>

@@ -1,8 +1,8 @@
 <#import "/templates/root.ftl" as root >
-    <#import "/trade/_buyer_info.ftl" as buyer_info >
-
+<#import "/trade/_buyer_info.ftl" as buyer_info >
+<#import "/trade/_t_detail_tab.ftl" as detail_tab >
 <@root.html active=2 css=["trade_detail.css"] js=[]>
-    <#include "/trade/_t_detail_tab.ftl">
+        <@detail_tab.detail_tab current_tab="detail" />
         <div style="border:1px solid gray; width: 100%; height: auto;">
             <div class="right">
                 <strong>修改收货地址</strong>

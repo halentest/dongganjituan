@@ -36,7 +36,7 @@ public class SkuChangeListener extends MessageListenerAdapter {
 	@SuppressWarnings("unchecked")
 	public void handleMessage(String message) {
 		
-		log.info("================== Receiver sku change notify ==================");
+		log.debug("================== Receiver sku change notify ==================");
 		List<Long> skuIdList = new ArrayList<Long>();
 		Object obj = redisTemplate.opsForSet().pop(Constants.REDIS_SKU_GOODS_SET);
 		while(null != obj) {
@@ -54,7 +54,7 @@ public class SkuChangeListener extends MessageListenerAdapter {
             }
 			obj = redisTemplate.opsForSet().pop(Constants.REDIS_SKU_GOODS_SET);
 		}
-		log.info("skuIdList size is {}", skuIdList.size());
+		log.debug("skuIdList size is {}", skuIdList.size());
 
         List<Shop> shopList = null;
         if(StringUtils.isNotBlank(message) && message.indexOf("-")>0) {
@@ -70,7 +70,7 @@ public class SkuChangeListener extends MessageListenerAdapter {
         if(shopList==null || shopList.size()==0) {
             shopList = adminMapper.selectShop(1, null, 1);
         }
-        log.info("sync store shop size is {}", shopList.size());
+        log.debug("sync store shop size is {}", shopList.size());
 
 		if(!Util.isEmpty(shopList) && !Util.isEmpty(skuIdList)) {
 			for(Shop shop : shopList) {
