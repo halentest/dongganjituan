@@ -66,6 +66,9 @@ $('#batch-out-goods').click(function() {
     })
         $.ajax({
             type: "post",//使用get方法访问后台
+            beforeSend: function() {
+                            $('#batch-out-goods').attr('disabled',"true");
+                        },
             dataType: "json",//返回json格式的数据
             data: "ids=" + ids + "&action=send",
             url: "/trade/action/batch_change_status",//要访问的后台地址
@@ -132,6 +135,9 @@ function batchSubmit(idList) {
     var tids = idList;
     $.ajax({
             type: "post",//使用get方法访问后台
+            beforeSend: function() {
+                            $(this).attr('disabled',"true");
+                        },
             dataType: "json",//返回json格式的数据
             data: "ids=" + tids + "&action=submit",
             url: "/trade/action/batch_change_status",//要访问的后台地址

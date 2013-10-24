@@ -138,7 +138,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
         <a href="#" class="next" data-action="next">&rsaquo;</a>
         <a href="#" class="last" data-action="last">&raquo;</a>
     </div>
-    <div class="action-bar">
+    <div class="action-bar1">
         <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
             <#if isSubmit?? && isSubmit==0>
                 <a id="batch-submit" style="cursor: pointer;">批量提交</a>
@@ -150,7 +150,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 <a id="batch-find-goods" style="cursor: pointer;">批量导入待拣货</a>
             </#if>
             <#if isSubmit==1 && isSend==0 && status=='WaitOut'>
-                <a id="batch-out-goods" style="cursor: pointer;">批量出库</a>
+                <button id="batch-out-goods" style="cursor: pointer;">批量出库</button>
             </#if>
             <#if isSubmit==1 && isSend==0 && status=='WaitFind'>
                 <a href="${rc.contextPath}/trade/export_finding" style="cursor: pointer;">生成拣货单</a>

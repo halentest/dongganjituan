@@ -143,7 +143,7 @@
         <div class="action-bar">
             <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
                 <#if isSubmit?? && isSubmit==0>
-                    <a onclick="batchSubmit('${idList}')" style="cursor: pointer;">批量提交</a>
+                    <button onclick="batchSubmit('${idList}')" style="cursor: pointer;">批量提交</button>
                     <a href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=false">简单列表</a>
                 </#if>
             </#if>
