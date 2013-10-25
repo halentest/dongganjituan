@@ -31,6 +31,7 @@ function saveSyncStore() {
                 alert(result.errorInfo);
             }  else {
                 $('#pop-up-sync-store').window('close');
+                alert("更新成功!");
             }
     }});
 }
