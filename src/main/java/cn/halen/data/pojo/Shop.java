@@ -6,21 +6,21 @@ import java.util.List;
 public class Shop {
 	private int id;
 	
-	private String sellerNick;
+	private String seller_nick;
 	
 	private String token;
 	
-	private String refreshToken;
+	private String refresh_token;
 	
 	private Date modified;
 	
 	private Date created;
 	
-	private Date lastRefresh;
+	private Date last_refresh;
 	
-	private int autoSync;
+	private int auto_sync;
 	
-	private int autoSyncStore;
+	private int auto_sync_store;
 
     private float rate;
 
@@ -32,17 +32,9 @@ public class Shop {
         this.rate = rate;
     }
 
-    public int getAutoSyncStore() {
-		return autoSyncStore;
-	}
-
-	public void setAutoSyncStore(int autoSyncStore) {
-		this.autoSyncStore = autoSyncStore;
-	}
-
 	private String type;
 	
-	private int dId;
+	private int distributor_id;
 	
 	private Distributor d;
 	
@@ -52,16 +44,56 @@ public class Shop {
 		return id;
 	}
 
-	public void setId(int id) {
+    public String getSeller_nick() {
+        return seller_nick;
+    }
+
+    public void setSeller_nick(String seller_nick) {
+        this.seller_nick = seller_nick;
+    }
+
+    public String getRefresh_token() {
+        return refresh_token;
+    }
+
+    public void setRefresh_token(String refresh_token) {
+        this.refresh_token = refresh_token;
+    }
+
+    public Date getLast_refresh() {
+        return last_refresh;
+    }
+
+    public void setLast_refresh(Date last_refresh) {
+        this.last_refresh = last_refresh;
+    }
+
+    public int getAuto_sync() {
+        return auto_sync;
+    }
+
+    public void setAuto_sync(int auto_sync) {
+        this.auto_sync = auto_sync;
+    }
+
+    public int getAuto_sync_store() {
+        return auto_sync_store;
+    }
+
+    public void setAuto_sync_store(int auto_sync_store) {
+        this.auto_sync_store = auto_sync_store;
+    }
+
+    public int getDistributor_id() {
+        return distributor_id;
+    }
+
+    public void setDistributor_id(int distributor_id) {
+        this.distributor_id = distributor_id;
+    }
+
+    public void setId(int id) {
 		this.id = id;
-	}
-
-	public String getSellerNick() {
-		return sellerNick;
-	}
-
-	public void setSellerNick(String sellerNick) {
-		this.sellerNick = sellerNick;
 	}
 
 	public String getToken() {
@@ -70,22 +102,6 @@ public class Shop {
 
 	public void setToken(String token) {
 		this.token = token;
-	}
-
-	public int getdId() {
-		return dId;
-	}
-
-	public void setdId(int dId) {
-		this.dId = dId;
-	}
-
-	public String getRefreshToken() {
-		return refreshToken;
-	}
-
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
 	}
 
 	public Date getModified() {
@@ -102,22 +118,6 @@ public class Shop {
 
 	public void setCreated(Date created) {
 		this.created = created;
-	}
-
-	public Date getLastRefresh() {
-		return lastRefresh;
-	}
-
-	public void setLastRefresh(Date lastRefresh) {
-		this.lastRefresh = lastRefresh;
-	}
-
-	public int getAutoSync() {
-		return autoSync;
-	}
-
-	public void setAutoSync(int autoSync) {
-		this.autoSync = autoSync;
 	}
 
 	public String getType() {

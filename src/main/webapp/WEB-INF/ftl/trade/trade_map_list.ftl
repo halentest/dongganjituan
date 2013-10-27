@@ -26,7 +26,7 @@
             <option value="">所有店铺</option>
             <#if shopList??>
                 <#list shopList as shop>
-                    <option value="${shop.sellerNick}">${shop.sellerNick}</option>
+                    <option value="${shop.seller_nick}">${shop.seller_nick}</option>
                 </#list>
             </#if>
         </select>
@@ -142,7 +142,7 @@
         <div class="action-bar">
             <#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
                 <#if isSubmit?? && isSubmit==0>
-                    <button onclick="batchSubmit('${idList}')" style="cursor: pointer;">批量提交</button>
+                    <button id="batch_submit" onclick="batchSubmit('${idList}')" style="cursor: pointer;">批量提交</button>
                     <a href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=false">简单列表</a>
                 </#if>
             </#if>

@@ -1,10 +1,11 @@
 function autoScan(s) {
     var v = $(s).prev().val();
-    var ix = $(s).prev().attr('data-index');
+    var ix = parseInt($(s).prev().attr('data-index'));
     var l = $(document).find('input.scan-input');
     console.log(l.size());
     $(l).each(function(index, item) {
-        if($(item).attr('data-index') > ix) {
+        var curr = parseInt($(item).attr('data-index'));
+        if(curr > ix) {
             v++;
             $(item).val(v);
         }
@@ -30,6 +31,9 @@ $('#save-scan').click(function() {
     $.ajax({
         type: "post",//使用get方法访问后台
         dataType: "json",//返回json格式的数据
+        beforeSend: function() {
+                        $('#save-scan').attr('disabled',"true");
+                    },
         data: "param=" + param,
         url: "/trade/batch_add_tracking_number",//要访问的后台地址
         success: function(result){//msg为返回的数据，在这里做数据绑定
@@ -67,8 +71,8 @@ $('#batch-out-goods').click(function() {
         $.ajax({
             type: "post",//使用get方法访问后台
             beforeSend: function() {
-                            $('#batch-out-goods').attr('disabled',"true");
-                        },
+                $('#batch-out-goods').attr('disabled',"true");
+            },
             dataType: "json",//返回json格式的数据
             data: "ids=" + ids + "&action=send",
             url: "/trade/action/batch_change_status",//要访问的后台地址
@@ -97,6 +101,9 @@ $('#batch-find-goods').click(function() {
     $.ajax({
     type: "post",//使用get方法访问后台
     dataType: "json",//返回json格式的数据
+    beforeSend: function() {
+        $('#batch-find-goods').attr('disabled',"true");
+    },
     data: "ids=" + tids + "&action=find-goods",
     url: "/trade/action/batch_change_status",//要访问的后台地址
     success: function(result){//msg为返回的数据，在这里做数据绑定
@@ -118,7 +125,7 @@ function batchSubmit(idList) {
     $.ajax({
             type: "post",//使用get方法访问后台
             beforeSend: function() {
-                            $(this).attr('disabled',"true");
+                            $('#batch_submit').attr('disabled',"true");
                         },
             dataType: "json",//返回json格式的数据
             data: "ids=" + tids + "&action=submit",
@@ -150,7 +157,10 @@ $('#batch-submit').click(function() {
     $.ajax({
         type: "post",//使用get方法访问后台
         dataType: "json",//返回json格式的数据
-        data: "ids=" + tids + "&action=submit",
+        beforeSend: function() {
+            $('#batch-submit').attr('disabled',"true");
+        },
+        data: "ids=" + tids + "&action=submit&check=true",
         url: "/trade/action/batch_change_status",//要访问的后台地址
         success: function(result){//msg为返回的数据，在这里做数据绑定
                 if(result.errorInfo != "success") {

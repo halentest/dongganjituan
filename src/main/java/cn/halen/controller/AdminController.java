@@ -314,9 +314,9 @@ public class AdminController {
 			return "error_page";
 		}
 		Shop s = new Shop();
-		s.setSellerNick(sellerNick);
+		s.setSeller_nick(sellerNick);
 		s.setType(type);
-		s.setdId(dId);
+		s.setDistributor_id(dId);
 		adminMapper.insertShop(s);
 		try {
 			resp.sendRedirect("/admin/action/account_list");

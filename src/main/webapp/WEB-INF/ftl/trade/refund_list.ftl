@@ -19,7 +19,7 @@
 			<option value="">所有店铺</option>
 			<#if shopList??>
 				<#list shopList as shop>
-				<option value="${shop.sellerNick}">${shop.sellerNick}</option>
+				<option value="${shop.seller_nick}">${shop.seller_nick}</option>
 				</#list>
 			</#if>
 		</select>

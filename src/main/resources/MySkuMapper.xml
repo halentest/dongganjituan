@@ -74,4 +74,8 @@
             and goods_id like CONCAT('%', #{goodsId}, '%')
         </if>
     </select>
+
+    <select id="selectAll" resultType="MySku">
+        select * from sku;
+    </select>
 </mapper>

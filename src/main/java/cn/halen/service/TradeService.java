@@ -283,7 +283,7 @@ public class TradeService {
      * @throws InsufficientBalanceException
      */
 	@Transactional(rollbackFor=Exception.class)
-	public void submit(String id, ErrorInfoHolder holder) throws InsufficientBalanceException, InsufficientStockException {
+	public void submit(String id, ErrorInfoHolder holder, boolean needCheck) throws InsufficientBalanceException, InsufficientStockException {
         MyTrade myTrade = myTradeMapper.selectTradeMap(id);
         if(myTrade.getIs_pause()==1) {
             holder.setErrorInfo("已暂停，不能提交");
@@ -292,6 +292,11 @@ public class TradeService {
 
         if(!myTrade.getStatus().equals(TradeStatus.UnSubmit.getStatus())) {
             holder.setErrorInfo("当前状态不能提交");
+            return;
+        }
+
+        if(needCheck && StringUtils.isNotBlank(myTrade.getBuyer_message())) {
+            holder.setErrorInfo("买家有留言, 不能批量提交");
             return;
         }
 
@@ -374,7 +379,6 @@ public class TradeService {
     /**
      *
      * @param myTrade
-     * @param checkExist
      * @param type 1:quantity（实际库存）  2:lock_quantity（锁定库存）  3:manaual_lock_quantity（手动锁定库存）
      *             可用库存 = 实际库存 - 锁定库存 - 手动锁定库存
      * @param idHolder 用于返回真正的trade表的id
@@ -382,13 +386,11 @@ public class TradeService {
      * @throws ApiException
      */
 	@Transactional(rollbackFor=Exception.class)
-	public int insertMyTrade(MyTrade myTrade, boolean checkExist, int type, Map<String, String> idHolder) throws ApiException {
-        if(checkExist && myTradeMapper.isTidExist(myTrade.getTid())) {
+	public int insertMyTrade(MyTrade myTrade, int type, Map<String, String> idHolder) throws ApiException {
+        if(StringUtils.isNotBlank(myTrade.getTid()) && myTradeMapper.checkTidExist(myTrade.getTid())) {
             return 0;
         }
         List<MyOrder> orderList = myTrade.getMyOrderList();
-        int payment = 0;
-        int quantity = 0;
         //合并相同地址相同收货人并且未发货的订单
         MyTrade commonTrade = myTradeMapper.selectTradeByAddress(myTrade.getName(), myTrade.getMobile(), myTrade.getState(),
                 myTrade.getCity(), myTrade.getDistrict(), myTrade.getAddress());
@@ -406,13 +408,7 @@ public class TradeService {
                     log.error("batch insert trade error", e);
                 }
             }
-            quantity += order.getQuantity();
-            payment += order.getPayment() * order.getQuantity();
 		}
-        if(checkExist) {
-            myTrade.setPayment(payment);
-            myTrade.setGoods_count(quantity);
-        }
         int count = 0;
         if(null == commonTrade) {
             count = myTradeMapper.insert(myTrade);
@@ -434,6 +430,10 @@ public class TradeService {
             if(null != idHolder) {
                 idHolder.put("id", commonTrade.getId());
             }
+        }
+        //插入tid到tid表中
+        if(StringUtils.isNotBlank(myTrade.getTid())) {
+            myTradeMapper.insertTid(myTrade.getTid());
         }
         if("淘宝自动同步".equals(myTrade.getCome_from())) {
             //update memo
@@ -743,19 +743,4 @@ public class TradeService {
 		return myTrade;
 	}
 	
-	private void handleExisting(MyTrade myTrade) throws ApiException {
-//		MyTrade dbMyTrade = selectTradeDetail(myTrade.getTid());
-//		if(!myTrade.toString().equals(dbMyTrade.toString()) && myTrade.getModified().getTime() > dbMyTrade.getModified().getTime()) {
-//			dbMyTrade.setName(myTrade.getName());
-//			dbMyTrade.setPhone(myTrade.getPhone());
-//			dbMyTrade.setMobile(myTrade.getMobile());
-//			dbMyTrade.setState(myTrade.getState());
-//			dbMyTrade.setCity(myTrade.getCity());
-//			dbMyTrade.setDistrict(myTrade.getDistrict());
-//			dbMyTrade.setAddress(myTrade.getAddress());
-//			dbMyTrade.setSeller_memo(myTrade.getSeller_memo());
-//			dbMyTrade.setModified(myTrade.getModified());
-//		}
-//		updateTrade(dbMyTrade);
-	}
 }

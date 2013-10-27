@@ -150,10 +150,14 @@ public class AdminMapper extends SqlSessionDaoSupport {
 	
 	public Shop selectShopBySellerNick(String sellerNick) {
 		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("sellerNick", sellerNick);
+		param.put("seller_nick", sellerNick);
 		Shop s = getSqlSession().selectOne("cn.halen.data.mapper.AdminMapper.selectShop", param);
 		return s;
 	}
+
+    public List<Shop> selectAllShop() {
+        return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.selectAllShop");
+    }
 	
 	public int insertShop(Shop shop) {
 		return getSqlSession().insert("cn.halen.data.mapper.AdminMapper.insertShop", shop);
@@ -162,7 +166,7 @@ public class AdminMapper extends SqlSessionDaoSupport {
     public int updateShopToken(String token, String sellerNick) {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("token", token);
-        param.put("sellerNick", sellerNick);
+        param.put("seller_nick", sellerNick);
         return getSqlSession().update("cn.halen.data.mapper.AdminMapper.updateShopToken", param);
     }
 	
@@ -176,9 +180,9 @@ public class AdminMapper extends SqlSessionDaoSupport {
 	
 	public List<Shop> selectShop(Integer autoSync, String type, Integer autoSyncStore) {
 		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("autoSync", autoSync);
+		param.put("auto_sync", autoSync);
 		param.put("type", type);
-		param.put("autoSyncStore", autoSyncStore);
+		param.put("auto_sync_store", autoSyncStore);
 		return getSqlSession().selectList("cn.halen.data.mapper.AdminMapper.selectShop", param);
 	}
 	

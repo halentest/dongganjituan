@@ -40,14 +40,14 @@
 		<result property="created" column="u_created"/>
 	    <association property="shop" javaType="Shop">
 		    <id property="id" column="s_id"/>
-		    <result property="sellerNick" column="s_seller_nick"/>
+		    <result property="seller_nick" column="s_seller_nick"/>
 		    <result property="token" column="s_token"/>
-		    <result property="refreshToken" column="s_refresh_token"/>
+		    <result property="refresh_token" column="s_refresh_token"/>
 		    <result property="modified" column="s_modified"/>
 		    <result property="created" column="s_created"/>
-		    <result property="lastRefresh" column="s_last_refresh"/>
-		    <result property="autoSync" column="s_auto_sync"/>
-		    <result property="autoSyncStore" column="s_auto_sync_store"/>
+		    <result property="last_refresh" column="s_last_refresh"/>
+		    <result property="auto_sync" column="s_auto_sync"/>
+		    <result property="auto_sync_store" column="s_auto_sync_store"/>
 		    <result property="type" column="s_type"/>
             <result property="rate" column="s_rate"/>
 		    <association property="d" javaType="Distributor">
@@ -57,7 +57,7 @@
 			    <result property="deposit" column="d_deposit"/>
 			    <result property="discount" column="d_discount"/>
 			    <result property="self" column="d_self"/>
-			    <result property="noCheck" column="d_nocheck"/>
+			    <result property="nocheck" column="d_nocheck"/>
 			    <result property="modified" column="d_modified"/>
 			    <result property="created" column="d_created"/>
 			</association>
@@ -78,19 +78,19 @@
 	    <result property="deposit" column="d_deposit"/>
 	    <result property="discount" column="d_discount"/>
 	    <result property="self" column="d_self"/>
-	    <result property="noCheck" column="d_nocheck"/>
+	    <result property="nocheck" column="d_nocheck"/>
 	    <result property="modified" column="d_modified"/>
 	    <result property="created" column="d_created"/>
 	    <collection property="shopList" ofType="Shop" >
 	      	<id property="id" column="s_id"/>
-		    <result property="sellerNick" column="s_seller_nick"/>
+		    <result property="seller_nick" column="s_seller_nick"/>
 		    <result property="token" column="s_token"/>
-		    <result property="refreshToken" column="s_refresh_token"/>
+		    <result property="refresh_token" column="s_refresh_token"/>
 		    <result property="modified" column="s_modified"/>
 		    <result property="created" column="s_created"/>
-		    <result property="lastRefresh" column="s_last_refresh"/>
-		    <result property="autoSync" column="s_auto_sync"/>
-		     <result property="autoSyncStore" column="s_auto_sync_store"/>
+		    <result property="last_refresh" column="s_last_refresh"/>
+		    <result property="auto_sync" column="s_auto_sync"/>
+		     <result property="auto_sync_store" column="s_auto_sync_store"/>
 		    <result property="type" column="s_type"/>
             <result property="rate" column="s_rate"/>
 		    <collection property="userList" ofType="User" >
@@ -107,14 +107,14 @@
 	
 	<resultMap id="shopMap" type="Shop">
 	    <id property="id" column="s_id"/>
-	    <result property="sellerNick" column="s_seller_nick"/>
+	    <result property="seller_nick" column="s_seller_nick"/>
 	    <result property="token" column="s_token"/>
-	    <result property="refreshToken" column="s_refresh_token"/>
+	    <result property="refresh_token" column="s_refresh_token"/>
 	    <result property="modified" column="s_modified"/>
 	    <result property="created" column="s_created"/>
-	    <result property="lastRefresh" column="s_last_refresh"/>
-	    <result property="autoSync" column="s_auto_sync"/>
-	    <result property="autoSyncStore" column="s_auto_sync_store"/>
+	    <result property="last_refresh" column="s_last_refresh"/>
+	    <result property="auto_sync" column="s_auto_sync"/>
+	    <result property="auto_sync_store" column="s_auto_sync_store"/>
 	    <result property="type" column="s_type"/>
         <result property="rate" column="s_rate"/>
 	    <association property="d" javaType="Distributor">
@@ -124,7 +124,7 @@
 		    <result property="deposit" column="d_deposit"/>
 		    <result property="discount" column="d_discount"/>
 		    <result property="self" column="d_self"/>
-		    <result property="noCheck" column="d_nocheck"/>
+		    <result property="nocheck" column="d_nocheck"/>
 		    <result property="modified" column="d_modified"/>
 		    <result property="created" column="d_created"/>
 		</association>
@@ -212,7 +212,7 @@
 	
 	<insert id="insertDistributor" parameterType="Distributor">
 		insert into distributor(name, phone, discount, self, nocheck, created) values(#{name},
-		#{phone}, #{discount}, #{self}, #{noCheck}, now())
+		#{phone}, #{discount}, #{self}, #{nocheck}, now())
 	</insert>
 	
 	<update id="updateUserEnabled" parameterType="java.util.Map">
@@ -232,37 +232,41 @@
 	</select>
 	
 	<select id="selectShop" parameterType="Map" resultType="Shop">
-		select id, seller_nick as sellerNick, token, refresh_token as refreshToken,
-		modified, created, last_refresh as lastRefresh, auto_sync as autoSync, type, distributor_id as dId,
-		auto_sync_store as autoSyncStore, rate from shop
+		select id, seller_nick as seller_nick, token, refresh_token as refresh_token,
+		modified, created, last_refresh as last_refresh, auto_sync as auto_sync, type, distributor_id as distributor_id,
+		auto_sync_store as auto_sync_store, rate from shop
 		<where>
-			<if test="autoSync != null">
-				auto_sync = #{autoSync}
+			<if test="auto_sync != null">
+				auto_sync = #{auto_sync}
 			</if>
-			<if test="autoSyncStore != null">
-				and auto_sync_store = #{autoSyncStore}
+			<if test="auto_sync_store != null">
+				and auto_sync_store = #{auto_sync_store}
 			</if>
 			<if test="type != null">
 				and type=#{type}
 			</if>
-			<if test="sellerNick != null">
-				and seller_nick=#{sellerNick}
+			<if test="seller_nick != null">
+				and seller_nick=#{seller_nick}
 			</if>
 		</where> 
 	</select>
 	
 	<insert id="insertShop" parameterType="Shop">
-		insert into shop values(null, #{sellerNick}, #{token}, #{refreshToken}, null, now(), now(), #{autoSync},
-		#{type}, #{dId}, #{autoSyncStore}, #{rate})
+		insert into shop values(null, #{seller_nick}, #{token}, #{refresh_token}, null, now(), now(), #{auto_sync},
+		#{type}, #{distributor_id}, #{auto_sync_store}, #{rate})
 	</insert>
 
+    <select id="selectAllShop" resultType="Shop">
+        select * from shop;
+    </select>
+
     <update id="updateShopToken" parameterType="java.util.Map">
-        update shop set token=#{token}, auto_sync=1 where seller_nick=#{sellerNick}
+        update shop set token=#{token}, auto_sync=1 where seller_nick=#{seller_nick}
     </update>
 	
 	<select id="selectShopMap" parameterType="String" resultMap="shopMap">
 		select <include refid="shopColumns"/>
-		from (select * from shop where seller_nick = #{sellerNick}) as s
+		from (select * from shop where seller_nick = #{seller_nick}) as s
 		join distributor as d on s.distributor_id = d.id
 	</select>
 	
@@ -328,4 +332,6 @@
     <update id="updateShopRate" parameterType="java.util.Map">
         update shop set rate=#{v} where id=#{id}
     </update>
+
+
 </mapper>

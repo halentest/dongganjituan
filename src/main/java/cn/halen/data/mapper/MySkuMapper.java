@@ -124,4 +124,8 @@ public class MySkuMapper extends SqlSessionDaoSupport {
         param.put("newSize", newSize);
         return getSqlSession().update("cn.halen.data.mapper.SkuMapper.updateSizeByGoodsIdSize", param);
     }
+
+    public List<MySku> selectAll() {
+        return getSqlSession().selectList("cn.halen.data.mapper.SkuMapper.selectAll");
+    }
 }

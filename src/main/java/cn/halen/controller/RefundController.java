@@ -284,13 +284,13 @@ public class RefundController {
 		
 		List<String> sellerNickList = new ArrayList<String>();
 		if(currType.equals(UserType.ServiceStaff.getValue())) {
-			sellerNickList.add(currUser.getShop().getSellerNick());
+			sellerNickList.add(currUser.getShop().getSeller_nick());
 		} else if(currType.equals(UserType.Distributor.getValue())) {
 			Distributor d = adminMapper.selectDistributorMapById(currUser.getShop().getD().getId());
 			if(StringUtils.isNotEmpty(sellerNick)) {
 				boolean valid = false;
 				for(Shop s : d.getShopList()) {
-					if(sellerNick.equals(s.getSellerNick())) {
+					if(sellerNick.equals(s.getSeller_nick())) {
 						valid = true;
 						break;
 					}
@@ -303,7 +303,7 @@ public class RefundController {
 				}
 			} else {
 				for(Shop s : d.getShopList()) {
-					sellerNickList.add(s.getSellerNick());
+					sellerNickList.add(s.getSeller_nick());
 				}
 			}
 		} else if(StringUtils.isNotEmpty(sellerNick)) {
@@ -311,7 +311,7 @@ public class RefundController {
 		} else if(null != dId && dId != -1) {
 			Distributor d = adminMapper.selectDistributorMapById(dId);
 			for(Shop s : d.getShopList()) {
-				sellerNickList.add(s.getSellerNick());
+				sellerNickList.add(s.getSeller_nick());
 			}
 		}
 

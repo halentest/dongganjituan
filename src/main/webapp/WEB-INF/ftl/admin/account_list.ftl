@@ -212,7 +212,7 @@
 				<td>${d.discount}</td>
 				<td>${d.deposit/100}</td>
 				<td><#if d.self==1>是<#else>否</#if></td>
-				<td><#if d.noCheck==1>
+				<td><#if d.nocheck==1>
 					<a href="${rc.contextPath}/admin/change_check?v=0&dId=${d.id}">是</a>
 					<#else>
 					<a href="${rc.contextPath}/admin/change_check?v=1&dId=${d.id}">否</a>
@@ -245,11 +245,11 @@
 			<tbody style="text-align: center;">
 				<tr>
 					<td>${shop.id}</td>
-					<td>${shop.sellerNick}</td>
+					<td>${shop.seller_nick}</td>
 					<td>${shop.type}</td>
                     <td>${shop.rate?string.percent}</td>
-					<td><#if shop.autoSync==1>是<#else>否</#if></td>
-					<td><#if shop.autoSyncStore==1>
+					<td><#if shop.auto_sync==1>是<#else>否</#if></td>
+					<td><#if shop.auto_sync_store==1>
 						<a href="${rc.contextPath}/admin/change_sync_store?v=0&sId=${shop.id}">是</a>
 						<#else>
 						<a href="${rc.contextPath}/admin/change_sync_store?v=1&sId=${shop.id}">否</a>

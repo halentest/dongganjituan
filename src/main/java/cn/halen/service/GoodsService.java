@@ -67,10 +67,11 @@ public class GoodsService {
             }
             List<Sku> skuList = response.getSkus();
             if(skuList==null || skuList.size()==0) {
-                logger.info("query shop : {}, skuId : {} , have no item!", shop.getSellerNick(), skuId);
+                logger.info("query shop : {}, skuId : {} , outerSkuId ： {}， have no item!", shop.getSeller_nick(), skuId,
+                        outerSkuId);
             } else {
-                logger.debug("query shop : {}, skuId : {}, skuList from top size is {}", shop.getSellerNick(), skuId,
-                        skuList.size());
+                logger.debug("query shop : {}, skuId : {}, outerSkuId : {}, skuList from top size is {}", shop.getSeller_nick(),
+                        skuId, outerSkuId, skuList.size());
             }
             if(skuList != null && skuList.size() > 0) {
                 long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()

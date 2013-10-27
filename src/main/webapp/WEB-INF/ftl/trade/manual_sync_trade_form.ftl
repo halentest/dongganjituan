@@ -1,6 +1,5 @@
 <#import "/templates/root.ftl" as root >
 <@root.html active=3 css=["easyui.css", "icon.css"] js=["jquery.easyui.min.js"]>
-	<i class="icon-pencil"></i>手工同步订单(正常情况下不需要手工同步订单，除非发现店铺内有订单同步失败!)
 	<br><br>
     <#if shopList?size==0>
         <div class="alert">
@@ -8,30 +7,20 @@
         </div>
     <#else>
 	<form class="form-horizontal">
-          <div class="control-group">
-            <label class="control-label" for="select01">店铺</label>
-            <div class="controls">
+            选择店铺
               	<select id="seller-nick">
 					<#list shopList as shop>
-					<option value="${shop.sellerNick}">${shop.sellerNick}</option>
+					<option value="${shop.seller_nick}">${shop.seller_nick}</option>
 					</#list>
 				</select>
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="select01">开始时间</label>
-            <div class="controls">
+        <br>
+            开始时间
               	<input id="start" class="easyui-datetimebox" type="text">
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="select01">结束时间</label>
-            <div class="controls">
+        <br>
+            结束时间
               	<input id="end" type="text" class="easyui-datetimebox">
-            </div>
-          </div>
     </form>
-          <div style="padding-left: 150px;" class="form-actions" >
+          <div class="form-actions" >
             <button id="submit" class="btn btn-primary">确定</button>
           </div>
 	

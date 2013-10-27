@@ -272,5 +272,8 @@ create table seller_info (
 )  DEFAULT CHARACTER SET utf8;
 insert into seller_info values(null, '毛小毛', '你好', '三千五百爸爸表示', '三千五百爸爸表示.....', '110', null, now());
 
-	
+create table tid (
+    tid varchar(50) primary key
+)
+
 	

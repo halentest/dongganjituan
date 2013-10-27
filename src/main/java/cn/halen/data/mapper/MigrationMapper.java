@@ -35,4 +35,8 @@ public class MigrationMapper extends SqlSessionDaoSupport {
     public void insertOrder2(Order2 o) {
         getSqlSession().insert("cn.halen.data.mapper.migration.insertOrder", o);
     }
+
+    public List<String> selectAllTid() {
+        return getSqlSession().selectList("cn.halen.data.mapper.migration.selectAllTid");
+    }
 }

@@ -36,14 +36,4 @@
         </#list>
     </table>
 
-    <div id="w" class="easyui-window" title="快递单模板设置" data-options="modal:true,collapsible:false,closed:true,
-        resizable:false,shadow:false,minimizable:false, maximizable:false"
-         style="width:915px;height:480px;padding:2px;">
-        <object id="LODOP2" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=780 height=407>
-            <param name="Caption" value="内嵌显示区域">
-            <param name="Border" value="0">
-            <param name="Color" value="#C0C0C0">
-            <embed id="LODOP_EM2" TYPE="application/x-print-lodop" width=780 height=407 PLUGINSPAGE="install_lodop.exe">
-        </object>
-    </div>
 </@root.html>

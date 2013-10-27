@@ -86,16 +86,16 @@
 		values(#{tid}, #{goods_id}, #{title}, #{pic_path}, #{sku_id}, #{quantity}, #{price}, #{discount}, #{weight}, #{payment}, #{status}, now())
 	</insert>
 
-    <select id="checkTidExist" parameterType="String" resultType="String">
-        select tid from trade2 where tid = #{tid}
-    </select>
-	
 	<select id="selectById" parameterType="String" resultType="MyTrade">
 		select * from trade2 where id=#{id}
 	</select>
 
-    <select id="selectByTid" parameterType="String" resultType="MyTrade">
-        select * from trade2 where tid like CONCAT('%', #{tid}, '%')
+    <insert id="insertTid" parameterType="String">
+        insert into tid values(#{tid})
+    </insert>
+
+    <select id="checkTidExist" parameterType="String" resultType="String">
+        select * from tid where tid=#{tid}
     </select>
 	
 	<select id="countTrade" parameterType="java.util.Map" resultType="Long">
@@ -204,7 +204,7 @@
             <if test="isFinish != null">
                 and t.is_finish = #{isFinish}
             </if>
-            and t.created between '${startTime}' and '${endTime}' order by t.created desc limit #{start}, #{page_size}
+            and t.created between '${startTime}' and '${endTime}' order by t.created limit #{start}, #{page_size}
         </where>
     </select>
 
@@ -267,6 +267,7 @@
             <if test="startTime != null and endTime != null">
                 and created between '${startTime}' and '${endTime}'
             </if>
+            order by created
             <if test="start != null and page_size != null">
                 limit #{start}, #{page_size}
             </if>
@@ -275,7 +276,6 @@
         t
         left join order2 o on t.id = o.tid
         left join sku s on o.sku_id = s.id
-        order by created desc
     </select>
 	
 	<select id="selectTradeMap" parameterType="Map" resultMap="myTradeMap" >

@@ -41,7 +41,7 @@ public class AdminMapperTest {
 	@Test
 	public void test_selectShopMap() {
 		Shop s = mapper.selectShopMapBySellerNick("志东张");
-		System.out.println(s.getSellerNick());
+		System.out.println(s.getSeller_nick());
 	}
 	
 	@Test

@@ -17,7 +17,7 @@ public class Distributor {
 	
 	private int self;
 	
-	private int noCheck;
+	private int nocheck;
 	
 	private Date created;
 	
@@ -73,15 +73,15 @@ public class Distributor {
 		this.self = self;
 	}
 
-	public int getNoCheck() {
-		return noCheck;
-	}
+    public int getNocheck() {
+        return nocheck;
+    }
 
-	public void setNoCheck(int noCheck) {
-		this.noCheck = noCheck;
-	}
+    public void setNocheck(int nocheck) {
+        this.nocheck = nocheck;
+    }
 
-	public Date getCreated() {
+    public Date getCreated() {
 		return created;
 	}
 

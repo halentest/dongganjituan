@@ -20,6 +20,7 @@ import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.domain.TaoTradeStatus;
 import cn.halen.util.Constants;
 import cn.halen.util.ErrorInfoHolder;
+import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Trade;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -220,7 +221,7 @@ public class TradeActionController {
             reader.destroy();
         }
 
-        String sellerNick = UserHolder.get().getShop().getSellerNick();
+        String sellerNick = UserHolder.get().getShop().getSeller_nick();
 
         List<MyTrade> tList = tradeService.toMyTrade(rows, sellerNick);
         List<Integer> lost = skuService.checkExist(tList);
@@ -229,7 +230,7 @@ public class TradeActionController {
         for(MyTrade t : tList) {
             t.setStatus(TradeStatus.WaitReceive.getStatus());
             t.setIs_finish(1);
-            int result = tradeService.insertMyTrade(t, true, Constants.QUANTITY, null);
+            int result = tradeService.insertMyTrade(t, Constants.QUANTITY, null);
             if(0==result) {
                 repeated.add(t.getTid());
             } else {
@@ -366,7 +367,7 @@ public class TradeActionController {
 		
 		User currentUser = UserHolder.get();
 		float discount = currentUser.getShop().getD().getDiscount();
-		trade.setSeller_nick(currentUser.getShop().getSellerNick());
+		trade.setSeller_nick(currentUser.getShop().getSeller_nick());
 
 		int count = 0;
 		String goodsId = null;
@@ -420,7 +421,7 @@ public class TradeActionController {
 
         Map<String, String> idHolder  = new HashMap<String, String>();
 		try{
-			tradeService.insertMyTrade(trade, false, Constants.LOCK_QUANTITY, idHolder);
+			tradeService.insertMyTrade(trade, Constants.LOCK_QUANTITY, idHolder);
 		} catch(Exception e) {
 			log.error("", e);
 			model.addAttribute("errorInfo", "系统异常，请重试！");
@@ -536,10 +537,13 @@ public class TradeActionController {
     /**
      * 发放单号
      * @param model
+     * @param check 用来判断是否是批量提交，有买家留言的订单不允许批量提交
      * @return
+     *
      */
     @RequestMapping(value="trade/action/batch_change_status")
-    public @ResponseBody ResultInfo batchChangeStatus(Model model, @RequestParam String ids, @RequestParam("action") String action) {
+    public @ResponseBody ResultInfo batchChangeStatus(Model model, @RequestParam String ids, @RequestParam("action") String action,
+                                                      @RequestParam(required = false) String check) {
 
         ResultInfo result = new ResultInfo();
         StringBuilder errorInfoBuilder = new StringBuilder();
@@ -552,7 +556,11 @@ public class TradeActionController {
                         if("send".equals(action)) {
                             tradeService.send(id, eh);
                         } else if("submit".equals(action)) {
-                            tradeService.submit(id, eh);
+                            boolean needCheck = false;
+                            if(StringUtils.isNotBlank(check) && "true".equals(check)) {
+                                needCheck = true;
+                            }
+                            tradeService.submit(id, eh, needCheck);
                         } else if("find-goods".equals(action)) {
                             tradeService.findGoods(id, eh);
                         }
@@ -742,11 +750,10 @@ public class TradeActionController {
 
     public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ApiException, ParseException {
         int totalCount = 0;
-
         List<Trade> tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
+
         for(Trade trade : tradeList) {
             //check trade if exists
-            MyTrade dbMyTrade = tradeMapper.selectByTid(String.valueOf(trade.getTid()));
             Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
             if(null == tradeDetail) {
                 continue;
@@ -754,11 +761,9 @@ public class TradeActionController {
             MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
             if(null == myTrade)
                 continue;
-            if(null == dbMyTrade) {
-                myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
-                int count = tradeService.insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY, null);
-                totalCount += count;
-            }
+            myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
+            int count = tradeService.insertMyTrade(myTrade, Constants.LOCK_QUANTITY, null);
+            totalCount += count;
         }
         return totalCount;
     }
@@ -844,5 +849,72 @@ public class TradeActionController {
             tradeMapper.updateMyTrade(trade);
         }
         return resultInfo;
+    }
+
+    @RequestMapping(value="test/trade/mock_trade")
+    public void mockTrade(Model model, @RequestParam int num, HttpServletResponse resp) throws ApiException, IOException {
+        int totalCount = 0;
+        List<MySku> skuList = skuMapper.selectAll();
+        int skuListSize = skuList.size();
+        List<Shop> shopList = adminMapper.selectAllShop();
+        int shopListSize = shopList.size();
+        Random random = new Random();
+        Date start = new Date();
+        for(int i=0; i<num; i++) {
+
+            //随机选一个sku
+            MySku sku = skuList.get(random.nextInt(skuListSize));
+            //随机选一个shop
+            Shop shop = shopList.get(random.nextInt(shopListSize));
+
+            MyTrade myTrade = new MyTrade();
+            String id = tradeMapper.generateId();
+            myTrade.setId(id);
+
+            List<MyOrder> myOrderList = new ArrayList<MyOrder>();
+
+            MyOrder myOrder = new MyOrder();
+            myOrder.setTid(id);
+            myOrder.setSku_id(sku.getId());
+            myOrder.setGoods_id(sku.getGoods_id());
+            myOrder.setTitle("");
+            myOrder.setPic_path("");
+            myOrder.setQuantity(1);
+            myOrder.setPrice(0);
+            myOrder.setPayment(0);
+            myOrderList.add(myOrder);
+
+            myTrade.setTid(id);
+            myTrade.setName("name" + random.nextInt(1000));
+            myTrade.setPhone("phone" + random.nextInt(1000));
+            myTrade.setMobile("mobile" + random.nextInt(1000));
+            myTrade.setState("state" + random.nextInt(1000));
+            myTrade.setCity("city" + random.nextInt(1000));
+            myTrade.setDistrict("city" + random.nextInt(1000));
+            myTrade.setAddress("address" + random.nextInt(1000));
+            myTrade.setPostcode("");
+            myTrade.setSeller_memo("");
+            myTrade.setBuyer_message("");
+            myTrade.setSeller_nick(shop.getSeller_nick());
+            myTrade.setBuyer_nick("");
+            myTrade.setCome_from(Constants.MANAUAL);
+            myTrade.setModified(new Date());
+            myTrade.setCreated(new Date());
+            myTrade.setMyOrderList(myOrderList);
+            myTrade.setPay_type(Constants.PAY_TYPE_ONLINE); //目前只支持淘宝的在线支付订单
+            MyLogisticsCompany mc = myLogisticsCompanyMapper.select(1);
+            myTrade.setDelivery(mc.getName());
+            myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
+            myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
+            int count = tradeService.insertMyTrade(myTrade, Constants.LOCK_QUANTITY, null);
+            totalCount += count;
+        }
+        Date end = new Date();
+        long clapsed = end.getTime() - start.getTime();
+        Writer writer = resp.getWriter();
+        writer.write("total " + totalCount + ", time " + clapsed);
+        writer.flush();
+        writer.close();
+
     }
 }

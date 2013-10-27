@@ -147,7 +147,7 @@
                 选择店铺
                 <select id="seller-nick">
                     <#list shopList as shop>
-                        <option value="${shop.sellerNick}">${shop.sellerNick}</option>
+                        <option value="${shop.seller_nick}">${shop.seller_nick}</option>
                     </#list>
                 </select>
                 <div style="text-align:center;padding:5px;margin-top:15px;">

@@ -3,6 +3,7 @@
     <strong>客户信息</strong>
     <br>
     <br>
+        订单号：<a href="${rc.contextPath}/trade/trade_detail?id=${trade.id}">${trade.id!''}</a><br>
         客户姓名：${trade.name!''}  <br>
         买家ID：${trade.buyer_nick!''} <br>
         手机：${trade.mobile!''}  <br>

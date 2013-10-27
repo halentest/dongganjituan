@@ -46,7 +46,7 @@ public class TradeServiceTest {
         o.setTid(id);
         o.setSku_id(2);
         t.addOrder(o);
-        tradeService.insertMyTrade(t, false, 0, null);
+        tradeService.insertMyTrade(t, 0, null);
     }
 
 	@Test
@@ -67,7 +67,7 @@ public class TradeServiceTest {
         List<MyTrade> tradeList = tradeService.toMyTrade(orderList);
         int count = 0;
         for(MyTrade t : tradeList) {
-            count += tradeService.insertMyTrade(t, true, Constants.LOCK_QUANTITY, null);
+            count += tradeService.insertMyTrade(t, Constants.LOCK_QUANTITY, null);
         }
         System.out.println(count);
     }

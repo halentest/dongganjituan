@@ -25,7 +25,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 			<option value="">所有店铺</option>
 			<#if shopList??>
 				<#list shopList as shop>
-				<option value="${shop.sellerNick}">${shop.sellerNick}</option>
+				<option value="${shop.seller_nick}">${shop.seller_nick}</option>
 				</#list>
 			</#if>
 		</select>
@@ -141,6 +141,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
             </tbody>
         </table>
     </div>
+    <hr>
     <div class="pagination">
         <a href="#" class="first" data-action="first">&laquo;</a>
         <a href="#" class="previous" data-action="previous">&lsaquo;</a>
@@ -174,7 +175,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 <#if scan=="false">
                     <a id="scan-delivery">扫描单号</a>
                 <#else>
-                    <a id="save-scan">保存单号</a>
+                    <button id="save-scan">保存单号</button>
                 </#if>
                 <a id="print-setup" style="cursor: pointer;">打印调整</a>
                 <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
@@ -275,7 +276,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 	            url: "${rc.contextPath}/trade/list_shop",//要访问的后台地址
 	            success: function(shopList){//msg为返回的数据，在这里做数据绑定
 	                $.each(shopList, function(index, shop) {
-	                    $('#seller_nick').append('<option value="' + shop.sellerNick + '">' + shop.sellerNick + '</option>');
+	                    $('#seller_nick').append('<option value="' + shop.seller_nick + '">' + shop.seller_nick + '</option>');
 	                });
 	            }});
 		})

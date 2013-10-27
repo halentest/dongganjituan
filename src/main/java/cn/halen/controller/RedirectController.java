@@ -1,6 +1,7 @@
 package cn.halen.controller;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,6 +23,7 @@ import cn.halen.data.pojo.migration.Trade2;
 import cn.halen.service.top.*;
 import cn.halen.util.Constants;
 import com.taobao.api.domain.Trade;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +82,26 @@ public class RedirectController {
         o.setTid(id);
         o.setSku_id(2);
         t.addOrder(o);
-        tradeService.insertMyTrade(t, false, 0, null);
+        tradeService.insertMyTrade(t, 0, null);
+    }
+
+    @RequestMapping(value = "/migration2")
+    public void migration2(HttpServletResponse resp) throws IOException {
+        List<String> list = migrationMapper.selectAllTid();
+        for(String s : list) {
+            if(StringUtils.isNotBlank(s)) {
+                String[] arr = s.split(",");
+                for(String a : arr) {
+                    if(StringUtils.isNotBlank(a)) {
+                        tradeMapper.insertTid(a);
+                    }
+                }
+            }
+        }
+        Writer writer = resp.getWriter();
+        writer.write("success");
+        writer.flush();
+        writer.close();
     }
 
     @RequestMapping(value="/migration")
@@ -299,7 +320,6 @@ public class RedirectController {
         List<Trade> tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
         for(Trade trade : tradeList) {
             //check trade if exists
-            MyTrade dbMyTrade = tradeMapper.selectByTid(String.valueOf(trade.getTid()));
             Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
             if(null == tradeDetail) {
                 continue;
@@ -307,11 +327,9 @@ public class RedirectController {
             MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
             if(null == myTrade)
                 continue;
-            if(null == dbMyTrade) {
-                myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
-                int count = tradeService.insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY, null);
-                totalCount += count;
-            }
+            myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
+            int count = tradeService.insertMyTrade(myTrade, Constants.LOCK_QUANTITY, null);
+            totalCount += count;
         }
         return totalCount;
     }

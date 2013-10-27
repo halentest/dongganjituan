@@ -35,20 +35,20 @@ public class AdminService {
         List<Shop> allSyncShop = adminMapper.selectShop(1, null, null);
         List<String> allSyncSellerNick = new ArrayList<String>();
         for(Shop shop : allSyncShop) {
-            allSyncSellerNick.add(shop.getSellerNick());
+            allSyncSellerNick.add(shop.getSeller_nick());
         }
         List<Shop> validShopList = new ArrayList<Shop>();
         User user = UserHolder.get();
         if(user.getUserType()==UserType.Distributor) {
             List<Shop> currShopList = adminMapper.selectDistributorMapById(user.getShop().getD().getId()).getShopList();
             for(Shop shop : currShopList) {
-                if(allSyncSellerNick.contains(shop.getSellerNick())) {
+                if(allSyncSellerNick.contains(shop.getSeller_nick())) {
                     validShopList.add(shop);
                 }
             }
         } else if(user.getUserType()==UserType.ServiceStaff) {
             Shop shop = user.getShop();
-            if(allSyncSellerNick.contains(shop.getSellerNick())) {
+            if(allSyncSellerNick.contains(shop.getSeller_nick())) {
                 validShopList.add(shop);
             }
         }

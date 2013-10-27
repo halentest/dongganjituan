@@ -95,7 +95,7 @@ public class WorkerService {
 											if(null != myTrade) {
 												myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
 												try{
-													tradeService.insertMyTrade(myTrade, false, Constants.LOCK_QUANTITY, null);
+													tradeService.insertMyTrade(myTrade, Constants.LOCK_QUANTITY, null);
 												} catch(Exception e) {
 													log.error("", e);
 												}
