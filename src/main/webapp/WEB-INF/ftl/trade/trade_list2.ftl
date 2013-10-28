@@ -123,7 +123,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     </td>
                     <td>${trade.created?string('yyyy-MM-dd HH:mm:ss')}</td>
                     <#if trade.is_send==1>
-                        <td>${trade.send_time?string('yyyy-MM-dd HH:mm:ss')}</td>
+                        <td>${trade.send_time?string('yyyy-MM-dd HH:mm:ss')!''}</td>
                     </#if>
                     <#if scan=="true">
                         <td>
