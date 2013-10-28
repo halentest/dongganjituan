@@ -135,6 +135,9 @@
                 <if test="isSend != null">
                     and t.is_send = #{isSend}
                 </if>
+                <if test="delivery_number != null">
+                    and t.delivery_number = ${delivery_number}
+                </if>
                 <if test="isCancel != null">
                     and t.is_cancel in (
                     <foreach collection="isCancel" item="item" index="index"
@@ -189,6 +192,9 @@
             </if>
             <if test="isRefund != null">
                 and t.is_refund = #{isRefund}
+            </if>
+            <if test="delivery_number != null">
+                and t.delivery_number = ${delivery_number}
             </if>
             <if test="isSend != null">
                 and t.is_send = #{isSend}

@@ -119,7 +119,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 	}
 	
 	public long countTrade(List<String> sellerNickList, String name, String tid, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
-			String delivery, Date startTime, Date endTime) {
+			String delivery, Date startTime, Date endTime, String deliveryNumber) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
@@ -143,6 +143,10 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 
         if(null != isSend) {
             param.put("isSend", isSend);
+        }
+
+        if(StringUtils.isNotBlank(deliveryNumber)) {
+            param.put("delivery_number", deliveryNumber);
         }
 
         if(null!=isCancel && isCancel.size()>0) {
@@ -198,7 +202,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
     }
 	
 	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
-			String delivery, Date startTime, Date endTime, boolean map, String orderString) {
+			String delivery, Date startTime, Date endTime, boolean map, String orderString, String deliveryNumber) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
@@ -230,6 +234,10 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 
         if(null!=isCancel && isCancel.size()>0) {
             param.put("isCancel", isCancel);
+        }
+
+        if(StringUtils.isNotBlank(deliveryNumber)) {
+            param.put("delivery_number", deliveryNumber);
         }
 
         if(null != isFinish) {

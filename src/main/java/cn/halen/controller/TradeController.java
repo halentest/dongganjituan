@@ -268,7 +268,8 @@ public class TradeController {
             @RequestParam(value="isFinish", required=false) Integer isFinish,
             @RequestParam(required = false, defaultValue = "false") String scan,
             @RequestParam(required = false, defaultValue = "false") String map,
-            @RequestParam(required = false, defaultValue = "order by t.created") String orderString) {
+            @RequestParam(required = false, defaultValue = "order by t.created") String orderString,
+            @RequestParam(required = false) String deliveryNumber) {
 		int intPage = 1;
 		if(null!=page && page>0) {
 			intPage = page;
@@ -365,7 +366,7 @@ public class TradeController {
                 }
             }
         }
-		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime);
+		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime, deliveryNumber);
 		model.addAttribute("totalCount", totalCount);
         int pageSize = 100;
         if("true".equals(map)) {
@@ -379,7 +380,7 @@ public class TradeController {
                 bMap = true;
             }
 			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, isSubmit, isRefund, isSend,
-                    cancelList, isFinish, delivery, startTime, endTime, bMap, orderString);
+                    cancelList, isFinish, delivery, startTime, endTime, bMap, orderString, deliveryNumber);
 		}
 		model.addAttribute("trade_list", list);
         StringBuilder builder = new StringBuilder();

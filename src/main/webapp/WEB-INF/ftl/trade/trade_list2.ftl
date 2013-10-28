@@ -45,12 +45,15 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 				<option value="${lo.name}">${lo.name}</option>
 			</#list>
 		</select>
-		&nbsp;&nbsp;&nbsp;&nbsp;
+		&nbsp;&nbsp;
 		订单号
 		<input id="tid" type="input" value="" style="width: 10%; height: 15px;"/>
-		&nbsp;&nbsp;&nbsp;&nbsp;
+		&nbsp;&nbsp;
 		收货人
 		<input id="name" type="input" value="" style="width: 6%; height: 15px;"/>
+        &nbsp;&nbsp;
+        快递单号
+        <input id="deliveryNumber" type="input" value="" style="width: 6%; height: 15px;"/>
 		<!-- &nbsp;&nbsp;&nbsp;&nbsp;
 		<strong>开始时间</strong>
 		<input id="name" type="input" value="" style="width: 8%; height: 20px;"/>
