@@ -92,7 +92,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">顾客姓名</th>
                     <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">订单状态</th>
                     <th data-options="field:'attr2',align:'center',width:$(this).width() * 0.3">成交时间</th>
-                    <#if isSend==1>
+                    <#if isSend?? && isSend==1>
                         <th data-options="field:'attr5',align:'center',width:$(this).width() * 0.3">发货时间</th>
                     </#if>
                     <#if scan=="true">
