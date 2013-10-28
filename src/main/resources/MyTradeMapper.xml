@@ -204,7 +204,7 @@
             <if test="isFinish != null">
                 and t.is_finish = #{isFinish}
             </if>
-            and t.created between '${startTime}' and '${endTime}' order by t.created limit #{start}, #{page_size}
+            and t.created between '${startTime}' and '${endTime}' ${order_string} limit #{start}, #{page_size}
         </where>
     </select>
 
@@ -312,6 +312,7 @@
             <if test="status != null">
                 and t.status = #{status}
             </if>
+            order by t.created
         </where>
 	</select>
 	

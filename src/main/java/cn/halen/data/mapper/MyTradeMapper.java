@@ -198,7 +198,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
     }
 	
 	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
-			String delivery, Date startTime, Date endTime, boolean map) {
+			String delivery, Date startTime, Date endTime, boolean map, String orderString) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
@@ -238,6 +238,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		if(StringUtils.isNotEmpty(delivery)) {
 			param.put("delivery", delivery);
 		}
+        param.put("order_string", orderString);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         param.put("startTime", format.format(startTime));
         param.put("endTime", format.format(endTime));

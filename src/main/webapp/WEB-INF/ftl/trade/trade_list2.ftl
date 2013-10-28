@@ -37,6 +37,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
         <input type="hidden" id="isFinish">
         <input type="hidden" id="isSend">
         <input type="hidden" id="isRefund">
+        <input type="hidden" id="orderString">
 		快递
 		<select id="delivery" style="width: 8%;">
 			<option value="">所有快递</option>
@@ -88,6 +89,9 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">顾客姓名</th>
                     <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">订单状态</th>
                     <th data-options="field:'attr2',align:'center',width:$(this).width() * 0.3">成交时间</th>
+                    <#if isSend==1>
+                        <th data-options="field:'attr5',align:'center',width:$(this).width() * 0.3">发货时间</th>
+                    </#if>
                     <#if scan=="true">
                         <th data-options="field:'attr4',align:'center',width:$(this).width() * 0.4">填写单号</th>
                     <#else>
@@ -115,6 +119,9 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     </#if>
                     </td>
                     <td>${trade.created?string('yyyy-MM-dd HH:mm:ss')}</td>
+                    <#if trade.is_send==1>
+                        <td>${trade.send_time?string('yyyy-MM-dd HH:mm:ss')}</td>
+                    </#if>
                     <#if scan=="true">
                         <td>
                             <input class="scan-input" data-index="${trade_index}" data-id="${trade.id}" type="text"/>
@@ -380,6 +387,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
         $('#isRefund').val('${isRefund!""}');
         $('#isFinish').val('${isFinish!""}');
         $('#isSend').val('${isSend!""}');
+        $('#orderString').val('${orderString!""}');
     }
 
 	function CreateOneFormPage(){

@@ -158,7 +158,7 @@
         });
 
         $('#wait-receive').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=1";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=1&isSend=1&orderString=order by t.send_time desc";
         });
 
         $('#no-goods').click(function() {

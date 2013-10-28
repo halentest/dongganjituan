@@ -267,7 +267,8 @@ public class TradeController {
             @RequestParam(value="isCancel", required=false) String isCancel,
             @RequestParam(value="isFinish", required=false) Integer isFinish,
             @RequestParam(required = false, defaultValue = "false") String scan,
-            @RequestParam(required = false, defaultValue = "false") String map) {
+            @RequestParam(required = false, defaultValue = "false") String map,
+            @RequestParam(required = false, defaultValue = "order by t.created") String orderString) {
 		int intPage = 1;
 		if(null!=page && page>0) {
 			intPage = page;
@@ -378,7 +379,7 @@ public class TradeController {
                 bMap = true;
             }
 			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, isSubmit, isRefund, isSend,
-                    cancelList, isFinish, delivery, startTime, endTime, bMap);
+                    cancelList, isFinish, delivery, startTime, endTime, bMap, orderString);
 		}
 		model.addAttribute("trade_list", list);
         StringBuilder builder = new StringBuilder();
@@ -407,6 +408,7 @@ public class TradeController {
 		model.addAttribute("dList", adminMapper.listDistributor());
         model.addAttribute("scan", scan);
         model.addAttribute("map", map);
+        model.addAttribute("orderString", orderString);
         if(customTime) {
             model.addAttribute("start", start);
             model.addAttribute("end", end);
