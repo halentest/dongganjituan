@@ -652,6 +652,7 @@ public class TradeService {
 //                Date now = new Date();
 //                String memo = (StringUtils.isEmpty(trade.getSellerMemo())?"":trade.getSellerMemo()) + "同步失败1";
 //                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
+                myTrade.setSuccess(false);
 				continue;
 			}
 
@@ -677,6 +678,7 @@ public class TradeService {
 //                Date now = new Date();
 //                String memo = (StringUtils.isEmpty(trade.getSellerMemo())?"":trade.getSellerMemo()) + "同步失败2";
 //                tradeClient.updateMemo(trade.getTid(), trade.getSellerNick(), memo);
+                myTrade.setSuccess(false);
 				continue;
 			}
 			goodsHid = goods.getHid();

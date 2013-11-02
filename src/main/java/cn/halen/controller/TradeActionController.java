@@ -734,38 +734,79 @@ public class TradeActionController {
 			return result;
 		}
 		
-		int count = 0;
-		try {
-			count = initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
-		} catch (Exception e) {
-			log.error("Error while sync trade", e);
-			result.setSuccess(false);
-			result.setErrorInfo("系统异常，部分订单同步失败");
-			return result;
-		}
-		log.info("Success sync trade {}", count);
-		result.setErrorInfo("成功导入" + count + "条交易信息");
+		Map<String, Object> counter = initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
+        StringBuilder builder = new StringBuilder();
+        builder.append("已付款订单数：").append(counter.get("Paid")).append("<br>")
+                .append("已存在订单数：").append(counter.get("Exist")).append("<br>")
+                .append("导入失败订单列表：");
+        for(String tid : (ArrayList<String>)counter.get("Fail")) {
+            builder.append(tid).append(",");
+        }
+        builder.append("<br><br>");
+        builder.append("导入成功的订单数量：").append(counter.get("Success"));
+		result.setErrorInfo(builder.toString());
 		return result;
 	}
 
-    public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ApiException, ParseException {
-        int totalCount = 0;
-        List<Trade> tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
+    public Map<String, Object> initTrades(List<String> tokenList, Date startDate, Date endDate) {
+        Map<String, Object> counter = new HashMap<String, Object>();
+        List<Trade> tradeList = Collections.EMPTY_LIST;
+        try {
+            tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
+        } catch (ParseException e) {
+            log.error("", e);
+        } catch (ApiException e) {
+            log.error("", e);
+        }
+        counter.put("Paid", tradeList.size()); //已付款订单数量
 
+        int success = 0;
+        int existCount = 0;
+        List<String> fail = new ArrayList<String>();
         for(Trade trade : tradeList) {
             //check trade if exists
-            Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
-            if(null == tradeDetail) {
+            boolean exist = tradeMapper.checkTidExist(String.valueOf(trade.getTid()));
+            if(exist) {
+                existCount++;
                 continue;
             }
-            MyTrade myTrade = tradeService.toMyTrade(tradeDetail);
-            if(null == myTrade)
+            Trade tradeDetail = null;
+            try {
+                tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
+            } catch (ApiException e) {
+                log.error("", e);
+            }
+            if(null == tradeDetail) {
+                fail.add(String.valueOf(trade.getTid()));
                 continue;
+            }
+            MyTrade myTrade = null;
+            try {
+                myTrade = tradeService.toMyTrade(tradeDetail);
+            } catch (ApiException e) {
+                log.error("", e);
+            }
+            if(null == myTrade || !myTrade.isSuccess()) {
+                fail.add(String.valueOf(trade.getTid()));
+            }
+            if(null == myTrade) {
+                continue;
+            }
             myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
-            int count = tradeService.insertMyTrade(myTrade, Constants.LOCK_QUANTITY, null);
-            totalCount += count;
+            int count = 0;
+            try {
+                count = tradeService.insertMyTrade(myTrade, Constants.LOCK_QUANTITY, null);
+            } catch (ApiException e) {
+                log.error("", e);
+            }
+            success += count;
         }
-        return totalCount;
+        counter.put("Success", success); //导入成功的订单
+        counter.put("Exist", existCount);
+        counter.put("Fail", fail);
+        log.info("fail is {}", fail.toString());
+
+        return counter;
     }
 
     @RequestMapping(value="trade/action/modify_receiver_info_form")

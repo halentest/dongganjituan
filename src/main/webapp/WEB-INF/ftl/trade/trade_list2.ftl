@@ -127,7 +127,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     </#if>
                     <#if scan=="true">
                         <td>
-                            <input class="scan-input" data-index="${trade_index}" data-id="${trade.id}" type="text"/>
+                            <input class="scan-input" data-index="${trade_index}" data-id="${trade.id}" type="text" onkeydown="keyDown(this, event)"/>
                             <a onclick="autoScan(this)">连号</a>
                         </td>
                     <#else>
@@ -367,7 +367,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 
                 CreatePrintPage('${sellerInfo.sender}', '${sellerInfo.from_state!''}', '${sellerInfo.from_company!''}',
                             '${sellerInfo.from_address!''}', '${sellerInfo.mobile!''}',
-                            name, name, address, mobile, state + " " + city, goodsInfo, new Date().toLocaleString(),bg);
+                            name, name, address, mobile==null?'':mobile, state + " " + city, goodsInfo, new Date().toLocaleString(),bg);
 
     	    })
             LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");

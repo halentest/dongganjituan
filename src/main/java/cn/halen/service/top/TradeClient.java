@@ -119,6 +119,8 @@ public class TradeClient {
 				}
 			}
 		}
+
+        log.info("Have paid order number is {}", result.size());
 		return result;
 	}
 

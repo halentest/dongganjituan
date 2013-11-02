@@ -1,3 +1,18 @@
+function keyDown(curr, e) {
+    var keynum;
+    if(window.event) // IE
+    {
+      keynum = e.keyCode
+    } else if(e.which) // Netscape/Firefox/Opera
+    {
+      keynum = e.which
+    }
+    if(keynum == 13) {
+        var c = parseInt($(curr).attr('data-index'));
+        $('input[data-index=' + (c+1) +']').focus();
+    }
+}
+
 function autoScan(s) {
     var v = $(s).prev().val();
     var ix = parseInt($(s).prev().attr('data-index'));
@@ -358,7 +373,13 @@ $('#search').click(function() {
     var isSend = $('#isSend').val();
     var map = $('#map').val();
     var orderString = $('#orderString').val();
+    if(!orderString) {
+        orderString='';
+    }
     var deliveryNumber = $('#deliveryNumber').val();
+    if(!deliveryNumber) {
+        deliveryNumber = '';
+    }
     if(!page) {
         page = 1;
     }

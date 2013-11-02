@@ -63,6 +63,16 @@ public class MyTrade {
 	private List<MyOrder> myOrderList;
     private String modified_string;
 
+    private boolean success = true; //用于判断 public MyTrade toMyTrade(Trade trade) 时，是否所有宝贝转换成功
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
     public String getModified_string() {
         return modified_string;
     }

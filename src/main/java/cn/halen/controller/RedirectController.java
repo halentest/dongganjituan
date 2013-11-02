@@ -291,7 +291,8 @@ public class RedirectController {
 		result.setErrorInfo("成功导入" + count + "条商品信息");
 		return result;
 	}
-	
+
+    @Deprecated
 	@RequestMapping(value="/admin/sync_trade")
 	public @ResponseBody ResultInfo syncTrade() throws IOException, ServletException, JSONException, ParseException, InsufficientStockException, InsufficientBalanceException {
 		
@@ -314,6 +315,7 @@ public class RedirectController {
 		return result;
 	}
 
+    @Deprecated
     public int initTrades(List<String> tokenList, Date startDate, Date endDate) throws ApiException, ParseException {
         int totalCount = 0;
 
