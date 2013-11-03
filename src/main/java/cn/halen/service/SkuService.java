@@ -98,7 +98,7 @@ public class SkuService {
                 mySku.getManaual_lock_quantity() + manaualLockQuantity < 0 ||
                 mySku.getQuantity() + quantity - mySku.getManaual_lock_quantity() - manaualLockQuantity -
                 mySku.getLock_quantity() - lockQuantity < 0) {
-            throw new InsufficientStockException(mySku.getGoods_id() + " " + mySku.getColor() + " " + mySku.getSize());
+            throw new InsufficientStockException(mySku.toString());
         }
         mySku.setQuantity(mySku.getQuantity() + quantity);
         mySku.setLock_quantity(mySku.getLock_quantity() + lockQuantity);

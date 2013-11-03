@@ -148,8 +148,22 @@ public class TradeActionController {
                                 HttpServletResponse resp) throws InsufficientStockException {
         MyTrade trade = tradeMapper.selectTradeMap(id);
         if("true".equals(isApply)) {
+            if(trade.getIs_cancel()!=0) {
+                try {
+                    resp.sendRedirect("/trade/trade_detail?id=" + id);
+                } catch (IOException e) {
+                }
+                return;
+            }
             trade.setIs_cancel(-1);
         } else {
+            if(trade.getIs_cancel()==1) {
+                try {
+                    resp.sendRedirect("/trade/trade_detail?id=" + id);
+                } catch (IOException e) {
+                }
+                return;
+            }
             trade.setIs_cancel(1);
         }
         if(StringUtils.isNotBlank(whyCancel)) {
@@ -446,6 +460,19 @@ public class TradeActionController {
         }
 
         String tid = req.getParameter("tid");
+        //判断一下订单的状态必须为未提交
+        MyTrade t = tradeMapper.selectById(tid);
+        if(!t.getStatus().equals(TradeStatus.UnSubmit.getStatus()))  {
+            try {
+                if("list".equals(from)) {
+                    resp.sendRedirect("/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true");
+                } else {
+                    resp.sendRedirect("/trade/trade_detail?id=" + tid);
+                }
+                return null;
+            } catch (IOException e) {
+            }
+        }
         boolean hasNext = true;
 
         List<MyOrder> orderList = new ArrayList<MyOrder>();
@@ -511,7 +538,10 @@ public class TradeActionController {
 
     @RequestMapping(value="trade/action/del_goods")
     public void delGoods(Model model, HttpServletResponse resp, @RequestParam long oid, @RequestParam String tid, @RequestParam(required = false) String from) {
-        tradeMapper.delOrder(oid);
+        MyTrade t = tradeMapper.selectById(tid);
+        if(t.getIs_submit()==0) {
+            tradeMapper.delOrder(oid);
+        }
         try {
             if("list".equals(from)) {
                 resp.sendRedirect("/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true");
@@ -551,6 +581,7 @@ public class TradeActionController {
             String[] idArr = ids.split(";");
             for(String id : idArr) {
                 if(StringUtils.isNotEmpty(id)) {
+                    log.info("try to batch change status({} for id: {})", action, id);
                     try {
                         ErrorInfoHolder eh = new ErrorInfoHolder();
                         if("send".equals(action)) {
@@ -568,17 +599,17 @@ public class TradeActionController {
                             errorInfoBuilder.append(id).append(":").append(eh.getErrorInfo()).append("\r\n");
                         }
                     } catch (InsufficientBalanceException e) {
-                        log.error("batch change status error for id " + id, e);
+                        log.error("batch change status({}) fail for id : {}, {}", action, id, e.getMessage());
                         errorInfoBuilder.append(id).append(":").append("余额不足").append("\r\n");
                     } catch (ApiException e) {
-                        log.error("batch change status error for id " + id, e);
+                        log.error("batch change status({}) fail for id : {}, {}", action, id, e.getMessage());
                         errorInfoBuilder.append(id).append(":").append("Api异常").append("\r\n");
                     } catch (InsufficientStockException e) {
-                        log.error("batch change status error for id " + id, e);
+                        log.warn("batch change status({}) fail for trade2 id : {}, {}", action, id, e.getMessage());
                         errorInfoBuilder.append(id).append(":").append("库存不足").append("\r\n");
                     } catch(MyException e) {
-                        log.error("batch change status error for id " + id, e);
-                        errorInfoBuilder.append(id).append(":").append(e.getErrorInfo()).append("\r\n");
+                        log.error("batch change status({}) fail for id : {}, {}", action, id, e.getMessage());
+                        errorInfoBuilder.append(id).append(":").append(e.getMessage()).append("\r\n");
                     }
                 }
             }

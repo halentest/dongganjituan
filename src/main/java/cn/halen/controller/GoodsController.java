@@ -512,7 +512,7 @@ public class GoodsController {
         try {
             skuService.execRow(rows, action);
         } catch (InsufficientStockException e) {
-            model.addAttribute("errorInfo", "这个商品(" + e.getGoodsHid() + ")库存不足，更新失败!");
+            model.addAttribute("errorInfo", "这个商品(" + e.getMessage() + ")库存不足，更新失败!");
             return false;
         } catch (Exception e) {
             model.addAttribute("errorInfo", "系统异常，请重试!");

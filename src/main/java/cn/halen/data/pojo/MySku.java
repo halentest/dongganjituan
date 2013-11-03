@@ -107,11 +107,18 @@ public class MySku {
 	public void setGoods_id(String goods_id) {
 		this.goods_id = goods_id;
 	}
-	@Override
-	public String toString() {
-		return "Sku [id=" + id + ", tao_id=" + tao_id + ", goods_id="
-				+ goods_id + ", color=" + color + ", size=" + size + ", price="
-				+ price + ", quantity=" + quantity + ", modified=" + modified
-				+ ", created=" + created + ", goods=" + goods + "]";
-	}
+
+    @Override
+    public String toString() {
+        return "MySku{" +
+                "id=" + id +
+                ", color_id='" + color_id + '\'' +
+                ", goods_id='" + goods_id + '\'' +
+                ", color='" + color + '\'' +
+                ", size='" + size + '\'' +
+                ", quantity=" + quantity +
+                ", lock_quantity=" + lock_quantity +
+                ", manaual_lock_quantity=" + manaual_lock_quantity +
+                '}';
+    }
 }

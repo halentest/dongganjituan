@@ -97,10 +97,10 @@
                         <tr>
                             <td>
 
-                                <#if order.pic_path??>
+                                <#if order.pic_path?? && order.pic_path?length &gt; 0>
                                     <#assign picPath = order.pic_path/>
-                                    <#else>
-                                        <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
+                                <#else>
+                                    <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
                                 </#if>
                                 <p><img style="width: 80px; height: 80px;" src="${picPath}_80x80.jpg" /></p>
                                 <p>${order.title!''}</p>

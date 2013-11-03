@@ -47,7 +47,7 @@ public class SkuServiceTest {
         try {
             skuService.execRow(rows, "refund");
         } catch (InsufficientStockException e) {
-            System.out.println("这个商品(" + e.getGoodsHid() + ")库存不足，更新失败!");
+            System.out.println("这个商品(" + e.getMessage() + ")库存不足，更新失败!");
         } catch (Exception e) {
             System.out.println("系统异常，请重试!");
         }

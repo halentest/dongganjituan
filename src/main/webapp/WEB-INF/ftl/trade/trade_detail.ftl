@@ -27,7 +27,7 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
                        <tr>
                            <td>
 
-                               <#if order.pic_path??>
+                               <#if order.pic_path?? && order.pic_path?length &gt; 0>
                                    <#assign picPath = order.pic_path/>
                                <#else>
                                    <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>

@@ -9,13 +9,7 @@ package cn.halen.exception;
  */
 public class MyException extends Exception {
 
-    private String errorInfo;
-
-    public MyException(String errorInfo) {
-        this.errorInfo = errorInfo;
-    }
-
-    public String getErrorInfo() {
-        return errorInfo;
+    public MyException(String msg) {
+        super(msg);
     }
 }

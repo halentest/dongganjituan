@@ -21,8 +21,12 @@
 	         $(orderArr).each(function(index, item) {
 	         	var itemArr = item.split(",");
 	         	if(itemArr.length == 6) {
+                    var pic = "http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg";
+                    if(itemArr[1].length>0) {
+                        pic = itemArr[1];
+                    }
 	         		$('table').append("<tr>"
-	         						      + "<td><img src='" + itemArr[1] + "_80x80.jpg'/></td>"
+	         						      + "<td><img src='" + pic + "_80x80.jpg'/></td>"
 	         						      + "<td>" + itemArr[0] + "</td>"
 	         						      + "<td>" + itemArr[2] + "</td>"
 	         						      + "<td><p>颜色：" + itemArr[3] + "</p><p>尺码：" + itemArr[4] + "</p></td>"

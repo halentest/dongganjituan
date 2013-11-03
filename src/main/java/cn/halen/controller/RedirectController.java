@@ -353,4 +353,12 @@ public class RedirectController {
 		result.setErrorInfo("成功导入" + count + "条地区信息");
 		return result;
 	}
+
+    @RequestMapping(value = "/favicon.ico")
+    public void faviconico(HttpServletResponse resp) throws IOException {
+        Writer writer = resp.getWriter();
+        writer.write("");
+        writer.flush();
+        writer.close();
+    }
 }

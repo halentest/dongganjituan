@@ -120,12 +120,14 @@ public class TradeService {
 			String errorInfo = null;
             if(t.getIs_pause()==1) {
                 errorInfo = "已暂停，不能出库";
+                log.warn("tid: {}已暂停，不能出库", id);
                 eh.setErrorInfo(errorInfo);
                 return;
             }
             int result = doSend(t, t.getDelivery(), t.getDelivery_number(), true);
             if(0==result) {
                 errorInfo = "订单不存在或者已经发货";
+                log.warn("tid: {}订单不存在或者已经发货");
                 eh.setErrorInfo(errorInfo);
                 return;
             }
@@ -136,6 +138,11 @@ public class TradeService {
                     throw new MyException(errorInfo);
                 }
 			}
+        //到这里说明发货成功了，记录一下
+        for(MyOrder myOrder : t.getMyOrderList()) {
+            log.info("update sku success for send tid:{}, oid: {}, sku_id: {}, quantity: {}, lock_quantity: {}, m_lock_quantity: {}",
+                    t.getId(), myOrder.getId(), myOrder.getSku_id(), -myOrder.getQuantity(), -myOrder.getQuantity(), 0);
+        }
 	}
 
     /**
@@ -170,7 +177,7 @@ public class TradeService {
 		if(trade.getIs_cancel()==1 && trade.getIs_submit()==1) {
             for(MyOrder myOrder : trade.getMyOrderList()) {
                 skuService.updateSku(myOrder.getSku_id(), 0, -myOrder.getQuantity(), 0, true);
-                log.info("update sku for cancel {}, {}, {}, {}, {}", myOrder.getId(), myOrder.getSku_id(), -myOrder.getQuantity(), -myOrder.getQuantity(), 0);
+                log.info("update sku for cancel {}, {}, {}, {}, {}", myOrder.getId(), myOrder.getSku_id(), 0, -myOrder.getQuantity(), 0);
             }
         }
         myTradeMapper.updateMyTrade(trade);
@@ -287,16 +294,19 @@ public class TradeService {
         MyTrade myTrade = myTradeMapper.selectTradeMap(id);
         if(myTrade.getIs_pause()==1) {
             holder.setErrorInfo("已暂停，不能提交");
+            log.warn("tid: {} 已暂停，不能提交", id);
             return;
         }
 
         if(!myTrade.getStatus().equals(TradeStatus.UnSubmit.getStatus())) {
             holder.setErrorInfo("当前状态不能提交");
+            log.warn("tid: {}状态为{}, 不能提交", id, myTrade.getStatus());
             return;
         }
 
         if(needCheck && StringUtils.isNotBlank(myTrade.getBuyer_message())) {
             holder.setErrorInfo("买家有留言, 不能批量提交");
+            log.warn("tid: {}买家有留言, 不能批量提交", id, myTrade.getStatus());
             return;
         }
 
@@ -306,6 +316,7 @@ public class TradeService {
         int count = myTradeMapper.updateMyTrade(myTrade);
         if(0==count) {
             holder.setErrorInfo("订单不存在或者已提交");
+            log.warn("tid: {}订单不存在或者已提交", id);
             return;
         }
 
@@ -319,6 +330,11 @@ public class TradeService {
 		if(d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
 			adminService.updateDeposit(d.getId(), -myTrade.getPayment()-myTrade.getDelivery_money());
 		}
+        //到这里说明提交成功，记录sku更新
+        for(MyOrder order : myTrade.getMyOrderList()) {
+            log.info("update sku success for submit tid: {}, oid: {}, sku_id: {}, quantity: {}, lock_quantity: {}, m_lock_quantity: {}",
+                    myTrade.getId(), order.getId(), order.getSku_id(), 0, order.getQuantity(), 0);
+        }
 	}
 	
 	@Transactional(rollbackFor=Exception.class)

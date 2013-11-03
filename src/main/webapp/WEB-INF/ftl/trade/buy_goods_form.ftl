@@ -28,7 +28,7 @@
 	<input type="hidden" name="token" value="${token}"/>
 	<tr>
 		<td>
-            <#if order.url??>
+            <#if order.url?? && order.url?length &gt; 0>
                 <#assign picPath = order.url/>
             <#else>
                 <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
