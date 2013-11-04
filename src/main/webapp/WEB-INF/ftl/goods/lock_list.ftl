@@ -42,8 +42,8 @@
                   <td>${sku.manaual_lock_quantity}</td>
                   <td>
                       &nbsp;&nbsp;&nbsp;&nbsp;
-                      <a href="${rc.contextPath}/goods/action/change_manaual_lock?id=${sku.id}&page=${paging.page}&goods_id=${goods_id!''}&action=unlock" style="cursor: pointer;">解锁</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                      <a href="${rc.contextPath}/goods/action/change_manaual_lock?id=${sku.id}&page=${paging.page}&goods_id=${goods_id!''}&action=refund" style="cursor: pointer;">出仓</a>
+                      <a href="${rc.contextPath}/goods/action/change_manaual_lock?id=${sku.id?c}&page=${paging.page}&goods_id=${goods_id!''}&action=unlock" style="cursor: pointer;">解锁</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <a href="${rc.contextPath}/goods/action/change_manaual_lock?id=${sku.id?c}&page=${paging.page}&goods_id=${goods_id!''}&action=refund" style="cursor: pointer;">出仓</a>
                   </td>
         	  </tr>
             </#list>
