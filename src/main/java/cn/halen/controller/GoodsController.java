@@ -4,13 +4,17 @@ import java.io.*;
 import java.util.*;
 
 import cn.halen.data.mapper.MySkuMapper;
+import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
+import cn.halen.exception.MyException;
 import cn.halen.service.AdminService;
 import cn.halen.service.SkuService;
 import cn.halen.service.excel.ExcelReader;
 import cn.halen.service.excel.GoodsExcelReader;
 import cn.halen.service.excel.GoodsRow;
 import cn.halen.service.excel.Row;
+import cn.halen.util.ErrorInfoHolder;
+import com.taobao.api.ApiException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -188,6 +192,34 @@ public class GoodsController {
             resp.sendRedirect("/goods/action/lock_list?page=" + page + "&goods_id=" + goodsId);
         } catch (IOException e) {
         }
+    }
+
+    @RequestMapping(value="goods/action/batch_change_manaual_lock")
+    public @ResponseBody ResultInfo batch_change_manaual_lock(Model model, @RequestParam String ids, @RequestParam("action") String action) {
+
+        ResultInfo result = new ResultInfo();
+        if(StringUtils.isNotBlank(ids)) {
+            String[] idArr = ids.split(",");
+            for(String id : idArr) {
+                if(StringUtils.isNotBlank(id)) {
+                    try {
+                        MySku sku = skuMapper.select(Long.parseLong(id));
+                        if(null != sku) {
+                            if("unlock".equals(action)) {
+                                skuService.updateSku(Long.parseLong(id), 0, 0, -Math.abs(sku.getManaual_lock_quantity()), true);
+                            } else if("refund".equals(action)) {
+                                skuService.updateSku(Long.parseLong(id), -Math.abs(sku.getManaual_lock_quantity()), 0, -Math.abs(sku.getManaual_lock_quantity()), true);
+                            }
+                        }
+                    } catch (InsufficientStockException e) {
+                        log.error("batch_change_manaual_lock InsufficientStockException", e);
+                    } catch (Exception e) {
+                        log.error("batch_change_manaual_lock error", e);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
 	@RequestMapping(value="goods/goods_list")
