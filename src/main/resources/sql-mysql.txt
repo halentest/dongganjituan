@@ -113,8 +113,8 @@ create table trade2 (
 	id varchar(50) primary key,
 	tid varchar(1500), #网店单号
 	name varchar(50) not null, 
-	phone varchar(20), 
-	mobile varchar(20),
+	phone varchar(50),
+	mobile varchar(50),
 	state varchar(20),
 	city varchar(20),
 	district varchar(20),
