@@ -49,6 +49,8 @@ public class MyTrade {
 
     private int pay_type;
     private int return_order;
+    private long goods_id;
+    private long sku_id;
 	private Date created;
 	private Date modified;
     private Date submit_time;
@@ -81,7 +83,23 @@ public class MyTrade {
 		total_weight += weight;
 	}
 
-	@Override
+    public long getGoods_id() {
+        return goods_id;
+    }
+
+    public void setGoods_id(long goods_id) {
+        this.goods_id = goods_id;
+    }
+
+    public long getSku_id() {
+        return sku_id;
+    }
+
+    public void setSku_id(long sku_id) {
+        this.sku_id = sku_id;
+    }
+
+    @Override
 	public String toString() {
 		return "MyTrade [name=" + name + ", phone=" + phone + ", mobile="
 				+ mobile + ", state=" + state + ", city=" + city

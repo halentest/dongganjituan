@@ -99,6 +99,12 @@
                             <TD height=20><a href="${rc.contextPath}/trade/action/upload" target="mainFrame">批量导入</a></TD>
                         </TR>
                         </#if>
+
+                        <tr>
+                            <td>
+                                <a id="trade-search">订单搜索</a>
+                            </td>
+                        </tr>
                         </TBODY>
                     </TABLE>
                 </DIV>
@@ -124,7 +130,12 @@
             $(this).parent().css("background-color", "white");
         })
 
-        $('#UnSubmit').click(function() {
+        $('#trade-search').click(function() {
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_search";
+        });
+
+
+    $('#UnSubmit').click(function() {
             parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true";
         });
 
@@ -142,11 +153,11 @@
         });
 
         $('#finding').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitFind";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitFind&orderString=order by goods_id,sku_id asc";
         });
 
         $('#have-delivery').click(function() {
-            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitOut";
+            parent.frames[2].location.href="${rc.contextPath}/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitOut&orderString=order by scan_time";
         });
 
         $('#refund').click(function() {

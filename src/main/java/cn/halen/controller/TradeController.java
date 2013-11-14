@@ -366,7 +366,8 @@ public class TradeController {
                 }
             }
         }
-		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime, deliveryNumber);
+		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime, deliveryNumber,
+                null, null, null, null);
 		model.addAttribute("totalCount", totalCount);
         int pageSize = 100;
         if("true".equals(map)) {
@@ -380,7 +381,7 @@ public class TradeController {
                 bMap = true;
             }
 			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, isSubmit, isRefund, isSend,
-                    cancelList, isFinish, delivery, startTime, endTime, bMap, orderString, deliveryNumber);
+                    cancelList, isFinish, delivery, startTime, endTime, bMap, orderString, deliveryNumber, null, null, null, null);
 		}
 		model.addAttribute("trade_list", list);
         StringBuilder builder = new StringBuilder();
@@ -442,5 +443,72 @@ public class TradeController {
 		Distributor d = adminMapper.selectDistributorMapById(dId);
 		return d.getShopList();
 	}
+
+    @RequestMapping(value="/trade/trade_search")
+    public String tradeSearch(Model model, @RequestParam(required = false) String criteria_type,
+                              @RequestParam(required = false) String criteria, @RequestParam(required = false, defaultValue = "1") int page) {
+
+        if(StringUtils.isBlank(criteria)) {
+            return "trade/trade_search";
+        }
+        User currUser = UserHolder.get();
+        String currType = currUser.getType();
+        if(!currType.equals(UserType.Admin.getValue()) && !currType.equals(UserType.SuperAdmin.getValue()) &&
+                !currType.equals(UserType.Distributor.getValue()) && !currType.equals(UserType.WareHouse.getValue()) &&
+                !currType.equals(UserType.DistributorManager.getValue()) && !currType.equals(UserType.ServiceStaff.getValue())
+                && !currType.equals(UserType.Accounting.getValue())
+                && !currType.equals(UserType.GoodsManager.getValue())) {
+            model.addAttribute("errorInfo", "对不起，您没有权限查看此页面！");
+            return "error_page";
+        }
+
+        List<String> sellerNickList = new ArrayList<String>();
+        if(currType.equals(UserType.ServiceStaff.getValue())) {
+            sellerNickList.add(currUser.getShop().getSeller_nick());
+        } else if(currType.equals(UserType.Distributor.getValue())) {
+            Distributor d = adminMapper.selectDistributorMapById(currUser.getShop().getD().getId());
+            for(Shop s : d.getShopList()) {
+                sellerNickList.add(s.getSeller_nick());
+            }
+        }
+        String name = null;
+        String tid = null;
+        String nick = null;
+        String mobile = null;
+        String phone = null;
+        String id = null;
+        String deliveryNumber = null;
+        if("name".equals(criteria_type)) {
+            name = criteria;
+        } else if("tid".equals(criteria_type)) {
+            tid = criteria;
+        } else if("nick".equals(criteria_type)) {
+            nick = criteria;
+        } else if("mobile".equals(criteria_type)) {
+            mobile = criteria;
+        } else if("phone".equals(criteria_type)) {
+            phone = criteria;
+        } else if("id".equals(criteria_type)) {
+            id = criteria;
+        } else if("delivery_number".equals(criteria_type)) {
+            deliveryNumber = criteria;
+        }
+
+        long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, null, null, null, null, null, null, null, null, null, deliveryNumber,
+                nick, mobile, phone, id);
+        model.addAttribute("totalCount", totalCount);
+        int pageSize = 100;
+        Paging paging = new Paging(page, pageSize, totalCount);
+        List<MyTrade> list = Collections.emptyList();
+        if(totalCount > 0) {
+            list = tradeMapper.listTrade(sellerNickList, name, tid, paging, null, null, null, null,
+                    null, null, null, null, null, false, null, deliveryNumber, nick, mobile, phone, id);
+        }
+        model.addAttribute("trade_list", list);
+        model.addAttribute("paging", paging);
+        model.addAttribute("criteria", criteria);
+        model.addAttribute("criteria_type", criteria_type);
+        return "trade/trade_search";
+    }
 	
 }

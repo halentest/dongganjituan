@@ -37,7 +37,10 @@
         <result property="buyer_message" column="buyer_message"/>
         <result property="seller_nick" column="seller_nick"/><result property="buyer_nick" column="buyer_nick"/>
         <result property="come_from" column="come_from"/><result property="pay_type" column="pay_type"/>
-        <result property="return_order" column="return_order"/><result property="modified" column="modified"/><result property="created" column="created"/>
+        <result property="return_order" column="return_order"/>
+        <result property="goods_id" column="goods_id"/>
+        <result property="sku_id" column="sku_id"/>
+        <result property="modified" column="modified"/><result property="created" column="created"/>
         <result property="submit_time" column="submit_time"/>
         <result property="cancel_time" column="cancel_time"/>
         <result property="find_time" column="find_time"/>
@@ -72,7 +75,7 @@
 		insert into trade2 values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
 			#{delivery_money}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish}, #{is_pause},
             #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
-			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{modified}, #{created}, #{submit_time}, #{cancel_time}, #{find_time}, #{scan_time}, #{send_time})
+			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{goods_id}, #{sku_id}, #{modified}, #{created}, #{submit_time}, #{cancel_time}, #{find_time}, #{scan_time}, #{send_time})
 	</insert>
 	
 	<insert id="insertRefund" parameterType="MyRefund">
@@ -149,7 +152,21 @@
                 <if test="isFinish != null">
                     and t.is_finish = #{isFinish}
                 </if>
-                and t.created between '${startTime}' and '${endTime}'
+                <if test="buyer_nick != null">
+                    and t.buyer_nick = #{buyer_nick}
+                </if>
+                <if test="mobile != null">
+                    and t.mobile = #{mobile}
+                </if>
+                <if test="phone != null">
+                    and t.phone = #{phone}
+                </if>
+                <if test="id != null">
+                    and t.id = #{id}
+                </if>
+                <if test="startTime != null and endTime != null">
+                    and t.created between '${startTime}' and '${endTime}'
+                </if>
    			</where>
 	</select>
 
@@ -210,7 +227,22 @@
             <if test="isFinish != null">
                 and t.is_finish = #{isFinish}
             </if>
-            and t.created between '${startTime}' and '${endTime}' <if test="order_string != null">${order_string}</if> limit #{start}, #{page_size}
+            <if test="buyer_nick != null">
+                and t.buyer_nick = #{buyer_nick}
+            </if>
+            <if test="mobile != null">
+                and t.mobile = #{mobile}
+            </if>
+            <if test="phone != null">
+                and t.phone = #{phone}
+            </if>
+            <if test="id != null">
+                and t.id = #{id}
+            </if>
+            <if test="startTime != null and endTime != null">
+                and t.created between '${startTime}' and '${endTime}'
+            </if>
+            <if test="order_string != null">${order_string}</if> limit #{start}, #{page_size}
         </where>
     </select>
 

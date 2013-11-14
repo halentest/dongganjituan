@@ -659,6 +659,7 @@ public class TradeService {
 		String goodsHid = null; //用来查询模板
 		int totalPayment = 0;
 		String lCompany = null;
+        boolean first = true; //the first order
 		for(Order order : orderList) {
 			Goods goods = goodsMapper.getByHid(order.getOuterIid());
 			if(null == goods) { //检查商品是否存在
@@ -706,7 +707,15 @@ public class TradeService {
 			myOrder.setColor(color);
 			myOrder.setSize(size);
             myOrder.setSku_id(sku.getId());
-			myOrder.setGoods_id(order.getOuterIid());
+
+            //set order info to trade so as to be able to order by it.
+            if(first) {
+                myTrade.setSku_id(sku.getId());
+                myTrade.setGoods_id(goods.getId());
+                first = false;
+            }
+
+            myOrder.setGoods_id(order.getOuterIid());
 			myOrder.setTitle(order.getTitle());
 			myOrder.setPic_path(order.getPicPath());
 			myOrder.setQuantity(order.getNum());

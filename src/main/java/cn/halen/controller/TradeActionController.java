@@ -385,6 +385,7 @@ public class TradeActionController {
 
 		int count = 0;
 		String goodsId = null;
+        boolean first = true; //the first goods will be bought
 		while(hasNext) {
 			String currGoodsId = req.getParameter("goods" + count);
 			if(null == currGoodsId) {
@@ -424,6 +425,12 @@ public class TradeActionController {
 			myOrder.setTid(id);
 			orderList.add(myOrder);
 			count++;
+
+            if(first) {
+                trade.setGoods_id(goods.getId());
+                trade.setSku_id(sku.getId());
+                first = false;
+            }
 		}
 		trade.setMyOrderList(orderList);
 		trade.setPayment(payment);
@@ -955,6 +962,11 @@ public class TradeActionController {
             myOrder.setPrice(0);
             myOrder.setPayment(0);
             myOrderList.add(myOrder);
+
+            //set order info to trade so as to be able to order by it.
+            myTrade.setSku_id(sku.getId());
+            Goods goods = goodsMapper.getByHid(sku.getGoods_id());
+            myTrade.setGoods_id(goods.getId());
 
             myTrade.setTid(id);
             myTrade.setName("name" + random.nextInt(1000));

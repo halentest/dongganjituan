@@ -119,7 +119,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 	}
 	
 	public long countTrade(List<String> sellerNickList, String name, String tid, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
-			String delivery, Date startTime, Date endTime, String deliveryNumber) {
+			String delivery, Date startTime, Date endTime, String deliveryNumber, String buyerNick, String mobile, String phone, String id) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
@@ -161,8 +161,28 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 			param.put("delivery", delivery);
 		}
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        param.put("startTime", format.format(startTime));
-        param.put("endTime", format.format(endTime));
+        if(null != startTime) {
+            param.put("startTime", format.format(startTime));
+        }
+        if(null != endTime) {
+            param.put("endTime", format.format(endTime));
+        }
+
+        if(StringUtils.isNotEmpty(buyerNick)) {
+            param.put("buyer_nick", buyerNick);
+        }
+
+        if(StringUtils.isNotEmpty(mobile)) {
+            param.put("mobile", mobile);
+        }
+
+        if(StringUtils.isNotEmpty(phone)) {
+            param.put("phone", phone);
+        }
+
+        if(StringUtils.isNotEmpty(id)) {
+            param.put("id", id);
+        }
 		
 		Long count = getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.countTrade", param);
 		return count;
@@ -202,7 +222,8 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
     }
 	
 	public List<MyTrade> listTrade(List<String> sellerNickList, String name, String tid, Paging paging, List<String> statusList, Integer isSubmit, Integer isRefund, Integer isSend, List<Integer> isCancel, Integer isFinish,
-			String delivery, Date startTime, Date endTime, boolean map, String orderString, String deliveryNumber) {
+			String delivery, Date startTime, Date endTime, boolean map, String orderString, String deliveryNumber, String buyerNick, String mobile,
+            String phone, String id) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		if(null!=sellerNickList && sellerNickList.size()>0) {
 			param.put("sellerNickList", sellerNickList);
@@ -248,11 +269,30 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		}
         param.put("order_string", orderString);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        param.put("startTime", format.format(startTime));
-        param.put("endTime", format.format(endTime));
+        if(null != startTime) {
+            param.put("startTime", format.format(startTime));
+        }
+        if(null != endTime) {
+            param.put("endTime", format.format(endTime));
+        }
         String sql = "cn.halen.data.mapper.MyTradeMapper.selectTrade";
         if(map) {
             sql = "cn.halen.data.mapper.MyTradeMapper.selectTradeMapList";
+        }
+        if(StringUtils.isNotEmpty(buyerNick)) {
+            param.put("buyer_nick", buyerNick);
+        }
+
+        if(StringUtils.isNotEmpty(mobile)) {
+            param.put("mobile", mobile);
+        }
+
+        if(StringUtils.isNotEmpty(phone)) {
+            param.put("phone", phone);
+        }
+
+        if(StringUtils.isNotEmpty(id)) {
+            param.put("id", id);
         }
 		List<MyTrade> list = getSqlSession().selectList(sql, param);
 		return list;
