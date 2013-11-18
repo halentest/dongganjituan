@@ -325,7 +325,7 @@ public class TradeActionController {
 		String receiver = req.getParameter("receiver");
 		String phone = req.getParameter("phone");
 		String mobile = req.getParameter("mobile");
-		String errorInfo = validateAddress(model, province, city, district, address, receiver, mobile);
+		String errorInfo = validateAddress(model, province, city, address, receiver, mobile);
 		if(null != errorInfo) {
 			model.addAttribute("errorInfo", errorInfo);
 			return "error_page";
@@ -357,13 +357,17 @@ public class TradeActionController {
 			redisTemplate.opsForValue().set(REDIS_AREA + ":" + city, cityName);
 		}
 		trade.setCity(cityName);
-		
-		String districtName = (String) redisTemplate.opsForValue().get(REDIS_AREA + ":" + district);
-		if(null == districtName) {
-			districtName = areaMapper.selectById(Long.parseLong(district)).getName();
-			redisTemplate.opsForValue().set(REDIS_AREA + ":" + district, districtName);
-		}
-		trade.setDistrict(districtName);
+
+        if(!"-1".equals(district) && !"选择区".equals(district)) {
+            String districtName = (String) redisTemplate.opsForValue().get(REDIS_AREA + ":" + district);
+            if(null == districtName) {
+                districtName = areaMapper.selectById(Long.parseLong(district)).getName();
+                redisTemplate.opsForValue().set(REDIS_AREA + ":" + district, districtName);
+            }
+            trade.setDistrict(districtName);
+        } else {
+            trade.setDistrict(" ");
+        }
 		trade.setAddress(address);
 		trade.setPostcode(postcode);
 		trade.setSeller_memo(sellerMemo);
@@ -724,15 +728,13 @@ public class TradeActionController {
         return result;
     }
 
-	private String validateAddress(Model model, String province, String city, String district, String address
+	private String validateAddress(Model model, String province, String city, String address
 			, String receiver, String mobile) {
 		String errorInfo = null;
 		if(province.equals("-1")) {
 			errorInfo = "请选择省!";
 		} else if(city.equals("-1")) {
 			errorInfo = "请选择市!";
-		} else if(district.equals("-1")) {
-			errorInfo = "请选择地区!";
 		} else if(StringUtils.isEmpty(address)) {
 			errorInfo = "请填写详细地址!";
 		} else if(null==receiver || StringUtils.isEmpty(receiver.trim())) {
@@ -869,7 +871,7 @@ public class TradeActionController {
         String mobile = req.getParameter("mobile");
         String id = req.getParameter("id");
         String from = req.getParameter("from");
-        String errorInfo = validateAddress(model, province, city, district, address, receiver, mobile);
+        String errorInfo = validateAddress(model, province, city, address, receiver, mobile);
         if(null != errorInfo) {
             model.addAttribute("errorInfo", errorInfo);
             return "error_page";
@@ -888,10 +890,13 @@ public class TradeActionController {
             redisTemplate.opsForValue().set(REDIS_AREA + ":" + city, cityName);
         }
 
-        String districtName = (String) redisTemplate.opsForValue().get(REDIS_AREA + ":" + district);
-        if(null == districtName) {
-            districtName = areaMapper.selectById(Long.parseLong(district)).getName();
-            redisTemplate.opsForValue().set(REDIS_AREA + ":" + district, districtName);
+        String districtName = " ";
+        if(!"-1".equals(district) && !"选择区".equals(district)) {
+            districtName = (String) redisTemplate.opsForValue().get(REDIS_AREA + ":" + district);
+            if(null == districtName) {
+                districtName = areaMapper.selectById(Long.parseLong(district)).getName();
+                redisTemplate.opsForValue().set(REDIS_AREA + ":" + district, districtName);
+            }
         }
         int count = tradeMapper.updateLogisticsAddress(provinceName, cityName, districtName, address, mobile, phone,
                 postcode, receiver, new Date(), id);
