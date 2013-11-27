@@ -1,9 +1,6 @@
 package cn.halen.data.mapper;
 
-import cn.halen.data.pojo.MyOrder;
-import cn.halen.data.pojo.MyRefund;
-import cn.halen.data.pojo.MyTrade;
-import cn.halen.data.pojo.TradeStatus;
+import cn.halen.data.pojo.*;
 import cn.halen.data.pojo.migration.Order1;
 import cn.halen.data.pojo.migration.Order2;
 import cn.halen.data.pojo.migration.Trade1;
@@ -38,5 +35,21 @@ public class MigrationMapper extends SqlSessionDaoSupport {
 
     public List<String> selectAllTid() {
         return getSqlSession().selectList("cn.halen.data.mapper.migration.selectAllTid");
+    }
+
+    public List<MySku> selectAllSku() {
+        return getSqlSession().selectList("cn.halen.data.mapper.migration.selectAllSku");
+    }
+
+    public long selectGoodsIdByHid(String hid) {
+
+        return getSqlSession().selectOne("cn.halen.data.mapper.migration.selectGoodsIdByHid", hid);
+    }
+
+    public void updateGoodsIdLong(long goods_id_long, long id) {
+        Map<String, Object> param = new HashMap<String, Object>(2);
+        param.put("goods_id_long", goods_id_long);
+        param.put("id", id);
+        getSqlSession().update("cn.halen.data.mapper.migration.updateGoodsIdLong", param);
     }
 }

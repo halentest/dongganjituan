@@ -27,4 +27,19 @@
     <select id="selectAllTid" resultType="String">
         select tid from trade2;
     </select>
+
+    <!--
+        更新sku表，利用goods_id_long替换goods_id
+    -->
+    <select id="selectAllSku" resultType="MySku">
+        select * from sku
+    </select>
+
+    <select id="selectGoodsIdByHid" parameterType="String" resultType="long">
+        select id from goods where hid=#{hid}
+    </select>
+
+    <update id="updateGoodsIdLong" parameterType="Map">
+        update sku set goods_id_long=#{goods_id_long} where id=#{id}
+    </update>
 </mapper>
