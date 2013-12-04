@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.halen.data.mapper.MigrationMapper;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.MyOrder;
+import cn.halen.data.pojo.MySku;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.TradeStatus;
 import cn.halen.data.pojo.migration.Order1;

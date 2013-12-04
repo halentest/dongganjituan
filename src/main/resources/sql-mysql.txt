@@ -153,11 +153,11 @@ create table trade2 (
     sku_id bigint unsigned, #该订单购买的商品的sku id，在打印快递单的时候用来按商品排序
 	modified timestamp default current_timestamp,
 	created timestamp,
-	submit_time timestamp default '1970-01-01 01:00:01', #提交时间
-	cancel_time timestamp default '1970-01-01 01:00:01', #取消时间
-	find_time timestamp default '1970-01-01 01:00:01', #拣货时间
-	scan_time timestamp default '1970-01-01 01:00:01', #扫描单号时间
-	send_time timestamp default '1970-01-01 01:00:01' #出库时间
+	submit_time timestamp default '1999-01-01 01:00:01', #提交时间
+	cancel_time timestamp default '1999-01-01 01:00:01', #取消时间
+	find_time timestamp default '1999-01-01 01:00:01', #拣货时间
+	scan_time timestamp default '1999-01-01 01:00:01', #扫描单号时间
+	send_time timestamp default '1999-01-01 01:00:01' #出库时间
 ) DEFAULT CHARACTER SET utf8;
 create index address_index on trade2 (name, mobile, state, city, district, address);
 
@@ -278,6 +278,6 @@ insert into seller_info values(null, '毛小毛', '你好', '三千五百爸爸�
 
 create table tid (
     tid varchar(50) primary key
-)
+);
 
 	
