@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.Goods;
 import cn.halen.data.pojo.Shop;
 import cn.halen.service.excel.GoodsRow;
@@ -45,6 +46,9 @@ public class GoodsService {
 
     @Autowired
     private TopConfig topConfig;
+
+    @Autowired
+    private MyTradeMapper tradeMapper;
 	
 	/**
 	 * @throws ApiException
@@ -152,8 +156,62 @@ public class GoodsService {
         return null;
     }
 
+    /**
+     * @param rows
+     * @param isDelete  true or false, if false then add
+     */
     @Transactional(rollbackFor=Exception.class)
-    public void execRow(List<GoodsRow> rows) {
+    public void execRow(List<GoodsRow> rows, boolean isDelete) {
+        if(isDelete) {
+            for(GoodsRow row : rows) {
+                String goodsId = row.getGoodsId();
+                List<String> colors = row.getColors();
+                List<String> sizes = row.getSizes();
+
+                for(String color : colors) {
+                    List<MySku> list = skuMapper.selectByGoodsIdColor(goodsId, color);
+                    if(null==list || list.size()==0) {
+                        continue;
+                    }
+                    List<Long> idList = new ArrayList<Long>(list.size());
+                    for(MySku sku : list) {
+                        idList.add(sku.getId());
+                    }
+                    //检查有没有相关的订单，如果有就不能删除
+                    boolean skuHasOrder = tradeMapper.checkSkuHasOrder(idList);
+                    if(skuHasOrder) {
+                        continue;
+                    }
+                    //删除sku
+                    skuMapper.deleteBatch(idList);
+                }
+
+                for(String size : sizes) {
+                    List<MySku> list = skuMapper.selectByGoodsIdSize(goodsId, size);
+                    if(null == list || list.size()==0) {
+                        continue;
+                    }
+                    List<Long> idList = new ArrayList<Long>(list.size());
+                    for(MySku sku : list) {
+                        idList.add(sku.getId());
+                    }
+                    //检查有没有相关的订单，如果有就不能删除
+                    boolean skuHasOrder = tradeMapper.checkSkuHasOrder(idList);
+                    if(skuHasOrder) {
+                        continue;
+                    }
+                    //删除sku
+                    skuMapper.deleteBatch(idList);
+                }
+                //检查此商品是否还有sku，如果没有就删除它
+                List<MySku> list = skuMapper.selectByGoodsId(goodsId);
+                if(null==list || list.size()==0) {
+                    goodsMapper.deleteByHid(goodsId);
+                }
+            }
+            return;
+        }
+
         for(GoodsRow row : rows) {
             Goods goods = goodsMapper.getByHid(row.getGoodsId());
             List<String> colorIds = row.getColorIds();
@@ -186,41 +244,25 @@ public class GoodsService {
                     colorMap.put(sku.getColor(), sku.getColor_id());
                     sizeSet.add(sku.getSize());
                 }
-                //先把新建的加进去
                 for(int i=0; i<colors.size(); i++) {
-                    String color = colors.get(i);
-                    for(String size : row.getSizes()) {
-                        MySku sku = new MySku();
-                        sku.setGoods_id(row.getGoodsId());
-                        sku.setColor(color);
-                        sku.setSize(size);
-                        sku.setColor_id(colorIds.get(i));
-                        sku.setQuantity(0);
-                        skuMapper.insert(sku);
-                    }
+                    colorMap.put(colors.get(i), colorIds.get(i));
                 }
-                //补全之前就存在的
-                for(int i=0; i<colors.size(); i++) {
-                    String color = colors.get(i);
+                for(String size : row.getSizes()) {
+                    sizeSet.add(size);
+                }
+
+                for(Map.Entry<String, String> entry : colorMap.entrySet()) {
                     for(String size : sizeSet) {
-                        MySku sku = new MySku();
-                        sku.setGoods_id(row.getGoodsId());
-                        sku.setColor(color);
-                        sku.setSize(size);
-                        sku.setColor_id(colorIds.get(i));
-                        sku.setQuantity(0);
-                        skuMapper.insert(sku);
-                    }
-                }
-                for(Map.Entry<String, String> colorEntry : colorMap.entrySet()) {
-                    for(String size : row.getSizes()) {
-                        MySku sku = new MySku();
-                        sku.setGoods_id(row.getGoodsId());
-                        sku.setColor(colorEntry.getKey());
-                        sku.setSize(size);
-                        sku.setColor_id(colorEntry.getValue());
-                        sku.setQuantity(0);
-                        skuMapper.insert(sku);
+                        MySku sku = skuMapper.select(row.getGoodsId(), entry.getKey(), size);
+                        if(null == sku) {
+                            sku = new MySku();
+                            sku.setGoods_id(row.getGoodsId());
+                            sku.setColor(entry.getKey());
+                            sku.setSize(size);
+                            sku.setColor_id(entry.getValue());
+                            sku.setQuantity(0);
+                            skuMapper.insert(sku);
+                        }
                     }
                 }
             }

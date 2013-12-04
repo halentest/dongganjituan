@@ -25,13 +25,16 @@
                     <td>${key}</td>
                     <td>${map[key]?string('yyyy-MM-dd HH:mm:ss')}</td>
                     <td>
+                        &nbsp;&nbsp;
                         <a href="${rc.contextPath}/goods/download?action=${action}&name=${key}">下载</a>
-                        <a>预览</a>
+                        &nbsp;&nbsp;
+                        <a href="${rc.contextPath}/goods/delete?action=${action}&name=${key}" onclick="return confirm('确定要删除这个文件吗？')">删除</a>
                     </td>
                 </tr>
             </#list>
         </#if>
         </tbody>
     </table>
+
 </@root.html>
 

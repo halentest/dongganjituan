@@ -76,4 +76,8 @@ public class GoodsMapper extends SqlSessionDaoSupport {
 		param.put("hidList", hidList);
 		return getSqlSession().update("cn.halen.data.mapper.GoodsMapper.updateTemplate", param);
 	}
+
+    public int deleteByHid(String hid) {
+        return getSqlSession().delete("cn.halen.data.mapper.GoodsMapper.deleteByHid", hid);
+    }
 }

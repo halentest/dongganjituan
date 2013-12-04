@@ -200,6 +200,12 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
         return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", param);
     }
 
+    public MyTrade selectTradeByTid(String tid) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("tid", tid);
+        return getSqlSession().selectOne("cn.halen.data.mapper.MyTradeMapper.selectTrade", param);
+    }
+
     public MyTrade selectTradeByAddress(String name, String mobile, String state, String city, String district,
                                         String address) {
         Map<String, Object> param = new HashMap<String, Object>();
@@ -317,4 +323,14 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
 		param.put("oid", oid);
 		return getSqlSession().update("cn.halen.data.mapper.MyTradeMapper.updateOrderStatus", param);
 	}
+
+    public boolean checkSkuHasOrder(List<Long> skuIdList) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("skuIdList", skuIdList);
+        List<Integer> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectOrderBySkuId", param);
+        if(null==list || list.size()==0) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -49,10 +49,17 @@ public class MySkuMapper extends SqlSessionDaoSupport {
 		return count;
 	}
 	
-	public int delete(int id) {
+	public int delete(long id) {
 		int count = getSqlSession().delete("cn.halen.data.mapper.SkuMapper.delete", id);
 		return count;
 	}
+
+    public int deleteBatch(List<Long> idList) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("idList", idList);
+        int count = getSqlSession().delete("cn.halen.data.mapper.SkuMapper.deleteBatch", param);
+        return count;
+    }
 
     public long sumQuantity() {
         long result = 0;
@@ -86,7 +93,7 @@ public class MySkuMapper extends SqlSessionDaoSupport {
 		param.put("size1", size);
 		return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.select", param);
 	}
-	
+
 	public MySku select(long skuId) {
 		return getSqlSession().selectOne("cn.halen.data.mapper.SkuMapper.selectBySkuId", skuId);
 	}

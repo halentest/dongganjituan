@@ -69,6 +69,13 @@
                 <env>apple</env>
             </properties>
         </profile>
+        <profile>
+            <id>zhidongzhang</id>
+            <properties>
+                <env>product_zhidongzhang</env>
+            </properties>
+
+        </profile>
     </profiles>
 
 	<dependencies>

@@ -194,18 +194,21 @@
 <div class="tab">
     网店单号：${trade.tid!''} 订单状态：
     <font color="red">
-        ${trade.tradeStatus.desc!''},
+        ${trade.tradeStatus.desc!''}
         <#if trade.is_cancel==-1>
-            申请取消
+            ，申请取消
         <#elseif trade.is_cancel==1>
-            已取消
+            ，已取消
         <#elseif trade.is_finish==1>
-            已结束
+            ，已结束
         <#elseif trade.is_refund==1>
-            退换货
+            ，退换货
         </#if>
         <#if trade.is_pause==1>
-            已暂停
+            ，已暂停
+        </#if>
+        <#if trade.is_apply_refund==1>
+            ，已申请退款
         </#if>
     </font>
     <br>  <br>

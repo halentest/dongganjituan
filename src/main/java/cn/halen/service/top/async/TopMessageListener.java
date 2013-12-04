@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.taobao.api.domain.NotifyRefund;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -51,16 +52,22 @@ public class TopMessageListener implements TopCometMessageListener {
 	public void onReceiveMsg(String message) {
 		try {
 			Object obj = MessageDecode.decodeMsg(message);
-			if (obj instanceof NotifyTopats) { // 异步任务
-			} else if (obj instanceof NotifyTrade) { // 交易消息
-				NotifyTrade nt = (NotifyTrade) obj;
-				//只关心已付款的订单
-				if(nt.getStatus().equals(NotifyTradeStatus.TradeBuyerPay.getValue()) 
-						|| nt.getStatus().equals(NotifyTradeStatus.TradeMemoModified.getValue())
-						|| nt.getStatus().equals(NotifyTradeStatus.TradeLogisticsAddressChanged.getValue())) {
-					workerService.addJob(nt);
-				}
-			} 
+            if(obj instanceof NotifyRefund) {
+                NotifyRefund nr = (NotifyRefund)obj;
+                if(nr.getStatus().equals("RefundCreated")) {
+                    workerService.addJob(nr);
+                }
+            }
+//			if (obj instanceof NotifyTopats) { // 异步任务
+//			} else if (obj instanceof NotifyTrade) { // 交易消息
+//				NotifyTrade nt = (NotifyTrade) obj;
+//				//只关心已付款的订单
+//				if(nt.getStatus().equals(NotifyTradeStatus.TradeBuyerPay.getValue())
+//						|| nt.getStatus().equals(NotifyTradeStatus.TradeMemoModified.getValue())
+//						|| nt.getStatus().equals(NotifyTradeStatus.TradeLogisticsAddressChanged.getValue())) {
+//					workerService.addJob(nt);
+//				}
+//			}
 		} catch (Exception e) {
 			log.error("onReceiveMsg() error : ", e);
 		}
