@@ -78,7 +78,8 @@ public class GoodsExcelReader {
         this.sheet = book.getSheet(0);
     }
 
-    public boolean checkColumn() {
+    //检查列名
+    public boolean checkColumnName() {
         Cell[] cells = sheet.getRow(0);
         if(cells.length < 6) {
             return false;

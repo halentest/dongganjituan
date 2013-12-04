@@ -22,20 +22,28 @@
     <select id="sumLockQuantity" resultType="Long">
         select sum(lock_quantity) as q from sku;
     </select>
-	
+
 	<update id="update" parameterType="MySku">
 		update sku set tao_id=#{tao_id}, color_id=#{color_id}, color=#{color}, size=#{size}, price=#{price}, quantity=#{quantity},
             lock_quantity=#{lock_quantity}, manaual_lock_quantity=#{manaual_lock_quantity} where id=#{id}
 	</update>
-	
+
 	<delete id="delete" parameterType="long">
 		delete from sku where id=#{id}
 	</delete>
-	
+
+    <delete id="deleteBatch" parameterType="Map">
+        delete from sku where id in (
+            <foreach collection="idList" item="item" index="index" separator=",">
+                #{item}
+            </foreach>
+        )
+    </delete>
+
 	<select id="select" parameterType="Map" resultType="MySku">
 		select * from sku where goods_id=#{goods_id} and color=#{color} and size=#{size1}
 	</select>
-	
+
 	<select id="selectBySkuId" parameterType="long" resultType="MySku">
 		select * from sku where id=#{skuId}
 	</select>

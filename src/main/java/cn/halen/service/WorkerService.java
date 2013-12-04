@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.TradeStatus;
 import cn.halen.util.Constants;
+import com.taobao.api.domain.NotifyRefund;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,36 @@ public class WorkerService {
 				while(true) {
 					try {
 						final Object obj = queue.take();
+
+                        if(obj instanceof NotifyRefund) {
+                            final NotifyRefund nr = (NotifyRefund)obj;
+                            executor.execute(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    String tid = String.valueOf(nr.getTid());
+                                    boolean exist = tradeMapper.checkTidExist(tid);
+                                    if(!exist) {
+                                        return;
+                                    }
+                                    try {
+                                        Trade t = tradeClient.getTradeFullInfo(nr.getTid(), topConfig.getToken(nr.getSellerNick()));
+                                        if(!t.getStatus().equals("WAIT_SELLER_SEND_GOODS")) {
+                                            return;
+                                        }
+                                        MyTrade mt = tradeMapper.selectTradeByTid(tid);
+                                        if(mt.getIs_send()==1) {
+                                            return;
+                                        }
+
+                                        log.info("receive msg");
+                                    } catch (ApiException e) {
+                                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                                    }
+                                }
+                            });
+                        }
+
 						if(obj instanceof NotifyTrade) {
 							final NotifyTrade nt = (NotifyTrade)obj;
 							executor.execute(new Runnable() {

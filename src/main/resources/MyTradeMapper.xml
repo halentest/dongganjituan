@@ -242,7 +242,10 @@
             <if test="startTime != null and endTime != null">
                 and t.created between '${startTime}' and '${endTime}'
             </if>
-            <if test="order_string != null">${order_string}</if> limit #{start}, #{page_size}
+            <if test="order_string != null">${order_string}</if>
+            <if test="start != null and page_size != null">
+            limit #{start}, #{page_size}
+            </if>
         </where>
     </select>
 
@@ -410,4 +413,13 @@
 		update trade2 set state=#{state}, city=#{city}, district=#{district}, address=#{address}, mobile=#{mobile}, phone=#{phone},
 			postcode=#{zip}, name=#{name}, modified=#{modified} where id=#{tradeId}
 	</update>
+
+    <!--用来检查有没有这个sku的订单-->
+    <select id="selectOrderBySkuId" parameterType="Map" resultType="int">
+        select 1 from order2 where sku_id in (
+            <foreach collection="skuIdList" item="item" index="index" separator=",">
+                #{item}
+            </foreach>
+        )
+    </select>
 </mapper>

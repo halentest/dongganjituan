@@ -127,4 +127,8 @@
         </foreach> 
 	</insert>
 
+    <delete id="deleteByHid" parameterType="String">
+        delete from goods where hid=#{hid}
+    </delete>
+
 </mapper>

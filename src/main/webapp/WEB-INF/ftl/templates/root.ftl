@@ -31,6 +31,7 @@
 
 
     <script src="${rc.contextPath}/js/jquery-min.js"></script>
+    <script src="${rc.contextPath}/js/jquery-go.js"></script>
     <!--<script src="${rc.contextPath}/js/bootstrap-dropdown.js"></script>
     <script src="${rc.contextPath}/js/bootstrap-modal.js"></script>
     <script src="${rc.contextPath}/js/bootstrap-transition.js"></script>

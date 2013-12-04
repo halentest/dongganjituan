@@ -493,7 +493,7 @@ public class GoodsController {
                 out.write(bytes);
                 out.flush();
                 out.close();
-                boolean handleResult = action.equals("new")==false? handleExcel(model, dest, action) : handleExcel4New(model, dest);
+                boolean handleResult = action.equals("new")==false? handleExcel(model, dest, action) : handleExcel4New(model, dest, false);
                 if(!handleResult) {
                     dest.delete();
                     return "goods/upload";
@@ -553,20 +553,29 @@ public class GoodsController {
         return true;
     }
 
-    private boolean handleExcel4New(Model model, File file) {
+    /**
+     *
+     * @param model
+     * @param file
+     * @param isDelete, true or false, if false then is add
+     * @return
+     */
+    private boolean handleExcel4New(Model model, File file, boolean isDelete) {
         GoodsExcelReader reader = null;
         List<GoodsRow> rows = null;
         try {
             reader = new GoodsExcelReader(file);
-            boolean checkColumn = reader.checkColumn();
-            if(!checkColumn) {
-                model.addAttribute("errorInfo", "格式不正确，必须有 编号、名称、价格、颜色编码、颜色、尺码 这几列!");
-                return false;
-            }
-            int checkData = reader.checkData();
-            if(checkData != 0) {
-                model.addAttribute("errorInfo", "第 " + (checkData + 1) + " 行数据格式不正确，请修改后重试!");
-                return false;
+            if(!isDelete) {
+                boolean checkColumn = reader.checkColumnName();
+                if(!checkColumn) {
+                    model.addAttribute("errorInfo", "格式不正确，必须有 编号、名称、价格、颜色编码、颜色、尺码 这几列!");
+                    return false;
+                }
+                int checkData = reader.checkData();
+                if(checkData != 0) {
+                    model.addAttribute("errorInfo", "第 " + (checkData + 1) + " 行数据格式不正确，请修改后重试!");
+                    return false;
+                }
             }
             rows = reader.getData();
         } catch (Exception e) {
@@ -577,13 +586,13 @@ public class GoodsController {
             reader.destroy();
         }
 
-        String result = goodsService.checkRow(rows);
-        if(null != result) {
-            model.addAttribute("errorInfo", result);
-            return false;
-        }
+//        String result = goodsService.checkRow(rows);
+//        if(null != result) {
+//            model.addAttribute("errorInfo", result);
+//            return false;
+//        }
         try {
-            goodsService.execRow(rows);
+            goodsService.execRow(rows, isDelete);
         } catch (Exception e) {
             model.addAttribute("errorInfo", "系统异常，请重试!");
             log.error("error", e);
@@ -679,6 +688,44 @@ public class GoodsController {
             try {
                 os.close();
             } catch (IOException e) {
+            }
+        }
+    }
+
+    @RequestMapping("goods/delete")
+    public void delete(Model model, HttpServletResponse resp, @RequestParam("name") String name,
+                         @RequestParam("action") String action) {
+        File file = null;
+        if("buy".equals(action)) {
+            file = new File(topConfig.getFileBuyGoods() + "//" + name);
+        } else if("new".equals(action)) {
+            file = new File(topConfig.getFileNewGoods() + "//" + name);
+        } else if ("refund".equals(action)) {
+            file = new File(topConfig.getFileRefundGoods() + "//" + name);
+        } else if("lock".equals(action)) {
+            file = new File(topConfig.getFileLockGoods() + "//" + name);
+        } else if("unlock".equals(action)) {
+            file = new File(topConfig.getFileUnlockGoods() + "//" + name);
+        }
+        if(!file.exists()) {
+            log.info("File {} not exists, can not be delete!");
+            return;
+        }
+        boolean result = handleExcel4New(model, file, true);
+        if(result) {
+            //删除文件
+            if(file.exists()) {
+                file.delete();
+            }
+            try {
+                resp.sendRedirect("/goods/upload_list?action=" + action);
+            } catch (IOException e) {
+            }
+        } else {
+            try {
+                resp.sendRedirect("/error");
+            } catch(IOException e) {
+
             }
         }
     }
