@@ -321,7 +321,9 @@ public class TradeService {
         }
 
         for(MyOrder order : myTrade.getMyOrderList()) {
-            skuService.updateSku(order.getSku_id(), 0, order.getQuantity(), 0, true);
+            //update sku
+
+            skuService.updateSku(order.getSku_id(), 0, order.getQuantity(), 0, true, true);
             log.info("update sku for submit {}, {}, {}, {}, {}", order.getId(), order.getSku_id(), 0, order.getQuantity(), 0);
         }
 

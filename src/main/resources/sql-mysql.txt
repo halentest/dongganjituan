@@ -56,9 +56,9 @@ create table sku (
 	color varchar(20),
 	size varchar(20),
 	price int unsigned,
-	quantity int unsigned,  #实际库存
-	lock_quantity int unsigned, #锁定库存
-	manaual_lock_quantity int unsigned, #手动锁定库存
+	quantity int,  #实际库存
+	lock_quantity int, #锁定库存
+	manaual_lock_quantity int, #手动锁定库存
 	modified timestamp,
 	created timestamp,
 	unique key(goods_id, color, size)

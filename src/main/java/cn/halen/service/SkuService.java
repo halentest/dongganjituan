@@ -62,44 +62,55 @@ public class SkuService {
         return result;
     }
 
+    public void updateSku(String goodsId, String color, String size,
+                          long quantity, long lockQuantity, long manaualLockQuantity,
+                          boolean sendSkuChangeNotify) throws InsufficientStockException {
+
+        updateSku(goodsId, color, size, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify, false);
+    }
+
+    public long updateSku(long skuId, long quantity, long lockQuantity,
+                          long manaualLockQuantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
+
+        return updateSku(skuId, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify, false);
+    }
+
     synchronized public void updateSku(String goodsId, String color, String size,
                                        long quantity, long lockQuantity, long manaualLockQuantity,
-                                       boolean sendSkuChangeNotify) throws InsufficientStockException {
+                                       boolean sendSkuChangeNotify, boolean checkAvailable) throws InsufficientStockException {
 
         MySku mySku = skuMapper.select(goodsId, color, size);
-        updateSku(mySku, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify);
+        updateSku(mySku, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify, checkAvailable);
     }
 
     synchronized public long updateSku(long skuId, long quantity, long lockQuantity,
-                                       long manaualLockQuantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
+                                       long manaualLockQuantity, boolean sendSkuChangeNotify, boolean checkAvailable) throws InsufficientStockException {
 
         MySku mySku = skuMapper.select(skuId);
-        updateSku(mySku, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify);
+        updateSku(mySku, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify, checkAvailable);
         return mySku.getId();
     }
 
     /**
      * 修改sku的quantity, lockQuantity 和 manaualLockQuantity。3个参数可为正数、负数和0
-     * 修改之前需要做如下验证：
-     * quantity, lockQuantity 和 manaualLockQuantity都大于等于 0
-     * 可用库存（quantity - lockQuantity - manaualLockQuantity) 大于等于 0
      * @param mySku
      * @param quantity
      * @param lockQuantity
      * @param manaualLockQuantity
      * @param sendSkuChangeNotify
-     * @throws InsufficientStockException
+     * @param checkAvailable 检查可用库存，目前只有提交订单的时候需要检查
      */
     private int updateSku(MySku mySku, long quantity, long lockQuantity,
-                           long manaualLockQuantity, boolean sendSkuChangeNotify) throws InsufficientStockException {
-        //update sku
-        if(mySku.getQuantity() + quantity < 0 ||
-                mySku.getLock_quantity() + lockQuantity < 0 ||
-                mySku.getManaual_lock_quantity() + manaualLockQuantity < 0 ||
-                mySku.getQuantity() + quantity - mySku.getManaual_lock_quantity() - manaualLockQuantity -
-                mySku.getLock_quantity() - lockQuantity < 0) {
-            throw new InsufficientStockException(mySku.toString());
+                           long manaualLockQuantity, boolean sendSkuChangeNotify, boolean checkAvailable) throws InsufficientStockException {
+
+        if(checkAvailable) {
+            long avalilable = mySku.getQuantity() - mySku.getLock_quantity() - mySku.getManaual_lock_quantity();
+
+            if(avalilable - lockQuantity < 0) {
+                throw new InsufficientStockException(mySku.toString());
+            }
         }
+
         mySku.setQuantity(mySku.getQuantity() + quantity);
         mySku.setLock_quantity(mySku.getLock_quantity() + lockQuantity);
         mySku.setManaual_lock_quantity(mySku.getManaual_lock_quantity() + manaualLockQuantity);
