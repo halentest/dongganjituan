@@ -135,6 +135,7 @@ create table trade2 (
 	is_cancel tinyint default 0, #是否取消
 	is_finish tinyint default 0, #是否结束
 	is_pause tinyint default 0, #是否暂停
+	is_apply_refund tinyint default 0, #发货之前，买家申请退款
 	why_cancel varchar(255), #取消原因
 	status varchar(25) default 'UnSubmit',   #订单状态
 	seller_memo varchar(255),  #店铺备注

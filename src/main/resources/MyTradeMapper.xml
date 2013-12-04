@@ -28,7 +28,9 @@
         <result property="is_send" column="is_send"/>
         <result property="is_cancel" column="is_cancel"/>
         <result property="is_finish" column="is_finish"/>
-        <result property="is_pause" column="is_pause"/><result property="why_cancel" column="why_cancel"/>
+        <result property="is_pause" column="is_pause"/>
+        <result property="is_apply_refund" column="is_apply_refund"/>
+        <result property="why_cancel" column="why_cancel"/>
         <result property="status" column="status"/><result property="seller_memo" column="seller_memo"/>
         <result property="kefu_memo" column="kefu_memo"/>
         <result property="cangku_memo" column="cangku_memo"/>
@@ -74,7 +76,7 @@
 	<insert id="insert" parameterType="MyTrade">
 		insert into trade2 values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
 			#{delivery_money}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish}, #{is_pause},
-            #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
+            #{is_apply_refund}, #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
 			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{goods_id}, #{sku_id}, #{modified}, #{created}, #{submit_time}, #{cancel_time}, #{find_time}, #{scan_time}, #{send_time})
 	</insert>
 	
@@ -369,7 +371,7 @@
 		update trade2 set tid=#{tid}, name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
 			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money}, delivery_number=#{delivery_number}, template_id=#{template_id},
 			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, is_submit=#{is_submit}, is_refund=#{is_refund},
-             is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, is_pause=#{is_pause}, why_cancel=#{why_cancel}, status=#{status},
+             is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, is_pause=#{is_pause}, is_apply_refund=#{is_apply_refund}, why_cancel=#{why_cancel}, status=#{status},
 			 seller_memo=#{seller_memo}, kefu_memo=#{kefu_memo}, cangku_memo=#{cangku_memo}, kefu_msg=#{kefu_msg}, cangku_msg=#{cangku_msg},
              buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, buyer_nick=#{buyer_nick}, come_from=#{come_from},
 			 modified=now()

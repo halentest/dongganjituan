@@ -35,6 +35,7 @@ public class MyTrade {
 
     private int is_finish;
     private int is_pause;
+    private int is_apply_refund;
     private String why_cancel;
 	private String status;
 	private String seller_memo;
@@ -97,6 +98,14 @@ public class MyTrade {
 
     public void setSku_id(long sku_id) {
         this.sku_id = sku_id;
+    }
+
+    public int getIs_apply_refund() {
+        return is_apply_refund;
+    }
+
+    public void setIs_apply_refund(int is_apply_refund) {
+        this.is_apply_refund = is_apply_refund;
     }
 
     @Override

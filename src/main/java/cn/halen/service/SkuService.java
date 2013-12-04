@@ -67,6 +67,9 @@ public class SkuService {
                                        boolean sendSkuChangeNotify) throws InsufficientStockException {
 
         MySku mySku = skuMapper.select(goodsId, color, size);
+        if(null == mySku) {
+            return;
+        }
         updateSku(mySku, quantity, lockQuantity, manaualLockQuantity, sendSkuChangeNotify);
     }
 
@@ -141,17 +144,29 @@ public class SkuService {
      * @throws InsufficientStockException
      */
     @Transactional(rollbackFor=Exception.class)
-    public void execRow(List<Row> rows, String action) throws InsufficientStockException {
+    public void execRow(List<Row> rows, String action, boolean isDelete) throws InsufficientStockException {
         for(Row row : rows) {
             int quantity=0, lockQuantity=0, manaualLockQuantity=0;
             if(action.equals("buy")) {
                 quantity = Math.abs(row.getCount());
+                if(isDelete) {
+                    quantity = -quantity;
+                }
             } else if(action.equals("refund")) {
                 quantity = -Math.abs(row.getCount());
+                if(isDelete) {
+                    quantity = -quantity;
+                }
             } else if(action.equals("lock")){
                 manaualLockQuantity = Math.abs(row.getCount());
+                if(isDelete) {
+                    manaualLockQuantity = -manaualLockQuantity;
+                }
             } else if(action.equals("unlock")) {
                 manaualLockQuantity = -Math.abs(row.getCount());
+                if(isDelete) {
+                    manaualLockQuantity = -manaualLockQuantity;
+                }
             } else {
                 throw new IllegalArgumentException("无效参数");
             }

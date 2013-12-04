@@ -126,7 +126,27 @@
                         <a href="${rc.contextPath}/goods/goods_list?tid=${trade.id?string}&from=list">添加商品</a>
                     </#if>
                 </#if>
+
                 <div style="background-color: #FFFFCC; padding: 10px;">
+                    <strong>订单状态：</strong>
+                    <font color="red">
+                        ${trade.tradeStatus.desc!''}
+                        <#if trade.is_cancel==-1>
+                            ，申请取消
+                            <#elseif trade.is_cancel==1>
+                                ，已取消
+                                <#elseif trade.is_finish==1>
+                                    ，已结束
+                                    <#elseif trade.is_refund==1>
+                                        ，退换货
+                        </#if>
+                        <#if trade.is_pause==1>
+                            ，已暂停
+                        </#if>
+                        <#if trade.is_apply_refund==1>
+                            ，已申请退款
+                        </#if>
+                    </font>
                     <@buyer_info.buyer_info trade=trade from="list" />
                 </div>
                 <hr>
