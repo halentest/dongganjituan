@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
+import com.taobao.api.domain.Order;
 import com.taobao.api.request.*;
 import com.taobao.api.response.*;
 import org.json.JSONException;
@@ -42,12 +44,24 @@ public class TradeClient {
 		
 		TradeFullinfoGetRequest req = new TradeFullinfoGetRequest();
 		req.setFields("total_fee,tid,oid,buyer_nick,payment,outer_iid,title,pic_path,post_fee,receiver_state,receiver_address,num,receiver_city,receiver_district," +
-				"receiver_mobile,logistics_company,invoice_no,seller_nick,created,pay_time,modified,order.modified,buyer_message," +
-				"receiver_name,receiver_phone,receiver_mobile,receiver_zip,price,seller_memo,parent_id,type,status,orders,outer_sku_id");
+				"receiver_mobile,logistics_company,invoice_no,seller_nick,created,pay_time,modified,orders.modified,buyer_message," +
+				"receiver_name,receiver_phone,receiver_mobile,receiver_zip,price,seller_memo,parent_id,type,status,orders,outer_sku_id,orders.refund_status");
 		req.setTid(tid);
 		TradeFullinfoGetResponse rsp = topConfig.getRetryClient().execute(req, sessionKey);
 		if (rsp.isSuccess()) {
 			log.debug("查询订单详情成功：" + rsp.getBody());
+            Trade t = rsp.getTrade();
+            //检查订单是否退款
+            Iterator<Order> it = t.getOrders().iterator();
+            while(it.hasNext()) {
+                Order o = it.next();
+                if(!"NO_REFUND".equals(o.getRefundStatus())) {
+                    it.remove();
+                }
+            }
+            if(t.getOrders().size() == 0) {
+                return null;
+            }
 			return rsp.getTrade();
 		} else {
             log.error("查询订单详情失败：" + rsp.getSubMsg());
