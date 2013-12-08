@@ -86,6 +86,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
         <table id="t-list" class="easyui-datagrid" style="height:auto;" data-options="scrollbarSize:'0', fitColumns:'true',checkOnSelect:false">
             <thead>
                 <tr>
+                    <th data-options="field:'sequence', hidden:true"></th>
                     <th data-options="field:'ck',checkbox:true"></th>
                     <th data-options="field:'id',align:'center',width:$(this).width() * 0.3">订单号</th>
                     <th data-options="field:'tid',align:'center',width:$(this).width() * 0.3">网店单号</th>
@@ -105,6 +106,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
             <tbody>
                 <#list trade_list as trade>
                 <tr>
+                    <td>${trade_index}</td>
                     <td style="width:50%"></td>
                     <td>${trade.id}</td>
                     <td>${trade.tid!''}</td>
@@ -344,6 +346,8 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
             LODOP.SET_PRINT_PAGESIZE(1,width,height,"");
             LODOP.SET_PRINT_STYLE("FontSize",16);
             LODOP.SET_PRINT_STYLE("Bold",1);
+            //排序
+            checked.sort(function(a, b) {return parseInt(a.sequence) - parseInt(b.sequence);});
             $(checked).each(function(index, item) {
                 var name = "";
                 var address = "";

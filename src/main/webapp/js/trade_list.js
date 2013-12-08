@@ -287,7 +287,7 @@ function savePaperChange() {
 
 $('#delivery-print').change(function() {
     var delivery = $('#delivery-print').val();
-    window.location.href="/trade/trade_list?status=WaitFind&isCancel=0&isFinish=0&isSend=0&isSubmit=1&delivery=" + delivery;
+    window.location.href="/trade/trade_list?status=WaitFind&isCancel=0&isFinish=0&isSend=0&isSubmit=1&delivery=" + delivery + "&orderString=order by goods_id,sku_id asc";
 })
 
 function CreatePrintPage(sender, from, from_company, from_address, sender_mobile,
