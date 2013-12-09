@@ -68,7 +68,7 @@ $('#scan-delivery').click(function() {
         alert("请选择快递");
         return false;
     }
-    window.location.href="/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitFind&scan=true&delivery=" + delivery;
+    window.location.href="/trade/trade_list?isCancel=0|-1&isSubmit=1&isSend=0&isFinish=0&status=WaitFind&scan=true&delivery=" + delivery + "&orderString=order by goods_id,sku_id asc";
 })
 
 $('#batch-out-goods').click(function() {
