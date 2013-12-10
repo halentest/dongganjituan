@@ -50,18 +50,6 @@ public class TradeClient {
 		TradeFullinfoGetResponse rsp = topConfig.getRetryClient().execute(req, sessionKey);
 		if (rsp.isSuccess()) {
 			log.debug("查询订单详情成功：" + rsp.getBody());
-            Trade t = rsp.getTrade();
-            //检查订单是否退款
-            Iterator<Order> it = t.getOrders().iterator();
-            while(it.hasNext()) {
-                Order o = it.next();
-                if(!"NO_REFUND".equals(o.getRefundStatus())) {
-                    it.remove();
-                }
-            }
-            if(t.getOrders().size() == 0) {
-                return null;
-            }
 			return rsp.getTrade();
 		} else {
             log.error("查询订单详情失败：" + rsp.getSubMsg());
