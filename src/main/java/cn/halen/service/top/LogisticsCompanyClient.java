@@ -1,12 +1,9 @@
 package cn.halen.service.top;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import cn.halen.service.top.domain.TaoTradeStatus;
+import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Trade;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -101,6 +98,26 @@ public class LogisticsCompanyClient {
 		LogisticsOfflineSendRequest req = new LogisticsOfflineSendRequest();
         String []tidArr = tids.split(",");
         String errorInfo = null;
+        //检查订单是否退款
+        for(String tid : tidArr) {
+            if(StringUtils.isBlank(tid)) {
+                continue;
+            }
+            Trade t = tradeClient.getTradeFullInfo(Long.parseLong(tid), topConfig.getToken(sellerNick));
+
+            Iterator<Order> it = t.getOrders().iterator();
+            while(it.hasNext()) {
+                Order o = it.next();
+                if(!"NO_REFUND".equals(o.getRefundStatus())) {
+                    it.remove();
+                }
+            }
+            if(t.getOrders().size() == 0 || !t.getStatus().equals(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue())) {
+                //更新
+                return "订单已关闭或者买家已申请退款, 请不要发货!";
+            }
+        }
+
         for(String tid : tidArr) {
             if(StringUtils.isBlank(tid)) {
                 continue;
@@ -108,10 +125,7 @@ public class LogisticsCompanyClient {
             req.setTid(Long.valueOf(tid));
             req.setOutSid(outSid);
             req.setCompanyCode(companyCode);
-            Trade t = tradeClient.getTradeFullInfo(Long.parseLong(tid), topConfig.getToken(sellerNick));
-            if(!t.getStatus().equals(TaoTradeStatus.WAIT_SELLER_SEND_GOODS.getValue())) {
-                continue;
-            }
+
             LogisticsOfflineSendResponse response = client.execute(req , topConfig.getToken(sellerNick));
 
             if(!response.isSuccess()) {

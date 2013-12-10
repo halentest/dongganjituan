@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -23,6 +24,7 @@ import cn.halen.data.pojo.migration.Trade1;
 import cn.halen.data.pojo.migration.Trade2;
 import cn.halen.service.top.*;
 import cn.halen.util.Constants;
+import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Trade;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -324,6 +326,19 @@ public class RedirectController {
         for(Trade trade : tradeList) {
             //check trade if exists
             Trade tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
+
+            //检查订单是否退款
+            Iterator<Order> it = tradeDetail.getOrders().iterator();
+            while(it.hasNext()) {
+                Order o = it.next();
+                if(!"NO_REFUND".equals(o.getRefundStatus())) {
+                    it.remove();
+                }
+            }
+            if(tradeDetail.getOrders().size() == 0) {
+                tradeDetail = null;
+            }
+
             if(null == tradeDetail) {
                 continue;
             }

@@ -621,6 +621,8 @@ public class TradeActionController {
                     } catch(MyException e) {
                         log.error("batch change status({}) fail for id : {}, {}", action, id, e.getMessage());
                         errorInfoBuilder.append(id).append(":").append(e.getMessage()).append("\r\n");
+                    } catch(Exception e) {
+                        log.error("batch change status error", e);
                     }
                 }
             }
@@ -816,6 +818,19 @@ public class TradeActionController {
             } catch (ApiException e) {
                 log.error("", e);
             }
+
+            //检查订单是否退款
+            Iterator<Order> it = tradeDetail.getOrders().iterator();
+            while(it.hasNext()) {
+                Order o = it.next();
+                if(!"NO_REFUND".equals(o.getRefundStatus())) {
+                    it.remove();
+                }
+            }
+            if(tradeDetail.getOrders().size() == 0) {
+                tradeDetail = null;
+            }
+
             if(null == tradeDetail) {
                 fail.add(String.valueOf(trade.getTid()));
                 continue;
