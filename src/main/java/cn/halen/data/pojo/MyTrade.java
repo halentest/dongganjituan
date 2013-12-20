@@ -22,6 +22,8 @@ public class MyTrade {
     private String delivery_number;
 
     private int delivery_money;
+    private String destcode;
+    private String origincode;
 
 	private int template_id;
 	private int total_weight; 
@@ -83,6 +85,22 @@ public class MyTrade {
     public void addWeight(int weight) {
 		total_weight += weight;
 	}
+
+    public String getDestcode() {
+        return destcode;
+    }
+
+    public void setDestcode(String destcode) {
+        this.destcode = destcode;
+    }
+
+    public String getOrigincode() {
+        return origincode;
+    }
+
+    public void setOrigincode(String origincode) {
+        this.origincode = origincode;
+    }
 
     public long getGoods_id() {
         return goods_id;

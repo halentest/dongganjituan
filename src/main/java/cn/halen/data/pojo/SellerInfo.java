@@ -8,6 +8,8 @@ public class SellerInfo {
 	private String sender;
 	
 	private String from_state;
+
+    private String from_city;
 	
 	private String from_company;
 	
@@ -19,7 +21,15 @@ public class SellerInfo {
 	
 	private Date created;
 
-	public int getId() {
+    public String getFrom_city() {
+        return from_city;
+    }
+
+    public void setFrom_city(String from_city) {
+        this.from_city = from_city;
+    }
+
+    public int getId() {
 		return id;
 	}
 

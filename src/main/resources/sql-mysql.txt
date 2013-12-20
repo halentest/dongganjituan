@@ -124,6 +124,8 @@ create table trade2 (
 	delivery varchar(20), #快递名称
 	delivery_number varchar(20), #快递单号
 	delivery_money int, #快递费用
+    destcode varchar(12), #顺丰专用
+    origincode varchar(12), #顺丰专用
 	template_id int, #模板id
 	total_weight int unsigned, 
 	goods_count bigint unsigned,
@@ -268,6 +270,7 @@ create table seller_info (
 	id int primary key auto_increment,
 	sender varchar(255),
 	from_state varchar(255),
+	from_city varchar(255),
 	from_company varchar(255),
 	from_address varchar(255),
 	mobile varchar(20),

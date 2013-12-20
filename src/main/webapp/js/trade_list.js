@@ -404,3 +404,19 @@ function pause(id, action) {
         }
     });
 }
+
+function sforder(id) {
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "id=" + id,
+        url: "/trade/sf/order",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(!result.success) {
+                alert(result.errorInfo);
+            } else {
+                alert("下单成功!");
+            }
+        }
+    });
+}

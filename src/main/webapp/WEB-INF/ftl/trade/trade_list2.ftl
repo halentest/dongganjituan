@@ -139,7 +139,15 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <td>
                         <a href="${rc.contextPath}/trade/trade_detail?id=${trade.id}">订单详情</a> &nbsp;
                         <#if CURRENT_USER.type=="WareHouse" && trade.status=="WaitFind">
-                            <a onclick="addTrackingNumber('${trade.id}')">扫描单号</a>
+                            <#if trade.delivery?? && trade.delivery='顺丰速运'>
+                                <#if trade.delivery_number?? && trade.delivery_number!=''>
+                                    打印电子面单
+                                <#else>
+                                    <a onclick="sforder('${trade.id}')">下单</a>
+                                </#if>
+                            <#else>
+                                <a onclick="addTrackingNumber('${trade.id}')">扫描单号</a>
+                            </#if>
                         </#if>
                         <#if (CURRENT_USER.type=="WareHouse" && trade.status=="WaitOut") || ((CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor") && trade.status=="UnSubmit")>
                             <#if trade.is_pause==1>
@@ -186,14 +194,21 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                         <option value="${lo.name}">${lo.name}</option>
                     </#list>
                 </select>
-                <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
-                <#if scan=="false">
-                    <a id="scan-delivery">扫描单号</a>
+                <#if delivery?? && delivery='顺丰速运'>
+                    批量下单
+                    打印电子面单
                 <#else>
-                    <button id="save-scan">保存单号</button>
+                    <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
+                    <#if scan=="false">
+                        <a id="scan-delivery">扫描单号</a>
+                    <#else>
+                        <button id="save-scan">保存单号</button>
+                    </#if>
                 </#if>
+
                 <a id="print-setup" style="cursor: pointer;">打印调整</a>
                 <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
+
             </#if>
         </#if>
     </div>

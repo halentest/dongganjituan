@@ -17,7 +17,7 @@
         <result property="postcode" column="postcode"/>
         <result property="delivery" column="delivery"/>
         <result property="delivery_number" column="delivery_number"/><result property="delivery_money" column="delivery_money"/>
-
+        <result property="destcode" column="destcode"/><result property="origincode" column="origincode"/>
         <result property="template_id" column="template_id"/>
         <result property="total_weight" column="total_weight"/>
         <result property="goods_count" column="goods_count"/>
@@ -75,7 +75,7 @@
 
 	<insert id="insert" parameterType="MyTrade">
 		insert into trade2 values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
-			#{delivery_money}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish}, #{is_pause},
+			#{delivery_money}, #{destcode}, #{origincode}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish}, #{is_pause},
             #{is_apply_refund}, #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
 			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{goods_id}, #{sku_id}, #{modified}, #{created}, #{submit_time}, #{cancel_time}, #{find_time}, #{scan_time}, #{send_time})
 	</insert>
@@ -369,7 +369,8 @@
 	
 	<update id="updateTrade" parameterType="MyTrade">
 		update trade2 set tid=#{tid}, name=#{name}, phone=#{phone}, mobile=#{mobile}, state=#{state}, city=#{city}, district=#{district}, address=#{address},
-			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money}, delivery_number=#{delivery_number}, template_id=#{template_id},
+			 postcode=#{postcode}, delivery=#{delivery}, delivery_money=#{delivery_money}, delivery_number=#{delivery_number}, destcode=#{destcode},
+             origincode=#{origincode}, template_id=#{template_id},
 			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, is_submit=#{is_submit}, is_refund=#{is_refund},
              is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, is_pause=#{is_pause}, is_apply_refund=#{is_apply_refund}, why_cancel=#{why_cancel}, status=#{status},
 			 seller_memo=#{seller_memo}, kefu_memo=#{kefu_memo}, cangku_memo=#{cangku_memo}, kefu_msg=#{kefu_msg}, cangku_msg=#{cangku_msg},
