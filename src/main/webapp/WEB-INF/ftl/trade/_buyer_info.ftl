@@ -9,8 +9,8 @@
         手机：${trade.mobile!''}  <br>
         电话：${trade.phone!''}  <br>
         地址：${trade.state!''} ${trade.city!''} ${trade.district!''} ${trade.address!''}
-        <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
-            <#if (trade.status=="UnSubmit" || trade.status=="WaitSend") && trade.is_cancel==0>
+        <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="WareHouse">
+            <#if (trade.status=="UnSubmit" || trade.status=="WaitSend" || trade.status=="WaitFind") && trade.is_cancel==0>
             <a href="${rc.contextPath}/trade/action/modify_receiver_info_form?id=${trade.id}&from=${from}">修改</a>
             </#if>
         </#if>

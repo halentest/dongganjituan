@@ -24,6 +24,7 @@ public class MyTrade {
     private int delivery_money;
     private String destcode;
     private String origincode;
+    private int sf_status;
 
 	private int template_id;
 	private int total_weight; 
@@ -88,6 +89,14 @@ public class MyTrade {
 
     public String getDestcode() {
         return destcode;
+    }
+
+    public int getSf_status() {
+        return sf_status;
+    }
+
+    public void setSf_status(int sf_status) {
+        this.sf_status = sf_status;
     }
 
     public void setDestcode(String destcode) {

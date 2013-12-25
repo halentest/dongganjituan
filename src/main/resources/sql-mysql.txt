@@ -124,8 +124,9 @@ create table trade2 (
 	delivery varchar(20), #快递名称
 	delivery_number varchar(20), #快递单号
 	delivery_money int, #快递费用
-    destcode varchar(12), #顺丰专用
-    origincode varchar(12), #顺丰专用
+    destcode varchar(12), #顺丰专用   new added
+    origincode varchar(12), #顺丰专用 new added
+    sf_status tinyint default 0, #顺丰专用 0：还未下单 1：下单成功 2：下单失败   new added
 	template_id int, #模板id
 	total_weight int unsigned, 
 	goods_count bigint unsigned,

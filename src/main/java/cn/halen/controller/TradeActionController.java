@@ -20,6 +20,7 @@ import cn.halen.service.top.TradeClient;
 import cn.halen.service.top.domain.TaoTradeStatus;
 import cn.halen.util.Constants;
 import cn.halen.util.ErrorInfoHolder;
+import com.taobao.api.domain.Area;
 import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Trade;
 import org.apache.commons.lang.StringUtils;
@@ -915,6 +916,21 @@ public class TradeActionController {
         }
         int count = tradeMapper.updateLogisticsAddress(provinceName, cityName, districtName, address, mobile, phone,
                 postcode, receiver, new Date(), id);
+        //如果是顺丰快递，需要清空之前的下单信息
+        MyTrade trade = tradeMapper.selectById(id);
+        if("顺丰速运".equals(trade.getDelivery())) {
+            trade.setDelivery_number("");
+            trade.setOrigincode("");
+            trade.setDestcode("");
+            trade.setSf_status(0);
+            tradeMapper.updateMyTrade(trade);
+
+            String path = req.getServletContext().getRealPath("img/sf/" + id + ".png");
+            File f = new File(path);
+            if(f.exists()) {
+                f.delete();
+            }
+        }
         if(count > 0) {
             try {
                 if("list".equals(from)) {
@@ -959,12 +975,25 @@ public class TradeActionController {
         int shopListSize = shopList.size();
         Random random = new Random();
         Date start = new Date();
+        List<Area> states = areaMapper.listByType(2);
         for(int i=0; i<num; i++) {
 
             //随机选一个sku
             MySku sku = skuList.get(random.nextInt(skuListSize));
             //随机选一个shop
             Shop shop = shopList.get(random.nextInt(shopListSize));
+            //随机选择一个省
+            Area state = states.get(random.nextInt(states.size()));
+            List<Area> cities = areaMapper.listByParent(state.getId());
+            Area city = cities.get(random.nextInt(cities.size()));
+            List<Area> districts = areaMapper.listByParent(city.getId());
+            Area district = null;
+            if(districts.size()>0) {
+                district = districts.get(random.nextInt(districts.size()));
+            } else {
+                district = new Area();
+                district.setName("其他区");
+            }
 
             MyTrade myTrade = new MyTrade();
             String id = tradeMapper.generateId();
@@ -992,9 +1021,9 @@ public class TradeActionController {
             myTrade.setName("name" + random.nextInt(1000));
             myTrade.setPhone("phone" + random.nextInt(1000));
             myTrade.setMobile("mobile" + random.nextInt(1000));
-            myTrade.setState("state" + random.nextInt(1000));
-            myTrade.setCity("city" + random.nextInt(1000));
-            myTrade.setDistrict("city" + random.nextInt(1000));
+            myTrade.setState(state.getName());
+            myTrade.setCity(city.getName());
+            myTrade.setDistrict(district.getName());
             myTrade.setAddress("address" + random.nextInt(1000));
             myTrade.setPostcode("");
             myTrade.setSeller_memo("");

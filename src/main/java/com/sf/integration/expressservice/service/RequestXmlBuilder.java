@@ -2,6 +2,7 @@ package com.sf.integration.expressservice.service;
 
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.SellerInfo;
+import org.apache.commons.lang.time.FastDateFormat;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -13,6 +14,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * User: hzhang
@@ -21,9 +23,9 @@ import java.io.StringWriter;
  */
 public class RequestXmlBuilder {
 
-    private static final String CUSTOMER_ID = "5953106803";
+    public static final String CUSTOMER_ID = "5953106803";
 
-    private static final String CHECKWORD = "lPW+DZilSUJ9Vfgs";
+    public static final String CHECKWORD = "lPW+DZilSUJ9Vfgs";
 
 
     public static DocumentBuilder getBuilder() throws ParserConfigurationException {
@@ -58,7 +60,8 @@ public class RequestXmlBuilder {
         rootElement.appendChild(body);
 
         Element order = doc.createElement("Order");
-        order.setAttribute("orderid", "XJFS" + trade.getId());
+        String postfix = FastDateFormat.getInstance("yyyyMMddHHmmss").format(new Date());
+        order.setAttribute("orderid", "XJFS" + trade.getId() + postfix);
         order.setAttribute("express_type", "3");
         order.setAttribute("j_province", sellerInfo.getFrom_state());
         order.setAttribute("j_city", sellerInfo.getFrom_city());
@@ -71,14 +74,14 @@ public class RequestXmlBuilder {
         order.setAttribute("d_company", trade.getBuyer_nick());
         order.setAttribute("d_contact", trade.getName());
         order.setAttribute("d_tel", trade.getMobile());
-        order.setAttribute("d_address", trade.getAddress());
+        order.setAttribute("d_address", trade.getState() + trade.getCity() + trade.getDistrict() + trade.getAddress());
         order.setAttribute("parcel_quantity", "1");
         order.setAttribute("pay_method", "1");
         body.appendChild(order);
 
-//        Element orderOption = doc.createElement("OrderOption");
-//        orderOption.setAttribute("custid", CUSTOMER_ID);
-//        orderOption.setAttribute("cargo", "鞋子");
+        Element orderOption = doc.createElement("OrderOption");
+        orderOption.setAttribute("custid", CUSTOMER_ID);
+        orderOption.setAttribute("cargo", "鞋子");
 //        orderOption.setAttribute("cargo_count", "1");
 //        orderOption.setAttribute("cargo_unit", "双");
 //        orderOption.setAttribute("cargo_weight", "1.5");
@@ -87,7 +90,7 @@ public class RequestXmlBuilder {
 //        orderOption.setAttribute("insurance_amount", "52.15");
 //        orderOption.setAttribute("sendstarttime", "2013-11-11 10:24:44");
 //        orderOption.setAttribute("remark", "备注");
-//        order.appendChild(orderOption);
+        order.appendChild(orderOption);
 //
 //        Element added1 = doc.createElement("AddedService");
 //        added1.setAttribute("name", "COD");

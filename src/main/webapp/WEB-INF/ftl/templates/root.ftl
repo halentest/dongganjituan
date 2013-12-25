@@ -19,6 +19,9 @@
             margin-right:5px;
             width: 100%;
         }
+        a {
+            cursor: pointer;
+        }
     </style>
     <link rel="icon" href="img/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />

@@ -203,8 +203,8 @@ public class TradeController {
             for(MyOrder o : orderList) {
                 StringBuilder builder = new StringBuilder();
                 builder.append(o.getTitle()).append(",")
-                        .append(o.getGoods_id()).append(",")
-                        .append(o.getGoods_id() + o.getSku().getColor_id() + o.getSku().getSize()).append(",")
+                        .append("'").append(o.getGoods_id()).append(",")
+                        .append("'").append(o.getGoods_id() + o.getSku().getColor_id() + o.getSku().getSize()).append(",")
                         .append(o.getSku().getColor()).append(",")
                         .append(o.getSku().getSize()).append(",")
                         .append(o.getQuantity()).append(",")
