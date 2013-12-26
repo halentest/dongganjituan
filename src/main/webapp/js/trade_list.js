@@ -434,6 +434,7 @@ $('#sf-order').click(function() {
 })
 
 $('#sf-print').click(function() {
+    var delivery = $('#delivery-print').val();
     var checked = $('#t-list').datagrid("getChecked");
     if(checked.length==0) {
         alert('至少选中一个订单!');
@@ -454,7 +455,7 @@ $('#sf-print').click(function() {
         url: "/trade/sf/print",//要访问的后台地址
         success: function(result){//msg为返回的数据，在这里做数据绑定
             LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
-            LODOP.PRINT_INIT("ttt"); //名称是主键
+            LODOP.PRINT_INIT(delivery); //名称是主键
             LODOP.SET_PRINT_PAGESIZE(1,0,0,"A4");
             var arr = result.errorInfo.split(",");
             for(var i in arr) {
@@ -491,6 +492,9 @@ $('#sf-export').click(function() {
         url: "/trade/sf/export",//要访问的后台地址
         success: function(result){//msg为返回的数据，在这里做数据绑定
             window.location.reload();
+        },
+        error: function() {
+            alert('error');
         }
     });
 })

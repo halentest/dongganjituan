@@ -60,8 +60,8 @@ public class RequestXmlBuilder {
         rootElement.appendChild(body);
 
         Element order = doc.createElement("Order");
-        String postfix = FastDateFormat.getInstance("yyyyMMddHHmmss").format(new Date());
-        order.setAttribute("orderid", "XJFS" + trade.getId() + postfix);
+        String postfix = FastDateFormat.getInstance("mmss").format(new Date());
+        order.setAttribute("orderid", "XJFS" + trade.getId().substring(14) + postfix);
         order.setAttribute("express_type", "3");
         order.setAttribute("j_province", sellerInfo.getFrom_state());
         order.setAttribute("j_city", sellerInfo.getFrom_city());

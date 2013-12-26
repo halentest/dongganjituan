@@ -21,11 +21,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -196,7 +200,9 @@ public class SFController {
 
         StringBuilder builder = new StringBuilder();
         // 合并寄件人信息
-        builder.append(sellerInfo.getFrom_address()).append(" ").append(sellerInfo.getMobile());
+        builder.append(sellerInfo.getFrom_state()).append(" ").append(sellerInfo.getFrom_city()).append(" ")
+                .append(sellerInfo.getFrom_address()).append(" ").append(sellerInfo.getSender())
+                .append(" ").append(sellerInfo.getMobile());
         valueMap2.put("EXT_SHIPPER_INFO", builder.toString());
         // 合并收件人信息
         builder = new StringBuilder();
@@ -210,12 +216,44 @@ public class SFController {
 
         valueMap2.put("cons_name", "鞋子");
 
-//        valueMap2.put("waybillCount", "1");
+        valueMap2.put("waybillCount", "1");
+        valueMap2.put("expressType", "3");
 //        valueMap2.put("total_amount", "合计");
         valueMap2.put("custCode", RequestXmlBuilder.CUSTOMER_ID);
 //        valueMap2.put("total_amount2", "合计2");
 
-        GenerationWaybillImage.generationImageA5(valueMap2, path);
+        GenerationWaybillImage.generationImageA5(valueMap2, path + ".png");
+
+        //添加电商特惠
+        String s = "电商特惠";
+
+        File file = new File(path + ".png");
+
+        Font font = new Font("黑体", Font.BOLD, 40);
+
+        BufferedImage bi = null;
+        try {
+            bi = ImageIO.read(file);
+        } catch (IOException e) {
+            log.error("read pic error", e);
+        }
+        Graphics2D g2 = (Graphics2D)bi.getGraphics();
+        g2.setFont(font);
+//        g2.setBackground(Color.WHITE);
+//        g2.clearRect(0, 0, width, height);
+        g2.setPaint(Color.black);
+
+        g2.drawString(s, 800, 640);
+
+        try {
+            ImageIO.write(bi, "png", new File(path));
+        } catch (IOException e) {
+            log.error("write pic error", e);
+        }
+        //删除临时文件
+        if(file.exists()) {
+            file.delete();
+        }
     }
 
     @RequestMapping(value="/trade/sf/export")

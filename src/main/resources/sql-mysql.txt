@@ -271,7 +271,7 @@ create table seller_info (
 	id int primary key auto_increment,
 	sender varchar(255),
 	from_state varchar(255),
-	from_city varchar(255),
+	from_city varchar(255),  #new added
 	from_company varchar(255),
 	from_address varchar(255),
 	mobile varchar(20),
