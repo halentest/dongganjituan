@@ -35,6 +35,12 @@
                 <a style="display: none;" class="modify-delivery-cancel">取消</a>
             </#if>   <br>
 
+        <#if CURRENT_USER.type=="WareHouse" && trade.delivery?? && trade.delivery=="顺丰速运">
+            包裹数量：<span>${trade.parcel_quantity}</span>
+            <#if trade.status!="WaitReceive" && trade.sf_status==0>
+                <a id="modify-quantity" data-id="${trade.id}">修改</a>
+            </#if>
+        </#if>
         <div>运费: ${trade.delivery_money/100!''}</div>
         单号: <span>${trade.delivery_number!''}</span>
         <#if trade.is_send==0 && trade.is_cancel==0 && trade.is_finish==0>

@@ -1,8 +1,15 @@
-package com.sf.integration.expressservice.service;
+package cn.halen.service;
 
+import cn.halen.data.mapper.ConfigurationMapper;
+import cn.halen.data.pojo.Configuration;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.SellerInfo;
+import cn.halen.service.top.TopConfig;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -21,14 +28,28 @@ import java.util.Date;
  * Date: 12/19/13
  * Time: 7:36 PM
  */
-public class RequestXmlBuilder {
+@Service
+public class RequestXmlBuilder implements InitializingBean {
 
-    public static final String CUSTOMER_ID = "5953106803";
+    @Autowired
+    private TopConfig topConfig;
 
-    public static final String CHECKWORD = "lPW+DZilSUJ9Vfgs";
+    @Autowired
+    private ConfigurationMapper configurationMapper;
 
+    private String customId;
 
-    public static DocumentBuilder getBuilder() throws ParserConfigurationException {
+    private String checkWord;
+
+    private String cargo;
+
+    private int isInsure;
+
+    private int insureValue;
+
+    private String expressType;
+
+    public DocumentBuilder getBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
         return docBuilder;
@@ -40,7 +61,7 @@ public class RequestXmlBuilder {
      * @return
      * @throws Exception
      */
-    public static String orderRequest(MyTrade trade, SellerInfo sellerInfo) throws Exception {
+    public String orderRequest(MyTrade trade, SellerInfo sellerInfo) throws Exception {
         DocumentBuilder docBuilder = getBuilder();
 
         //root elements
@@ -53,7 +74,7 @@ public class RequestXmlBuilder {
         rootElement.setAttribute("lang", "zh-CN");
 
         Element head = doc.createElement("Head");
-        head.appendChild(doc.createTextNode(CUSTOMER_ID + "," + CHECKWORD));
+        head.appendChild(doc.createTextNode(customId + "," + checkWord));
         rootElement.appendChild(head);
 
         Element body = doc.createElement("Body");
@@ -62,7 +83,7 @@ public class RequestXmlBuilder {
         Element order = doc.createElement("Order");
         String postfix = FastDateFormat.getInstance("mmss").format(new Date());
         order.setAttribute("orderid", "XJFS" + trade.getId().substring(14) + postfix);
-        order.setAttribute("express_type", "3");
+        order.setAttribute("express_type", expressType);
         order.setAttribute("j_province", sellerInfo.getFrom_state());
         order.setAttribute("j_city", sellerInfo.getFrom_city());
         order.setAttribute("j_company", sellerInfo.getFrom_company());
@@ -75,13 +96,13 @@ public class RequestXmlBuilder {
         order.setAttribute("d_contact", trade.getName());
         order.setAttribute("d_tel", trade.getMobile());
         order.setAttribute("d_address", trade.getState() + trade.getCity() + trade.getDistrict() + trade.getAddress());
-        order.setAttribute("parcel_quantity", "1");
-        order.setAttribute("pay_method", "1");
+        order.setAttribute("parcel_quantity", String.valueOf(trade.getParcel_quantity()));
+        order.setAttribute("pay_method", String.valueOf(trade.getPay_method()));
         body.appendChild(order);
 
         Element orderOption = doc.createElement("OrderOption");
-        orderOption.setAttribute("custid", CUSTOMER_ID);
-        orderOption.setAttribute("cargo", "鞋子");
+        orderOption.setAttribute("custid", customId);
+        orderOption.setAttribute("cargo", StringUtils.isBlank(trade.getCargo())?cargo : trade.getCargo());
 //        orderOption.setAttribute("cargo_count", "1");
 //        orderOption.setAttribute("cargo_unit", "双");
 //        orderOption.setAttribute("cargo_weight", "1.5");
@@ -91,7 +112,7 @@ public class RequestXmlBuilder {
 //        orderOption.setAttribute("sendstarttime", "2013-11-11 10:24:44");
 //        orderOption.setAttribute("remark", "备注");
         order.appendChild(orderOption);
-//
+        boolean isInsure =
 //        Element added1 = doc.createElement("AddedService");
 //        added1.setAttribute("name", "COD");
 //        added1.setAttribute("value", "2000");
@@ -120,5 +141,15 @@ public class RequestXmlBuilder {
 
         transformer.transform(source, result);
         return sw.toString();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.cargo = configurationMapper.selectByKey1("default", "cargo", "鞋子").getValue();
+        this.checkWord = configurationMapper.selectByKey1("default", "checkword", "lPW+DZilSUJ9Vfgs").getValue();
+        this.customId = configurationMapper.selectByKey1("default", "custom_id", "5953106803").getValue();
+        this.insureValue = Integer.parseInt(configurationMapper.selectByKey1("default", "insure_value", "20000").getValue());
+        this.isInsure = Integer.parseInt(configurationMapper.selectByKey1("default", "is_insure", "0").getValue());
+        this.expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
     }
 }

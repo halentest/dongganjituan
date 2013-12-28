@@ -133,7 +133,12 @@ public class TradeService {
             }
 			if("淘宝自动同步".equals(t.getCome_from())) {
                 String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
-				errorInfo = logisticsClient.send(t.getTid(), t.getDelivery_number(), companyCode, t.getSeller_nick());
+                //顺丰的单号可能是多个，取第一个
+                String deliveryNumber = t.getDelivery_number();
+                if("顺丰速运".equals(t.getDelivery())) {
+                    deliveryNumber = t.getDelivery_number().split(",")[0];
+                }
+				errorInfo = logisticsClient.send(t.getTid(), deliveryNumber, companyCode, t.getSeller_nick());
                 if(null != errorInfo) {
                     throw new MyException(errorInfo);
                 }

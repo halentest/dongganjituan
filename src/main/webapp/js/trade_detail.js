@@ -93,17 +93,48 @@ function pause(id, action) {
 function submit(id) {
     var tids = id;
     $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "ids=" + tids + "&action=submit",
+        url: "/trade/action/batch_change_status",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+                if(result.errorInfo != "success") {
+                    alert(result.errorInfo);
+                    window.location.reload();
+                } else {
+                    window.location.reload();
+                }
+            }
+    });
+}
+
+$('#modify-quantity').click(function() {
+    var action = $(this).html();
+    var ths = $(this);
+    var wrap = $(this).prev('span')
+    if("修改"==action) {
+        var v = wrap.html();
+        wrap.html('<input type="text" value="' + v + '" style="width: 20px;"/>');
+        ths.html('保存');
+    } else if("保存"==action) {
+        var id = ths.attr('data-id');
+        var v = wrap.children(':first').val();
+        $.ajax({
             type: "post",//使用get方法访问后台
             dataType: "json",//返回json格式的数据
-            data: "ids=" + tids + "&action=submit",
-            url: "/trade/action/batch_change_status",//要访问的后台地址
+            data: "id=" + id + "&v=" + v,
+            url: "/trade/action/sf_modify_parcel_quantity",//要访问的后台地址
             success: function(result){//msg为返回的数据，在这里做数据绑定
-                    if(result.errorInfo != "success") {
-                        alert(result.errorInfo);
-                        window.location.reload();
-                    } else {
-                        window.location.reload();
-                    }
+                if(result.success==true) {
+                    wrap.html(v);
+                    ths.html('修改');
+                } else {
+                    alert(result.errorInfo);
                 }
+            },
+            error: function() {
+                alert('error');
+            }
         });
-}
+    }
+})

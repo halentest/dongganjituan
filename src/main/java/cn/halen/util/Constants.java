@@ -34,4 +34,12 @@ public class Constants {
     public static final int QUANTITY = 1;
     public static final int LOCK_QUANTITY = 2;
     public static final int MANUAL_LOCK_QUANTITY = 3;
+
+    //快递费支付方式
+    public static final int PAY_METHOD_SENDER = 1;
+    public static final int PAY_METHOD_RECEIVER = 2;
+    public static final int PAY_METHOD_OTHER = 3;
+
+    //configuration key
+
 }

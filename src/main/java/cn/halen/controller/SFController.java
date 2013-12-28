@@ -7,7 +7,7 @@ import cn.halen.data.pojo.SellerInfo;
 import cn.halen.data.pojo.TradeStatus;
 import cn.halen.service.ResultInfo;
 import com.sf.integration.expressservice.service.CommonServiceService;
-import com.sf.integration.expressservice.service.RequestXmlBuilder;
+import cn.halen.service.RequestXmlBuilder;
 import com.sf.module.ewaybill.util.GenerationWaybillImage;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -173,26 +173,30 @@ public class SFController {
             if(!rootDir.exists()) {
                 rootDir.mkdir();
             }
-
-            String path = req.getServletContext().getRealPath("img/sf/" + id + ".png");
-            File f = new File(path);
-            if(!f.exists()) {
-                generagePic(adminMapper.selectSellerInfo(), trade, path);
+            String[] deliveryNumbers = trade.getDelivery_number().split(",");
+            for(String deliveryNumber : deliveryNumbers) {
+                if(StringUtils.isNotBlank(deliveryNumber)) {
+                    String path = req.getServletContext().getRealPath("img/sf/" + id + "-" + deliveryNumber + ".png");
+                    File f = new File(path);
+                    if(!f.exists()) {
+                        generagePic(adminMapper.selectSellerInfo(), trade, path, deliveryNumber);
+                    }
+                    builder.append("img/sf/" + id + "-" + deliveryNumber + ".png");
+                    builder.append(",");
+                }
             }
-            builder.append("img/sf/" + id + ".png");
-            builder.append(",");
         }
         ResultInfo ri = new ResultInfo();
         ri.setErrorInfo(builder.toString());
         return ri;
     }
 
-    private void generagePic(SellerInfo sellerInfo, MyTrade trade, String path) {
+    private void generagePic(SellerInfo sellerInfo, MyTrade trade, String path, String deliveryNumber) {
 
         Map<String, Object> valueMap2 = new HashMap<String, Object>();
         // String number = WaybillNoValidator.getWaybillNo("12345678912");
         // A5参数
-        valueMap2.put("waybillNo", trade.getDelivery_number());
+        valueMap2.put("waybillNo", deliveryNumber);
         valueMap2.put("sourceZoneCode", trade.getOrigincode());
         valueMap2.put("destZoneCode", trade.getDestcode());
     //    valueMap2.put("selfSend", "自寄");
@@ -216,7 +220,7 @@ public class SFController {
 
         valueMap2.put("cons_name", "鞋子");
 
-        valueMap2.put("waybillCount", "1");
+        valueMap2.put("waybillCount", trade.getParcel_quantity());
         valueMap2.put("expressType", "3");
 //        valueMap2.put("total_amount", "合计");
         valueMap2.put("custCode", RequestXmlBuilder.CUSTOMER_ID);
@@ -278,6 +282,30 @@ public class SFController {
             tradeMapper.updateMyTrade(trade);
         }
         ResultInfo ri = new ResultInfo();
+        return ri;
+    }
+
+    @RequestMapping(value="/trade/action/sf_modify_parcel_quantity")
+    public @ResponseBody ResultInfo modifyParcelQuantity(@RequestParam String id, @RequestParam int v) {
+        ResultInfo ri = new ResultInfo();
+        MyTrade trade = tradeMapper.selectById(id);
+        if(trade == null) {
+            ri.setSuccess(false);
+            ri.setErrorInfo("订单不存在!");
+            return ri;
+        }
+        if(!trade.getDelivery().equals("顺丰速运") || trade.getSf_status()!=0 || trade.getStatus().equals(TradeStatus.WaitReceive.getStatus())) {
+            ri.setSuccess(false);
+            ri.setErrorInfo("当前状态不能修改包裹数量!");
+            return ri;
+        }
+        if(v < 1) {
+            ri.setSuccess(false);
+            ri.setErrorInfo("包裹数量必须大于或者等于1");
+            return ri;
+        }
+        trade.setParcel_quantity(v);
+        tradeMapper.updateMyTrade(trade);
         return ri;
     }
 

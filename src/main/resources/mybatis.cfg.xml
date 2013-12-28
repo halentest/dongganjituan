@@ -47,6 +47,7 @@
         <typeAlias alias="Trade2" type="cn.halen.data.pojo.migration.Trade2" />
         <typeAlias alias="Order1" type="cn.halen.data.pojo.migration.Order1" />
         <typeAlias alias="Order2" type="cn.halen.data.pojo.migration.Order2" />
+        <typeAlias alias="Configuration" type="cn.halen.data.pojo.Configuration" />
     </typeAliases>  
       
     <mappers>  
@@ -61,5 +62,6 @@
 		<mapper resource="RefundMapper.xml" />
         <mapper resource="WareHouseMapper.xml" />
         <mapper resource="migration.xml" />
+        <mapper resource="ConfigurationMapper.xml" />
     </mappers>  
 </configuration> 
