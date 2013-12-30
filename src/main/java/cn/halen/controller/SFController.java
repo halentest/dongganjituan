@@ -1,23 +1,27 @@
 package cn.halen.controller;
 
 import cn.halen.data.mapper.AdminMapper;
+import cn.halen.data.mapper.ConfigurationMapper;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.SellerInfo;
 import cn.halen.data.pojo.TradeStatus;
 import cn.halen.service.ResultInfo;
+import cn.halen.util.Constants;
 import com.sf.integration.expressservice.service.CommonServiceService;
 import cn.halen.service.RequestXmlBuilder;
 import com.sf.module.ewaybill.util.GenerationWaybillImage;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -45,6 +49,12 @@ public class SFController {
 
     @Autowired
     private AdminMapper adminMapper;
+
+    @Autowired
+    private RequestXmlBuilder xmlBuilder;
+
+    @Autowired
+    private ConfigurationMapper configurationMapper;
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -87,7 +97,7 @@ public class SFController {
 
             String resp = null;
             try {
-                resp = service.getCommonServicePort().sfexpressService(RequestXmlBuilder.orderRequest(trade, adminMapper.selectSellerInfo()));
+                resp = service.getCommonServicePort().sfexpressService(xmlBuilder.orderRequest(trade, adminMapper.selectSellerInfo()));
             } catch(Exception e) {
                 log.error("error while make sf order, trade id is {}, {}", id, e);
                 ri.setSuccess(false);
@@ -96,7 +106,7 @@ public class SFController {
             }
             log.debug("resp for id {} is {}", id, resp);
             try {
-                DocumentBuilder builder = RequestXmlBuilder.getBuilder();
+                DocumentBuilder builder = xmlBuilder.getBuilder();
                 Document doc = builder.parse(new ByteArrayInputStream(resp.getBytes()));
                 Node head = doc.getElementsByTagName("Head").item(0);
                 String result = head.getTextContent();
@@ -216,20 +226,52 @@ public class SFController {
                 .append(" ").append(trade.getMobile());
         valueMap2.put("EXT_ADDRESSEE_INFO", builder.toString());
         // 付款方式
-        valueMap2.put("EXT_PAY_INFO", "寄付");
+        String payMethod = "寄付";
+        if(trade.getPay_method() == Constants.PAY_METHOD_RECEIVER) {
+            payMethod = "到付";
+        } else if(trade.getPay_method() == Constants.PAY_METHOD_OTHER) {
+            payMethod = "第三方付";
+        }
+        valueMap2.put("EXT_PAY_INFO", payMethod);
+        // 合并附加服务信息
+        builder = new StringBuilder();
+        boolean cod = trade.getPay_type() == Constants.PAY_TYPE_AFTER_RECEIVE;
+        String customId = configurationMapper.selectByKey1("default", "custom_id", "5953106803").getValue();
+        if(cod) {
+            int payment = (trade.getPayment() + trade.getDelivery_money())/100;
+            builder.append("代收货款:").append(payment)
+                    .append("     卡号:").append(customId)
+                    .append("\n");
+        }
+        int insureValue = Integer.parseInt(configurationMapper.selectByKey1("default", "insure_value", "20000").getValue());
+        int isInsure = Integer.parseInt(configurationMapper.selectByKey1("default", "is_insure", "0").getValue());
+        boolean bIsInsure = trade.getIs_insure()==-1?(isInsure==1?true:false) : (trade.getIs_insure()==1?true:false);
+        if(bIsInsure) {
+            int value = trade.getInsure_value()==-1?insureValue/100 : trade.getInsure_value()/100;
+            builder.append("申明价值:").append(value)
+                    .append("    保价费用:").append(value);
+        }
+        valueMap2.put("EXT_SRV_INFO", builder.toString());
 
-        valueMap2.put("cons_name", "鞋子");
+        String cargo = configurationMapper.selectByKey1("default", "cargo", "鞋子").getValue();
+        valueMap2.put("cons_name", StringUtils.isBlank(trade.getCargo())?cargo : trade.getCargo());
 
         valueMap2.put("waybillCount", trade.getParcel_quantity());
-        valueMap2.put("expressType", "3");
+        String expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
+        valueMap2.put("expressType", expressType);
 //        valueMap2.put("total_amount", "合计");
-        valueMap2.put("custCode", RequestXmlBuilder.CUSTOMER_ID);
+        valueMap2.put("custCode", customId);
 //        valueMap2.put("total_amount2", "合计2");
 
         GenerationWaybillImage.generationImageA5(valueMap2, path + ".png");
 
         //添加电商特惠
         String s = "电商特惠";
+        if("1".equals(expressType)) {
+            s = "标准快递";
+        } else if("2".equals(expressType)) {
+            s = "顺丰特惠";
+        }
 
         File file = new File(path + ".png");
 

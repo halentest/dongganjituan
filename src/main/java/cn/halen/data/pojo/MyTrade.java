@@ -31,8 +31,8 @@ public class MyTrade {
     private int pay_method = Constants.PAY_METHOD_SENDER;
     private String cargo;
 
-    private int is_insure;
-    private int insure_value;
+    private int is_insure = -1;
+    private int insure_value = -1;
 
 	private int template_id;
 	private int total_weight; 

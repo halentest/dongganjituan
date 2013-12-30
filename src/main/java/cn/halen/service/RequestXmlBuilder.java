@@ -5,6 +5,7 @@ import cn.halen.data.pojo.Configuration;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.SellerInfo;
 import cn.halen.service.top.TopConfig;
+import cn.halen.util.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.springframework.beans.factory.InitializingBean;
@@ -29,25 +30,13 @@ import java.util.Date;
  * Time: 7:36 PM
  */
 @Service
-public class RequestXmlBuilder implements InitializingBean {
+public class RequestXmlBuilder {
 
     @Autowired
     private TopConfig topConfig;
 
     @Autowired
     private ConfigurationMapper configurationMapper;
-
-    private String customId;
-
-    private String checkWord;
-
-    private String cargo;
-
-    private int isInsure;
-
-    private int insureValue;
-
-    private String expressType;
 
     public DocumentBuilder getBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -63,6 +52,13 @@ public class RequestXmlBuilder implements InitializingBean {
      */
     public String orderRequest(MyTrade trade, SellerInfo sellerInfo) throws Exception {
         DocumentBuilder docBuilder = getBuilder();
+
+        String cargo = configurationMapper.selectByKey1("default", "cargo", "鞋子").getValue();
+        String checkWord = configurationMapper.selectByKey1("default", "checkword", "lPW+DZilSUJ9Vfgs").getValue();
+        String customId = configurationMapper.selectByKey1("default", "custom_id", "5953106803").getValue();
+        int insureValue = Integer.parseInt(configurationMapper.selectByKey1("default", "insure_value", "20000").getValue());
+        int isInsure = Integer.parseInt(configurationMapper.selectByKey1("default", "is_insure", "0").getValue());
+        String expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
 
         //root elements
         Document doc = docBuilder.newDocument();
@@ -112,22 +108,31 @@ public class RequestXmlBuilder implements InitializingBean {
 //        orderOption.setAttribute("sendstarttime", "2013-11-11 10:24:44");
 //        orderOption.setAttribute("remark", "备注");
         order.appendChild(orderOption);
-        boolean isInsure =
-//        Element added1 = doc.createElement("AddedService");
-//        added1.setAttribute("name", "COD");
-//        added1.setAttribute("value", "2000");
-//        added1.setAttribute("value1", "5953106803");
-//        added1.setAttribute("value2", "");
-//        added1.setAttribute("value3", "");
-//        orderOption.appendChild(added1);
-//
-//        Element added2 = doc.createElement("AddedService");
-//        added2.setAttribute("name", "INSURE");
-//        added2.setAttribute("value", "2000");
-//        added2.setAttribute("value1", "");
-//        added2.setAttribute("value2", "");
-//        added2.setAttribute("value3", "");
-//        orderOption.appendChild(added2);
+
+        boolean cod = trade.getPay_type() == Constants.PAY_TYPE_AFTER_RECEIVE;
+        if(cod) {
+            int payment = (trade.getPayment() + trade.getDelivery_money())/100;  //代收货款等于快递费加上货物费用
+            Element added1 = doc.createElement("AddedService");
+            added1.setAttribute("name", "COD");
+            added1.setAttribute("value", String.valueOf(payment));
+            added1.setAttribute("value1", customId);
+//            added1.setAttribute("value2", "");
+//            added1.setAttribute("value3", "");
+            orderOption.appendChild(added1);
+
+        }
+
+        boolean bIsInsure = trade.getIs_insure()==-1?(isInsure==1?true:false) : (trade.getIs_insure()==1?true:false);
+        if(bIsInsure) {
+            int value = trade.getInsure_value()==-1?insureValue/100 : trade.getInsure_value()/100;
+            Element added2 = doc.createElement("AddedService");
+            added2.setAttribute("name", "INSURE");
+            added2.setAttribute("value", String.valueOf(value));
+//            added2.setAttribute("value1", "");
+//            added2.setAttribute("value2", "");
+//            added2.setAttribute("value3", "");
+            orderOption.appendChild(added2);
+        }
 
         // write the content into xml file
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -143,13 +148,4 @@ public class RequestXmlBuilder implements InitializingBean {
         return sw.toString();
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.cargo = configurationMapper.selectByKey1("default", "cargo", "鞋子").getValue();
-        this.checkWord = configurationMapper.selectByKey1("default", "checkword", "lPW+DZilSUJ9Vfgs").getValue();
-        this.customId = configurationMapper.selectByKey1("default", "custom_id", "5953106803").getValue();
-        this.insureValue = Integer.parseInt(configurationMapper.selectByKey1("default", "insure_value", "20000").getValue());
-        this.isInsure = Integer.parseInt(configurationMapper.selectByKey1("default", "is_insure", "0").getValue());
-        this.expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
-    }
 }

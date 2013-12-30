@@ -15,7 +15,7 @@ public class ConfigurationMapper extends SqlSessionDaoSupport {
     private static final String namespace = "cn.halen.data.mapper.ConfigurationMapper";
 	
 	public Configuration selectByKey1(String keySpace, String key1, String defaultValue) {
-        HashMap<String, String> param = new HashMap<String, String>();
+        HashMap<String, Object> param = new HashMap<String, Object>();
         param.put("key_space", keySpace);
         param.put("key1", key1);
 		Configuration config = getSqlSession().selectOne(namespace + ".selectByKey1", param);

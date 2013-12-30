@@ -5,11 +5,11 @@
 <mapper namespace="cn.halen.data.mapper.ConfigurationMapper">
 
 	<select id="selectByKey1" parameterType="java.util.Map" resultType="Configuration">
-	    select * from configuration where key_space=${key_space} and key1=${key1}
+	    select * from configuration where key_space=#{key_space} and key1=#{key1}
 	</select>
 	
 	<update id="update" parameterType="Configuration">
-		update configuration set value=#{value} where key_space=${key_space} and key1=${key1}
+		update configuration set value=#{value} where key_space=#{key_space} and key1=#{key1}
 	</update>
 	
 	<insert id="insert" parameterType="Configuration">

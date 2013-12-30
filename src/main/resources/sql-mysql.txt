@@ -130,8 +130,8 @@ create table trade2 (
     parcel_quantity int default 1, #顺丰专用, 包裹数量   new added
     pay_method tinyint default 1, #快递费付款方式，1：寄方付   2：收方付   3：第三方付  new added
     cargo varchar(255), #顺丰专用 new added
-    is_insure tinyint default 0, #顺丰专用 是否保价 0：否  1：是  new added
-    insure_value int default 0, #顺丰专用 保价金额，当is_insure为1时有效  new added
+    is_insure tinyint default -1, #顺丰专用 是否保价 0：否  1：是  new added  -1: 参考总体配置
+    insure_value int default -1, #顺丰专用 保价金额，当is_insure为1时有效  new added   -1: 参考总体配置
 	template_id int, #模板id
 	total_weight int unsigned, 
 	goods_count bigint unsigned,
@@ -301,11 +301,10 @@ create table configuration (
     unique key(key_space, key1)
 ) DEFAULT CHARACTER SET utf8;
 insert into configuration values(null, 'default', 'express_type', 'sf', '3');  #1：标准快递 2：顺丰特惠 3：电商特惠
-insert into configuration values(null, 'default', 'cargo', 'sf', '鞋子');
-insert into configuration values(null, 'default', 'is_insure', 'sf', '0');
+insert into configuration values(null, 'default', 'cargo', 'sf', '鞋子1');
+insert into configuration values(null, 'default', 'is_insure', 'sf', '1');
 insert into configuration values(null, 'default', 'insure_value', 'sf', '20000'); #200元
 insert into configuration values(null, 'default', 'custom_id', 'sf', '5953106803');
 insert into configuration values(null, 'default', 'checkword', 'sf', 'lPW+DZilSUJ9Vfgs');
-insert into configuration values(null, 'default', 'cargo', 'sf', '鞋子');
 
 	
