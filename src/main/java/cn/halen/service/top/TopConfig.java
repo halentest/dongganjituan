@@ -72,11 +72,24 @@ public class TopConfig {
     @Value("${file.report}")
     private String fileReport;
 
+    @Value("${yougou.appkey}")
+    private String yougouAppKey;
+
+    @Value("${yougou.url}")
+    private String yougouUrl;
+
+    @Value("${yougou.secret}")
+    private String yougouSecret;
+
     @Autowired
 	private AdminMapper adminMapper;
 
     public String getFileRefundPic() {
         return fileRefundPic;
+    }
+
+    public String getYougouSecret() {
+        return yougouSecret;
     }
 
     public String getFileUnlockGoods() {
@@ -161,8 +174,16 @@ public class TopConfig {
     public TaobaoClient getRetryClient() {
 		return new AutoRetryTaobaoClient(url, appKey, appSecret);
 	}
-	
-	public String getUrl() {
+
+    public String getYougouUrl() {
+        return yougouUrl;
+    }
+
+    public String getYougouAppKey() {
+        return yougouAppKey;
+    }
+
+    public String getUrl() {
 		return url;
 	}
 	public void setUrl(String url) {
