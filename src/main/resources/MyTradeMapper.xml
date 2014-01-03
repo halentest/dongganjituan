@@ -81,7 +81,7 @@
 
 	<insert id="insert" parameterType="MyTrade">
 		insert into trade2 values (#{id}, #{tid}, #{name}, #{phone}, #{mobile}, #{state}, #{city}, #{district}, #{address}, #{postcode}, #{delivery}, #{delivery_number},
-			#{delivery_money}, #{destcode}, #{origincode}, #{sf_status}, #{parcel_quantity}, #{pay_method}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish}, #{is_pause},
+			#{delivery_money}, #{destcode}, #{origincode}, #{sf_status}, #{parcel_quantity}, #{pay_method}, #{cargo}, #{is_insure}, #{insure_value}, #{template_id}, #{total_weight}, #{goods_count}, #{payment}, #{distributor_id}, #{is_submit}, #{is_refund}, #{is_send}, #{is_cancel}, #{is_finish}, #{is_pause},
             #{is_apply_refund}, #{why_cancel}, #{status}, #{seller_memo}, #{kefu_memo}, #{cangku_memo}, #{kefu_msg}, #{cangku_msg},
 			#{buyer_message}, #{seller_nick}, #{buyer_nick}, #{come_from}, #{pay_type}, #{return_order}, #{goods_id}, #{sku_id}, #{modified}, #{created}, #{submit_time}, #{cancel_time}, #{find_time}, #{scan_time}, #{send_time})
 	</insert>

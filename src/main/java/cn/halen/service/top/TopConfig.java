@@ -72,9 +72,6 @@ public class TopConfig {
     @Value("${file.report}")
     private String fileReport;
 
-    @Value("${yougou.appkey}")
-    private String yougouAppKey;
-
     @Value("${yougou.url}")
     private String yougouUrl;
 
@@ -99,10 +96,6 @@ public class TopConfig {
 
     public String getFileLockGoods() {
         return fileLockGoods;
-    }
-
-    public String getYougouAppKey() {
-        return yougouAppKey;
     }
 
     public String getYougouUrl() {

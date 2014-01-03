@@ -283,7 +283,7 @@ create table seller_info (
 	modified timestamp,
 	created timestamp
 )  DEFAULT CHARACTER SET utf8;
-insert into seller_info values(null, '毛小毛', '你好', '三千五百爸爸表示', '三千五百爸爸表示.....', '110', null, now());
+insert into seller_info values(null, '小东', '福建省', '石狮市', '骆驼动感', '宝盖镇骆驼仓库', 110, null, now());
 
 drop table if exists tid;
 create table tid (

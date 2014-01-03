@@ -310,7 +310,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 </div>
 
 <div id="dlg" class="easyui-window" title="执行结果" style="width:300px;height:300px; padding: 5px;"
-     data-options="modal:true,resizable:false,collapsible:false,closed:true,closable:true,minimizable:false,maximizable:false,onClose:function(){window.location.reload();}">
+     data-options="modal:true,resizable:true,collapsible:false,closed:true,closable:true,minimizable:false,maximizable:false,onClose:function(){window.location.reload();}">
 </div>
 
 <script>
