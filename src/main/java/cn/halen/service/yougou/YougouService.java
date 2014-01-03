@@ -2,6 +2,7 @@ package cn.halen.service.yougou;
 
 import cn.halen.data.pojo.MySku;
 import cn.halen.data.pojo.MyTrade;
+import cn.halen.data.pojo.Shop;
 import cn.halen.service.top.TopConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.FastDateFormat;
@@ -23,7 +24,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -52,10 +59,11 @@ public class YougouService {
 
     private Logger log = LoggerFactory.getLogger(YougouService.class);
 
-    public String updateInventory(MySku sku) throws UnsupportedEncodingException {
+    public String updateInventory(MySku sku, Shop shop) throws UnsupportedEncodingException {
 
         String thirdPartyCode = sku.getGoods_id() + sku.getColor_id() + sku.getSize();
-        long quantity = sku.getQuantity() - sku.getManaual_lock_quantity() - sku.getLock_quantity();
+        long quantity = Math.round((sku.getQuantity() - sku.getLock_quantity()
+                - sku.getManaual_lock_quantity()) * shop.getRate());
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String timestamp = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -65,7 +73,7 @@ public class YougouService {
         urlBuilder.append(topConfig.getYougouUrl())
                 .append("?method=").append(METHOD_UPDATE_INVENTORY)
                 .append("&timestamp=").append(URLEncoder.encode(timestamp, "UTF8"))
-                .append("&app_key=").append(topConfig.getYougouAppKey())
+                .append("&app_key=").append(shop.getAppkey())
                 .append("&sign_method=").append(SING_METHOD)
                 .append("&app_version=").append(VERSION)
                 .append("&format=").append(FORMAT)
@@ -74,7 +82,7 @@ public class YougouService {
                 .append("&quantity=").append(quantity);
         list.add(new BasicNameValuePair("method", METHOD_UPDATE_INVENTORY));
         list.add(new BasicNameValuePair("timestamp", timestamp));
-        list.add(new BasicNameValuePair("app_key", yougouAppKey));
+        list.add(new BasicNameValuePair("app_key", shop.getAppkey()));
         list.add(new BasicNameValuePair("sign_method", SING_METHOD));
         list.add(new BasicNameValuePair("app_version", VERSION));
         list.add(new BasicNameValuePair("format", FORMAT));
@@ -89,14 +97,13 @@ public class YougouService {
                 return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });
-        StringBuilder sourceBuilder = new StringBuilder(yougouAppSecret);
+        StringBuilder sourceBuilder = new StringBuilder(shop.getAppsecret());
         for(NameValuePair p : list) {
             sourceBuilder.append(p.getName()).append(p.getValue());
         }
         String md5 = DigestUtils.md5DigestAsHex(sourceBuilder.toString().getBytes());
         urlBuilder.append("&sign=").append(md5);
         HttpPost get = new HttpPost(urlBuilder.toString());
-        System.out.println(urlBuilder.toString());
         BufferedReader reader = null;
         StringBuilder builder = new StringBuilder();
         try {
@@ -122,7 +129,29 @@ public class YougouService {
             HttpClientUtils.closeQuietly(httpClient);
         }
         log.debug("sku id {}, {}", sku.getId(), builder.toString());
-        return null;
+        //解析结果
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+        try {
+            docBuilder = docFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            log.error("", e);
+        }
+        Document doc = null;
+        try {
+            doc = docBuilder.parse(new ByteArrayInputStream(builder.toString().getBytes()));
+        } catch (SAXException e) {
+            log.error("", e);
+        } catch (IOException e) {
+            log.error("", e);
+        }
+        Node codeNode = doc.getElementsByTagName("code").item(0);
+        String code = codeNode.getTextContent();
+        if("200".equals(code)) {
+            return null;
+        } else {
+            return code;
+        }
     }
 
     public static void main(String[] args) throws MalformedURLException, UnsupportedEncodingException {

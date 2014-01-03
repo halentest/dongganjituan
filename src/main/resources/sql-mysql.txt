@@ -226,6 +226,8 @@ drop table if exists shop;
 create table shop (
 	id int primary key auto_increment,
 	seller_nick varchar(100) not null,
+	appkey varchar(50), #new added
+	appsecret varchar(255), #new added
 	token varchar(255),
 	refresh_token varchar(255),
 	modified timestamp,

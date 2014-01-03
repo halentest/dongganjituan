@@ -86,7 +86,49 @@ public class GoodsService {
             }
         }
 	}
-	
+
+    /**
+     * @throws ApiException
+     */
+    public String updateSkuQuantity(MySku mySku, Shop shop) {
+
+        String outerSkuId = mySku.getGoods_id() + mySku.getColor_id() + mySku.getSize();
+        TaobaoClient client = topConfig.getRetryClient();
+        SkusCustomGetRequest req = new SkusCustomGetRequest();
+        req.setOuterId(outerSkuId);
+        req.setFields("sku_id, num_iid");
+        SkusCustomGetResponse response = null;
+        try {
+            response = client.execute(req , shop.getToken());
+        } catch (ApiException e) {
+            logger.error("query sku error", e);
+            return "query sku ApiException";
+        }
+        if(!response.isSuccess()) {
+            return "查询sku失败";
+        }
+        List<Sku> skuList = response.getSkus();
+        if(skuList==null || skuList.size()==0) {
+            logger.info("query shop : {}, skuId : {} , outerSkuId ： {}， have no item!", shop.getSeller_nick(), mySku.getId(),
+                    outerSkuId);
+        } else {
+            logger.debug("query shop : {}, skuId : {}, outerSkuId : {}, skuList from top size is {}", shop.getSeller_nick(),
+                    mySku.getColor_id(), outerSkuId, skuList.size());
+        }
+        if(skuList != null && skuList.size() > 0) {
+            long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()
+                    - mySku.getManaual_lock_quantity()) * shop.getRate());
+            for(Sku sku : skuList) {
+                try {
+                    itemClient.updateSkuQuantity(sku.getNumIid(), sku.getSkuId(), onlineQuantity, shop.getToken());
+                } catch (ApiException e) {
+                    return "update sku ApiException";
+                }
+            }
+        }
+        return null;
+    }
+
 	/**
 	 * @param item 
 	 * @return color+size -> sku_id

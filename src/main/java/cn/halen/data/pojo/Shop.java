@@ -7,6 +7,10 @@ public class Shop {
 	private int id;
 	
 	private String seller_nick;
+
+    private String appkey;
+
+    private String appsecret;
 	
 	private String token;
 	
@@ -33,8 +37,24 @@ public class Shop {
     }
 
 	private String type;
-	
-	private int distributor_id;
+
+    public String getAppkey() {
+        return appkey;
+    }
+
+    public void setAppkey(String appkey) {
+        this.appkey = appkey;
+    }
+
+    public String getAppsecret() {
+        return appsecret;
+    }
+
+    public void setAppsecret(String appsecret) {
+        this.appsecret = appsecret;
+    }
+
+    private int distributor_id;
 	
 	private Distributor d;
 	

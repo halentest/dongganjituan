@@ -158,12 +158,29 @@
 </div>
 <!-- end 提示框 -->
 
+<div id="loading" class="easyui-window" title="请稍后..." style="width:148px;height:54px;"
+     data-options="modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false,closable:false,
+     draggable:false,resizable:false">
+    <img src="/img/ajax-loader.gif"/>
+</div>
+
+<div id="dlg" class="easyui-window" title="执行结果" style="width:300px;height:300px; padding: 5px;"
+     data-options="modal:true,resizable:false,collapsible:false,closed:true,closable:true,minimizable:false,maximizable:false,onClose:function(){window.location.reload();}">
+</div>
+
 <script>
+
 	function initpage() {
 	      $('#goods-id').val('${goods_id!""}');
 	}
 	
 	$(document).ready(function(){
+
+	    $(document).bind("ajaxSend", function(){
+            $('#loading').window('open');
+        }).bind("ajaxComplete", function(){
+            $('#loading').window('close');
+        });
 		  //$.cookie('name', 'value');
 		  //alert($.cookie('name'));
 		  initpage();

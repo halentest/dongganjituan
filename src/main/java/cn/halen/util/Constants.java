@@ -34,4 +34,8 @@ public class Constants {
     public static final int QUANTITY = 1;
     public static final int LOCK_QUANTITY = 2;
     public static final int MANUAL_LOCK_QUANTITY = 3;
+
+    public static final String SHOP_THPE_YOUGOU = "优购网";
+    public static final String SHOP_TYPE_TIANMAO = "天猫商城";
+    public static final String SHOP_TYPE_TAOBAO = "淘宝c店";
 }

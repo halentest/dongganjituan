@@ -28,7 +28,8 @@ function saveSyncStore() {
     url: "/goods/batch_change",//要访问的后台地址
     success: function(result){//msg为返回的数据，在这里做数据绑定
             if(result.errorInfo != "success") {
-                alert(result.errorInfo);
+                $('#dlg').html(result.errorInfo);
+                $('#dlg').dialog('open');
             }  else {
                 $('#pop-up-sync-store').window('close');
                 alert("更新成功!");

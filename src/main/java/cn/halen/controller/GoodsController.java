@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import cn.halen.data.mapper.MySkuMapper;
+import cn.halen.data.pojo.Shop;
 import cn.halen.exception.InsufficientBalanceException;
 import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.MyException;
@@ -13,6 +14,7 @@ import cn.halen.service.excel.ExcelReader;
 import cn.halen.service.excel.GoodsExcelReader;
 import cn.halen.service.excel.GoodsRow;
 import cn.halen.service.excel.Row;
+import cn.halen.service.yougou.YougouService;
 import cn.halen.util.ErrorInfoHolder;
 import com.taobao.api.ApiException;
 import org.apache.commons.lang.StringUtils;
@@ -68,6 +70,9 @@ public class GoodsController {
 
     @Autowired
     private MySkuMapper skuMapper;
+
+    @Autowired
+    private YougouService yougouService;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -416,22 +421,31 @@ public class GoodsController {
                     result.setSuccess(false);
                     result.setErrorInfo("请选择店铺");
                 }
+                Shop shop = adminMapper.selectShopBySellerNick(shops);
 				List<Goods> goodsList =	goodsMapper.selectById(hidList);
+                StringBuilder builder = new StringBuilder();
 				for(Goods goods : goodsList) {
 					List<MySku> skuList = goods.getSkuList();
-                    StringBuilder skuIdList = new StringBuilder();
-                    boolean first = true;
+                    String res = null;
 					for(MySku sku : skuList) {
-                        if(!first) {
-                            skuIdList.append(",");
+
+                        if(Constants.SHOP_THPE_YOUGOU.equals(shop.getType())) {
+                            res = yougouService.updateInventory(sku, shop);
+                        } else if(Constants.SHOP_TYPE_TAOBAO.equals(shop.getType()) || Constants.SHOP_TYPE_TIANMAO.equals(shop.getType())) {
+                            res = goodsService.updateSkuQuantity(sku, shop);
                         }
-                        skuIdList.append(sku.getId());
-                        first = false;
+                        if(StringUtils.isNotBlank(res)) {
+                            builder.append(sku.getGoods_id()).append(sku.getColor_id()).append(sku.getSize())
+                                    .append("更新库存失败，原因：").append(res).append("\r\n");
+                        }
 					}
-                    redisTemplate.opsForSet().add(Constants.REDIS_SKU_GOODS_SET, skuIdList.toString());
+                }
+                if(builder.length() > 0) {
+                    result.setErrorInfo(builder.toString());
+                    result.setSuccess(false);
+                    return result;
                 }
 				//notify listener to handler
-				redisTemplate.convertAndSend(Constants.REDIS_SKU_GOODS_CHANNEL, "-" + shops.trim() + "-");
 			} else if("sync-pic".equals(action)) {
 				itemClient.updatePic(hidList);
 			} else if("change-template".equals(action)) {

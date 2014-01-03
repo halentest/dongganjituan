@@ -72,14 +72,8 @@ public class TopConfig {
     @Value("${file.report}")
     private String fileReport;
 
-    @Value("${yougou.appkey}")
-    private String yougouAppKey;
-
     @Value("${yougou.url}")
     private String yougouUrl;
-
-    @Value("${yougou.secret}")
-    private String yougouSecret;
 
     @Autowired
 	private AdminMapper adminMapper;
@@ -88,9 +82,6 @@ public class TopConfig {
         return fileRefundPic;
     }
 
-    public String getYougouSecret() {
-        return yougouSecret;
-    }
 
     public String getFileUnlockGoods() {
         return fileUnlockGoods;
@@ -177,10 +168,6 @@ public class TopConfig {
 
     public String getYougouUrl() {
         return yougouUrl;
-    }
-
-    public String getYougouAppKey() {
-        return yougouAppKey;
     }
 
     public String getUrl() {

@@ -16,6 +16,7 @@
 	        <select name="type" style="width: 15%;">
 				<option value="淘宝c店">淘宝c店</option>
 				<option value="天猫商城">天猫商城</option>
+                <option value="优购网">优购网</option>
 			</select>
 	      </div>
 	    </div>
