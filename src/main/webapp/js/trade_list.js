@@ -290,7 +290,7 @@ $('#delivery-print').change(function() {
     window.location.href="/trade/trade_list?status=WaitFind&isCancel=0&isFinish=0&isSend=0&isSubmit=1&delivery=" + delivery + "&orderString=order by goods_id,sku_id asc";
 })
 
-function CreatePrintPage(sender, from, from_company, from_address, sender_mobile,
+function CreatePrintPage(delivery, sender, from, from_company, from_address, sender_mobile,
 		receiver, to_company, to_address, receiver_mobile, to, goodsInfo, print_time, bg){
     LODOP.NewPage();
     LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='" + bg + "'>");
@@ -319,6 +319,14 @@ function CreatePrintPage(sender, from, from_company, from_address, sender_mobile
     LODOP.SET_PRINT_STYLEA(0,"FontSize",25);
     LODOP.ADD_PRINT_TEXTA("text12", 10,350,500,200,print_time);
     LODOP.SET_PRINT_STYLEA(0,"FontSize",25);
+    if(delivery=="顺丰速运") {
+        LODOP.ADD_PRINT_TEXTA("text13", 100,350,200,200,"电商特惠");
+        LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
+        LODOP.ADD_PRINT_TEXTA("text14", 20,350,200,200,"5953028933");
+        LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
+        LODOP.ADD_PRINT_TEXTA("text15", 50,350,200,200,"集团客户");
+        LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
+    }
 };
 
 $('#print-setup').click(function() {
@@ -344,7 +352,7 @@ $('#print-setup').click(function() {
     LODOP.SET_PRINT_PAGESIZE(1,2300,1270,"");
     LODOP.SET_PRINT_STYLE("FontSize",16);
     LODOP.SET_PRINT_STYLE("Bold",1);
-    CreatePrintPage("发件人","始发地","发件公司","发件地址","发件电话","收件人","收件公司","收件地址","收件电话","目的地","商品信息", "打印时间",bg);
+    CreatePrintPage(delivery,"发件人","始发地","发件公司","发件地址","发件电话","收件人","收件公司","收件地址","收件电话","目的地","商品信息", "打印时间",bg);
     LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");
     LODOP.PRINT_SETUP();
 })

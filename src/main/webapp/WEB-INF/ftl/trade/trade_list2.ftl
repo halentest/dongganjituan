@@ -375,7 +375,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                         });
                 }});
 
-                CreatePrintPage('${sellerInfo.sender}', '${sellerInfo.from_state!''}', '${sellerInfo.from_company!''}',
+                CreatePrintPage(delivery, '${sellerInfo.sender}', '${sellerInfo.from_state!''}', '${sellerInfo.from_company!''}',
                             '${sellerInfo.from_address!''}', '${sellerInfo.mobile!''}',
                             name, name, address, mobile==null?'':mobile, state + " " + city + " " + district, goodsInfo, new Date().toLocaleString(),bg);
 
