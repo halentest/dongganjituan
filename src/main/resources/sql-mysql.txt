@@ -237,6 +237,7 @@ create table shop (
 	type varchar(20),
 	distributor_id int,
 	auto_sync_store tinyint,  #当库存修改时是否同步淘宝店铺的库存
+    base_quantity int default 0, #库存控制，店铺内的库存为可用库存减去base_quantity
 	rate decimal(3, 2) default 1.00
 ) DEFAULT CHARACTER SET utf8;
 

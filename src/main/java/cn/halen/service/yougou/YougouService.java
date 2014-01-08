@@ -62,8 +62,16 @@ public class YougouService {
     public String updateInventory(MySku sku, Shop shop) throws UnsupportedEncodingException {
 
         String thirdPartyCode = sku.getGoods_id() + sku.getColor_id() + sku.getSize();
-        long quantity = Math.round((sku.getQuantity() - sku.getLock_quantity()
-                - sku.getManaual_lock_quantity()) * shop.getRate());
+        long quantity = sku.getQuantity() - sku.getLock_quantity() - sku.getManaual_lock_quantity();
+        if(shop.getBase_quantity() > 0) {
+            if(quantity > shop.getBase_quantity()) {
+                quantity = quantity - shop.getBase_quantity();
+            } else {
+                quantity = 0;
+            }
+        } else if(shop.getRate() != 1.00) {
+            quantity = Math.round(quantity * shop.getRate());
+        }
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String timestamp = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(new Date());

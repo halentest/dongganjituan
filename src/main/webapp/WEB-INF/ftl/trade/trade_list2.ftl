@@ -356,6 +356,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 var goodsInfo = "";
                 var city = "";
                 var district = "";
+                var phone = "";
 
                 $.ajax({
                     type: "get",//使用get方法访问后台
@@ -370,6 +371,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                         state = trade.state;
                         city = trade.city;
                         district = trade.district;
+                        phone = trade.phone;
                         $.each(trade.myOrderList, function(index, order) {
                                 goodsInfo = goodsInfo + order.goods_id + " " + order.sku.color + " " + order.sku.size + " " + order.quantity + "\r\n"
                         });
@@ -377,7 +379,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 
                 CreatePrintPage(delivery, '${sellerInfo.sender}', '${sellerInfo.from_state!''}', '${sellerInfo.from_company!''}',
                             '${sellerInfo.from_address!''}', '${sellerInfo.mobile!''}',
-                            name, name, address, mobile==null?'':mobile, state + " " + city + " " + district, goodsInfo, new Date().toLocaleString(),bg);
+                            name, name, address, mobile==null?'':mobile, phone==null?'':phone, state + " " + city + " " + district, goodsInfo, new Date().toLocaleString(),bg);
 
     	    })
             LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");

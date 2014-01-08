@@ -26,10 +26,20 @@ public class Shop {
 	
 	private int auto_sync_store;
 
+    private int base_quantity;
+
     private float rate;
 
     public float getRate() {
         return rate;
+    }
+
+    public int getBase_quantity() {
+        return base_quantity;
+    }
+
+    public void setBase_quantity(int base_quantity) {
+        this.base_quantity = base_quantity;
     }
 
     public void setRate(float rate) {

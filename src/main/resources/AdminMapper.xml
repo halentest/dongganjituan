@@ -10,7 +10,7 @@
 			ua.created as ua_created,
 			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.rate as s_rate,
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.base_quantity as s_base_quantity, s.rate as s_rate,
 			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created</sql>
 			
@@ -19,14 +19,14 @@
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created,
 			s.id as s_id, s.seller_nick as s_seller_nick, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.rate as s_rate,
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.base_quantity as s_base_quantity, s.rate as s_rate,
 			u.id as u_id, u.username as u_username, u.password as u_password, u.enabled as u_enabled,
 			u.type as u_type, u.modified as u_modified, u.created as u_created, u.shop_id as u_shop_id</sql>
 			
 	<sql id="shopColumns">
 			s.id as s_id, s.seller_nick as s_seller_nick, s.appkey as s_appkey, s.appsecret as s_appscret, s.token as s_token, s.refresh_token as s_refresh_token,
 			s.modified as s_modified, s.created as s_created, s.last_refresh as s_last_refresh, s.auto_sync as s_auto_sync,
-			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.rate as s_rate,
+			s.type as s_type, s.distributor_id as s_distributor_id, s.auto_sync_store as s_auto_sync_store, s.base_quantity as s_base_quantity, s.rate as s_rate,
 			d.id as d_id, d.name as d_name, d.phone as d_phone, d.deposit as d_deposit, d.discount as d_discount, d.self as d_self,
 			d.nocheck as d_nocheck, d.modified as d_modified, d.created as d_created</sql>
 	
@@ -50,6 +50,7 @@
 		    <result property="last_refresh" column="s_last_refresh"/>
 		    <result property="auto_sync" column="s_auto_sync"/>
 		    <result property="auto_sync_store" column="s_auto_sync_store"/>
+            <result property="base_quantity" column="s_base_quantity"/>
 		    <result property="type" column="s_type"/>
             <result property="rate" column="s_rate"/>
 		    <association property="d" javaType="Distributor">
@@ -94,8 +95,9 @@
 		    <result property="created" column="s_created"/>
 		    <result property="last_refresh" column="s_last_refresh"/>
 		    <result property="auto_sync" column="s_auto_sync"/>
-		     <result property="auto_sync_store" column="s_auto_sync_store"/>
-		    <result property="type" column="s_type"/>
+            <result property="type" column="s_type"/>
+            <result property="auto_sync_store" column="s_auto_sync_store"/>
+            <result property="base_quantity" column="s_base_quantity"/>
             <result property="rate" column="s_rate"/>
 		    <collection property="userList" ofType="User" >
 		      	<id property="id" column="u_id"/>
@@ -120,8 +122,9 @@
 	    <result property="created" column="s_created"/>
 	    <result property="last_refresh" column="s_last_refresh"/>
 	    <result property="auto_sync" column="s_auto_sync"/>
-	    <result property="auto_sync_store" column="s_auto_sync_store"/>
-	    <result property="type" column="s_type"/>
+        <result property="type" column="s_type"/>
+        <result property="auto_sync_store" column="s_auto_sync_store"/>
+        <result property="base_quantity" column="s_base_quantity"/>
         <result property="rate" column="s_rate"/>
 	    <association property="d" javaType="Distributor">
 		    <id property="id" column="d_id"/>
@@ -240,7 +243,7 @@
 	<select id="selectShop" parameterType="Map" resultType="Shop">
 		select id, seller_nick as seller_nick, appkey, appsecret, token, refresh_token as refresh_token,
 		modified, created, last_refresh as last_refresh, auto_sync as auto_sync, type, distributor_id as distributor_id,
-		auto_sync_store as auto_sync_store, rate from shop
+		auto_sync_store as auto_sync_store, base_quantity, rate from shop
 		<where>
 			<if test="auto_sync != null">
 				auto_sync = #{auto_sync}
@@ -259,7 +262,7 @@
 	
 	<insert id="insertShop" parameterType="Shop">
 		insert into shop values(null, #{seller_nick}, #{appkey}, #{appsecret}, #{token}, #{refresh_token}, null, now(), now(), #{auto_sync},
-		#{type}, #{distributor_id}, #{auto_sync_store}, #{rate})
+		#{type}, #{distributor_id}, #{auto_sync_store}, #{base_quantity}, #{rate})
 	</insert>
 
     <select id="selectAllShop" resultType="Shop">

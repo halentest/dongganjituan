@@ -291,7 +291,7 @@ $('#delivery-print').change(function() {
 })
 
 function CreatePrintPage(delivery, sender, from, from_company, from_address, sender_mobile,
-		receiver, to_company, to_address, receiver_mobile, to, goodsInfo, print_time, bg){
+		receiver, to_company, to_address, receiver_mobile, receiver_phone, to, goodsInfo, print_time, bg){
     LODOP.NewPage();
     LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='" + bg + "'>");
     LODOP.SET_SHOW_MODE("BKIMG_IN_PREVIEW",1);
@@ -312,6 +312,8 @@ function CreatePrintPage(delivery, sender, from, from_company, from_address, sen
     LODOP.ADD_PRINT_TEXTA("text8", 135,470,260,56,to_address);
     LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
     LODOP.ADD_PRINT_TEXTA("text9", 82,673,105,24,receiver_mobile);
+    LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+    LODOP.ADD_PRINT_TEXTA("receiver_phone", 86,673,105,24,receiver_phone);
     LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
     LODOP.ADD_PRINT_TEXTA("text10", 84,472,125,26,to);
     LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
@@ -352,7 +354,7 @@ $('#print-setup').click(function() {
     LODOP.SET_PRINT_PAGESIZE(1,2300,1270,"");
     LODOP.SET_PRINT_STYLE("FontSize",16);
     LODOP.SET_PRINT_STYLE("Bold",1);
-    CreatePrintPage(delivery,"发件人","始发地","发件公司","发件地址","发件电话","收件人","收件公司","收件地址","收件电话","目的地","商品信息", "打印时间",bg);
+    CreatePrintPage(delivery,"发件人","始发地","发件公司","发件地址","发件电话","收件人","收件公司","收件地址","收件手机","收件电话","目的地","商品信息", "打印时间",bg);
     LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");
     LODOP.PRINT_SETUP();
 })

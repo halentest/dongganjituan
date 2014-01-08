@@ -116,11 +116,19 @@ public class GoodsService {
                     mySku.getColor_id(), outerSkuId, skuList.size());
         }
         if(skuList != null && skuList.size() > 0) {
-            long onlineQuantity = Math.round((mySku.getQuantity() - mySku.getLock_quantity()
-                    - mySku.getManaual_lock_quantity()) * shop.getRate());
+            long quantity = mySku.getQuantity() - mySku.getLock_quantity() - mySku.getManaual_lock_quantity();
+            if(shop.getBase_quantity() > 0) {
+                if(quantity > shop.getBase_quantity()) {
+                    quantity = quantity - shop.getBase_quantity();
+                } else {
+                    quantity = 0;
+                }
+            } else if(shop.getRate() != 1.00) {
+                quantity = Math.round(quantity * shop.getRate());
+            }
             for(Sku sku : skuList) {
                 try {
-                    itemClient.updateSkuQuantity(sku.getNumIid(), sku.getSkuId(), onlineQuantity, shop.getToken());
+                    itemClient.updateSkuQuantity(sku.getNumIid(), sku.getSkuId(), quantity, shop.getToken());
                 } catch (ApiException e) {
                     return "update sku ApiException";
                 }
