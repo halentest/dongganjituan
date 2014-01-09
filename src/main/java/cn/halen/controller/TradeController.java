@@ -7,6 +7,7 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.halen.data.mapper.ConfigurationMapper;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.*;
 import cn.halen.service.top.TopConfig;
@@ -48,6 +49,11 @@ public class TradeController {
 	
 	@Autowired
 	private AdminMapper adminMapper;
+
+    @Autowired
+    private ConfigurationMapper configurationMapper;
+
+    private static final String KEY_SPACE = "default";
 
     private Logger log = LoggerFactory.getLogger(TradeController.class);
 	
@@ -239,9 +245,16 @@ public class TradeController {
         MyTrade trade = tradeMapper.selectTradeMap(id);
         model.addAttribute("trade", trade);
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
+        model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
         return "trade/trade_detail";
     }
 
+    /**
+     * being used while print delivery invoice
+     * @param model
+     * @param id
+     * @return
+     */
     @RequestMapping(value="/trade/trade_detail_json")
     public @ResponseBody MyTrade tradeDetailJson(Model model, @RequestParam String id) {
         if(null==id) {

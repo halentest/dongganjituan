@@ -7,6 +7,9 @@
 	<select id="selectByKey1" parameterType="java.util.Map" resultType="Configuration">
 	    select * from configuration where key_space=#{key_space} and key1=#{key1}
 	</select>
+    <select id="listByKeySpace" parameterType="String" resultType="Configuration">
+        select * from configuration where key_space=#{key_space}
+    </select>
 	
 	<update id="update" parameterType="Configuration">
 		update configuration set value=#{value} where key_space=#{key_space} and key1=#{key1}

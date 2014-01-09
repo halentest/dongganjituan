@@ -27,6 +27,19 @@ public class ConfigurationMapper extends SqlSessionDaoSupport {
         }
         return config;
 	}
+
+    public List<Configuration> listByKeySpace(String keySpace) {
+        return getSqlSession().selectList(namespace + ".listByKeySpace", keySpace);
+    }
+
+    public Map<String, String> listKVByKeySpace(String keySpace) {
+        List<Configuration> list = listByKeySpace(keySpace);
+        Map<String, String> map = new HashMap<String, String>(list.size());
+        for(Configuration conf : list) {
+            map.put(conf.getKey1(), conf.getValue());
+        }
+        return map;
+    }
 	
     public void insert(Configuration config) {
         getSqlSession().insert(namespace + ".insert", config);
