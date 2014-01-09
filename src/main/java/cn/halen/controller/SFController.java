@@ -239,7 +239,7 @@ public class SFController {
         String customId = configurationMapper.selectByKey1("default", "custom_id", "5953106803").getValue();
         if(cod) {
             int payment = (trade.getPayment() + trade.getDelivery_money())/100;
-            builder.append("代收货款:").append(payment)
+            builder.append("代收货款:").append(payment).append("元")
                     .append("     卡号:").append(customId)
                     .append("\n");
         }
@@ -248,8 +248,7 @@ public class SFController {
         boolean bIsInsure = trade.getIs_insure()==-1?(isInsure==1?true:false) : (trade.getIs_insure()==1?true:false);
         if(bIsInsure) {
             int value = trade.getInsure_value()==-1?insureValue/100 : trade.getInsure_value()/100;
-            builder.append("申明价值:").append(value)
-                    .append("    保价费用:").append(value);
+            builder.append("申明价值:").append(value).append("元");
         }
         valueMap2.put("EXT_SRV_INFO", builder.toString());
 
