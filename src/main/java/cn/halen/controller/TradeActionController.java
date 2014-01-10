@@ -52,6 +52,9 @@ public class TradeActionController {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private GoodsMapper goodsMapper;
+
+    @Autowired
+    private ConfigurationMapper configurationMapper;
 	
 	@Autowired
 	private MySkuMapper skuMapper;
@@ -96,6 +99,8 @@ public class TradeActionController {
 	
 	private static final String REDIS_AREA = "redis:area";
 
+    private static final String KEY_SPACE = "default";
+
     @RequestMapping(value="trade/action/upload")
     public String upload(Model model) {
         return "trade/upload";
@@ -108,6 +113,7 @@ public class TradeActionController {
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         model.addAttribute("type", type);
         model.addAttribute("from", from);
+        model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
         return "trade/add_comment_form";
     }
 
@@ -141,6 +147,7 @@ public class TradeActionController {
         model.addAttribute("trade", trade);
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         model.addAttribute("isApply", isApply);
+        model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
         return "trade/cancel_trade_form";
     }
 
@@ -872,6 +879,7 @@ public class TradeActionController {
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         model.addAttribute("trade", trade);
         model.addAttribute("from", from);
+        model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
         return "trade/modify_receiver_info_form";
     }
 

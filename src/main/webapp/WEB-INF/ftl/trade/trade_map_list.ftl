@@ -1,7 +1,7 @@
 <#import "/templates/root.ftl" as root >
 <#import "/trade/_buyer_info.ftl" as buyer_info >
 
-    <@root.html active=3 css=["jqpagination.css", "easyui.css", "icon.css", "trade_list.css", "all.css"]
+    <@root.html active=3 css=["jqpagination.css", "easyui.css", "icon.css", "trade_list.css", "all.css", "trade_detail.css"]
     js=["pagination.js", "jquery.jqpagination.min.js", "jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js", "trade_list.js"]>
     <#if CURRENT_USER.type=="WareHouse">
         <script language="javascript" src="${rc.contextPath}/js/LodopFuncs.js"></script>
@@ -82,52 +82,53 @@
     <#if trade_list?size gt 0>
         <div style="width:99%; margin-top:3px;">
             <#list trade_list as trade>
-                <table class="easyui-datagrid" style="height:auto;" data-options="scrollbarSize:'0', fitColumns:'true'">
-                    <thead>
-                    <tr>
-                        <th data-options="field:'itemid',align:'center',width:$(this).width() * 0.3">商品名称</th>
-                        <th data-options="field:'productid',align:'center',width:$(this).width() * 0.3">单价</th>
-                        <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">数量</th>
-                        <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">颜色规格</th>
-                        <th data-options="field:'action',align:'center',width:$(this).width() * 0.3">操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <#list trade.myOrderList as order>
-                        <tr>
-                            <td>
-
-                                <#if order.pic_path?? && order.pic_path?length &gt; 0>
-                                    <#assign picPath = order.pic_path/>
-                                <#else>
-                                    <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
-                                </#if>
-                                <p><img style="width: 80px; height: 80px;" src="${picPath}_80x80.jpg" /></p>
-                                <p>${order.title!''}</p>
-                                <p>商品编号：${order.goods_id}</p>
-                            </td>
-                            <td>${order.price/1000}</td>
-                            <td>${order.quantity}</td>
-                            <td>颜色：${order.sku.color}, 规格：${order.sku.size}</td>
-                            <td>
-                                <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
-                                    <#if trade.status=="UnSubmit" && trade.is_cancel==0>
-                                        <a href="${rc.contextPath}/trade/action/del_goods?tid=${trade.id?string}&oid=${order.id?c}&from=list">删除</a>
-                                    </#if>
-                                </#if>
-                            </td>
-                        </tr>
-                    </#list>
-
-                    </tbody>
-                </table>
-                <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
-                    <#if trade.status=="UnSubmit" && trade.is_cancel==0>
-                        <a href="${rc.contextPath}/goods/goods_list?tid=${trade.id?string}&from=list">添加商品</a>
+                <div class="right">
+                    <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
+                        <#if trade.status=="UnSubmit" && trade.is_cancel==0>
+                            <a href="${rc.contextPath}/goods/goods_list?tid=${trade.id?string}&from=list">添加商品</a>
+                        </#if>
                     </#if>
-                </#if>
+                    <table class="easyui-datagrid" style="height:auto;" data-options="scrollbarSize:'0', fitColumns:'true'">
+                        <thead>
+                        <tr>
+                            <th data-options="field:'itemid',align:'center',width:$(this).width() * 0.3">商品名称</th>
+                            <th data-options="field:'productid',align:'center',width:$(this).width() * 0.3">单价</th>
+                            <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">数量</th>
+                            <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">颜色规格</th>
+                            <th data-options="field:'action',align:'center',width:$(this).width() * 0.3">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <#list trade.myOrderList as order>
+                            <tr>
+                                <td>
 
-                <div style="background-color: #FFFFCC; padding: 10px;">
+                                    <#if order.pic_path?? && order.pic_path?length &gt; 0>
+                                        <#assign picPath = order.pic_path/>
+                                    <#else>
+                                        <#assign picPath = 'http://img01.tbsandbox.com/bao/uploaded/i1/T1R1CzXeRiXXcckdZZ_032046.jpg'/>
+                                    </#if>
+                                    <p><img style="width: 80px; height: 80px;" src="${picPath}_80x80.jpg" /></p>
+                                    <p>${order.title!''}</p>
+                                    <p>商品编号：${order.goods_id}</p>
+                                </td>
+                                <td>${order.price/1000}</td>
+                                <td>${order.quantity}</td>
+                                <td>颜色：${order.sku.color}, 规格：${order.sku.size}</td>
+                                <td>
+                                    <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
+                                        <#if trade.status=="UnSubmit" && trade.is_cancel==0>
+                                            <a href="${rc.contextPath}/trade/action/del_goods?tid=${trade.id?string}&oid=${order.id?c}&from=list">删除</a>
+                                        </#if>
+                                    </#if>
+                                </td>
+                            </tr>
+                        </#list>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="padding: 10px;">
                     <strong>订单状态：</strong>
                     <font color="red">
                         ${trade.tradeStatus.desc!''}
@@ -147,8 +148,9 @@
                             ，已申请退款
                         </#if>
                     </font>
-                    <@buyer_info.buyer_info trade=trade from="list" />
+                    <@buyer_info.buyer_info trade=trade conf=conf from="list" />
                 </div>
+                <div style="clear: both;"></div>
                 <hr>
             </#list>
         </div>

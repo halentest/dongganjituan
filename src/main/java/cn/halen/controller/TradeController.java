@@ -437,6 +437,7 @@ public class TradeController {
 
 		model.addAttribute("sellerInfo", adminMapper.selectSellerInfo());
         if("true".equals(map)) {
+            model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
             return "trade/trade_map_list";
         } else {
             return "trade/trade_list2";

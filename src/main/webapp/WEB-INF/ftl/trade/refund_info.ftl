@@ -79,7 +79,7 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
                </p>
                </#if>
            </div>
-           <@buyer_info.buyer_info trade=trade/>
+           <@buyer_info.buyer_info trade=trade conf=conf/>
            <div style="clear: both;"></div>
        </div>
 </@root.html>
