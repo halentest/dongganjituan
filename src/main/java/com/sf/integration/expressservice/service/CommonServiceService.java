@@ -25,12 +25,14 @@ public class CommonServiceService
     private final static URL COMMONSERVICESERVICE_WSDL_LOCATION;
     private final static WebServiceException COMMONSERVICESERVICE_EXCEPTION;
     private final static QName COMMONSERVICESERVICE_QNAME = new QName("http://service.expressservice.integration.sf.com/", "CommonServiceService");
+    private final static String SANDBOX = "http://bsp-test.sf-express.com:9090/bsp-ois/ws/expressService?wsdl";
+    private final static String PRODUCT = "http://bsp-oisp.sf-express.com/bsp-oisp/ws/expressService?wsdl";
 
     static {
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("http://bsp-test.sf-express.com:9090/bsp-ois/ws/expressService?wsdl");
+            url = new URL(PRODUCT);
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
