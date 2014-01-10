@@ -56,6 +56,7 @@ public class RequestXmlBuilder {
         String cargo = configurationMapper.selectByKey1("default", "cargo", "鞋子").getValue();
         String checkWord = configurationMapper.selectByKey1("default", "checkword", "lPW+DZilSUJ9Vfgs").getValue();
         String customId = configurationMapper.selectByKey1("default", "custom_id", "5953106803").getValue();
+        String yuejie = configurationMapper.selectByKey1("default", "yuejie", customId).getValue();
         int insureValue = Integer.parseInt(configurationMapper.selectByKey1("default", "insure_value", "20000").getValue());
         int isInsure = Integer.parseInt(configurationMapper.selectByKey1("default", "is_insure", "0").getValue());
         String expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
@@ -115,7 +116,7 @@ public class RequestXmlBuilder {
             Element added1 = doc.createElement("AddedService");
             added1.setAttribute("name", "COD");
             added1.setAttribute("value", String.valueOf(payment));
-            added1.setAttribute("value1", customId);
+            added1.setAttribute("value1", yuejie);
 //            added1.setAttribute("value2", "");
 //            added1.setAttribute("value3", "");
             orderOption.appendChild(added1);

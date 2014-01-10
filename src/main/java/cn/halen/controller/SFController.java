@@ -237,10 +237,11 @@ public class SFController {
         builder = new StringBuilder();
         boolean cod = trade.getPay_type() == Constants.PAY_TYPE_AFTER_RECEIVE;
         String customId = configurationMapper.selectByKey1("default", "custom_id", "5953106803").getValue();
+        String yuejie = configurationMapper.selectByKey1("default", "yuejie", customId).getValue();
         if(cod) {
             int payment = (trade.getPayment() + trade.getDelivery_money())/100;
             builder.append("代收货款:").append(payment).append("元")
-                    .append("     卡号:").append(customId)
+                    .append("     卡号:").append(yuejie)
                     .append("\n");
         }
         int insureValue = Integer.parseInt(configurationMapper.selectByKey1("default", "insure_value", "20000").getValue());

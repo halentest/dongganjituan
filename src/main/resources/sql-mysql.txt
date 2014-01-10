@@ -308,5 +308,6 @@ insert into configuration values(null, 'default', 'is_insure', 'sf', '1');
 insert into configuration values(null, 'default', 'insure_value', 'sf', '20000'); #200元
 insert into configuration values(null, 'default', 'custom_id', 'sf', '5953106803');
 insert into configuration values(null, 'default', 'checkword', 'sf', 'lPW+DZilSUJ9Vfgs');
+insert into configuration values(null, 'default', 'yuejie', 'sf', '5953106803');
 
 	
