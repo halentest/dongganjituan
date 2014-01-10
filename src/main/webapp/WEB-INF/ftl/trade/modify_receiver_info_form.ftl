@@ -40,7 +40,7 @@
                     </div>
                 </form>
             </div>
-            <@buyer_info.buyer_info trade=trade from=from!''/>
+            <@buyer_info.buyer_info trade=trade conf=conf from=from!''/>
                 <div style="clear: both;"></div>
         </div>
 </@root.html>

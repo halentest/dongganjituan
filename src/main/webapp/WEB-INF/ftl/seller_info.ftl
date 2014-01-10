@@ -3,7 +3,8 @@
     <table>
         <tr>
             <th>发件人姓名</th>
-            <th>始发地</th>
+            <th>省份</th>
+            <th>城市</th>
             <th>发件公司</th>
             <th>详细地址</th>
             <th>联系电话</th>
@@ -12,6 +13,7 @@
         <tr>
             <td>${sellerInfo.sender!''}</td>
             <td>${sellerInfo.from_state!''}</td>
+            <td>${sellerInfo.from_city!''}</td>
             <td>${sellerInfo.from_company!''}</td>
             <td>${sellerInfo.from_address!''}</td>
             <td>${sellerInfo.mobile!''}</td>

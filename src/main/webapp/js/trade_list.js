@@ -46,9 +46,6 @@ $('#save-scan').click(function() {
     $.ajax({
         type: "post",//使用get方法访问后台
         dataType: "json",//返回json格式的数据
-        beforeSend: function() {
-                        $('#save-scan').attr('disabled',"true");
-                    },
         data: "param=" + param,
         url: "/trade/batch_add_tracking_number",//要访问的后台地址
         success: function(result){//msg为返回的数据，在这里做数据绑定
@@ -85,9 +82,6 @@ $('#batch-out-goods').click(function() {
     })
         $.ajax({
             type: "post",//使用get方法访问后台
-            beforeSend: function() {
-                $('#batch-out-goods').attr('disabled',"true");
-            },
             dataType: "json",//返回json格式的数据
             data: "ids=" + ids + "&action=send",
             url: "/trade/action/batch_change_status",//要访问的后台地址
@@ -116,9 +110,6 @@ $('#batch-find-goods').click(function() {
     $.ajax({
     type: "post",//使用get方法访问后台
     dataType: "json",//返回json格式的数据
-    beforeSend: function() {
-        $('#batch-find-goods').attr('disabled',"true");
-    },
     data: "ids=" + tids + "&action=find-goods",
     url: "/trade/action/batch_change_status",//要访问的后台地址
     success: function(result){//msg为返回的数据，在这里做数据绑定
@@ -139,9 +130,6 @@ function batchSubmit(idList) {
     var tids = idList;
     $.ajax({
             type: "post",//使用get方法访问后台
-            beforeSend: function() {
-                            $('#batch_submit').attr('disabled',"true");
-                        },
             dataType: "json",//返回json格式的数据
             data: "ids=" + tids + "&action=submit",
             url: "/trade/action/batch_change_status",//要访问的后台地址
@@ -162,7 +150,6 @@ $('#batch-submit').click(function() {
         alert('至少选中一个订单!');
         return false;
     }
-    var b = true;
     var tids = "";
     $(checked).each(function(index, item) {
         var tid = item.id.trim();
@@ -172,9 +159,6 @@ $('#batch-submit').click(function() {
     $.ajax({
         type: "post",//使用get方法访问后台
         dataType: "json",//返回json格式的数据
-        beforeSend: function() {
-            $('#batch-submit').attr('disabled',"true");
-        },
         data: "ids=" + tids + "&action=submit&check=true",
         url: "/trade/action/batch_change_status",//要访问的后台地址
         success: function(result){//msg为返回的数据，在这里做数据绑定
@@ -414,3 +398,113 @@ function pause(id, action) {
         }
     });
 }
+
+function sforder(id) {
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "id=" + id,
+        url: "/trade/sf/order",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(!result.success) {
+                alert(result.errorInfo);
+            } else {
+                alert("下单成功!");
+            }
+        }
+    });
+}
+
+$('#sf-order').click(function() {
+    var checked = $('#t-list').datagrid("getChecked");
+    if(checked.length==0) {
+      alert('至少选中一个订单!');
+      return false;
+    }
+    var tids = "";
+    $(checked).each(function(index, item) {
+        var tid = item.id.trim();
+        tids += tid;
+        tids += ",";
+    })
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "ids=" + tids,
+        url: "/trade/sf/order",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            if(result.success == false) {
+                $('#dlg').html(result.errorInfo);
+                $('#dlg').dialog('open');
+            } else {
+                window.location.reload();
+            }
+        }
+    });
+})
+
+$('#sf-print').click(function() {
+    var delivery = $('#delivery-print').val();
+    var checked = $('#t-list').datagrid("getChecked");
+    if(checked.length==0) {
+        alert('至少选中一个订单!');
+        return false;
+    }
+
+    var tids = "";
+    $(checked).each(function(index, item) {
+        var tid = item.id.trim();
+        tids += tid;
+        tids += ",";
+    })
+
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "ids=" + tids,
+        url: "/trade/sf/print",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
+            LODOP.PRINT_INIT(delivery); //名称是主键
+            LODOP.SET_PRINT_PAGESIZE(1,0,0,"A4");
+            var arr = result.errorInfo.split(",");
+            for(var i in arr) {
+                if(arr[i].length>0) {
+                    LODOP.NewPage();
+                    LODOP.ADD_PRINT_IMAGE(10,10,1138,1610,"<img border='0' src='/" + arr[i] + "'/>");
+                    LODOP.SET_PRINT_STYLEA(0,"Stretch",2);
+                }
+            }
+            //LODOP.SET_PREVIEW_WINDOW(1,1,0,1610,1130,"");
+            LODOP.PREVIEW();
+        }
+    });
+})
+
+$('#sf-export').click(function() {
+    var checked = $('#t-list').datagrid("getChecked");
+    if(checked.length==0) {
+        alert('至少选中一个订单!');
+        return false;
+    }
+
+    var tids = "";
+    $(checked).each(function(index, item) {
+        var tid = item.id.trim();
+        tids += tid;
+        tids += ",";
+    })
+
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "ids=" + tids,
+        url: "/trade/sf/export",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            window.location.reload();
+        },
+        error: function() {
+            alert('error');
+        }
+    });
+})

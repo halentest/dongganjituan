@@ -99,8 +99,6 @@ public class TopConfig {
         return fileLockGoods;
     }
 
-
-
     public String getJianhuodan() {
         return jianhuodan;
     }

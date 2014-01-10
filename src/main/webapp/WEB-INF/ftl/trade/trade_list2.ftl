@@ -96,6 +96,9 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <#if isSend?? && isSend==1>
                         <th data-options="field:'attr5',align:'center',width:$(this).width() * 0.3">发货时间</th>
                     </#if>
+                    <#if delivery?? && delivery=="顺丰速运" && CURRENT_USER.type=="WareHouse" && isSubmit==1 && isSend==0 && status=='WaitFind'>
+                        <th data-options="field:'attr50',align:'center',width:$(this).width() * 0.3">下单状态(sf)</th>
+                    </#if>
                     <#if scan=="true">
                         <th data-options="field:'attr4',align:'center',width:$(this).width() * 0.4">填写单号</th>
                     <#else>
@@ -130,6 +133,17 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <#if trade.is_send==1>
                         <td><#if trade.send_time??>${trade.send_time?string('yyyy-MM-dd HH:mm:ss')}</#if></td>
                     </#if>
+                    <#if delivery?? && delivery=="顺丰速运" && CURRENT_USER.type=="WareHouse" && isSubmit==1 && isSend==0 && status=='WaitFind'>
+                        <td>
+                            <#if trade.sf_status==1>
+                                下单成功
+                            <#elseif trade.sf_status==2>
+                                <font color="red">下单失败</font>
+                            <#else>
+                                未下单
+                            </#if>
+                        </td>
+                    </#if>
                     <#if scan=="true">
                         <td>
                             <input class="scan-input" data-index="${trade_index}" data-id="${trade.id}" type="text" onkeydown="keyDown(this, event)"/>
@@ -139,7 +153,9 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <td>
                         <a href="${rc.contextPath}/trade/trade_detail?id=${trade.id}">订单详情</a> &nbsp;
                         <#if CURRENT_USER.type=="WareHouse" && trade.status=="WaitFind">
-                            <a onclick="addTrackingNumber('${trade.id}')">扫描单号</a>
+                            <#if !trade.delivery?? || trade.delivery!='顺丰速运'>
+                                <a onclick="addTrackingNumber('${trade.id}')">扫描单号</a>
+                            </#if>
                         </#if>
                         <#if (CURRENT_USER.type=="WareHouse" && trade.status=="WaitOut") || ((CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor") && trade.status=="UnSubmit")>
                             <#if trade.is_pause==1>
@@ -186,14 +202,22 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                         <option value="${lo.name}">${lo.name}</option>
                     </#list>
                 </select>
-                <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
-                <#if scan=="false">
-                    <a id="scan-delivery">扫描单号</a>
+                <#if delivery?? && delivery='顺丰速运'>
+                    <a id="sf-order">批量下单</a>
+                    <a id="sf-print">打印电子面单</a>
+                    <a id="sf-export">导出到待出库</a>
                 <#else>
-                    <button id="save-scan">保存单号</button>
+                    <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
+                    <#if scan=="false">
+                        <a id="scan-delivery">扫描单号</a>
+                    <#else>
+                        <button id="save-scan">保存单号</button>
+                    </#if>
                 </#if>
-                <a id="print-setup" style="cursor: pointer;">打印调整</a>
-                <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
+                <#if delivery?? && delivery!="顺丰速运">
+                    <a id="print-setup" style="cursor: pointer;">打印调整</a>
+                    <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
+                </#if>
             </#if>
         </#if>
     </div>
@@ -210,8 +234,10 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <option value="${lo.name}">${lo.name}</option>
                 </#list>
             </select>
-            <a id="print-setup" style="cursor: pointer;">打印调整</a>
-            <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
+            <#if delivery?? && delivery!="顺丰速运">
+                <a id="print-setup" style="cursor: pointer;">打印调整</a>
+                <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
+            </#if>
         </#if>
     <#else>
         <div class="alert" style="margin: 5px;">
@@ -277,9 +303,24 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
     </form>
 </div>
 
+<div id="loading" class="easyui-window" title="请稍后..." style="width:148px;height:54px;"
+     data-options="modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false,closable:false,
+     draggable:false,resizable:false">
+     <img src="/img/ajax-loader.gif"/>
+</div>
+
+<div id="dlg" class="easyui-window" title="执行结果" style="width:300px;height:300px; padding: 5px;"
+     data-options="modal:true,resizable:true,collapsible:false,closed:true,closable:true,minimizable:false,maximizable:false,onClose:function(){window.location.reload();}">
+</div>
+
 <script>
 
 	$(document).ready(function() {
+        $(document).bind("ajaxSend", function(){
+            $('#loading').window('open');
+        }).bind("ajaxComplete", function(){
+            $('#loading').window('close');
+        });
 
 		$('#distributor').change(function() {
 			$('#seller_nick').empty();

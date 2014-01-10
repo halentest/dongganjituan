@@ -312,6 +312,7 @@ public class MyTradeMapper extends SqlSessionDaoSupport {
         param.put("isCancel", 0);
         param.put("isFinish", 0);
         param.put("status", TradeStatus.WaitFind.getStatus());
+        param.put("orderString", " order by goods_id, sku_id");
         List<MyTrade> list = getSqlSession().selectList("cn.halen.data.mapper.MyTradeMapper.selectTradeMap", param);
         return list;
     }

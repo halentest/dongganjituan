@@ -38,4 +38,9 @@ public class Constants {
     public static final String SHOP_THPE_YOUGOU = "优购网";
     public static final String SHOP_TYPE_TIANMAO = "天猫商城";
     public static final String SHOP_TYPE_TAOBAO = "淘宝c店";
+    //快递费支付方式
+    public static final int PAY_METHOD_SENDER = 1;
+    public static final int PAY_METHOD_RECEIVER = 2;
+    public static final int PAY_METHOD_OTHER = 3;
+
 }

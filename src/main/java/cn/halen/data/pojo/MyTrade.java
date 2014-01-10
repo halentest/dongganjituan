@@ -1,5 +1,7 @@
 package cn.halen.data.pojo;
 
+import cn.halen.util.Constants;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,6 +24,15 @@ public class MyTrade {
     private String delivery_number;
 
     private int delivery_money;
+    private String destcode;
+    private String origincode;
+    private int sf_status;
+    private int parcel_quantity = 1;
+    private int pay_method = Constants.PAY_METHOD_SENDER;
+    private String cargo;
+
+    private int is_insure = -1;
+    private int insure_value = -1;
 
 	private int template_id;
 	private int total_weight; 
@@ -48,7 +59,7 @@ public class MyTrade {
     private String buyer_nick;
 	private String come_from;
 
-    private int pay_type;
+    private int pay_type = Constants.PAY_TYPE_ONLINE;
     private int return_order;
     private long goods_id;
     private long sku_id;
@@ -83,6 +94,70 @@ public class MyTrade {
     public void addWeight(int weight) {
 		total_weight += weight;
 	}
+
+    public int getPay_method() {
+        return pay_method;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
+    }
+
+    public int getIs_insure() {
+        return is_insure;
+    }
+
+    public void setIs_insure(int is_insure) {
+        this.is_insure = is_insure;
+    }
+
+    public int getInsure_value() {
+        return insure_value;
+    }
+
+    public void setInsure_value(int insure_value) {
+        this.insure_value = insure_value;
+    }
+
+    public void setPay_method(int pay_method) {
+        this.pay_method = pay_method;
+    }
+
+    public String getDestcode() {
+        return destcode;
+    }
+
+    public int getSf_status() {
+        return sf_status;
+    }
+
+    public int getParcel_quantity() {
+        return parcel_quantity;
+    }
+
+    public void setParcel_quantity(int parcel_quantity) {
+        this.parcel_quantity = parcel_quantity;
+    }
+
+    public void setSf_status(int sf_status) {
+        this.sf_status = sf_status;
+    }
+
+    public void setDestcode(String destcode) {
+        this.destcode = destcode;
+    }
+
+    public String getOrigincode() {
+        return origincode;
+    }
+
+    public void setOrigincode(String origincode) {
+        this.origincode = origincode;
+    }
 
     public long getGoods_id() {
         return goods_id;

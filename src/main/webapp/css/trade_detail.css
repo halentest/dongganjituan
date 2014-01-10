@@ -1,7 +1,7 @@
 .tab {
     float: left;
     width: 100%;
-    border: solid 1px gray;
+    border: solid 1px rgb(153, 153, 153);
     padding: 10px;
     font: white;
 }

@@ -114,4 +114,8 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
 
+    <bean id="configurationMapper" class="cn.halen.data.mapper.ConfigurationMapper">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
 </beans>

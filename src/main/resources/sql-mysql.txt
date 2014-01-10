@@ -121,12 +121,20 @@ create table trade2 (
 	address varchar(255) not null, 
 	postcode varchar(20), 
 	delivery varchar(20), #快递名称
-	delivery_number varchar(20), #快递单号
+	delivery_number varchar(1000), #快递单号 new modified
 	delivery_money int, #快递费用
+    destcode varchar(12), #顺丰专用   new added
+    origincode varchar(12), #顺丰专用 new added
+    sf_status tinyint default 0, #顺丰专用 0：还未下单 1：下单成功 2：下单失败   new added
+    parcel_quantity int default 1, #顺丰专用, 包裹数量   new added
+    pay_method tinyint default 1, #快递费付款方式，1：寄方付   2：收方付   3：第三方付  new added
+    cargo varchar(255), #顺丰专用 new added
+    is_insure tinyint default -1, #顺丰专用 是否保价 0：否  1：是  new added  -1: 参考总体配置
+    insure_value int default -1, #顺丰专用 保价金额，当is_insure为1时有效  new added   -1: 参考总体配置
 	template_id int, #模板id
 	total_weight int unsigned, 
 	goods_count bigint unsigned,
-	payment int unsigned, 
+	payment int unsigned, #货款
 	distributor_id int unsigned,
 	is_submit tinyint default 0, #是否提交
 	is_refund tinyint default 0, #是否退换货
@@ -146,7 +154,7 @@ create table trade2 (
 	seller_nick varchar(50),
 	buyer_nick varchar(50),
 	come_from varchar(25),
-	pay_type tinyint, #支付方式（1，货到付款  4，在线支付）
+	pay_type tinyint default 4, #支付方式（1，货到付款  4，在线支付） #new modified
     return_order tinyint default 0, #是否换货订单（1，是  0， 否）
     goods_id bigint unsigned, #也是被用来排序
     sku_id bigint unsigned, #该订单购买的商品的sku id，在打印快递单的时候用来按商品排序
@@ -270,16 +278,35 @@ create table seller_info (
 	id int primary key auto_increment,
 	sender varchar(255),
 	from_state varchar(255),
+	from_city varchar(255),  #new added
 	from_company varchar(255),
 	from_address varchar(255),
 	mobile varchar(20),
 	modified timestamp,
 	created timestamp
 )  DEFAULT CHARACTER SET utf8;
-insert into seller_info values(null, '毛小毛', '你好', '三千五百爸爸表示', '三千五百爸爸表示.....', '110', null, now());
+insert into seller_info values(null, '小东', '福建省', '石狮市', '骆驼动感', '宝盖镇骆驼仓库', 110, null, now());
 
+drop table if exists tid;
 create table tid (
     tid varchar(50) primary key
 );
+
+#new added
+drop table if exists configuration;
+create table configuration (
+    id int primary key auto_increment,
+    key_space varchar(25),
+    key1 varchar(50),
+    type varchar(25),
+    value varchar(100),
+    unique key(key_space, key1)
+) DEFAULT CHARACTER SET utf8;
+insert into configuration values(null, 'default', 'express_type', 'sf', '3');  #1：标准快递 2：顺丰特惠 3：电商特惠
+insert into configuration values(null, 'default', 'cargo', 'sf', '鞋子1');
+insert into configuration values(null, 'default', 'is_insure', 'sf', '1');
+insert into configuration values(null, 'default', 'insure_value', 'sf', '20000'); #200元
+insert into configuration values(null, 'default', 'custom_id', 'sf', '5953106803');
+insert into configuration values(null, 'default', 'checkword', 'sf', 'lPW+DZilSUJ9Vfgs');
 
 	

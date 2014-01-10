@@ -601,9 +601,11 @@ public class AdminController {
 
     @RequestMapping("admin/modify_seller_info")
     public String modifySellerInfo(Model model, @RequestParam("sender") String sender, @RequestParam("from_state") String fromState,
+                                   @RequestParam("from_city") String fromCity,
                                    @RequestParam("from_company") String fromCompany, @RequestParam("from_address") String fromAddress,
                                    @RequestParam("mobile") String mobile) {
-        if(StringUtils.isBlank(fromAddress) || StringUtils.isBlank(mobile)) {
+        if(StringUtils.isBlank(fromAddress) || StringUtils.isBlank(mobile) || StringUtils.isBlank(fromState) ||
+                StringUtils.isBlank(fromCity)) {
             model.addAttribute("errorInfo", "发件地址和联系电话不能为空!");
             return "error_page";
         }
@@ -611,6 +613,7 @@ public class AdminController {
         SellerInfo sellerInfo = new SellerInfo();
         sellerInfo.setSender(sender);
         sellerInfo.setFrom_state(fromState);
+        sellerInfo.setFrom_city(fromCity);
         sellerInfo.setFrom_company(fromCompany);
         sellerInfo.setFrom_address(fromAddress);
         sellerInfo.setMobile(mobile);

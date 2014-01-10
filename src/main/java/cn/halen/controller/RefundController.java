@@ -71,11 +71,17 @@ public class RefundController {
     @Autowired
     private TopConfig topConfig;
 
+    @Autowired
+    private ConfigurationMapper configurationMapper;
+
+    private static final String KEY_SPACE = "default";
+
     @RequestMapping(value="trade/action/receive_refund_form")
     public String receiveRefundForm(Model model, @RequestParam String tid) {
         MyTrade trade = tradeMapper.selectTradeMap(tid);
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         model.addAttribute("trade", trade);
+        model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
         if(trade.getIs_refund()==1) {
             MyRefund refund = refundMapper.selectRefundMapByTid(tid);
             model.addAttribute("refund", refund);
@@ -107,6 +113,7 @@ public class RefundController {
         }
         model.addAttribute("refund", refund);
         model.addAttribute("trade", trade);
+        model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
         return "trade/refund_info";
     }
 
@@ -115,6 +122,7 @@ public class RefundController {
         MyTrade trade = tradeMapper.selectTradeMap(id);
         model.addAttribute("logistics", myLogisticsCompanyMapper.list());
         model.addAttribute("trade", trade);
+        model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
         if(trade.getIs_refund()==1) {
             MyRefund refund = refundMapper.selectRefundMapByTid(id);
             model.addAttribute("refund", refund);

@@ -31,6 +31,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -300,6 +304,3 @@ public class YougouService {
         System.out.println(builder.toString());
     }
 }
-
-
-

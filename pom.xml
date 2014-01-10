@@ -326,7 +326,11 @@
             <artifactId>com.jd.sandbox.api</artifactId>
             <version>1.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>sf</groupId>
+            <artifactId>com.sf.api</artifactId>
+            <version>1.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
