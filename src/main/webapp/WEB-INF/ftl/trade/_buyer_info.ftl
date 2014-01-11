@@ -213,9 +213,6 @@
                 <td class="column">包裹数量:</td>
                 <td>
                     <span>${trade.parcel_quantity}</span>
-                    <#if trade.status!="WaitReceive" && trade.sf_status==0>
-                        <a id="modify-quantity" data-id="${trade.id}">修改</a>
-                    </#if>
                 </td>
             </tr>
         </#if>
