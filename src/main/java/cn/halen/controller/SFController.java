@@ -3,6 +3,7 @@ package cn.halen.controller;
 import cn.halen.data.mapper.AdminMapper;
 import cn.halen.data.mapper.ConfigurationMapper;
 import cn.halen.data.mapper.MyTradeMapper;
+import cn.halen.data.pojo.MyOrder;
 import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.SellerInfo;
 import cn.halen.data.pojo.TradeStatus;
@@ -253,8 +254,14 @@ public class SFController {
         }
         valueMap2.put("EXT_SRV_INFO", builder.toString());
 
-        String cargo = configurationMapper.selectByKey1("default", "cargo", "鞋子").getValue();
-        valueMap2.put("cons_name", StringUtils.isBlank(trade.getCargo())?cargo : trade.getCargo());
+        StringBuilder cargoBuilder = new StringBuilder();
+        for(MyOrder order : trade.getMyOrderList()) {
+            cargoBuilder.append(order.getGoods_id()).append(" ")
+                    .append(order.getSku().getColor()).append(" ")
+                    .append(order.getSku().getSize()).append(" ")
+                    .append(order.getQuantity()).append("\r\n");
+        }
+        valueMap2.put("cons_name", StringUtils.isBlank(trade.getCargo())?cargoBuilder.toString() : trade.getCargo());
 
         valueMap2.put("waybillCount", trade.getParcel_quantity());
         String expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
