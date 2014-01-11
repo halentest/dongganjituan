@@ -213,7 +213,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 <#else>
                     <button id="save-scan">保存单号</button>
                 </#if>
-                <#if delivery?? && delivery!="顺丰速运">
+                <#if delivery??>
                     <a id="print-setup" style="cursor: pointer;">打印调整</a>
                 </#if>
                 <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
@@ -233,7 +233,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <option value="${lo.name}">${lo.name}</option>
                 </#list>
             </select>
-            <#if delivery?? && delivery!="顺丰速运">
+            <#if delivery??>
                 <a id="print-setup" style="cursor: pointer;">打印调整</a>
             </#if>
             <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
