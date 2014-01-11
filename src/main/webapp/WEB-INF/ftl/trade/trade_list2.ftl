@@ -216,8 +216,8 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 </#if>
                 <#if delivery?? && delivery!="顺丰速运">
                     <a id="print-setup" style="cursor: pointer;">打印调整</a>
-                    <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
                 </#if>
+                <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
             </#if>
         </#if>
     </div>
@@ -236,8 +236,8 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
             </select>
             <#if delivery?? && delivery!="顺丰速运">
                 <a id="print-setup" style="cursor: pointer;">打印调整</a>
-                <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
             </#if>
+            <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
         </#if>
     <#else>
         <div class="alert" style="margin: 5px;">

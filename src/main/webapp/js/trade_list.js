@@ -466,8 +466,20 @@ $('#sf-print').click(function() {
         success: function(result){//msg为返回的数据，在这里做数据绑定
             LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
             LODOP.PRINT_INIT(delivery); //名称是主键
-            LODOP.SET_PRINT_PAGESIZE(1,0,0,"A4");
             var arr = result.errorInfo.split(",");
+            var width = $.cookie(delivery + "width");
+            var height = $.cookie(delivery + "height");
+            if(!width) {
+                width = 1138;
+            } else {
+                width = parseInt(width);
+            }
+            if(!height) {
+                height = 1610;
+            } else {
+                height = parseInt(height);
+            }
+            LODOP.SET_PRINT_PAGESIZE(1,width,height,"");
             for(var i in arr) {
                 if(arr[i].length>0) {
                     LODOP.NewPage();
