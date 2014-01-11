@@ -206,13 +206,12 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <a id="sf-order">批量下单</a>
                     <a id="sf-print">打印电子面单</a>
                     <a id="sf-export">导出到待出库</a>
+                </#if>
+                <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
+                <#if scan=="false">
+                    <a id="scan-delivery">扫描单号</a>
                 <#else>
-                    <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
-                    <#if scan=="false">
-                        <a id="scan-delivery">扫描单号</a>
-                    <#else>
-                        <button id="save-scan">保存单号</button>
-                    </#if>
+                    <button id="save-scan">保存单号</button>
                 </#if>
                 <#if delivery?? && delivery!="顺丰速运">
                     <a id="print-setup" style="cursor: pointer;">打印调整</a>
