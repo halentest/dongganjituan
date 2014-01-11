@@ -50,7 +50,6 @@
                         <td class="column">保价金额:</td>
                         <td>
                             <#if trade.is_insure==-1>
-                                <#if conf["is_insure"]=="1">
                                     <input type="text" name="insure_value"
                                     <#if trade.insure_value==-1>
                                         value='${(conf["insure_value"]?number)/100}'
@@ -58,7 +57,6 @@
                                         value='${((trade.insure_value?number)/100)?c}'
                                     </#if>
                                     />元
-                                </#if>
                             <#else>
                                     <input type="text" name="insure_value"
                                     <#if trade.insure_value==-1>
