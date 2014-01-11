@@ -1,9 +1,5 @@
 <#macro buyer_info trade conf from="">
 <style>
-    .column-name {
-        color: rgb(153, 153, 153);
-        font-family: 宋体, arial, tahoma, sans-serif;
-    }
     table tr td.column {
         text-align: right;
         color: rgb(153, 153, 153);
@@ -134,8 +130,8 @@
     </table>
 
     <strong>快递信息</strong>
-    <#if CURRENT_USER.type=="WareHouse" && trade.delivery?? && trade.delivery=="顺丰速运">
-        <a>修改</a>
+    <#if CURRENT_USER.type=="WareHouse" && trade.delivery?? && trade.delivery=="顺丰速运" && (trade.status=="WaitSend" || trade.status=="WaitFind")>
+        <a href="${rc.contextPath}/trade/action/modify_delivery_info_form?id=${trade.id}&from=${from}">修改</a>
     </#if>
     <br>
     <table>
@@ -180,7 +176,7 @@
                 <td class="column">物品:</td>
                 <td>
                     <#if trade.cargo?? && trade.cargo?length gt 0>
-                        trade.cargo
+                        ${trade.cargo}
                     <#else>
                         ${conf["cargo"]}
                     </#if>
@@ -207,7 +203,7 @@
                 <#if trade.is_insure==1>
                     <tr>
                         <td class="column">保价金额:</td>
-                        <td><#if trade.insure_value==-1>${(conf["insure_value"]?number)/100}<#else>${(trade.insure_value?number)/100}</#if>元</td>
+                        <td><#if trade.insure_value==-1>${(conf["insure_value"]?number)/100}<#else>${(trade.insure_value/100)}</#if>元</td>
                     </tr>
                 </#if>
             </#if>

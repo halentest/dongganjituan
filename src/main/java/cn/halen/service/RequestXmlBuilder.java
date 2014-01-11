@@ -98,7 +98,7 @@ public class RequestXmlBuilder {
         body.appendChild(order);
 
         Element orderOption = doc.createElement("OrderOption");
-        orderOption.setAttribute("custid", customId);
+        orderOption.setAttribute("custid", yuejie);
         orderOption.setAttribute("cargo", StringUtils.isBlank(trade.getCargo())?cargo : trade.getCargo());
 //        orderOption.setAttribute("cargo_count", "1");
 //        orderOption.setAttribute("cargo_unit", "双");

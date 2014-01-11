@@ -1058,4 +1058,64 @@ public class TradeActionController {
         writer.close();
 
     }
+
+    @RequestMapping(value="trade/action/modify_delivery_info_form")
+    public String modifyDeliveryInfoForm(Model model, @RequestParam("id") String id, @RequestParam(required = false) String from) {
+
+        MyTrade trade = tradeMapper.selectTradeMap(id);
+        model.addAttribute("logistics", myLogisticsCompanyMapper.list());
+        model.addAttribute("trade", trade);
+        model.addAttribute("from", from);
+        model.addAttribute("conf", configurationMapper.listKVByKeySpace(KEY_SPACE));
+        return "trade/modify_delivery_info_form";
+    }
+
+    @RequestMapping(value="trade/action/modify_delivery_info")
+    public String modifyDeliveryInfo(Model model, HttpServletRequest req, HttpServletResponse resp) {
+
+        String cargo = req.getParameter("cargo");
+        String parcelQuantity = req.getParameter("parcel_quantity");
+        boolean isInsure = StringUtils.isNotBlank(req.getParameter("is_insure")) && req.getParameter("is_insure").equals("on");
+        String insureValue = req.getParameter("insure_value");
+        boolean receiverPay = StringUtils.isNotBlank(req.getParameter("receiver_pay")) && req.getParameter("receiver_pay").equals("on");
+        String payMethod = req.getParameter("pay_method");
+        String id = req.getParameter("id");
+        String from = req.getParameter("from");
+        int pQuantity = 0;
+        int iValue = 0;
+        try {
+            pQuantity = Integer.parseInt(parcelQuantity);
+            iValue = Integer.parseInt(insureValue);
+            if(pQuantity < 1) {
+                model.addAttribute("errorInfo", "包裹数量填写不正确");
+                return "error_page";
+            }
+        } catch (Exception e) {
+            model.addAttribute("errorInfo", "包裹数量或保价金额填写不正确");
+            return "error_page";
+        }
+        MyTrade trade = tradeMapper.selectById(id);
+        trade.setCargo(cargo);
+        trade.setParcel_quantity(pQuantity);
+        trade.setIs_insure(isInsure?1 : 0);
+        trade.setInsure_value(iValue * 100);
+        trade.setPay_type(receiverPay?1 : 4);
+        trade.setPay_method(Integer.valueOf(payMethod));
+        int count = tradeMapper.updateMyTrade(trade);
+        if(count > 0) {
+            try {
+                if("list".equals(from)) {
+                    resp.sendRedirect("/trade/trade_list?isCancel=0&isSubmit=0&isFinish=0&map=true");
+                } else {
+                    resp.sendRedirect("/trade/trade_detail?id=" + id);
+                }
+                return null;
+            } catch (IOException e) {
+            }
+        } else {
+            model.addAttribute("info", "修改收货地址失败!");
+        }
+        return "success_page";
+    }
+
 }

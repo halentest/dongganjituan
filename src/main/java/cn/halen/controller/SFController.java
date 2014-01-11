@@ -260,7 +260,7 @@ public class SFController {
         String expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
         valueMap2.put("expressType", expressType);
 //        valueMap2.put("total_amount", "合计");
-        valueMap2.put("custCode", customId);
+        valueMap2.put("custCode", yuejie);
 //        valueMap2.put("total_amount2", "合计2");
 
         GenerationWaybillImage.generationImageA5(valueMap2, path + ".png");

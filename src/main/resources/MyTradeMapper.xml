@@ -388,7 +388,7 @@
 			 goods_count=#{goods_count}, payment=#{payment}, distributor_id=#{distributor_id}, is_submit=#{is_submit}, is_refund=#{is_refund},
              is_send=#{is_send}, is_cancel=#{is_cancel}, is_finish=#{is_finish}, is_pause=#{is_pause}, is_apply_refund=#{is_apply_refund}, why_cancel=#{why_cancel}, status=#{status},
 			 seller_memo=#{seller_memo}, kefu_memo=#{kefu_memo}, cangku_memo=#{cangku_memo}, kefu_msg=#{kefu_msg}, cangku_msg=#{cangku_msg},
-             buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, buyer_nick=#{buyer_nick}, come_from=#{come_from},
+             buyer_message=#{buyer_message}, seller_nick=#{seller_nick}, buyer_nick=#{buyer_nick}, come_from=#{come_from}, pay_type=#{pay_type},
 			 modified=now()
             <if test="submit_time != null">
                 , submit_time=#{submit_time}
