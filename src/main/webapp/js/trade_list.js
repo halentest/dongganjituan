@@ -488,7 +488,7 @@ $('#sf-print').click(function() {
                 }
             }
             //LODOP.SET_PREVIEW_WINDOW(1,1,0,1610,1130,"");
-            LODOP.PREVIEW();
+            LODOP.PRINT();
         }
     });
 })

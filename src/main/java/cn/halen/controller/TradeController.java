@@ -382,7 +382,7 @@ public class TradeController {
 		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime, deliveryNumber,
                 null, null, null, null);
 		model.addAttribute("totalCount", totalCount);
-        int pageSize = 100;
+        int pageSize = 50;
         if("true".equals(map)) {
             pageSize = 10;
         }
@@ -390,7 +390,7 @@ public class TradeController {
 		List<MyTrade> list = Collections.emptyList();
 		if(totalCount > 0) {
             boolean bMap = false;
-            if("true".equals(map)) {
+             if("true".equals(map)) {
                 bMap = true;
             }
 			list = tradeMapper.listTrade(sellerNickList, name, tid, paging, statusList, isSubmit, isRefund, isSend,
@@ -511,7 +511,7 @@ public class TradeController {
         long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, null, null, null, null, null, null, null, null, null, deliveryNumber,
                 nick, mobile, phone, id);
         model.addAttribute("totalCount", totalCount);
-        int pageSize = 100;
+        int pageSize = 50;
         Paging paging = new Paging(page, pageSize, totalCount);
         List<MyTrade> list = Collections.emptyList();
         if(totalCount > 0) {
