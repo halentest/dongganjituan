@@ -209,7 +209,7 @@ public class SFController {
         // A5参数
         valueMap2.put("waybillNo", deliveryNumber);
         valueMap2.put("sourceZoneCode", trade.getOrigincode());
-        valueMap2.put("destZoneCode", trade.getDestcode());
+     //   valueMap2.put("destZoneCode", trade.getDestcode());
     //    valueMap2.put("selfSend", "自寄");
     //    valueMap2.put("selfPickup", "自取");
 
@@ -297,6 +297,13 @@ public class SFController {
         g2.setPaint(Color.black);
 
         g2.drawString(s, 800, 640);
+        g2.drawString("电子秤 集团客户", 760, 1170);
+        g2.setFont(new Font("黑体", Font.BOLD, 280));
+        g2.drawString("E", 330, 200);
+
+        g2.setFont(new Font("黑体", Font.BOLD, 180));
+        g2.drawString(trade.getDestcode(), 800, 550);
+
 
         try {
             ImageIO.write(bi, "png", new File(path));
