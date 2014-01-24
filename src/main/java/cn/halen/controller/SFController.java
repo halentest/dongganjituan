@@ -299,7 +299,7 @@ public class SFController {
 
         g2.setFont(new Font("黑体", Font.BOLD, 30));
 
-        int origin = 1300;
+        int origin = 1005;
         int interval = 30;
         for(MyOrder order : trade.getMyOrderList()) {
             StringBuilder cargoBuilder = new StringBuilder();
@@ -307,7 +307,7 @@ public class SFController {
                     .append(order.getSku().getColor()).append(" ")
                     .append(order.getSku().getSize()).append(" ")
                     .append(order.getQuantity());
-            g2.drawString(cargoBuilder.toString(), 780, origin);
+            g2.drawString(cargoBuilder.toString(), 30, origin);
             origin += interval;
         }
 
