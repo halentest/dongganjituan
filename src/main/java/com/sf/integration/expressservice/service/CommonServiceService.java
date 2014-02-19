@@ -32,7 +32,7 @@ public class CommonServiceService
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL(SANDBOX);
+            url = new URL(PRODUCT);
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
