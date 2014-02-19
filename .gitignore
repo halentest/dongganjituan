@@ -1,0 +1,7 @@
+classpath/
+.settings/
+test-output/
+target/
+.classpath
+.project
+src/main/webapp/img/sf
