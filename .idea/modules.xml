@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://F:/hive-0.10.0-cdh4.2.1/src/jdbc/src/jdbc.iml" filepath="F:/hive-0.10.0-cdh4.2.1/src/jdbc/src/jdbc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../junit/junit.iml" filepath="$PROJECT_DIR$/../../../junit/junit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../log4j/log4j.iml" filepath="$PROJECT_DIR$/../../../log4j/log4j.iml" />
+      <module fileurl="file://$PROJECT_DIR$/manager_system.iml" filepath="$PROJECT_DIR$/manager_system.iml" />
+      <module fileurl="file://F:/work/engineering/projects/oc_client/dev/oa_automation_1M/oa_automation_web/oaa (2).iml" filepath="F:/work/engineering/projects/oc_client/dev/oa_automation_1M/oa_automation_web/oaa (2).iml" />
+      <module fileurl="file://F:/work/engineering/projects/oc_client/dev/oa_automation/solr-data-import-scheduler/solr-dihs.iml" filepath="F:/work/engineering/projects/oc_client/dev/oa_automation/solr-data-import-scheduler/solr-dihs.iml" />
+    </modules>
+  </component>
+</project>
+
