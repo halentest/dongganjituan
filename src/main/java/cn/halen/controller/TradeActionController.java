@@ -417,7 +417,7 @@ public class TradeActionController {
 				return "error_page";
 			}
 			
-			Goods goods = goodsMapper.getByHid(goodsId);
+			Goods goods = goodsMapper.getByHid(goodsId, true);
 			String color = req.getParameter("color" + count);
 			String size = req.getParameter("size" + count);
 			
@@ -516,7 +516,7 @@ public class TradeActionController {
                 return "error_page";
             }
 
-            Goods goods = goodsMapper.getByHid(goodsId);
+            Goods goods = goodsMapper.getByHid(goodsId, true);
             String color = req.getParameter("color" + count);
             String size = req.getParameter("size" + count);
 
@@ -1022,7 +1022,7 @@ public class TradeActionController {
 
             //set order info to trade so as to be able to order by it.
             myTrade.setSku_id(sku.getId());
-            Goods goods = goodsMapper.getByHid(sku.getGoods_id());
+            Goods goods = goodsMapper.getByHid(sku.getGoods_id(), true);
             myTrade.setGoods_id(goods.getId());
 
             myTrade.setTid(id);

@@ -295,7 +295,11 @@ public class SFController {
         g2.drawString("E", 330, 200);
 
         g2.setFont(new Font("黑体", Font.BOLD, 180));
-        g2.drawString(trade.getDestcode(), 800, 550);
+        int left = 800;
+        if(StringUtils.isNotBlank(trade.getDestcode()) && trade.getDestcode().length()>3) {
+            left = 740;
+        }
+        g2.drawString(trade.getDestcode(), left, 550);
 
         g2.setFont(new Font("黑体", Font.BOLD, 30));
 

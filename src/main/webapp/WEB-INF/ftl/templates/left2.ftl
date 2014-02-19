@@ -63,7 +63,11 @@
                         <TR>
                             <TD class="active" height=20><a id="goods-list" target="mainFrame">商品列表</a></TD>
                         </TR>
+                        <TR>
+                            <TD height=20><a id="sold-out-goods-list" target="mainFrame">下架商品</a></TD>
+                        </TR>
                         <#if CURRENT_USER.type=="GoodsManager" || CURRENT_USER.type=="Admin" || CURRENT_USER.type=="SuperAdmin">
+
                         <TR>
                             <TD height=20><a id="lock-list" target="mainFrame">锁定列表</a></TD>
                         </TR>
@@ -119,6 +123,10 @@
 
     $('#goods-list').click(function() {
         parent.frames[2].location.href="${rc.contextPath}/goods/goods_list";
+    });
+
+    $('#sold-out-goods-list').click(function() {
+        parent.frames[2].location.href="${rc.contextPath}/goods/goods_list?status=0";
     });
 
     $('#lock-list').click(function() {

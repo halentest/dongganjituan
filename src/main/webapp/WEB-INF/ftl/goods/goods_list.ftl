@@ -8,9 +8,12 @@
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<button id="search">搜索</button>&nbsp;&nbsp;&nbsp;&nbsp;共${totalCount}个商品 (${lockQuantity!'0'}/${quantity!'0'})
 		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
-		&nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
+		&nbsp;&nbsp;<a href="${rc.contextPath}/trade/action/shopcart">查看购物车</a>
 		</#if>
-        &nbsp;&nbsp;&nbsp;&nbsp;<a href="${rc.contextPath}/goods/export">导出库存</a>
+        <#if (CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor") && 1==status>
+            &nbsp;<a id="sync-store-all" title="同步所有商品">同步库存</a>
+        </#if>
+        &nbsp;<a href="${rc.contextPath}/goods/export">导出库存</a>
     </div>
 <#if list?? && list?size gt 0>
 	<div class="pagination">
@@ -25,12 +28,19 @@
 	<div>
 		<a id="check-all" style="cursor: pointer;">全选</a>
 		<a id="not-check-all" style="cursor: pointer;">全不选</a>
-        <#if CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor">
-		    <a class="btn btn-primary" id="sync-store">同步库存</a>
+        <#if (CURRENT_USER.type=="ServiceStaff" || CURRENT_USER.type=="Distributor") && 1==status>
+		    <a id="sync-store" title="同步选择的商品">同步库存</a>
         </#if>
         <#if CURRENT_USER.type=="GoodsManager">
-            <a class="btn btn-primary" id="change-template">修改运费模板</a>
-            <a class="btn btn-primary" id="sync-pic">同步商品图片</a>
+            <#if status==1>
+                <a class="btn btn-primary" id="change-template">修改运费模板</a>
+                <a class="btn btn-primary" id="sync-pic">同步商品图片</a>
+            </#if>
+            <#if status==1>
+                <a class="btn btn-primary" id="sold-out">下架商品</a>
+            <#elseif status==0>
+                <a class="btn btn-primary" id="sold-on">上架商品</a>
+            </#if>
         </#if>
 	</div>
 	<#if list??>
@@ -62,9 +72,11 @@
         	  		</#list>
         	  		<#if CURRENT_USER.type=="Distributor" || CURRENT_USER.type=="ServiceStaff">
         	  		<td rowspan="${map2?size+1}" style="width: 12%;">
-        	  			<a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">购买</a>
-        	  			<a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a>
-                        <#if tid??><a onclick="addGoods('${tid}', '${goods.hid}', '${from!''}')">添加</a></#if>
+                        <#if status==1>
+                            <a class="buy-button" data-goods="${goods.hid}" style="cursor: pointer;">购买</a>
+                            <a class="add-to-cart" data-goods="${goods.hid}" style="cursor: pointer;">加入购物车</a>
+                            <#if tid??><a onclick="addGoods('${tid}', '${goods.hid}', '${from!''}')">添加</a></#if>
+                        </#if>
         	  		</td>
         	  		</#if>
         	  </tr>
@@ -141,20 +153,20 @@
 <!-- start 提示框 -->
 <div id="pop-up-sync-store" class="easyui-window" title="选择店铺" data-options="modal:true,collapsible:false,closed:true,
         resizable:false,shadow:false,minimizable:false, maximizable:false" style="width:300px;height:150px;padding:10px;">
-        <#if shopList?size==0>
+        <#if shopList?? && shopList?size &gt; 0>
+            选择店铺
+            <select id="seller-nick">
+                <#list shopList as shop>
+                    <option value="${shop.seller_nick}">${shop.seller_nick}</option>
+                </#list>
+            </select>
+            <div style="text-align:center;padding:5px;margin-top:15px;">
+                <a class="easyui-linkbutton" onclick="saveSyncStore()">确定</a>
+                <a class="easyui-linkbutton" onclick="cancelSyncStore()">取消</a>
+            </div>
+        <#else>
             您目前没有店铺可以同步库存
-            <#else>
-                选择店铺
-                <select id="seller-nick">
-                    <#list shopList as shop>
-                        <option value="${shop.seller_nick}">${shop.seller_nick}</option>
-                    </#list>
-                </select>
-                <div style="text-align:center;padding:5px;margin-top:15px;">
-                    <a class="easyui-linkbutton" onclick="saveSyncStore()">确定</a>
-                    <a class="easyui-linkbutton" onclick="cancelSyncStore()">取消</a>
-                </div>
-            </#if>
+        </#if>
 </div>
 <!-- end 提示框 -->
 
@@ -190,7 +202,7 @@
                     if(!page) {
                         page = 1;
                     }
-			        window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId + "&tid=${tid!''}";
+			        window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId + "&tid=${tid!''}" + "&status=${status}";
 			    }
 		   });
 		   
@@ -200,7 +212,7 @@
                 if(!page) {
                     page = 1;
                 }
-		   		window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId + "&tid=${tid!''}";
+		   		window.location.href="/goods/goods_list?page=" + page + "&goods_id=" + goodsId + "&tid=${tid!''}" + "&status=${status}";
 		   });
 
 		   $('td.can-click').click(function() {

@@ -79,7 +79,6 @@ public class YougouService {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String timestamp = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(new Date());
-        System.out.println(timestamp);
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(topConfig.getYougouUrl())
