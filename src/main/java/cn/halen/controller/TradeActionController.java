@@ -14,6 +14,7 @@ import cn.halen.data.mapper.*;
 import cn.halen.data.pojo.*;
 import cn.halen.exception.MyException;
 import cn.halen.service.*;
+import cn.halen.service.dangdang.DangdangService;
 import cn.halen.service.excel.TradeExcelReader;
 import cn.halen.service.excel.TradeRow;
 import cn.halen.service.top.TradeClient;
@@ -88,6 +89,9 @@ public class TradeActionController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private DangdangService dangdangService;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -783,10 +787,16 @@ public class TradeActionController {
 			result.setErrorInfo("请输入正确的时间格式!");
 			return result;
 		}
-		
-		Map<String, Object> counter = initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
+		Shop shop = adminMapper.selectShopBySellerNick(sellerNick);
+
+		Map<String, Object> counter = null;
+        if(Constants.SHOP_TYPE_TAOBAO.equals(shop.getType()) || Constants.SHOP_TYPE_TIANMAO.equals(shop.getType())) {
+            counter = initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
+        } else if(Constants.SHOP_TYPE_DANGDANG.equals(shop.getType())) {
+            counter = dangdangService.syncTrade(shop, startDate, endDate);
+        }
         StringBuilder builder = new StringBuilder();
-        builder.append("已付款订单数：").append(counter.get("Paid")).append("<br>")
+        builder.append("代发货订单数：").append(counter.get("Paid")).append("<br>")
                 .append("已存在订单数：").append(counter.get("Exist")).append("<br>")
                 .append("导入失败订单列表：");
         for(String tid : (ArrayList<String>)counter.get("Fail")) {

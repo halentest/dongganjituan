@@ -1,8 +1,14 @@
 package cn.halen.service.dangdang;
 
 import cn.halen.data.pojo.MySku;
+import cn.halen.data.pojo.MyTrade;
 import cn.halen.data.pojo.Shop;
+import cn.halen.data.pojo.TradeStatus;
 import cn.halen.service.top.TopConfig;
+import cn.halen.util.Constants;
+import com.taobao.api.ApiException;
+import com.taobao.api.domain.Order;
+import com.taobao.api.domain.Trade;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
@@ -30,6 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -45,6 +52,8 @@ public class DangdangService {
 
     private static final String ACCESS_TOKEN = "11AAB4792A76EBCCA9AE01E0BFCE74F37BEC216B29A314B1D48AA75FCB4BC67E";
     public static final String method = "dangdang.items.list.get";
+    public static final String method_order_list_get = "dangdang.orders.list.get";
+    public static final String method_order_detail_get = "dangdang.order.details.get";
     public static final String SING_METHOD = "md5";
     public static final String FORMAT = "xml";
     public static final String VERSION = "1.0";
@@ -163,6 +172,11 @@ public class DangdangService {
         //post();
     }
 
+    //查询待发货的订单列表
+    private List<OrderInfo> queryList(Shop shop, Date startDate, Date endDate) {
+
+    }
+
     public static void get() throws UnsupportedEncodingException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String timestamp = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -170,15 +184,16 @@ public class DangdangService {
 
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(url)
-                .append("&method=").append(method)
-                .append("&timestamp=").append(URLEncoder.encode(timestamp, "UTF8"))
+                .append("&method=").append(method_order_detail_get)
+                .append("&timestamp=").append(URLEncoder.encode(timestamp, "gbk"))
                 .append("&format=").append(FORMAT)
                 .append("&app_key=").append(appKey)
                 .append("&sign_method=").append(SING_METHOD)
                 .append("&session=").append(ACCESS_TOKEN);
 
+        //添加签名的参数
         List<NameValuePair> list = new ArrayList<NameValuePair>();
-        list.add(new BasicNameValuePair("method", method));
+        list.add(new BasicNameValuePair("method", method_order_detail_get));
         list.add(new BasicNameValuePair("timestamp", timestamp));
         list.add(new BasicNameValuePair("format", FORMAT));
         list.add(new BasicNameValuePair("app_key", appKey));
@@ -191,15 +206,18 @@ public class DangdangService {
                 return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });
+        //secret需要参加签名
         StringBuilder sourceBuilder = new StringBuilder(appSecret);
         for(NameValuePair p : list) {
             sourceBuilder.append(p.getName()).append(p.getValue());
         }
         sourceBuilder.append(appSecret);
+        //其他业务参数不需要参加签名
         String md5 = DigestUtils.md5DigestAsHex(sourceBuilder.toString().getBytes());
         String sign = StringUtils.upperCase(md5);
 
         urlBuilder.append("&sign=").append(sign);
+        urlBuilder.append("&o=7485770369");
         HttpGet get = new HttpGet(urlBuilder.toString());
         System.out.println(urlBuilder.toString());
         BufferedReader reader = null;
@@ -229,5 +247,78 @@ public class DangdangService {
         System.out.println(builder.toString());
     }
 
+    public Map<String, Object> syncTrade(Shop shop, Date startDate, Date endDate) {
+        Map<String, Object> counter = new HashMap<String, Object>();
+        List<Trade> tradeList = Collections.EMPTY_LIST;
+        try {
+            tradeList = tradeClient.queryTradeList(tokenList, startDate, endDate);
+        } catch (ParseException e) {
+            log.error("", e);
+        } catch (ApiException e) {
+            log.error("", e);
+        }
+        counter.put("Paid", tradeList.size()); //已付款订单数量
+
+        int success = 0;
+        int existCount = 0;
+        List<String> fail = new ArrayList<String>();
+        for(Trade trade : tradeList) {
+            //check trade if exists
+            boolean exist = tradeMapper.checkTidExist(String.valueOf(trade.getTid()));
+            if(exist) {
+                existCount++;
+                continue;
+            }
+            Trade tradeDetail = null;
+            try {
+                tradeDetail = tradeClient.getTradeFullInfo(trade.getTid(), topConfig.getToken(trade.getSellerNick()));
+            } catch (ApiException e) {
+                log.error("", e);
+            }
+
+            //检查订单是否退款
+            Iterator<Order> it = tradeDetail.getOrders().iterator();
+            while(it.hasNext()) {
+                Order o = it.next();
+                if(!"NO_REFUND".equals(o.getRefundStatus())) {
+                    it.remove();
+                }
+            }
+            if(tradeDetail.getOrders().size() == 0) {
+                tradeDetail = null;
+            }
+
+            if(null == tradeDetail) {
+                fail.add(String.valueOf(trade.getTid()));
+                continue;
+            }
+            MyTrade myTrade = null;
+            try {
+                myTrade = tradeService.toMyTrade(tradeDetail);
+            } catch (ApiException e) {
+                log.error("", e);
+            }
+            if(null == myTrade || !myTrade.isSuccess()) {
+                fail.add(String.valueOf(trade.getTid()));
+            }
+            if(null == myTrade) {
+                continue;
+            }
+            myTrade.setStatus(TradeStatus.UnSubmit.getStatus());
+            int count = 0;
+            try {
+                count = tradeService.insertMyTrade(myTrade, Constants.LOCK_QUANTITY, null);
+            } catch (ApiException e) {
+                log.error("", e);
+            }
+            success += count;
+        }
+        counter.put("Success", success); //导入成功的订单
+        counter.put("Exist", existCount);
+        counter.put("Fail", fail);
+        log.info("fail is {}", fail.toString());
+
+        return counter;
+    }
 
 }
