@@ -58,6 +58,8 @@ public class DangdangService {
     public static final String FORMAT = "xml";
     public static final String VERSION = "1.0";
 
+    private FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
+
     @Autowired
     private TopConfig topConfig;
 
@@ -174,7 +176,86 @@ public class DangdangService {
 
     //查询待发货的订单列表
     private List<OrderInfo> queryList(Shop shop, Date startDate, Date endDate) {
+        StringBuilder urlBuilder = baseUrl(method_order_list_get, shop);
 
+        urlBuilder.append("&osd=").append(dateFormat.format(startDate));
+        urlBuilder.append("&oed=").append(dateFormat.format(endDate));
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet get = new HttpGet(urlBuilder.toString());
+        BufferedReader reader = null;
+        StringBuilder builder = new StringBuilder();
+        try {
+            CloseableHttpResponse resp = httpClient.execute(get);
+
+            HttpEntity entity = resp.getEntity();
+            if(null != entity) {
+                reader = new BufferedReader(new InputStreamReader(entity.getContent()));
+                try {
+                    for(String s=reader.readLine(); s!=null; s=reader.readLine()) {
+                        builder.append(s);
+                    }
+                } finally {
+                    reader.close();
+                }
+            }
+        } catch (IOException e) {
+            log.error("", e);
+        } finally {
+            if(null != reader) {
+                IOUtils.closeQuietly(reader);
+            }
+            HttpClientUtils.closeQuietly(httpClient);
+        }
+
+        return null;
+    }
+
+    //组装系统参数
+    public StringBuilder baseUrl(String method, Shop shop) {
+        String timestamp = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(new Date());
+        System.out.println(timestamp);
+
+        StringBuilder urlBuilder = new StringBuilder();
+        try {
+            urlBuilder.append(url)
+                    .append("&method=").append(method)
+                    .append("&timestamp=").append(URLEncoder.encode(timestamp, "gbk"))
+                    .append("&format=").append(FORMAT)
+                    .append("&app_key=").append(appKey)
+                    .append("&sign_method=").append(SING_METHOD)
+                    .append("&session=").append(shop.getToken());
+        } catch (UnsupportedEncodingException e) {
+            log.error("", e);
+        }
+
+        //添加签名的参数
+        List<NameValuePair> list = new ArrayList<NameValuePair>();
+        list.add(new BasicNameValuePair("method", method));
+        list.add(new BasicNameValuePair("timestamp", timestamp));
+        list.add(new BasicNameValuePair("format", FORMAT));
+        list.add(new BasicNameValuePair("app_key", appKey));
+        list.add(new BasicNameValuePair("v", VERSION));
+        list.add(new BasicNameValuePair("sign_method", SING_METHOD));
+        list.add(new BasicNameValuePair("session", shop.getToken()));
+        Collections.sort(list, new Comparator<NameValuePair>() {
+            @Override
+            public int compare(NameValuePair o1, NameValuePair o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+        //secret需要参加签名
+        StringBuilder sourceBuilder = new StringBuilder(appSecret);
+        for(NameValuePair p : list) {
+            sourceBuilder.append(p.getName()).append(p.getValue());
+        }
+        sourceBuilder.append(appSecret);
+        //其他业务参数不需要参加签名
+        String md5 = DigestUtils.md5DigestAsHex(sourceBuilder.toString().getBytes());
+        String sign = StringUtils.upperCase(md5);
+
+        urlBuilder.append("&sign=").append(sign);
+        return urlBuilder;
     }
 
     public static void get() throws UnsupportedEncodingException {
