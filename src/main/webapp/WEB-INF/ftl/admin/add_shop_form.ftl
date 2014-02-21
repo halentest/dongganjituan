@@ -17,7 +17,9 @@
 				<option value="淘宝c店">淘宝c店</option>
 				<option value="天猫商城">天猫商城</option>
                 <option value="优购网">优购网</option>
-			</select>
+                <option value="当当网">当当网</option>
+                <option value="京东商城">京东商城</option>
+            </select>
 	      </div>
 	    </div>
 	  </fieldset>
