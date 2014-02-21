@@ -1,2 +1,0 @@
-21:08:50.689 [pool-msg-consume-1-thread-3] INFO  cn.halen.service.top.async.TopMessageListener - onConnectMsg() occur, message is : 
-21:08:54.536 [pool-msg-consume-1-thread-5] INFO  cn.halen.service.top.async.TopMessageListener - onClientKickOff() occur
