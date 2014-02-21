@@ -10,4 +10,36 @@ public class TotalInfo {
     private int pageSize;
     private int pageTotal;
     private int currentPage;
+
+    public int getOrderCount() {
+        return orderCount;
+    }
+
+    public void setOrderCount(int orderCount) {
+        this.orderCount = orderCount;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public int getPageTotal() {
+        return pageTotal;
+    }
+
+    public void setPageTotal(int pageTotal) {
+        this.pageTotal = pageTotal;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
+    }
 }
