@@ -297,9 +297,9 @@ public class SFController {
         g2.setFont(new Font("黑体", Font.BOLD, 180));
         int left = 800;
         if(StringUtils.isNotBlank(trade.getDestcode()) && trade.getDestcode().length()>3) {
-            left = 740;
+            left = 650;
         }
-        g2.drawString(trade.getDestcode(), left, 550);
+        g2.drawString(trade.getDestcode(), left, 500);
 
         g2.setFont(new Font("黑体", Font.BOLD, 30));
 
