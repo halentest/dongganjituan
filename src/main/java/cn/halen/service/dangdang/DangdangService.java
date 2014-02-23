@@ -4,13 +4,8 @@ import cn.halen.data.mapper.*;
 import cn.halen.data.pojo.*;
 import cn.halen.service.TradeService;
 import cn.halen.service.top.TopConfig;
-import cn.halen.service.top.domain.TaoTradeStatus;
-import cn.halen.service.top.util.MoneyUtils;
 import cn.halen.util.Constants;
 import com.taobao.api.ApiException;
-import com.taobao.api.domain.Order;
-import com.taobao.api.domain.Trade;
-import freemarker.template.SimpleDate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
@@ -20,6 +15,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -33,10 +30,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
@@ -59,11 +58,13 @@ public class DangdangService {
     public static final String method = "dangdang.items.list.get";
     public static final String method_order_list_get = "dangdang.orders.list.get";
     public static final String method_order_detail_get = "dangdang.order.details.get";
+    public static final String method_stock_update = "dangdang.items.stock.update";
     public static final String SING_METHOD = "md5";
     public static final String FORMAT = "xml";
     public static final String VERSION = "1.0";
 
     private FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
+    private FastDateFormat dateFormat2 = FastDateFormat.getInstance("yyyyMMddHHmmss");
 
     @Autowired
     private TopConfig topConfig;
@@ -88,67 +89,99 @@ public class DangdangService {
 
     private Logger log = LoggerFactory.getLogger(DangdangService.class);
 
-    public String updateInventory(MySku sku, Shop shop) throws UnsupportedEncodingException {
-
-        String thirdPartyCode = sku.getGoods_id() + sku.getColor_id() + sku.getSize();
-        long quantity = sku.getQuantity() - sku.getLock_quantity() - sku.getManaual_lock_quantity();
-        if(shop.getBase_quantity() > 0) {
-            if(quantity > shop.getBase_quantity()) {
-                quantity = quantity - shop.getBase_quantity();
-            } else {
-                quantity = 0;
-            }
-        } else if(shop.getRate() != 1.00) {
-            quantity = Math.round(quantity * shop.getRate());
+    public File createRequestXml(List<MySku> skuList, Shop shop) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory
+                .newInstance();
+        DocumentBuilder builder = null;
+        try {
+            builder = factory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            log.error("", e);
         }
+        Document document = builder.newDocument();
+        Element request = document.createElement("request");
+        document.appendChild(request);
+
+        Element functionId = document.createElement("functionId");
+        functionId.appendChild(document.createTextNode("dangdang.items.stock.update"));
+        request.appendChild(functionId);
+
+        Date date = new Date();
+        String time = dateFormat.format(date);
+        String time2 = dateFormat2.format(date);
+        Element timeEle = document.createElement("time");
+        timeEle.appendChild(document.createTextNode(time));
+        request.appendChild(timeEle);
+
+        Element itemsList = document.createElement("ItemsList");
+        request.appendChild(itemsList);
+
+        for(MySku sku : skuList) {
+            Element itemUpadteInfo = document.createElement("ItemUpadteInfo");
+
+            Element outerItemID = document.createElement("outerItemID");
+            String outId = sku.getGoods_id() + sku.getColor_id() + sku.getSize();
+            outerItemID.appendChild(document.createTextNode(outId));
+            itemUpadteInfo.appendChild(outerItemID);
+
+            Element stockCount = document.createElement("stockCount");
+            long avaiQuantity = sku.getQuantity() - sku.getManaual_lock_quantity() - sku.getLock_quantity();
+            if(avaiQuantity < 0) {
+                avaiQuantity = 0;
+            }
+            stockCount.appendChild(document.createTextNode(String.valueOf(avaiQuantity)));
+            itemUpadteInfo.appendChild(stockCount);
+
+            itemsList.appendChild(itemUpadteInfo);
+        }
+
+        TransformerFactory tf = TransformerFactory.newInstance();
+        String fileName = shop.getSeller_nick() + time2 + ".xml";
+        try {
+            Transformer transformer = tf.newTransformer();
+            DOMSource source = new DOMSource(document);
+            transformer.setOutputProperty(OutputKeys.ENCODING, "gb2312");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            PrintWriter pw = new PrintWriter(new FileOutputStream(fileName));
+            StreamResult result = new StreamResult(pw);
+            transformer.transform(source, result);
+        } catch (Exception e) {
+            log.error("", e);
+        }
+
+        return new File(fileName);
+    }
+
+    public String updateInventory(File file, Shop shop) throws UnsupportedEncodingException {
+
+        StringBuilder urlBuilder = baseUrl(method_stock_update, shop);
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String timestamp = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(new Date());
-        System.out.println(timestamp);
-        List<NameValuePair> list = new ArrayList<NameValuePair>();
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(topConfig.getYougouUrl())
-                .append("?method=").append(method)
-                .append("&timestamp=").append(URLEncoder.encode(timestamp, "UTF8"))
-                .append("&app_key=").append(shop.getAppkey())
-                .append("&sign_method=").append(SING_METHOD)
-                .append("&app_version=").append(VERSION)
-                .append("&format=").append(FORMAT)
-                .append("&third_party_code=").append(thirdPartyCode)
-                .append("&update_type=0")
-                .append("&quantity=").append(quantity);
-        list.add(new BasicNameValuePair("method", method));
-        list.add(new BasicNameValuePair("timestamp", timestamp));
-        list.add(new BasicNameValuePair("app_key", shop.getAppkey()));
-        list.add(new BasicNameValuePair("sign_method", SING_METHOD));
-        list.add(new BasicNameValuePair("app_version", VERSION));
-        list.add(new BasicNameValuePair("format", FORMAT));
-        list.add(new BasicNameValuePair("third_party_code", thirdPartyCode));
-        list.add(new BasicNameValuePair("update_type", "0"));
-        list.add(new BasicNameValuePair("quantity", String.valueOf(quantity)));
+        HttpPost post = new HttpPost(url);
+        FileBody fileBody = new FileBody(file);
 
-
-        Collections.sort(list, new Comparator<NameValuePair>() {
-            @Override
-            public int compare(NameValuePair o1, NameValuePair o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        //解析参数
+        String url = urlBuilder.toString();
+        String[] params = url.split("\\?")[1].split("&");
+        for(String param : params) {
+            String[] kv = param.split("=");
+            if(!"timestamp".equals(kv[0])) {
+                multipartEntityBuilder.addTextBody(kv[0], kv[1]);
             }
-        });
-        StringBuilder sourceBuilder = new StringBuilder(shop.getAppsecret());
-        for(NameValuePair p : list) {
-            sourceBuilder.append(p.getName()).append(p.getValue());
         }
-        String md5 = DigestUtils.md5DigestAsHex(sourceBuilder.toString().getBytes());
-        urlBuilder.append("&sign=").append(md5);
-        HttpPost get = new HttpPost(urlBuilder.toString());
+        multipartEntityBuilder.addTextBody("timestamp", dateFormat.format(new Date()));
+
+        HttpEntity reqEntity = multipartEntityBuilder.addPart("multiItemsStock", fileBody).build();
+        post.setEntity(reqEntity);
         BufferedReader reader = null;
         StringBuilder builder = new StringBuilder();
         try {
-            CloseableHttpResponse resp = httpClient.execute(get);
+            CloseableHttpResponse resp = httpClient.execute(post);
 
             HttpEntity entity = resp.getEntity();
             if(null != entity) {
-                reader = new BufferedReader(new InputStreamReader(entity.getContent()));
+                reader = new BufferedReader(new InputStreamReader(entity.getContent(), "gbk"));
                 try {
                     for(String s=reader.readLine(); s!=null; s=reader.readLine()) {
                         builder.append(s);
@@ -158,37 +191,15 @@ public class DangdangService {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("", e);
         } finally {
             if(null != reader) {
                 IOUtils.closeQuietly(reader);
             }
             HttpClientUtils.closeQuietly(httpClient);
         }
-        log.debug("sku id {}, {}", sku.getId(), builder.toString());
-        //解析结果
-        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = null;
-        try {
-            docBuilder = docFactory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            log.error("", e);
-        }
-        Document doc = null;
-        try {
-            doc = docBuilder.parse(new ByteArrayInputStream(builder.toString().getBytes()));
-        } catch (SAXException e) {
-            log.error("", e);
-        } catch (IOException e) {
-            log.error("", e);
-        }
-        Node codeNode = doc.getElementsByTagName("code").item(0);
-        String code = codeNode.getTextContent();
-        if("200".equals(code)) {
-            return null;
-        } else {
-            return code;
-        }
+        String resp = builder.toString(); //服务器返回的结果字符串
+        return resp;
     }
 
     public static void main(String[] args) throws MalformedURLException, UnsupportedEncodingException {
@@ -529,7 +540,7 @@ public class DangdangService {
         String sign = StringUtils.upperCase(md5);
 
         urlBuilder.append("&sign=").append(sign);
-        urlBuilder.append("&o=7486353144");
+        urlBuilder.append("&o=7495517442");
         HttpGet get = new HttpGet(urlBuilder.toString());
         System.out.println(urlBuilder.toString());
         BufferedReader reader = null;
@@ -689,6 +700,7 @@ public class DangdangService {
         myTrade.setBuyer_nick(orderInfo.getDangdangAccountID());
         myTrade.setCome_from(Constants.DANGDANG);
         myTrade.setModified(new Date());
+        myTrade.setPayment((int) (orderInfo.getGoodsMoney() * 100));
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             myTrade.setCreated(format.parse(orderInfo.getPaymentDate()));
@@ -697,7 +709,12 @@ public class DangdangService {
         }
         myTrade.setMyOrderList(myOrderList);
         myTrade.setGoods_count(goodsCount);
-        myTrade.setPay_type(Constants.PAY_TYPE_ONLINE); //目前只支持淘宝的在线支付订单
+        if("货到付款".equals(orderInfo.getBuyerPayMode())) {
+            myTrade.setPay_type(Constants.PAY_TYPE_AFTER_RECEIVE);
+        } else {
+            myTrade.setPay_type(Constants.PAY_TYPE_ONLINE); //目前只支持淘宝的在线支付订单
+        }
+
         MyLogisticsCompany mc = logisticsMapper.select(1);
         myTrade.setDelivery(mc.getName());
 

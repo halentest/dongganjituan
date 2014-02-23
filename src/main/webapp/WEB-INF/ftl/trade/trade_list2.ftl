@@ -128,6 +128,9 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <#if trade.is_apply_refund==1>
                         <font color="red">(已申请退款)</font>
                     </#if>
+                    <#if trade.pay_type==1>
+                        <font color="red">货到付款</font>
+                    </#if>
                     </td>
                     <td>${trade.created?string('yyyy-MM-dd HH:mm:ss')}</td>
                     <#if trade.is_send==1>

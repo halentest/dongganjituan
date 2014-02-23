@@ -16,7 +16,7 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
                    <thead>
                    <tr>
                        <th data-options="field:'itemid',align:'center',width:$(this).width() * 0.3">商品名称</th>
-                       <th data-options="field:'productid',align:'center',width:$(this).width() * 0.3">单价</th>
+                       <th data-options="field:'productid',align:'center',width:$(this).width() * 0.3">金额</th>
                        <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">数量</th>
                        <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">颜色规格</th>
                        <th data-options="field:'action',align:'center',width:$(this).width() * 0.3">操作</th>
@@ -36,7 +36,7 @@ js=["jquery.cookie.js", "jquery.easyui.min.js", "trade_detail.js"]>
                                <p>${order.title!''}</p>
                                <p>商品编号：${order.goods_id}</p>
                            </td>
-                           <td>${order.price/1000}</td>
+                           <td>${order.payment/100}元</td>
                            <td>${order.quantity}</td>
                            <td>颜色：${order.sku.color}, 规格：${order.sku.size}</td>
                            <td>

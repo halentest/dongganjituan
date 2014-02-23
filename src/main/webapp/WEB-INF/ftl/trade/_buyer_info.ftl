@@ -185,7 +185,7 @@
         </#if>
         <#if trade.pay_type==1>
             <tr>
-                <td class="column">货到付款:</td>
+                <td class="column"><font color="red">货到付款:</font></td>
                 <td>
                     ${(trade.payment?int + trade.delivery_money?int)/100}元
                 </td>
