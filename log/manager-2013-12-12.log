@@ -1,0 +1,1 @@
+02:13:15.714 [pool-msg-consume-1-thread-4] INFO  cn.halen.service.top.async.TopMessageListener - onConnectMsg() occur, message is : 

@@ -10,6 +10,7 @@ import cn.halen.exception.InsufficientStockException;
 import cn.halen.exception.MyException;
 import cn.halen.service.AdminService;
 import cn.halen.service.SkuService;
+import cn.halen.service.dangdang.DangdangService;
 import cn.halen.service.excel.ExcelReader;
 import cn.halen.service.excel.GoodsExcelReader;
 import cn.halen.service.excel.GoodsRow;
@@ -70,6 +71,9 @@ public class GoodsController {
 
     @Autowired
     private MySkuMapper skuMapper;
+
+    @Autowired
+    private DangdangService dangdangService;
 
     @Autowired
     private YougouService yougouService;
@@ -229,7 +233,8 @@ public class GoodsController {
 
 	@RequestMapping(value="goods/goods_list")
 	public String list(Model model, @RequestParam(value="page", required=false) Integer page, @RequestParam(required = false) String from,
-			@RequestParam(value="goods_id", required=false) String goodsId, @RequestParam(value="tid", required=false) String tid) {
+			@RequestParam(value="goods_id", required=false) String goodsId, @RequestParam(value="tid", required=false) String tid,
+            @RequestParam(required = false, defaultValue = "1") int status) {
 
         model.addAttribute("quantity", skuMapper.sumQuantity());
         model.addAttribute("lockQuantity", skuMapper.sumLockQuantity());
@@ -242,7 +247,7 @@ public class GoodsController {
 			goodsId = goodsId.trim();
 		}
 		model.addAttribute("goods_id", goodsId);
-		long totalCount = goodsMapper.countGoodsPaging(goodsId);
+		long totalCount = goodsMapper.countGoodsPaging(goodsId, status);
 		Paging paging = new Paging(intPage, 20, totalCount);
 		model.addAttribute("paging", paging);
 		model.addAttribute("totalCount", totalCount);
@@ -250,7 +255,7 @@ public class GoodsController {
 			return "goods/goods_list";
 		}
 		
-		List<Goods> list = goodsMapper.listGoodsDetail(paging.getStart(), paging.getPageSize(), goodsId);
+		List<Goods> list = goodsMapper.listGoodsDetail(paging.getStart(), paging.getPageSize(), goodsId, status);
 		if(null == list || list.size() == 0) {
 			return "goods/goods_list";
 		}
@@ -260,6 +265,7 @@ public class GoodsController {
 
         model.addAttribute("tid", tid);
         model.addAttribute("from", from);
+        model.addAttribute("status", status);
 
         model.addAttribute("shopList", adminService.getSyncShopList());
 
@@ -400,10 +406,10 @@ public class GoodsController {
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="goods/batch_change")
-	public @ResponseBody ResultInfo syncStore(Model model, @RequestParam("hids") String hids, @RequestParam("action") String action,
+	public @ResponseBody ResultInfo batchChange(Model model, @RequestParam("hids") String hids, @RequestParam("action") String action,
 			@RequestParam(value="template", required=false) String template, @RequestParam(required = false) String shops) {
 		ResultInfo result = new ResultInfo();
-		if(StringUtils.isEmpty(hids.trim())) {
+		if(StringUtils.isEmpty(hids.trim()) && !"sync-store-all".equals(action)) {
 			result.setSuccess(false);
 			result.setErrorInfo("请至少选择一个商品!");
 			return result;
@@ -416,29 +422,39 @@ public class GoodsController {
 			}
 		}
 		try {
-			if("sync-store".equals(action)) {
+            if("sync-store".equals(action) || "sync-store-all".equals(action)) {
                 if(StringUtils.isBlank(shops)) {
                     result.setSuccess(false);
                     result.setErrorInfo("请选择店铺");
                 }
                 Shop shop = adminMapper.selectShopBySellerNick(shops);
-				List<Goods> goodsList =	goodsMapper.selectById(hidList);
-                StringBuilder builder = new StringBuilder();
-				for(Goods goods : goodsList) {
-					List<MySku> skuList = goods.getSkuList();
-                    String res = null;
-					for(MySku sku : skuList) {
+				List<Goods> goodsList =	null;
+                if("sync-store".equals(action)) {
+                    goodsList = goodsMapper.selectById(hidList);
+                } else if("sync-store-all".equals(action)) {
+                    goodsList = goodsMapper.selectMapByStatus();
+                }
+                StringBuilder builder = null;
+                if(Constants.SHOP_TYPE_DANGDANG.equals(shop.getType())) {
+                    builder = dangdangService.updateInventory(goodsList, shop);
+                } else {
+                    builder = new StringBuilder();
+                    for(Goods goods : goodsList) {
+                        List<MySku> skuList = goods.getSkuList();
+                        String res = null;
+                        for(MySku sku : skuList) {
 
-                        if(Constants.SHOP_THPE_YOUGOU.equals(shop.getType())) {
-                            res = yougouService.updateInventory(sku, shop);
-                        } else if(Constants.SHOP_TYPE_TAOBAO.equals(shop.getType()) || Constants.SHOP_TYPE_TIANMAO.equals(shop.getType())) {
-                            res = goodsService.updateSkuQuantity(sku, shop);
+                            if(Constants.SHOP_THPE_YOUGOU.equals(shop.getType())) {
+                                res = yougouService.updateInventory(sku, shop);
+                            } else if(Constants.SHOP_TYPE_TAOBAO.equals(shop.getType()) || Constants.SHOP_TYPE_TIANMAO.equals(shop.getType())) {
+                                res = goodsService.updateSkuQuantity(sku, shop);
+                            }
+                            if(StringUtils.isNotBlank(res)) {
+                                builder.append(sku.getGoods_id()).append(sku.getColor_id()).append(sku.getSize())
+                                        .append("更新库存失败，原因：").append(res).append("\r\n");
+                            }
                         }
-                        if(StringUtils.isNotBlank(res)) {
-                            builder.append(sku.getGoods_id()).append(sku.getColor_id()).append(sku.getSize())
-                                    .append("更新库存失败，原因：").append(res).append("\r\n");
-                        }
-					}
+                    }
                 }
                 if(builder.length() > 0) {
                     result.setErrorInfo(builder.toString());
@@ -450,7 +466,11 @@ public class GoodsController {
 				itemClient.updatePic(hidList);
 			} else if("change-template".equals(action)) {
 				goodsMapper.updateTemplate(hidList, template);
-			}
+			} else if("sold-out".equals(action)) {
+                goodsMapper.updateStatus(hidList, 0);
+            } else if("sold-on".equals(action)) {
+                goodsMapper.updateStatus(hidList, 1);
+            }
 		} catch(Exception e) {
 			log.error("", e);
 			result.setSuccess(false);

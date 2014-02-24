@@ -23,7 +23,7 @@ public class UtilService implements InitializingBean {
 	private AdminMapper adminMapper;
 	
 	public int calDeliveryMoney(String goodsId, int totalGoods, String logistics, String province) {
-		Goods goods = goodsMapper.getByHid(goodsId);
+		Goods goods = goodsMapper.getByHid(goodsId, false);
 		
 		String logisticsType = "pt";
 		if(logistics.equals("SF") || logistics.equals("顺丰速运")) {

@@ -52,6 +52,9 @@
    				<if test="goods_id != null">
    					hid like CONCAT('%', #{goods_id}, '%')
    				</if>
+                <if test="status != null">
+                    and status=#{status}
+                </if>
    			</where>
 			limit #{start}, #{page_size}) g 
 			left join sku s on g.hid = s.goods_id 
@@ -60,7 +63,7 @@
 
     <select id="listAllGoodsDetail" resultMap="goodsMap">
         select <include refid="selectColumns"/>, <include refid="selectColumnsSku"/>
-        from goods g
+        from (select * from goods where status=1) g
         left join sku s on g.hid = s.goods_id
         order by g.hid
     </select>
@@ -71,6 +74,9 @@
 				<if test="goods_id != null">
 					hid like CONCAT('%', #{goods_id}, '%')
 				</if>
+                <if test="status != null">
+                    and status=#{status}
+                </if>
 			</where>
 	</select>   		
 	
@@ -115,20 +121,36 @@
 			</foreach>
 		</if>
 	</select>
-	
-	<select id="getByHid" parameterType="String" resultType="Goods" >
-		select * from goods where hid = #{hid}
+
+    <select id="selectMapByStatus" parameterType="Integer" resultMap="goodsMap" >
+        select <include refid="selectColumns"/>, <include refid="selectColumnsSku"/> from goods g left join sku s on g.hid = s.goods_id
+        where g.status = 1
+    </select>
+
+	<select id="getByHid" parameterType="Map" resultType="Goods" >
+		select * from goods
+        where hid = #{hid}
+        <if test="status != null">
+            and status=#{status}
+        </if>
 	</select>
 	
-	<insert id="updateTemplate" parameterType="java.util.Map">
+	<update id="updateTemplate" parameterType="java.util.Map">
 		update goods set template=#{template} where hid in
 		<foreach item="hid" index="index" collection="hidList" open="(" separator="," close=")">
             #{hid}
         </foreach> 
-	</insert>
+	</update>
 
     <delete id="deleteByHid" parameterType="String">
         delete from goods where hid=#{hid}
     </delete>
+
+    <update id="updateStatus" parameterType="java.util.Map">
+        update goods set status=#{status} where hid in
+        <foreach item="hid" index="index" collection="hidList" open="(" separator="," close=")">
+            #{hid}
+        </foreach>
+    </update>
 
 </mapper>

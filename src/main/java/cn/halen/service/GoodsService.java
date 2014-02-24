@@ -263,7 +263,7 @@ public class GoodsService {
         }
 
         for(GoodsRow row : rows) {
-            Goods goods = goodsMapper.getByHid(row.getGoodsId());
+            Goods goods = goodsMapper.getByHid(row.getGoodsId(), false);
             List<String> colorIds = row.getColorIds();
             List<String> colors = row.getColors();
             if(null == goods) {

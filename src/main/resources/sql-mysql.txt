@@ -40,7 +40,7 @@ create table goods (
 	weight int unsigned,
 	price int unsigned, #吊牌价
     purchase_price int unsigned, #采购价
-	status int,
+	status int,   #商品状态 1，上架 0，下架
 	template varchar(50),
 	discount decimal(3, 2) default 0.00,
 	modified timestamp,

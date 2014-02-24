@@ -668,7 +668,7 @@ public class TradeService {
 		String lCompany = null;
         boolean first = true; //the first order
 		for(Order order : orderList) {
-			Goods goods = goodsMapper.getByHid(order.getOuterIid());
+			Goods goods = goodsMapper.getByHid(order.getOuterIid(), true);
 			if(null == goods) { //检查商品是否存在
 				log.info("This goods {} not exist!", order.getOuterIid());
                     //update memo
@@ -764,9 +764,12 @@ public class TradeService {
 		myTrade.setMyOrderList(myOrderList);
 		myTrade.setGoods_count(goodsCount);
         myTrade.setPay_type(Constants.PAY_TYPE_ONLINE); //目前只支持淘宝的在线支付订单
-		MyLogisticsCompany mc = logisticsMapper.select(1);
-		myTrade.setDelivery(mc.getName());
-		if(!isSelf) {
+        MyLogisticsCompany mc = logisticsMapper.select(1);
+        if("ems".equals(trade.getShippingType())) {
+            mc = logisticsMapper.selectByName("EMS");
+        }
+        myTrade.setDelivery(mc.getName());
+        if(!isSelf) {
 			myTrade.setDelivery_money(utilService.calDeliveryMoney(goodsHid, goodsCount, mc.getCode(), trade.getReceiverState()));
 			myTrade.setPayment(totalPayment);
 		} else {

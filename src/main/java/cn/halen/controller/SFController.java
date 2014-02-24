@@ -254,14 +254,7 @@ public class SFController {
         }
         valueMap2.put("EXT_SRV_INFO", builder.toString());
 
-        StringBuilder cargoBuilder = new StringBuilder();
-        for(MyOrder order : trade.getMyOrderList()) {
-            cargoBuilder.append(order.getGoods_id()).append(" ")
-                    .append(order.getSku().getColor()).append(" ")
-                    .append(order.getSku().getSize()).append(" ")
-                    .append(order.getQuantity()).append("\r\n");
-        }
-        valueMap2.put("cons_name", StringUtils.isBlank(trade.getCargo())?cargoBuilder.toString() : trade.getCargo());
+//        valueMap2.put("cons_name", StringUtils.isBlank(trade.getCargo())?cargoBuilder.toString() : trade.getCargo());
 
         valueMap2.put("waybillCount", trade.getParcel_quantity());
         String expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
@@ -302,8 +295,25 @@ public class SFController {
         g2.drawString("E", 330, 200);
 
         g2.setFont(new Font("黑体", Font.BOLD, 180));
-        g2.drawString(trade.getDestcode(), 800, 550);
+        int left = 800;
+        if(StringUtils.isNotBlank(trade.getDestcode()) && trade.getDestcode().length()>3) {
+            left = 740;
+        }
+        g2.drawString(trade.getDestcode(), left, 550);
 
+        g2.setFont(new Font("黑体", Font.BOLD, 30));
+
+        int origin = 1005;
+        int interval = 30;
+        for(MyOrder order : trade.getMyOrderList()) {
+            StringBuilder cargoBuilder = new StringBuilder();
+            cargoBuilder.append(order.getGoods_id()).append(" ")
+                    .append(order.getSku().getColor()).append(" ")
+                    .append(order.getSku().getSize()).append(" ")
+                    .append(order.getQuantity());
+            g2.drawString(cargoBuilder.toString(), 30, origin);
+            origin += interval;
+        }
 
         try {
             ImageIO.write(bi, "png", new File(path));

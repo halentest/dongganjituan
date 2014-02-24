@@ -27,7 +27,7 @@ public class GoodsMapperTest {
 	
 	@Test
 	public void test_listGoodsDetail() {
-		List<Goods> list = goodsMapper.listGoodsDetail(0, 2, "C6");
+		List<Goods> list = goodsMapper.listGoodsDetail(0, 2, "C6", 1);
 		for(Goods goods : list) {
 			System.out.println(goods);
 		}

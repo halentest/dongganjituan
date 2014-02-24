@@ -341,5 +341,10 @@
             <artifactId>httpmime</artifactId>
             <version>4.3.1</version>
         </dependency>
+        <dependency>
+            <groupId>barcode</groupId>
+            <artifactId>com.businessrefinery.barcode</artifactId>
+            <version>1.0</version>
+        </dependency>
 	</dependencies>
 </project>

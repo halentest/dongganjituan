@@ -5,6 +5,7 @@ import cn.halen.data.pojo.*;
 import cn.halen.service.TradeService;
 import cn.halen.service.top.TopConfig;
 import cn.halen.util.Constants;
+import com.businessrefinery.barcode.Barcode;
 import com.taobao.api.ApiException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -30,18 +31,24 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * User: hzhang
@@ -152,7 +159,74 @@ public class DangdangService {
         return new File(fileName);
     }
 
-    public String updateInventory(File file, Shop shop) throws UnsupportedEncodingException {
+    public StringBuilder updateInventory(List<Goods> goodsList, Shop shop) {
+        int totalSuccess = 0;
+        StringBuilder builder = new StringBuilder();
+        List<MySku> skuList = new ArrayList<MySku>();
+        for(Goods goods : goodsList) {
+            skuList.addAll(goods.getSkuList());
+        }
+        int size = skuList.size();
+        int batchSize = 40;
+        int time = size%batchSize==0?size/batchSize : size/batchSize + 1;
+        for(int i=1; i<=time; i++) {
+            List<MySku> subList = null;
+            if(i==time) {
+                subList = skuList.subList((i-1)*batchSize, skuList.size());
+            } else {
+                subList = skuList.subList((i-1)*batchSize, i*batchSize);
+            }
+            File file = this.createRequestXml(subList, shop);
+            try {
+                String resp = this.updateInventory(file, shop);
+                //解析结果
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = null;
+                try {
+                    docBuilder = docFactory.newDocumentBuilder();
+                } catch (ParserConfigurationException e) {
+                    log.error("", e);
+                }
+                Document doc = null;
+                try {
+                    doc = docBuilder.parse(new ByteArrayInputStream(resp.getBytes("gbk")));
+                } catch (SAXException e) {
+                    log.error("", e);
+                } catch (IOException e) {
+                    log.error("", e);
+                }
+                NodeList errorNode = doc.getElementsByTagName("Error");
+                if(null != errorNode && errorNode.getLength() > 0) {
+                    String operCode = doc.getElementsByTagName("operCode").item(0).getTextContent();
+                    String operation = doc.getElementsByTagName("operation").item(0).getTextContent();
+                    builder.append("operCode: ").append(operCode).append(", operation: ").append(operation);
+                } else {
+                    Node itemsIDList = doc.getElementsByTagName("ItemsIDList").item(0);
+                    NodeList children = itemsIDList.getChildNodes();
+                    for(int j=0; j<children.getLength(); j++) {
+                        Node n = children.item(j);
+                        if(!(n instanceof Element)) {
+                            continue;
+                        }
+                        String operCode = ((Element) n).getElementsByTagName("operCode").item(0).getTextContent();
+                        if("0".equals(operCode)) {
+                            totalSuccess++;
+                            continue;
+                        }
+                        String operation = ((Element) n).getElementsByTagName("operation").item(0).getTextContent();
+                        String outerItemID = ((Element) n).getElementsByTagName("outerItemID").item(0).getTextContent();
+                        builder.append(outerItemID).append("更新库存失败，原因：").append(operation).append("\r\n");
+                    }
+                }
+            } catch (UnsupportedEncodingException e) {
+                log.error("", e);
+            }
+        }
+        builder.append("更新成功").append(totalSuccess).append("个sku");
+        return builder;
+    }
+
+    protected String updateInventory(File file, Shop shop) throws UnsupportedEncodingException {
 
         StringBuilder urlBuilder = baseUrl(method_stock_update, shop);
 
@@ -241,7 +315,7 @@ public class DangdangService {
         result.addAll(orderInfos);
         TotalInfo totalInfo = parseTotalInfo(doc);
         while(totalInfo.getCurrentPage() < totalInfo.getPageTotal()) {
-            String url = urlBuilder.toString() + "&p=" + totalInfo.getCurrentPage() + 1;
+            String url = urlBuilder.toString() + "&p=" + (totalInfo.getCurrentPage() + 1);
             resp = urlRequest(url);
             try {
                 doc = docBuilder.parse(new ByteArrayInputStream(resp.getBytes("gbk")));
@@ -456,8 +530,6 @@ public class DangdangService {
     //组装系统参数
     public StringBuilder baseUrl(String method, Shop shop) {
         String timestamp = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(new Date());
-        System.out.println(timestamp);
-
         StringBuilder urlBuilder = new StringBuilder();
         try {
             urlBuilder.append(url)
@@ -663,7 +735,7 @@ public class DangdangService {
             myOrder.setSize(sku.getSize());
             myOrder.setSku_id(sku.getId());
 
-            Goods goods = goodsMapper.getByHid(sku.getGoods_id());
+            Goods goods = goodsMapper.getByHid(sku.getGoods_id(), true);
 
             //set order info to trade so as to be able to order by it.
             if(first) {
@@ -719,6 +791,188 @@ public class DangdangService {
         myTrade.setDelivery(mc.getName());
 
         return myTrade;
+    }
+
+    public static void writeDangdang() throws Exception {
+        int width = 1435;
+        int height = 1000;
+        int w = width/2;
+
+
+        File file = new File("d:/dangdang.jpg");
+
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = (Graphics2D)bi.getGraphics();
+        g2.setBackground(Color.WHITE);
+        g2.clearRect(0, 0, width, height);
+        g2.setPaint(Color.black);
+        g2.setStroke(new BasicStroke(3));
+        g2.drawRect(50, 50, 600, 850); //外边框
+        g2.setFont(new Font("楷体", Font.BOLD, 20));
+        String s = "招商平台快递详情单/派送仓 - 上海仓";
+        g2.drawString(s, 150, 80);
+
+        String s2 = "应收款：309.00";
+        g2.drawString(s2, 400, 200);
+
+        g2.drawRect(60, 210, 580, 240);
+
+        g2.drawRect(60, 210, 110, 40);
+        g2.drawString("订 单 号", 75, 238);
+        g2.drawRect(170, 210, 160, 40);
+        g2.drawString("7524333901", 185, 238);
+        g2.drawRect(330, 210, 110, 40);
+        g2.drawString("订购日期", 345, 238);
+        g2.drawRect(440, 210, 200, 40);
+        g2.drawString("2013/01/18 12:00:01", 445, 238);
+
+        g2.drawRect(60, 250, 110, 40);
+        g2.drawString("收 货 人", 75, 278);
+        g2.drawRect(170, 250, 160, 40);
+        g2.drawString("盖世魔王", 185, 278);
+        g2.drawRect(330, 250, 110, 40);
+        g2.drawString("联系电话", 345, 278);
+        g2.drawRect(440, 250, 200, 40);
+        g2.drawString("15257197713", 445, 278);
+
+        g2.drawRect(60, 290, 110, 120);
+        g2.drawString("地址", 100, 355);
+        g2.drawRect(170, 290, 470, 120);
+        String addr = "天津，天津市，河东区，天津市河东区万新村远翠中里14区6号楼1号门505,300162";
+        String[] lines = getAllLineStr(addr, 470, 120, g2.getFontMetrics());
+        int h = 320;
+        for(String line : lines) {
+            g2.drawString(line, 175, h);
+            h += 20;
+        }
+
+        g2.drawRect(60, 410, 110, 40);
+        g2.drawString("派送要求", 75, 435);
+        g2.drawRect(170, 410, 470, 40);
+        g2.drawString("随时派送", 175, 435);
+
+        String goods = "139654788, 卡其 34 X 1";
+        g2.drawString(goods, 70, 475);
+        g2.drawString(goods, 70, 495);
+
+
+        g2.drawString("签收", 80, 720);
+        g2.drawLine(120, 720, 300, 720);
+        g2.drawString("日期", 320, 720);
+        g2.drawLine(360, 720, 540, 720);
+
+        g2.drawRect(60, 730, 580, 160);
+
+        g2.drawRect(60, 730, 110, 40);
+        g2.drawString("发货商家", 70, 758);
+        g2.drawRect(170, 730, 470, 40);
+        g2.drawString("当当网", 175, 758);
+
+        g2.drawRect(60, 770, 110, 40);
+        g2.drawString("商家编号", 70, 798);
+        g2.drawRect(170, 770, 160, 40);
+        g2.drawRect(330, 770, 110, 40);
+        g2.drawString("取货日期", 340, 798);
+        g2.drawRect(440, 770, 200, 40);
+
+        g2.drawRect(60, 810, 110, 80);
+        g2.drawString("发货人", 80, 855);
+        g2.drawRect(170, 810, 160, 80);
+        String sender = "骆驼动感旗舰店xxxxxxxxxxx骆驼动感旗舰店xxxxxxxxxxx骆驼动感旗舰店xxxxxxxxxxx";
+        lines = getAllLineStr(sender, 160, 80, g2.getFontMetrics());
+        h = 840;
+        for(String line : lines) {
+            g2.drawString(line, 175, h);
+            h +=20;
+        }
+        g2.drawRect(330, 810, 110, 80);
+        g2.drawString("联系电话", 340, 855);
+        g2.drawRect(440, 810, 200, 80);
+        g2.drawString("0595-33525789", 450, 855);
+
+        Barcode barcode = new Barcode();
+        barcode.setSymbology(Barcode.CODE128);
+        barcode.setCode("7524333901");
+        Rectangle2D rectangle2D = new Rectangle2D.Double(150, 100, 100, 30);
+        barcode.drawOnGraphics(g2, rectangle2D);
+
+        ImageIO.write(bi, "jpg", file);
+        System.out.println("success");
+    }
+
+    /**
+     * add by zkl.  2007-07-12.
+     * @param data        需要显示的文本内容.
+     * @param width       显示区域宽度.
+     * @param height      显示区域高度
+     * @param metrics     字体的字形对象.
+     * @return String[]   返回每行要显示的内容.
+     */
+    protected static String[] getAllLineStr(String data, int width, int height, FontMetrics metrics)
+    {
+        int lineH=metrics.getHeight();
+        int charH=lineH-metrics.getLeading()-metrics.getDescent();
+        String[] dest=new String[1+(int)Math.ceil(height/lineH)];
+        char[] chs=data.toCharArray();
+        int widthLeft=width;
+        int chWidth;
+        int lineCount=0;
+        int lastIndex=0;
+        for(int i=0;i<chs.length;i++)
+        {
+            chWidth=metrics.charWidth(chs[i]);
+            if(chWidth>width||charH>height)
+            {
+                return new String[0];
+            }
+
+   /*
+    * 此处提供了对手动换行的支持,再要显示的字符串中加\\n来换行.
+    */
+            if(chs[i]=='\\'&&chs[i+1]=='n')
+            {
+                continue;
+            }
+            if(chs[i]=='n'&&chs[i-1]=='\\')
+            {
+                dest[lineCount]=new String(chs,lastIndex,i-lastIndex-1);
+                if("".equals(dest[lineCount]))
+                {
+                }else
+                {
+                    lineCount++;
+                }
+                widthLeft=width;
+                lastIndex=i+1;
+            }
+   /* 换行处理, the end. */
+            else
+            {
+
+                widthLeft-=chWidth;
+                if(i<chs.length-1&&widthLeft<metrics.charWidth(chs[i+1])){
+                    dest[lineCount]=new String(chs,lastIndex,i-lastIndex+1);
+                    widthLeft=width;
+                    lineCount++;
+                    lastIndex=i+1;
+                }
+
+                if(height<lineCount*lineH+charH)
+                {
+                    break;
+                }
+            }
+
+        }
+        if(lastIndex<=chs.length-1&&height>=lineCount*lineH+charH)
+        {
+            dest[lineCount]=new String(chs,lastIndex,chs.length-lastIndex);
+            lineCount++;
+        }
+
+        String[] result=new String[lineCount];
+        System.arraycopy(dest, 0, result, 0, lineCount);
+        return result;
     }
 
 }
