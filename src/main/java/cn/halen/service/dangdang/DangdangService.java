@@ -66,6 +66,7 @@ public class DangdangService {
     public static final String method_order_list_get = "dangdang.orders.list.get";
     public static final String method_order_detail_get = "dangdang.order.details.get";
     public static final String method_stock_update = "dangdang.items.stock.update";
+    public static final String method_print = "dangdang.order.receipt.details.list";
     public static final String SING_METHOD = "md5";
     public static final String FORMAT = "xml";
     public static final String VERSION = "1.0";
@@ -278,7 +279,11 @@ public class DangdangService {
 
     public static void main(String[] args) throws MalformedURLException, UnsupportedEncodingException {
 
-        get();
+        Shop shop = new Shop();
+        shop.setSeller_nick("kekeshop");
+        shop.setToken("11AAB4792A76EBCC51FFFC6FDAC939125D1F7CB2E029933E1C8F2E274A2D9675");
+//        System.out.println(new DangdangService().getPrintXml(Arrays.asList("7527633587", "752759960", "7523179365"), shop));
+//        get();
         //post();
     }
 
@@ -332,12 +337,7 @@ public class DangdangService {
         return result;
     }
 
-    //查询订单详情
-    private OrderInfo queryDetail(OrderInfo orderInfo, Shop shop) {
-        StringBuilder urlBuilder = baseUrl(method_order_detail_get, shop);
-        urlBuilder.append("&o=").append(orderInfo.getOrderID());
-
-        String resp = urlRequest(urlBuilder.toString());
+    private Document getDoc(String resp) {
         //解析结果
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = null;
@@ -354,7 +354,17 @@ public class DangdangService {
         } catch (IOException e) {
             log.error("", e);
         }
+        return doc;
+    }
 
+    //查询订单详情
+    private OrderInfo queryDetail(OrderInfo orderInfo, Shop shop) {
+        StringBuilder urlBuilder = baseUrl(method_order_detail_get, shop);
+        urlBuilder.append("&o=").append(orderInfo.getOrderID());
+
+        String resp = urlRequest(urlBuilder.toString());
+
+        Document doc = getDoc(resp);
         Node orderStateNode = doc.getElementsByTagName("orderState").item(0);
         orderInfo.setOrderState(Integer.parseInt(orderStateNode.getTextContent()));
         Node messageNode = doc.getElementsByTagName("message").item(0);
@@ -793,112 +803,129 @@ public class DangdangService {
         return myTrade;
     }
 
-    public static void writeDangdang() throws Exception {
+    public boolean writeDangdang(String path, CourierReceiptDetail detail, MyTrade trade) {
         int width = 1435;
         int height = 1000;
-        int w = width/2;
+        try {
+            File file = new File(path);
 
+            BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2 = (Graphics2D)bi.getGraphics();
+            g2.setBackground(Color.WHITE);
+            g2.clearRect(0, 0, width, height);
+            g2.setPaint(Color.black);
+            g2.setStroke(new BasicStroke(3));
+            hf(0, 0, g2, detail, trade);
+            hf(700, 0, g2, detail, trade);
+            barcode(0, 0, g2, detail);
+            barcode(700, 0, g2, detail);
 
-        File file = new File("d:/dangdang.jpg");
+            ImageIO.write(bi, "jpg", file);
+        } catch (Exception e) {
+            log.error("write dangdang error", e);
+            return false;
+        }
+        return true;
+    }
 
-        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2 = (Graphics2D)bi.getGraphics();
-        g2.setBackground(Color.WHITE);
-        g2.clearRect(0, 0, width, height);
-        g2.setPaint(Color.black);
-        g2.setStroke(new BasicStroke(3));
-        g2.drawRect(50, 50, 600, 850); //外边框
+    private void hf(int x, int y, Graphics2D g2, CourierReceiptDetail detail, MyTrade trade) throws Exception {
+        g2.drawRect(x + 50, y + 50, 600, 850); //外边框
         g2.setFont(new Font("楷体", Font.BOLD, 20));
-        String s = "招商平台快递详情单/派送仓 - 上海仓";
-        g2.drawString(s, 150, 80);
+        String s = detail.getReceiptTitle() + "/派送仓 - " + detail.getSendGoodsWarehouse() + "仓";
+        g2.drawString(s, x + 150, y + 80);
 
-        String s2 = "应收款：309.00";
-        g2.drawString(s2, 400, 200);
+        String s2 = "应收款：" + detail.getTotalBarginPrice();
+        g2.drawString(s2, x + 400, y + 200);
 
-        g2.drawRect(60, 210, 580, 240);
+        g2.drawRect(x + 60, y + 210, 580, 240);
 
-        g2.drawRect(60, 210, 110, 40);
-        g2.drawString("订 单 号", 75, 238);
-        g2.drawRect(170, 210, 160, 40);
-        g2.drawString("7524333901", 185, 238);
-        g2.drawRect(330, 210, 110, 40);
-        g2.drawString("订购日期", 345, 238);
-        g2.drawRect(440, 210, 200, 40);
-        g2.drawString("2013/01/18 12:00:01", 445, 238);
+        g2.drawRect(x + 60, y + 210, 110, 40);
+        g2.drawString("订 单 号", x + 75, y + 238);
+        g2.drawRect(x + 170, y + 210, 160, 40);
+        g2.drawString(detail.getOrderID(), x + 185, y + 238);
+        g2.drawRect(x + 330, y + 210, 110, 40);
+        g2.drawString("订购日期", x + 345, y + 238);
+        g2.drawRect(x + 440, y + 210, 200, 40);
+        g2.drawString(detail.getOrderCreateTime(), x + 445, y + 238);
 
-        g2.drawRect(60, 250, 110, 40);
-        g2.drawString("收 货 人", 75, 278);
-        g2.drawRect(170, 250, 160, 40);
-        g2.drawString("盖世魔王", 185, 278);
-        g2.drawRect(330, 250, 110, 40);
-        g2.drawString("联系电话", 345, 278);
-        g2.drawRect(440, 250, 200, 40);
-        g2.drawString("15257197713", 445, 278);
+        g2.drawRect(x + 60, y + 250, 110, 40);
+        g2.drawString("收 货 人", x + 75, y + 278);
+        g2.drawRect(x + 170, y + 250, 160, 40);
+        g2.drawString(detail.getConsigneeName(), x + 185, y + 278);
+        g2.drawRect(x + 330, y + 250, 110, 40);
+        g2.drawString("联系电话", x + 345, y + 278);
+        g2.drawRect(x + 440, y + 250, 200, 40);
+        g2.drawString(detail.getConsigneeMobileTel(), x + 445, y + 278);
 
-        g2.drawRect(60, 290, 110, 120);
-        g2.drawString("地址", 100, 355);
-        g2.drawRect(170, 290, 470, 120);
-        String addr = "天津，天津市，河东区，天津市河东区万新村远翠中里14区6号楼1号门505,300162";
+        g2.drawRect(x + 60, y + 290, 110, 120);
+        g2.drawString("地址", x + 100, y + 355);
+        g2.drawRect(x + 170, y + 290, 470, 120);
+        String addr = detail.getConsigneeAddr() + "," + detail.getConsigneePostcode();
         String[] lines = getAllLineStr(addr, 470, 120, g2.getFontMetrics());
         int h = 320;
         for(String line : lines) {
-            g2.drawString(line, 175, h);
+            g2.drawString(line, x + 175, y + h);
             h += 20;
         }
 
-        g2.drawRect(60, 410, 110, 40);
-        g2.drawString("派送要求", 75, 435);
-        g2.drawRect(170, 410, 470, 40);
-        g2.drawString("随时派送", 175, 435);
+        g2.drawRect(x + 60, y + 410, 110, 40);
+        g2.drawString("派送要求", x + 75, y + 435);
+        g2.drawRect(x + 170, y + 410, 470, 40);
+        g2.drawString(detail.getSendGoodsTime(), x + 175, y + 435);
 
-        String goods = "139654788, 卡其 34 X 1";
-        g2.drawString(goods, 70, 475);
-        g2.drawString(goods, 70, 495);
+        List<MyOrder> orderList = trade.getMyOrderList();
+        h = 475;
+        for(MyOrder order : orderList) {
+            String goods = order.getGoods_id() + ", " + order.getSku().getColor() + " " + order.getSku().getSize() + " X " + order.getQuantity();
+            g2.drawString(goods, x + 70, y + h);
+            h += 20;
+        }
 
 
-        g2.drawString("签收", 80, 720);
-        g2.drawLine(120, 720, 300, 720);
-        g2.drawString("日期", 320, 720);
-        g2.drawLine(360, 720, 540, 720);
+        g2.drawString("签收", x + 80, y + 720);
+        g2.drawLine(x + 120, y + 720, x + 300, y + 720);
+        g2.drawString("日期", x + 320, y + 720);
+        g2.drawLine(x + 360, y + 720, x + 540, y + 720);
 
-        g2.drawRect(60, 730, 580, 160);
+        g2.drawRect(x + 60, y + 730, 580, 160);
 
-        g2.drawRect(60, 730, 110, 40);
-        g2.drawString("发货商家", 70, 758);
-        g2.drawRect(170, 730, 470, 40);
-        g2.drawString("当当网", 175, 758);
+        g2.drawRect(x + 60, y + 730, 110, 40);
+        g2.drawString("发货商家", x + 70, y + 758);
+        g2.drawRect(x + 170, y + 730, 470, 40);
+        g2.drawString("当当网", x + 175, y + 758);
 
-        g2.drawRect(60, 770, 110, 40);
-        g2.drawString("商家编号", 70, 798);
-        g2.drawRect(170, 770, 160, 40);
-        g2.drawRect(330, 770, 110, 40);
-        g2.drawString("取货日期", 340, 798);
-        g2.drawRect(440, 770, 200, 40);
+        g2.drawRect(x + 60, y + 770, 110, 40);
+        g2.drawString("商家编号", x + 70, y + 798);
+        g2.drawRect(x + 170, y + 770, 160, 40);
+        g2.drawRect(x + 330, y + 770, 110, 40);
+        g2.drawString("取货日期", x + 340, y + 798);
+        g2.drawRect(x + 440, y + 770, 200, 40);
 
-        g2.drawRect(60, 810, 110, 80);
-        g2.drawString("发货人", 80, 855);
-        g2.drawRect(170, 810, 160, 80);
-        String sender = "骆驼动感旗舰店xxxxxxxxxxx骆驼动感旗舰店xxxxxxxxxxx骆驼动感旗舰店xxxxxxxxxxx";
+        g2.drawRect(x + 60, y + 810, 110, 80);
+        g2.drawString("发货人", x + 80, y + 855);
+        g2.drawRect(x + 170, y + 810, 160, 80);
+        String sender = detail.getShopName();
         lines = getAllLineStr(sender, 160, 80, g2.getFontMetrics());
         h = 840;
         for(String line : lines) {
-            g2.drawString(line, 175, h);
+            g2.drawString(line, x + 175, y + h);
             h +=20;
         }
-        g2.drawRect(330, 810, 110, 80);
-        g2.drawString("联系电话", 340, 855);
-        g2.drawRect(440, 810, 200, 80);
-        g2.drawString("0595-33525789", 450, 855);
+        g2.drawRect(x + 330, y + 810, 110, 80);
+        g2.drawString("联系电话", x + 340, y + 855);
+        g2.drawRect(x + 440, y + 810, 200, 80);
+        g2.drawString("0595-86093983", x + 450, y + 855);
+    }
 
+    private void barcode(int x, int y, Graphics2D g2, CourierReceiptDetail detail) throws Exception {
         Barcode barcode = new Barcode();
         barcode.setSymbology(Barcode.CODE128);
-        barcode.setCode("7524333901");
-        Rectangle2D rectangle2D = new Rectangle2D.Double(150, 100, 100, 30);
+        barcode.setCode(detail.getOrderID());
+        Rectangle2D rectangle2D = new Rectangle2D.Double(x + 150, y + 100, 100, 30);
         barcode.drawOnGraphics(g2, rectangle2D);
-
-        ImageIO.write(bi, "jpg", file);
-        System.out.println("success");
     }
+
+
 
     /**
      * add by zkl.  2007-07-12.
@@ -973,6 +1000,75 @@ public class DangdangService {
         String[] result=new String[lineCount];
         System.arraycopy(dest, 0, result, 0, lineCount);
         return result;
+    }
+
+    public List<CourierReceiptDetail> getPrintDetail(List<MyTrade> tradeList, Shop shop) {
+        List<CourierReceiptDetail> list = new ArrayList<CourierReceiptDetail>();
+        Document doc = getDoc(getPrintXml(tradeList, shop));
+        Node p = doc.getElementsByTagName("orderCourierReceiptDetails").item(0);
+        NodeList nl = p.getChildNodes();
+        for(int i=0; i<nl.getLength(); i++) {
+            Node detail = nl.item(i);
+            if(!(detail instanceof Element)) {
+                continue;
+            }
+            CourierReceiptDetail d = new CourierReceiptDetail();
+            NodeList operCodeNodeList = ((Element) detail).getElementsByTagName("operCode");
+            if(null != operCodeNodeList && operCodeNodeList.getLength()>0) {
+                d.setSuccess(false);
+                d.setOperCode(getTextContent((Element) detail, "operCode"));
+                d.setOperation(getTextContent((Element) detail, "operation"));
+                d.setOrderID(getTextContent((Element) detail, "orderID"));
+            } else {
+                d.setReceiptTitle(getTextContent((Element) detail, "receiptTitle"));
+                d.setShopWarehouse(getTextContent((Element) detail, "shopWarehouse"));
+                d.setSendGoodsWarehouse(getTextContent((Element) detail, "sendGoodsWarehouse"));
+                d.setRejectWarehouse(getTextContent((Element) detail, "rejectWarehouse"));
+                d.setOrderID(getTextContent((Element) detail, "orderID"));
+                d.setOrderCreateTime(getTextContent((Element) detail, "orderCreateTime"));
+                d.setConsigneeName(getTextContent((Element) detail, "consigneeName"));
+                d.setConsigneeAddr(getTextContent((Element) detail, "consigneeAddr"));
+                d.setConsigneeAddr_State(getTextContent((Element) detail, "consigneeAddr_State"));
+                d.setConsigneeAddr_Province(getTextContent((Element) detail, "consigneeAddr_Province"));
+                d.setConsigneeAddr_City(getTextContent((Element) detail, "consigneeAddr_City"));
+                d.setConsigneeAddr_Area(getTextContent((Element) detail, "consigneeAddr_Area"));
+                d.setConsigneePostcode(getTextContent((Element) detail, "consigneePostcode"));
+                d.setConsigneeTel(getTextContent((Element) detail, "consigneeTel"));
+                d.setConsigneeMobileTel(getTextContent((Element) detail, "consigneeMobileTel"));
+                d.setShopName(getTextContent((Element) detail, "shopName"));
+                d.setShopID(getTextContent((Element) detail, "shopID"));
+                d.setConsignerName(getTextContent((Element) detail, "consignerName"));
+                d.setConsignerTel(getTextContent((Element) detail, "consignerTel"));
+                d.setConsignerAddr(getTextContent((Element) detail, "consignerAddr"));
+                d.setTotalBarginPrice(getTextContent((Element) detail, "totalBarginPrice"));
+                d.setSendGoodsTime(getTextContent((Element) detail, "sendGoodsTime"));
+                d.setExpressCompany(getTextContent((Element) detail, "expressCompany"));
+            }
+            list.add(d);
+        }
+        return list;
+    }
+
+    private String getTextContent(Element e, String nodeName) {
+        NodeList nl = e.getElementsByTagName(nodeName);
+        if(nl != null && nl.getLength() > 0) {
+            return nl.item(0).getTextContent();
+        }
+        return null;
+    }
+
+    private String getPrintXml(List<MyTrade> tradeList, Shop shop) {
+        StringBuilder orderIdBuilder = new StringBuilder();
+        for(MyTrade trade : tradeList) {
+            orderIdBuilder.append(trade.getTid()).append(",");
+        }
+        orderIdBuilder.setLength(orderIdBuilder.length() - 1);
+        StringBuilder urlBuilder = baseUrl(method_print, shop);
+        urlBuilder.append("&o=").append(orderIdBuilder.toString());
+        log.debug(urlBuilder.toString());
+        System.out.println(urlBuilder.toString());
+        String resp = urlRequest(urlBuilder.toString());
+        return resp;
     }
 
 }

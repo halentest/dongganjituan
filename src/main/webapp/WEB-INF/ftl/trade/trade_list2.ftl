@@ -112,7 +112,10 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <td>${trade_index}</td>
                     <td style="width:50%"></td>
                     <td>${trade.id}</td>
-                    <td>${trade.tid!''}</td>
+                    <td>${trade.tid!''}
+                        <br>
+                        <font color="red">(${trade.come_from!''})</font>
+                    </td>
                     <td>${trade.name}</td>
                     <td>
                     ${trade.tradeStatus.desc}<br>
@@ -213,6 +216,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>
                 <#if scan=="false">
                     <a id="scan-delivery">扫描单号</a>
+                    <a id="dangdang-print">当当打印</a>
                 <#else>
                     <button id="save-scan">保存单号</button>
                 </#if>

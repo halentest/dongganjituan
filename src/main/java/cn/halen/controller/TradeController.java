@@ -5,12 +5,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.halen.data.mapper.ConfigurationMapper;
 import cn.halen.data.mapper.MyTradeMapper;
 import cn.halen.data.pojo.*;
+import cn.halen.service.ResultInfo;
+import cn.halen.service.dangdang.CourierReceiptDetail;
+import cn.halen.service.dangdang.DangdangService;
 import cn.halen.service.top.TopConfig;
+import cn.halen.util.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +57,9 @@ public class TradeController {
 
     @Autowired
     private ConfigurationMapper configurationMapper;
+
+    @Autowired
+    private DangdangService dangdangService;
 
     private static final String KEY_SPACE = "default";
 
@@ -524,5 +532,64 @@ public class TradeController {
         model.addAttribute("criteria_type", criteria_type);
         return "trade/trade_search";
     }
-	
+
+    @RequestMapping(value="/trade/dangdang/print")
+    public @ResponseBody
+    ResultInfo print(HttpServletRequest req, HttpServletResponse resp, @RequestParam String ids) {
+        String[] idArr = ids.split(",");
+        StringBuilder builder = new StringBuilder();
+
+        Map<String, List<MyTrade>> map = new HashMap<String, List<MyTrade>>(); //按sellernick分开订单
+        Map<String, MyTrade> tradeMap = new HashMap<String, MyTrade>();
+        for(String id : idArr) {
+            if(StringUtils.isBlank(id)) {
+                continue;
+            }
+            MyTrade trade = tradeMapper.selectTradeMap(id);
+            if(null == trade) {
+                continue;
+            }
+            if(trade.getPay_type()!=1 || !Constants.DANGDANG.equals(trade.getCome_from())) {
+                continue;
+            }
+            List<MyTrade> list = map.get(trade.getSeller_nick());
+            if(list == null) {
+                list = new ArrayList<MyTrade>();
+                map.put(trade.getSeller_nick(), list);
+            }
+            list.add(trade);
+
+            tradeMap.put(trade.getTid(), trade);
+        }
+        List<CourierReceiptDetail> allDetails = new ArrayList<CourierReceiptDetail>();
+        for(Map.Entry<String, List<MyTrade>> e : map.entrySet()) {
+            Shop shop = adminMapper.selectShopBySellerNick(e.getKey());
+            List<CourierReceiptDetail> details = dangdangService.getPrintDetail(e.getValue(), shop);
+            allDetails.addAll(details);
+        }
+        String root = req.getServletContext().getRealPath("img/dangdang");
+        File rootDir = new File(root);
+        if(!rootDir.exists()) {
+            rootDir.mkdir();
+        }
+        for(CourierReceiptDetail detail : allDetails) {
+            if(detail.isSuccess()) {
+                String path = req.getServletContext().getRealPath("img/dangdang/" + detail.getOrderID() + ".jpg");
+                File f = new File(path);
+                if(!f.exists()) {
+                    boolean result = dangdangService.writeDangdang(path, detail, tradeMap.get(detail.getOrderID()));
+                    if(result) {
+                        builder.append("img/dangdang/" + detail.getOrderID() + ".jpg");
+                        builder.append(",");
+                    }
+                } else {
+                    builder.append("img/dangdang/" + detail.getOrderID() + ".jpg");
+                    builder.append(",");
+                }
+            }
+        }
+        ResultInfo ri = new ResultInfo();
+        ri.setErrorInfo(builder.toString());
+        return ri;
+    }
 }

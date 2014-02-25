@@ -520,3 +520,53 @@ $('#sf-export').click(function() {
         }
     });
 })
+
+$('#dangdang-print').click(function() {
+    var delivery = $('#delivery-print').val();
+    var checked = $('#t-list').datagrid("getChecked");
+    if(checked.length==0) {
+        alert('至少选中一个订单!');
+        return false;
+    }
+
+    var tids = "";
+    $(checked).each(function(index, item) {
+        var tid = item.id.trim();
+        tids += tid;
+        tids += ",";
+    })
+
+    $.ajax({
+        type: "post",//使用get方法访问后台
+        dataType: "json",//返回json格式的数据
+        data: "ids=" + tids,
+        url: "/trade/dangdang/print",//要访问的后台地址
+        success: function(result){//msg为返回的数据，在这里做数据绑定
+            LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
+            LODOP.PRINT_INIT(delivery); //名称是主键
+            var arr = result.errorInfo.split(",");
+            var width = $.cookie(delivery + "width");
+            var height = $.cookie(delivery + "height");
+            if(!width) {
+                width = 2970;
+            } else {
+                width = parseInt(width);
+            }
+            if(!height) {
+                height = 2100;
+            } else {
+                height = parseInt(height);
+            }
+            LODOP.SET_PRINT_PAGESIZE(2,0,0,"A4");
+            for(var i in arr) {
+                if(arr[i].length>0) {
+                    LODOP.NewPage();
+                    LODOP.ADD_PRINT_IMAGE(10,10,1435,1000,"<img border='0' src='/" + arr[i] + "'/>");
+                    LODOP.SET_PRINT_STYLEA(0,"Stretch",2);
+                }
+            }
+            //LODOP.SET_PREVIEW_WINDOW(1,1,0,1610,1130,"");
+            LODOP.PREVIEW();
+        }
+    });
+})

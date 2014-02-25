@@ -131,7 +131,7 @@ public class TradeService {
                 eh.setErrorInfo(errorInfo);
                 return;
             }
-			if("淘宝自动同步".equals(t.getCome_from())) {
+			if(Constants.TOP.equals(t.getCome_from())) {
                 String companyCode = logisticsMapper.selectByName(t.getDelivery()).getCode();
                 //顺丰的单号可能是多个，取第一个
                 String deliveryNumber = t.getDelivery_number();
@@ -458,7 +458,7 @@ public class TradeService {
         if(StringUtils.isNotBlank(myTrade.getTid())) {
             myTradeMapper.insertTid(myTrade.getTid());
         }
-        if("淘宝自动同步".equals(myTrade.getCome_from())) {
+        if(Constants.TOP.equals(myTrade.getCome_from())) {
             //update memo
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date now = new Date();

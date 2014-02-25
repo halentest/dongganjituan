@@ -25,10 +25,10 @@ public class Constants {
 
     //订单来源
     public static final String MANAUAL = "手工下单";
-    public static final String TOP = "淘宝自动同步";
-    public static final String JD = "JD自动同步";
-    public static final String DANGDANG = "DD自动同步";
-    public static final String YIHAODIAN = "YHD自动同步";
+    public static final String TOP = "淘宝网";
+    public static final String JD = "京东商城";
+    public static final String DANGDANG = "当当网";
+    public static final String YIHAODIAN = "一号店";
 
     //库存数量类型
     public static final int QUANTITY = 1;
