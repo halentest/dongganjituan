@@ -768,7 +768,7 @@ public class TradeActionController {
 
 	@RequestMapping(value="trade/action/manual_sync_trade")
 	public @ResponseBody ResultInfo syncTrade(@RequestParam("sellerNick") String sellerNick,
-			@RequestParam("start") String start, @RequestParam("end") String end) throws IOException, ServletException, JSONException, ParseException, InsufficientStockException, InsufficientBalanceException {
+			@RequestParam("start") String start, @RequestParam("end") String end) {
 		ResultInfo result = new ResultInfo();
 		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		Date startDate = null;
@@ -790,10 +790,17 @@ public class TradeActionController {
 		Shop shop = adminMapper.selectShopBySellerNick(sellerNick);
 
 		Map<String, Object> counter = null;
-        if(Constants.SHOP_TYPE_TAOBAO.equals(shop.getType()) || Constants.SHOP_TYPE_TIANMAO.equals(shop.getType())) {
-            counter = initTrades(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
-        } else if(Constants.SHOP_TYPE_DANGDANG.equals(shop.getType())) {
-            counter = dangdangService.syncTrade(shop, startDate, endDate);
+        try {
+            if(Constants.SHOP_TYPE_TAOBAO.equals(shop.getType()) || Constants.SHOP_TYPE_TIANMAO.equals(shop.getType())) {
+                counter = syncTrade(Arrays.asList(topConfig.getToken(sellerNick)), startDate, endDate);
+            } else if(Constants.SHOP_TYPE_DANGDANG.equals(shop.getType())) {
+                counter = dangdangService.syncTrade(shop, startDate, endDate);
+            }
+        } catch(Exception e) {
+            log.error("sync trade error", e);
+            result.setErrorInfo("系统异常，请重试");
+            result.setSuccess(false);
+            return result;
         }
         StringBuilder builder = new StringBuilder();
         builder.append("代发货订单数：").append(counter.get("Paid")).append("<br>")
@@ -808,7 +815,7 @@ public class TradeActionController {
 		return result;
 	}
 
-    public Map<String, Object> initTrades(List<String> tokenList, Date startDate, Date endDate) {
+    public Map<String, Object> syncTrade(List<String> tokenList, Date startDate, Date endDate) {
         Map<String, Object> counter = new HashMap<String, Object>();
         List<Trade> tradeList = Collections.EMPTY_LIST;
         try {

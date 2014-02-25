@@ -793,12 +793,12 @@ public class DangdangService {
         myTrade.setGoods_count(goodsCount);
         if("货到付款".equals(orderInfo.getBuyerPayMode())) {
             myTrade.setPay_type(Constants.PAY_TYPE_AFTER_RECEIVE);
+            myTrade.setDelivery("当当物流");
         } else {
             myTrade.setPay_type(Constants.PAY_TYPE_ONLINE); //目前只支持淘宝的在线支付订单
+            MyLogisticsCompany mc = logisticsMapper.select(1);
+            myTrade.setDelivery(mc.getName());
         }
-
-        MyLogisticsCompany mc = logisticsMapper.select(1);
-        myTrade.setDelivery(mc.getName());
 
         return myTrade;
     }
