@@ -6,4 +6,5 @@ target/
 .project
 .idea/
 src/main/webapp/img/sf/
+src/main/webapp/img/dangdang/
 upload/
