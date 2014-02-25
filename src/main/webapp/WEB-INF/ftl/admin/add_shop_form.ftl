@@ -19,7 +19,7 @@
                 <option value="优购网">优购网</option>
                 <option value="当当网">当当网</option>
                 <option value="京东商城">京东商城</option>
-			</select>
+            </select>
 	      </div>
 	    </div>
 	  </fieldset>
