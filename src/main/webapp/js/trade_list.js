@@ -275,7 +275,7 @@ $('#delivery-print').change(function() {
 })
 
 function CreatePrintPage(delivery, sender, from, from_company, from_address, sender_mobile,
-		receiver, to_company, to_address, receiver_mobile, receiver_phone, to, goodsInfo, print_time, bg){
+		receiver, to_company, to_address, receiver_mobile, receiver_phone, to, goodsInfo, print_time, distrib, bg){
     LODOP.NewPage();
     LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='" + bg + "'>");
     LODOP.SET_SHOW_MODE("BKIMG_IN_PREVIEW",1);
@@ -313,6 +313,8 @@ function CreatePrintPage(delivery, sender, from, from_company, from_address, sen
         LODOP.ADD_PRINT_TEXTA("text15", 50,350,200,200,"集团客户");
         LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
     }
+    LODOP.ADD_PRINT_TEXTA("text16", 10,350,200,30,distrib);
+    LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 };
 
 $('#print-setup').click(function() {
@@ -338,7 +340,7 @@ $('#print-setup').click(function() {
     LODOP.SET_PRINT_PAGESIZE(1,2300,1270,"");
     LODOP.SET_PRINT_STYLE("FontSize",16);
     LODOP.SET_PRINT_STYLE("Bold",1);
-    CreatePrintPage(delivery,"发件人","始发地","发件公司","发件地址","发件电话","收件人","收件公司","收件地址","收件手机","收件电话","目的地","商品信息", "打印时间",bg);
+    CreatePrintPage(delivery,"发件人","始发地","发件公司","发件地址","发件电话","收件人","收件公司","收件地址","收件手机","收件电话","目的地","商品信息", "打印时间", "分销商", bg);
     LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");
     LODOP.PRINT_SETUP();
 })

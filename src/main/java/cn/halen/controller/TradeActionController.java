@@ -398,6 +398,7 @@ public class TradeActionController {
 		User currentUser = UserHolder.get();
 		float discount = currentUser.getShop().getD().getDiscount();
 		trade.setSeller_nick(currentUser.getShop().getSeller_nick());
+        trade.setDistrib(currentUser.getShop().getD().getName());
 
 		int count = 0;
 		String goodsId = null;

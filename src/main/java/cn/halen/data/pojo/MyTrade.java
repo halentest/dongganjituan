@@ -39,6 +39,7 @@ public class MyTrade {
 	private long goods_count;
 	private int payment; 
 	private int distributor_id;
+    private String distrib;
     private int is_submit;
     private int is_refund;
     private int is_send;
@@ -76,6 +77,14 @@ public class MyTrade {
 	private TradeStatus tradeStatus; //got from status
 	private List<MyOrder> myOrderList;
     private String modified_string;
+
+    public String getDistrib() {
+        return distrib;
+    }
+
+    public void setDistrib(String distrib) {
+        this.distrib = distrib;
+    }
 
     private boolean success = true; //用于判断 public MyTrade toMyTrade(Trade trade) 时，是否所有宝贝转换成功
 

@@ -136,6 +136,7 @@ create table trade2 (
 	goods_count bigint unsigned,
 	payment int unsigned, #货款
 	distributor_id int unsigned,
+	distrib varchar(50), #分销商名称，冗余字段
 	is_submit tinyint default 0, #是否提交
 	is_refund tinyint default 0, #是否退换货
 	is_send tinyint default 0, #是否已发货

@@ -757,6 +757,7 @@ public class TradeService {
 		myTrade.setSeller_memo(trade.getSellerMemo());
 		myTrade.setBuyer_message(trade.getBuyerMessage());
 		myTrade.setSeller_nick(trade.getSellerNick());
+        myTrade.setDistrib(d.getName());
         myTrade.setBuyer_nick(trade.getBuyerNick());
 		myTrade.setCome_from(Constants.TOP);
 		myTrade.setModified(trade.getModified());

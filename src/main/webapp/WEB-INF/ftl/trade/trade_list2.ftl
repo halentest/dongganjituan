@@ -89,6 +89,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <th data-options="field:'sequence', hidden:true"></th>
                     <th data-options="field:'ck',checkbox:true"></th>
                     <th data-options="field:'id',align:'center',width:$(this).width() * 0.3">订单号</th>
+                    <th data-options="field:'shop',align:'center',width:$(this).width() * 0.3">店铺</th>
                     <th data-options="field:'tid',align:'center',width:$(this).width() * 0.3">网店单号</th>
                     <th data-options="field:'listprice',align:'center',width:$(this).width() * 0.3">顾客姓名</th>
                     <th data-options="field:'attr1',align:'center',width:$(this).width() * 0.3">订单状态</th>
@@ -112,6 +113,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <td>${trade_index}</td>
                     <td style="width:50%"></td>
                     <td>${trade.id}</td>
+                    <td>${trade.distrib!''}/${trade.seller_nick!''}</td>
                     <td>${trade.tid!''}
                         <br>
                         <font color="red">(${trade.come_from!''})</font>
@@ -407,6 +409,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                 var city = "";
                 var district = "";
                 var phone = "";
+                var distrib = "";
 
                 $.ajax({
                     type: "get",//使用get方法访问后台
@@ -422,6 +425,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                         city = trade.city;
                         district = trade.district;
                         phone = trade.phone;
+                        distrib = trade.distrib;
                         $.each(trade.myOrderList, function(index, order) {
                                 goodsInfo = goodsInfo + order.goods_id + " " + order.sku.color + " " + order.sku.size + " " + order.quantity + "\r\n"
                         });
@@ -429,7 +433,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 
                 CreatePrintPage(delivery, '${sellerInfo.sender}', '${sellerInfo.from_state!''}', '${sellerInfo.from_company!''}',
                             '${sellerInfo.from_address!''}', '${sellerInfo.mobile!''}',
-                            name, name, address, mobile==null?'':mobile, phone==null?'':phone, state + " " + city + " " + district, goodsInfo, new Date().toLocaleString(),bg);
+                            name, name, address, mobile==null?'':mobile, phone==null?'':phone, state + " " + city + " " + district, goodsInfo, new Date().toLocaleString(),distrib, bg);
 
     	    })
             LODOP.SET_PREVIEW_WINDOW(1,1,0,900,600,"");

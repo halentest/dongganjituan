@@ -16,7 +16,7 @@
         </tr>
         <tr>
             <td class="column">网店:</td>
-            <td>${trade.seller_nick!''}</td>
+            <td>${trade.distrib!''}/${trade.seller_nick!''}</td>
         </tr>
         <tr>
             <td class="column">网店单号:</td>

@@ -779,6 +779,7 @@ public class DangdangService {
         myTrade.setSeller_memo(orderInfo.getRemark());
         myTrade.setBuyer_message(orderInfo.getMessage());
         myTrade.setSeller_nick(shop.getSeller_nick());
+        myTrade.setDistrib(d.getName());
         myTrade.setBuyer_nick(orderInfo.getDangdangAccountID());
         myTrade.setCome_from(Constants.DANGDANG);
         myTrade.setModified(new Date());
@@ -920,7 +921,7 @@ public class DangdangService {
     private void barcode(int x, int y, Graphics2D g2, CourierReceiptDetail detail) throws Exception {
         Barcode barcode = new Barcode();
         barcode.setSymbology(Barcode.CODE128);
-        barcode.setCode(detail.getOrderID());
+        barcode.setCode(detail.getOrderID() + "x"); //barcode会把最后一位丢掉，所以随便加上个值
         Rectangle2D rectangle2D = new Rectangle2D.Double(x + 150, y + 100, 100, 30);
         barcode.drawOnGraphics(g2, rectangle2D);
     }

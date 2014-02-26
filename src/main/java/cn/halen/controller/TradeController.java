@@ -540,7 +540,7 @@ public class TradeController {
         StringBuilder builder = new StringBuilder();
 
         Map<String, List<MyTrade>> map = new HashMap<String, List<MyTrade>>(); //按sellernick分开订单
-        Map<String, MyTrade> tradeMap = new HashMap<String, MyTrade>();
+        List<MyTrade> tradeList = new ArrayList<MyTrade>();
         for(String id : idArr) {
             if(StringUtils.isBlank(id)) {
                 continue;
@@ -559,8 +559,27 @@ public class TradeController {
             }
             list.add(trade);
 
-            tradeMap.put(trade.getTid(), trade);
+            tradeList.add(trade);
         }
+        //按goods_id sku_id asc 排序
+        Collections.sort(tradeList, new Comparator<MyTrade>() {
+            @Override
+            public int compare(MyTrade o1, MyTrade o2) {
+                if(o1.getGoods_id() > o2.getGoods_id()) {
+                    return 1;
+                } else if(o1.getGoods_id() < o2.getGoods_id()) {
+                    return -1;
+                } else {
+                    if(o1.getSku_id() > o2.getSku_id()) {
+                        return 1;
+                    } else if(o1.getSku_id() < o2.getSku_id()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            }
+        });
         List<CourierReceiptDetail> allDetails = new ArrayList<CourierReceiptDetail>();
         for(Map.Entry<String, List<MyTrade>> e : map.entrySet()) {
             Shop shop = adminMapper.selectShopBySellerNick(e.getKey());
@@ -572,12 +591,18 @@ public class TradeController {
         if(!rootDir.exists()) {
             rootDir.mkdir();
         }
+        Map<String, CourierReceiptDetail> allDetailsMap = new HashMap<String, CourierReceiptDetail>();
         for(CourierReceiptDetail detail : allDetails) {
+           allDetailsMap.put(detail.getOrderID(), detail);
+        }
+
+        for(MyTrade t : tradeList) {
+            CourierReceiptDetail detail = allDetailsMap.get(t.getTid());
             if(detail.isSuccess()) {
                 String path = req.getServletContext().getRealPath("img/dangdang/" + detail.getOrderID() + ".jpg");
                 File f = new File(path);
                 if(!f.exists()) {
-                    boolean result = dangdangService.writeDangdang(path, detail, tradeMap.get(detail.getOrderID()));
+                    boolean result = dangdangService.writeDangdang(path, detail, t);
                     if(result) {
                         builder.append("img/dangdang/" + detail.getOrderID() + ".jpg");
                         builder.append(",");
