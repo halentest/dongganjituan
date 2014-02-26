@@ -213,7 +213,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <a id="sf-print">打印电子面单</a>
                     <a id="sf-export">导出到待出库</a>
                 </#if>
-                <#if delivery="当当物流">
+                <#if delivery?? && delivery="当当物流">
                     <a id="dangdang-print">当当打印</a>
                 <#else>
                     <a id="batch-prn-kdd" style="cursor: pointer;">打印快递单</a>

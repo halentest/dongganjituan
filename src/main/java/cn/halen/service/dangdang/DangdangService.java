@@ -223,7 +223,7 @@ public class DangdangService {
                 log.error("", e);
             }
         }
-        builder.append("更新成功").append(totalSuccess).append("个sku");
+        builder.append("\r\n更新成功").append(totalSuccess).append("个sku");
         return builder;
     }
 
