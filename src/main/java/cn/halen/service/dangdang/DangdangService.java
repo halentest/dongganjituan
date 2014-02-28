@@ -216,15 +216,17 @@ public class DangdangService {
                         }
                         String operation = ((Element) n).getElementsByTagName("operation").item(0).getTextContent();
                         String outerItemID = ((Element) n).getElementsByTagName("outerItemID").item(0).getTextContent();
-                        builder.append(outerItemID).append("更新库存失败，原因：").append(operation).append("\r\n");
+                        builder.append(outerItemID).append("更新库存失败，原因：").append(operation).append("<br>");
                     }
                 }
             } catch (UnsupportedEncodingException e) {
                 log.error("", e);
             }
         }
-        builder.append("\r\n更新成功").append(totalSuccess).append("个sku");
-        return builder;
+        StringBuilder newBuilder = new StringBuilder();
+        newBuilder.append("<font color='red'>更新成功").append(totalSuccess).append("个sku</font><br>");
+        newBuilder.append(builder.toString());
+        return newBuilder;
     }
 
     protected String updateInventory(File file, Shop shop) throws UnsupportedEncodingException {

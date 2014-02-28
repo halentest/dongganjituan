@@ -122,7 +122,7 @@ public class YougouService {
 
             HttpEntity entity = resp.getEntity();
             if(null != entity) {
-                reader = new BufferedReader(new InputStreamReader(entity.getContent()));
+                reader = new BufferedReader(new InputStreamReader(entity.getContent(), "UTF8"));
                 try {
                     for(String s=reader.readLine(); s!=null; s=reader.readLine()) {
                         builder.append(s);

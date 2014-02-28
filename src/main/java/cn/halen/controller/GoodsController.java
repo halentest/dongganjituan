@@ -435,6 +435,7 @@ public class GoodsController {
                     goodsList = goodsMapper.selectMapByStatus();
                 }
                 StringBuilder builder = null;
+                int totalSuccess = 0;
                 if(Constants.SHOP_TYPE_DANGDANG.equals(shop.getType())) {
                     builder = dangdangService.updateInventory(goodsList, shop);
                 } else {
@@ -451,13 +452,18 @@ public class GoodsController {
                             }
                             if(StringUtils.isNotBlank(res)) {
                                 builder.append(sku.getGoods_id()).append(sku.getColor_id()).append(sku.getSize())
-                                        .append("更新库存失败，原因：").append(res).append("\r\n");
+                                        .append("更新库存失败，原因：").append(res).append("<br>");
+                            } else {
+                                totalSuccess++;
                             }
                         }
                     }
                 }
                 if(builder.length() > 0) {
-                    result.setErrorInfo(builder.toString());
+                    StringBuilder newBuilder = new StringBuilder();
+                    newBuilder.append("<font color='red'>更新成功").append(totalSuccess).append("个sku</font><br>");
+                    newBuilder.append(builder.toString());
+                    result.setErrorInfo(newBuilder.toString());
                     result.setSuccess(false);
                     return result;
                 }
