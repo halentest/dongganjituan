@@ -15,6 +15,7 @@ import cn.halen.service.excel.ExcelReader;
 import cn.halen.service.excel.GoodsExcelReader;
 import cn.halen.service.excel.GoodsRow;
 import cn.halen.service.excel.Row;
+import cn.halen.service.jd.JdService;
 import cn.halen.service.yougou.YougouService;
 import cn.halen.util.ErrorInfoHolder;
 import com.taobao.api.ApiException;
@@ -77,6 +78,9 @@ public class GoodsController {
 
     @Autowired
     private YougouService yougouService;
+
+    @Autowired
+    private JdService jdService;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -448,6 +452,8 @@ public class GoodsController {
                                 res = yougouService.updateInventory(sku, shop);
                             } else if(Constants.SHOP_TYPE_TAOBAO.equals(shop.getType()) || Constants.SHOP_TYPE_TIANMAO.equals(shop.getType())) {
                                 res = goodsService.updateSkuQuantity(sku, shop);
+                            } else if(Constants.SHOP_TYPE_JD.equals(shop.getType())) {
+                                res = jdService.updateInventory(sku, shop);
                             }
                             if(StringUtils.isNotBlank(res)) {
                                 builder.append(sku.getGoods_id()).append(sku.getColor_id()).append(sku.getSize())
