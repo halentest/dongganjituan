@@ -1,5 +1,6 @@
 package cn.halen.service.jd;
 
+import cn.halen.data.pojo.Shop;
 import com.jd.open.api.sdk.DefaultJdClient;
 import com.jd.open.api.sdk.JdClient;
 import com.jd.open.api.sdk.JdException;
@@ -55,7 +56,7 @@ public class JdTradeClient {
      * @return
      * @throws JdException
      */
-    public List<OrderSearchInfo> queryOrder(String startDate, String endDate) throws JdException {
+    public List<OrderSearchInfo> queryOrder(String startDate, String endDate, Shop shop) throws JdException {
         List<OrderSearchInfo> result = new ArrayList<OrderSearchInfo>();
 
         OrderSearchRequest request = new OrderSearchRequest();
@@ -71,7 +72,7 @@ public class JdTradeClient {
         request.setOptionalFields("vender_id,order_id,pay_type,order_payment,order_seller_price,seller_discount,freight_price,invoice_info,order_remark," +
                 "order_start_time,consignee_info,item_info_list");
 
-        OrderSearchResponse response = config.getClient().execute(request);
+        OrderSearchResponse response = config.getClient(shop.getToken()).execute(request);
         int total = 0;  //系统返回的所有满足条件的订单数量
         int queryTotal = 0; //以及查询的出的订单的总数量
         if(response.getCode().equals("0")) {      //调用成功
@@ -89,7 +90,7 @@ public class JdTradeClient {
         int page = 2; //第一页已经查询过
         while(queryTotal < total) {
             request.setPage(String.valueOf(page++));
-            response = config.getClient().execute(request);
+            response = config.getClient(shop.getToken()).execute(request);
             if(response.getCode().equals("0")) {      //调用成功
                 OrderResult orderResult = response.getOrderInfoResult();
                 List<OrderSearchInfo> orderInfoList = orderResult.getOrderInfoList();

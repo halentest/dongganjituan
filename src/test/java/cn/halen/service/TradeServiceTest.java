@@ -1,7 +1,6 @@
 package cn.halen.service;
 
-import cn.halen.data.pojo.MyOrder;
-import cn.halen.data.pojo.MyTrade;
+import cn.halen.data.pojo.*;
 import cn.halen.service.jd.JdTradeClient;
 import cn.halen.util.Constants;
 import com.jd.open.api.sdk.JdClient;
@@ -16,8 +15,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import cn.halen.data.DataConfig;
 import cn.halen.data.mapper.MySkuMapper;
-import cn.halen.data.pojo.MyRefund;
-import cn.halen.data.pojo.MySku;
 
 import java.text.ParseException;
 import java.util.List;
@@ -63,7 +60,9 @@ public class TradeServiceTest {
      */
     @Test
     public void importJDOrder() throws ParseException, JdException, ApiException {
-        List<OrderSearchInfo> orderList = jd.queryOrder(null, null);
+        Shop shop = new Shop();
+        shop.setToken("b94f4d02-0760-4f80-aa3e-8c6d6d883904");
+        List<OrderSearchInfo> orderList = jd.queryOrder(null, null, shop);
         List<MyTrade> tradeList = tradeService.toMyTrade(orderList);
         int count = 0;
         for(MyTrade t : tradeList) {

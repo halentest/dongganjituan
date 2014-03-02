@@ -30,8 +30,8 @@ public class JdConfig {
 	@Value("${jd.url}")
 	private String url;
 
-    public JdClient getClient() {
-        JdClient client = new DefaultJdClient(getUrl(), getToken(), getAppKey(), getAppSecret());
+    public JdClient getClient(String token) {
+        JdClient client = new DefaultJdClient(getUrl(), token, getAppKey(), getAppSecret());
         return client;
     }
 
