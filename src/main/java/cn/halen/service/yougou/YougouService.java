@@ -151,7 +151,7 @@ public class YougouService {
         log.info(builder.toString());
         Document doc = null;
         try {
-            doc = docBuilder.parse(new ByteArrayInputStream(builder.toString().getBytes()));
+            doc = docBuilder.parse(new ByteArrayInputStream(builder.toString().getBytes("UTF8")));
         } catch (SAXException e) {
             log.error("", e);
         } catch (IOException e) {
