@@ -665,9 +665,9 @@ public class TradeActionController {
                 quantity += order.getQuantity();
             }
             String goodsId = trade.getMyOrderList().get(0).getGoods_id();
-            if(StringUtils.isNotBlank(trade.getState())) {
-                deliveryMoney = utilService.calDeliveryMoney(goodsId, quantity, delivery, trade.getState());
-            }
+//            if(StringUtils.isNotBlank(trade.getState())) {
+//                deliveryMoney = utilService.calDeliveryMoney(goodsId, quantity, delivery, trade.getState());
+//            }
 
 			tradeService.changeDelivery(id, logisticsCompany, deliveryMoney);
 		} catch (InvalidStatusChangeException isce) {

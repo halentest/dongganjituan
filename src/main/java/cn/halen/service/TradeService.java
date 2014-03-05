@@ -276,13 +276,13 @@ public class TradeService {
 		MyTrade myTrade = myTradeMapper.selectTradeMap(id);
 		int change = myTrade.getDelivery_money() - deliveryMoney;
 		myTrade.setDelivery(delivery);
-        if(deliveryMoney > 0) {
-            myTrade.setDelivery_money(deliveryMoney);
-            Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
-            if(myTrade.getIs_submit()==1 && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
-                adminService.updateDeposit(d.getId(), change);
-            }
-        }
+//        if(deliveryMoney > 0) {
+//            myTrade.setDelivery_money(deliveryMoney);
+//            Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
+//            if(myTrade.getIs_submit()==1 && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+//                adminService.updateDeposit(d.getId(), change);
+//            }
+//        }
 		return myTradeMapper.updateMyTrade(myTrade) > 0;
 	}
 
@@ -505,11 +505,11 @@ public class TradeService {
 		if(myTrade.getIs_send()==1) {
 			return 0;
 		}
-		int deliveryMoney = utilService.calDeliveryMoney(myTrade.getMyOrderList().get(0).getGoods_id(), Integer.valueOf(String.valueOf(myTrade.getGoods_count())),
-				myTrade.getDelivery(), myTrade.getState());
-		
-		int change = myTrade.getDelivery_money() - deliveryMoney;
-		myTrade.setDelivery_money(deliveryMoney);
+//		int deliveryMoney = utilService.calDeliveryMoney(myTrade.getMyOrderList().get(0).getGoods_id(), Integer.valueOf(String.valueOf(myTrade.getGoods_count())),
+//				myTrade.getDelivery(), myTrade.getState());
+//
+//		int change = myTrade.getDelivery_money() - deliveryMoney;
+//		myTrade.setDelivery_money(deliveryMoney);
 		myTrade.setState(state);
 		myTrade.setCity(city);
 		myTrade.setDistrict(district);
@@ -521,9 +521,9 @@ public class TradeService {
 		myTrade.setModified(modified);
 		Distributor d = adminMapper.selectShopMapBySellerNick(myTrade.getSeller_nick()).getD();
         //如果已经提交了，那么要修改存款，因为修改地址快递费会改变
-		if(myTrade.getIs_submit()==1 && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
-			adminService.updateDeposit(d.getId(), change);
-		}
+//		if(myTrade.getIs_submit()==1 && d.getSelf() != Constants.DISTRIBUTOR_SELF_YES) {
+//			adminService.updateDeposit(d.getId(), change);
+//		}
 		int count = myTradeMapper.updateMyTrade(myTrade);
 		return count;
 	}
