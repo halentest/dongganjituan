@@ -13,6 +13,7 @@ import com.sf.integration.expressservice.service.CommonServiceService;
 import cn.halen.service.RequestXmlBuilder;
 import com.sf.module.ewaybill.util.GenerationWaybillImage;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -56,6 +57,8 @@ public class SFController {
 
     @Autowired
     private ConfigurationMapper configurationMapper;
+
+    private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -226,6 +229,7 @@ public class SFController {
                 .append(" ").append(trade.getName())
                 .append(" ").append(trade.getMobile());
         valueMap2.put("EXT_ADDRESSEE_INFO", builder.toString());
+
         // 付款方式
         String payMethod = "寄付";
         if(trade.getPay_method() == Constants.PAY_METHOD_RECEIVER) {
@@ -290,7 +294,14 @@ public class SFController {
         g2.setPaint(Color.black);
 
         g2.drawString(s, 800, 640);
+
         g2.drawString("电子秤 集团客户", 760, 1170);
+
+        //添加打印时间
+        g2.setFont(new Font("黑体", Font.ITALIC, 30));
+        String printDate = format.format(new Date());
+        g2.drawString(printDate, 300, 640);
+
         g2.setFont(new Font("黑体", Font.BOLD, 280));
         g2.drawString("E", 330, 200);
 
