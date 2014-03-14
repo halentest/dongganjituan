@@ -747,6 +747,7 @@ public class DangdangService {
             myOrder.setSize(sku.getSize());
             myOrder.setSku_id(sku.getId());
 
+            log.info("sku.id is {}", sku.getId());
             Goods goods = goodsMapper.getByHid(sku.getGoods_id(), true);
 
             //set order info to trade so as to be able to order by it.
