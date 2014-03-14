@@ -749,6 +749,12 @@ public class DangdangService {
 
             log.info("sku.id is {}", sku.getId());
             Goods goods = goodsMapper.getByHid(sku.getGoods_id(), true);
+            if(null == goods) {
+                //产品已下架
+                log.info("goods not exist!");
+                myTrade.setSuccess(false);
+                continue;
+            }
 
             //set order info to trade so as to be able to order by it.
             if(first) {
