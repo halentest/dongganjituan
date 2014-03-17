@@ -171,6 +171,10 @@ public class DangdangService {
         int batchSize = 40;
         int time = size%batchSize==0?size/batchSize : size/batchSize + 1;
         for(int i=1; i<=time; i++) {
+            try {
+                Thread.currentThread().sleep(500);
+            } catch (InterruptedException e) {
+            }
             List<MySku> subList = null;
             if(i==time) {
                 subList = skuList.subList((i-1)*batchSize, skuList.size());
@@ -279,7 +283,6 @@ public class DangdangService {
             HttpClientUtils.closeQuietly(httpClient);
         }
         String resp = builder.toString(); //服务器返回的结果字符串
-        log.info(resp);
         return resp;
     }
 
