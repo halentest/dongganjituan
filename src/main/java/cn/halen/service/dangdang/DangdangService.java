@@ -172,7 +172,7 @@ public class DangdangService {
         int time = size%batchSize==0?size/batchSize : size/batchSize + 1;
         for(int i=1; i<=time; i++) {
             try {
-                Thread.currentThread().sleep(500);
+                Thread.currentThread().sleep(50);
             } catch (InterruptedException e) {
             }
             List<MySku> subList = null;
