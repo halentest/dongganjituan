@@ -460,10 +460,14 @@ public class GoodsController {
                     }
                 }
                 if(builder.length() > 0) {
-                    StringBuilder newBuilder = new StringBuilder();
-                    newBuilder.append("<font color='red'>更新成功").append(totalSuccess).append("个sku</font><br>");
-                    newBuilder.append(builder.toString());
-                    result.setErrorInfo(newBuilder.toString());
+                    if(Constants.SHOP_TYPE_DANGDANG.equals(shop.getType())) {
+                        result.setErrorInfo(builder.toString());
+                    } else {
+                        StringBuilder newBuilder = new StringBuilder();
+                        newBuilder.append("<font color='red'>更新成功").append(totalSuccess).append("个sku</font><br>");
+                        newBuilder.append(builder.toString());
+                        result.setErrorInfo(newBuilder.toString());
+                    }
                     result.setSuccess(false);
                     return result;
                 }

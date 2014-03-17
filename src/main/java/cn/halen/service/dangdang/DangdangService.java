@@ -276,6 +276,7 @@ public class DangdangService {
             HttpClientUtils.closeQuietly(httpClient);
         }
         String resp = builder.toString(); //服务器返回的结果字符串
+        log.info(resp);
         return resp;
     }
 
