@@ -196,6 +196,9 @@ public class DangdangService {
                 } catch (IOException e) {
                     log.error("", e);
                 }
+                if(doc == null) {
+                    log.info(file.getAbsolutePath());
+                }
                 NodeList errorNode = doc.getElementsByTagName("Error");
                 if(null != errorNode && errorNode.getLength() > 0) {
                     String operCode = doc.getElementsByTagName("operCode").item(0).getTextContent();
