@@ -597,19 +597,25 @@ public class TradeController {
         }
 
         for(MyTrade t : tradeList) {
-            CourierReceiptDetail detail = allDetailsMap.get(t.getTid());
-            if(detail.isSuccess()) {
-                String path = req.getServletContext().getRealPath("img/dangdang/" + detail.getOrderID() + ".jpg");
-                File f = new File(path);
-                if(!f.exists()) {
-                    boolean result = dangdangService.writeDangdang(path, detail, t);
-                    if(result) {
+            String[] tids = t.getTid().split(","); //合并的订单会有多个tid
+            for(String tid : tids) {
+                if(StringUtils.isBlank(tid)) {
+                    continue;
+                }
+                CourierReceiptDetail detail = allDetailsMap.get(tid);
+                if(detail.isSuccess()) {
+                    String path = req.getServletContext().getRealPath("img/dangdang/" + detail.getOrderID() + ".jpg");
+                    File f = new File(path);
+                    if(!f.exists()) {
+                        boolean result = dangdangService.writeDangdang(path, detail, t);
+                        if(result) {
+                            builder.append("img/dangdang/" + detail.getOrderID() + ".jpg");
+                            builder.append(",");
+                        }
+                    } else {
                         builder.append("img/dangdang/" + detail.getOrderID() + ".jpg");
                         builder.append(",");
                     }
-                } else {
-                    builder.append("img/dangdang/" + detail.getOrderID() + ".jpg");
-                    builder.append(",");
                 }
             }
         }
