@@ -201,6 +201,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
             </#if>
             <#if isSubmit==1 && isSend==0 && status=='WaitOut'>
                 <button id="batch-out-goods" style="cursor: pointer;">批量出库</button>
+                <button id="rollback" style="cursor: pointer;">批量返回</button>
             </#if>
             <#if isSubmit==1 && isSend==0 && status=='WaitFind'>
                 <a href="${rc.contextPath}/trade/export_finding" style="cursor: pointer;">生成拣货单</a>
@@ -229,6 +230,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
                     <a id="print-setup" style="cursor: pointer;">打印调整</a>
                 </#if>
                 <a id="paper-setup" style="cursor: pointer;">纸张设置</a>
+                <button id="rollback" style="cursor: pointer;">批量返回</button>
             </#if>
         </#if>
     </div>

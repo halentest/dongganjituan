@@ -618,6 +618,8 @@ public class TradeActionController {
                             tradeService.submit(id, eh, needCheck);
                         } else if("find-goods".equals(action)) {
                             tradeService.findGoods(id, eh);
+                        } else if("rollback".equals(action)) {
+                            tradeService.rollback(id, eh);
                         }
                         if(StringUtils.isNotBlank(eh.getErrorInfo())) {
                             errorInfoBuilder.append(id).append(":").append(eh.getErrorInfo()).append("\r\n");

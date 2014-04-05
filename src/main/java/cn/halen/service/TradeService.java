@@ -355,6 +355,19 @@ public class TradeService {
 		return myTradeMapper.updateMyTrade(t) > 0;
 	}
 
+    @Transactional(rollbackFor=Exception.class)
+    public boolean rollback(String id, ErrorInfoHolder holder) {
+        MyTrade t = myTradeMapper.selectById(id);
+        if(TradeStatus.WaitFind.getStatus().equals(t.getStatus())) {
+            t.setStatus(TradeStatus.WaitSend.getStatus());
+            return myTradeMapper.updateMyTrade(t) > 0;
+        } else if(TradeStatus.WaitOut.getStatus().equals(t.getStatus())) {
+            t.setStatus(TradeStatus.WaitFind.getStatus());
+            return myTradeMapper.updateMyTrade(t) > 0;
+        }
+        return false;
+    }
+
     /**
      * 发货
      * 1，修改trade和order的状态为待买家收货

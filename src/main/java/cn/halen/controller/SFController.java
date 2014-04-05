@@ -227,7 +227,8 @@ public class SFController {
         builder.append(trade.getState()).append(" ").append(trade.getCity())
                 .append(" ").append(trade.getDistrict()).append(" ").append(trade.getAddress())
                 .append(" ").append(trade.getName())
-                .append(" ").append(trade.getMobile());
+                .append(" ").append(trade.getMobile())
+                .append(" ").append(trade.getPhone());
         valueMap2.put("EXT_ADDRESSEE_INFO", builder.toString());
 
         // 付款方式
