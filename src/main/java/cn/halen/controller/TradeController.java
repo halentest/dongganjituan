@@ -68,28 +68,28 @@ public class TradeController {
 	//private static final String REDIS_DISTRIBUTOR_LIST = "redis:distributor:list";
 
     @RequestMapping(value="trade/report")
-    public void sendReport(Model model, HttpServletResponse response, @RequestParam(required = false) String date) throws IOException {
+    public void sendReport(Model model, HttpServletResponse response, @RequestParam(required = false) String startDate) throws IOException {
         response.setCharacterEncoding("gb2312");
         response.setContentType("multipart/form-data");
 
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat format1 = new SimpleDateFormat("MM/dd/yyyy");
-        if(StringUtils.isNotBlank(date)) {
+        if(StringUtils.isNotBlank(startDate)) {
             try {
-                cal.setTime(format1.parse(date));
+                cal.setTime(format1.parse(startDate));
             } catch (ParseException e) {
             }
+        } else {
+            cal.setTime(new Date());
         }
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         Date start = cal.getTime();
-        cal.add(Calendar.DAY_OF_MONTH, 1);
-        Date end = cal.getTime();
 
-        List<MyTrade> list = tradeMapper.listSendTrade(start, end);
+        List<MyTrade> list = tradeMapper.listSendTrade(start);
 
         SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String fileName = "send-report-" + format.format(start) + ".csv";
