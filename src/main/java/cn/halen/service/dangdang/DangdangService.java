@@ -309,6 +309,7 @@ public class DangdangService {
         }
 
         String resp = urlRequest(urlBuilder.toString());
+        log.info(resp);
         //解析结果
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = null;
