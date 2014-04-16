@@ -72,7 +72,7 @@ js=["trade_list.js", "pagination.js", "jquery.jqpagination.min.js", "jquery.cook
 
                 <#if CURRENT_USER.type=="WareHouse">
                     <form action="${rc.contextPath}/trade/report" method="get" style="display: inline;">
-                        <input name="date" class="easyui-datebox" type="input" style="width:100px;">
+                        <input name="startDate" class="easyui-datebox" type="input" style="width:100px;">
                         <input type="submit" value="下载已发货订单"/>
                     </form>
                 </#if>
