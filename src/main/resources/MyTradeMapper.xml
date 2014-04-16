@@ -267,7 +267,7 @@
         from
         (select * from trade2
         <where>
-            <if test="start_send_time != null and end_send_time != null">
+            <if test="start_send_time != null">
                 send_time>'${start_send_time}'
             </if>
             <if test="sellerNickList != null">
