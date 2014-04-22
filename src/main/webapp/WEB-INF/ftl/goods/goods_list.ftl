@@ -96,7 +96,7 @@
                         </#if>
                         <#if CURRENT_USER.type=="GoodsManager">
                                 class="can-change-store"
-                            data-saved="${savedQ}" data-origin="${map2[key2][key3]}"
+                            data-saved="${savedQ?c}" data-origin="${map2[key2][key3]}"
                         </#if>
                         >
                         <#if savedQ != actualQ>
