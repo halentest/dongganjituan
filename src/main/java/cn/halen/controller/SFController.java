@@ -303,8 +303,8 @@ public class SFController {
         String printDate = format.format(new Date());
         g2.drawString(printDate, 300, 640);
 
-        g2.setFont(new Font("黑体", Font.BOLD, 280));
-        g2.drawString("E", 330, 200);
+//        g2.setFont(new Font("黑体", Font.BOLD, 280));
+//        g2.drawString("E", 330, 200);
 
         g2.setFont(new Font("黑体", Font.BOLD, 180));
         int left = 800;
