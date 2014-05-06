@@ -306,8 +306,8 @@ function CreatePrintPage(delivery, sender, from, from_company, from_address, sen
     LODOP.ADD_PRINT_TEXTA("text12", 10,350,500,200,print_time);
     LODOP.SET_PRINT_STYLEA(0,"FontSize",25);
     if(delivery=="顺丰速运") {
-        LODOP.ADD_PRINT_TEXTA("text13", 100,350,200,200,"电商特惠");
-        LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
+//        LODOP.ADD_PRINT_TEXTA("text13", 100,350,200,200,"电商特惠");
+//        LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
         LODOP.ADD_PRINT_TEXTA("text14", 20,350,200,200,"5953028933");
         LODOP.SET_PRINT_STYLEA(0,"FontSize",30);
         LODOP.ADD_PRINT_TEXTA("text15", 50,350,200,200,"集团客户");

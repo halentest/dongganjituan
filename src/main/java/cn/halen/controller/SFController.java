@@ -262,8 +262,8 @@ public class SFController {
 //        valueMap2.put("cons_name", StringUtils.isBlank(trade.getCargo())?cargoBuilder.toString() : trade.getCargo());
 
         valueMap2.put("waybillCount", trade.getParcel_quantity());
-        String expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
-        valueMap2.put("expressType", expressType);
+//        String expressType = configurationMapper.selectByKey1("default", "express_type", "3").getValue();
+//        valueMap2.put("expressType", expressType);
 //        valueMap2.put("total_amount", "合计");
         valueMap2.put("custCode", yuejie);
 //        valueMap2.put("total_amount2", "合计2");
@@ -271,12 +271,12 @@ public class SFController {
         GenerationWaybillImage.generationImageA5(valueMap2, path + ".png");
 
         //添加电商特惠
-        String s = "电商特惠";
-        if("1".equals(expressType)) {
-            s = "标准快递";
-        } else if("2".equals(expressType)) {
-            s = "顺丰特惠";
-        }
+//        String s = "电商特惠";
+//        if("1".equals(expressType)) {
+//            s = "标准快递";
+//        } else if("2".equals(expressType)) {
+//            s = "顺丰特惠";
+//        }
 
         File file = new File(path + ".png");
 
@@ -294,7 +294,7 @@ public class SFController {
 //        g2.clearRect(0, 0, width, height);
         g2.setPaint(Color.black);
 
-        g2.drawString(s, 800, 640);
+//        g2.drawString(s, 800, 640);
 
         g2.drawString("电子秤 集团客户", 760, 1170);
 
