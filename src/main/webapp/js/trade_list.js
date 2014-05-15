@@ -485,7 +485,7 @@ $('#sf-print').click(function() {
             for(var i in arr) {
                 if(arr[i].length>0) {
                     LODOP.NewPage();
-                    LODOP.ADD_PRINT_IMAGE(10,10,1138,1610,"<img border='0' src='/" + arr[i] + "'/>");
+                    LODOP.ADD_PRINT_IMAGE(10,10,width,height,"<img border='0' src='/" + arr[i] + "'/>");
                     LODOP.SET_PRINT_STYLEA(0,"Stretch",2);
                 }
             }
