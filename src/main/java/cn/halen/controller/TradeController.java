@@ -390,7 +390,7 @@ public class TradeController {
 		long totalCount = tradeMapper.countTrade(sellerNickList, name, tid, statusList, isSubmit, isRefund, isSend, cancelList, isFinish, delivery, startTime, endTime, deliveryNumber,
                 null, null, null, null);
 		model.addAttribute("totalCount", totalCount);
-        int pageSize = 25;
+        int pageSize = 100;
         if("true".equals(map)) {
             pageSize = 10;
         }

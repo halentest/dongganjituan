@@ -333,6 +333,10 @@ $('#print-setup').click(function() {
         bg = "/img/kuaidi/ems_jingji2.jpg";
     } else if(delivery=="圆通速递") {
         bg = "/img/kuaidi/yuantong-new.jpg";
+    } else if(delivery=="优速快递") {
+        bg = "/img/kuaidi/yousu.jpg";
+    } else {
+        alert("联系管理员");
     }
 
     LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
