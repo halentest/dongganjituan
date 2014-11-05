@@ -914,6 +914,7 @@ public class DangdangService {
 
         g2.drawRect(x + 60, y + 770, 110, 40);
         g2.drawString("商家编号", x + 70, y + 798);
+        g2.drawString("", x + 175, y + 798);
         g2.drawRect(x + 170, y + 770, 160, 40);
         g2.drawRect(x + 330, y + 770, 110, 40);
         g2.drawString("取货日期", x + 340, y + 798);
@@ -932,7 +933,7 @@ public class DangdangService {
         g2.drawRect(x + 330, y + 810, 110, 80);
         g2.drawString("联系电话", x + 340, y + 855);
         g2.drawRect(x + 440, y + 810, 200, 80);
-        g2.drawString("0595-86093983", x + 450, y + 855);
+        g2.drawString("0595-88809316", x + 450, y + 855);
     }
 
     private void barcode(int x, int y, Graphics2D g2, CourierReceiptDetail detail) throws Exception {
