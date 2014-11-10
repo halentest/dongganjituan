@@ -393,6 +393,8 @@ public class TradeController {
         int pageSize = 100;
         if("true".equals(map)) {
             pageSize = 10;
+        } else if("顺丰速运".equals(delivery)) {
+            pageSize = 30;
         }
 		Paging paging = new Paging(intPage, pageSize, totalCount);
 		List<MyTrade> list = Collections.emptyList();
