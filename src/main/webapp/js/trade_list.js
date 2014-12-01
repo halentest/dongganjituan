@@ -335,7 +335,9 @@ $('#print-setup').click(function() {
         bg = "/img/kuaidi/yuantong-new.jpg";
     } else if(delivery=="优速快递") {
         bg = "/img/kuaidi/yousu.jpg";
-    } else {
+    } else if(delivery=="百世汇通") {
+     bg = "/img/kuaidi/bsht.jpg";
+  } else {
         alert("联系管理员");
     }
 
