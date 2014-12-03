@@ -702,11 +702,14 @@ public class TradeService {
                 color = sku.getColor();
                 size = sku.getSize();
             } else {
+                log.info("order.getOuterSkuid is {}", order.getOuterSkuId());
                 String skuStr = order.getSkuPropertiesName(); //颜色分类:玫红色;尺码:35
-                String[] properties = skuStr.split(";");
-                color = properties[0].split(":")[1];
-                size = properties[1].split(":")[1];
-                sku = mySkuMapper.select(order.getOuterIid(), color, size);
+                if(null != skuStr) {
+                    String[] properties = skuStr.split(";");
+                    color = properties[0].split(":")[1];
+                    size = properties[1].split(":")[1];
+                    sku = mySkuMapper.select(order.getOuterIid(), color, size);
+                }
             }
 
 			if(null == sku) {  //检查sku是否存在
